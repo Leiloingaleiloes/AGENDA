@@ -113,7 +113,9 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-t
 
 /* calendário */
 .topr { display: flex; align-items: center; gap: 16px; }
-.calbtn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; margin: -6px 0 20px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); cursor: pointer; font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .05em; }
+.calbtns { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: -6px 0 20px; }
+#calAtual { grid-column: span 4; }
+.calbtn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); cursor: pointer; font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .05em; }
 .calbtn svg { width: 20px; height: 20px; }
 .calbtn:hover { border-color: var(--muted); }
 .calbtn[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
@@ -131,7 +133,8 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-t
 .cev { display: flex; align-items: flex-start; gap: 4px; text-decoration: none; background: var(--c); color: var(--on-brand); border-radius: 5px; padding: 3px 6px; font-size: .74rem; line-height: 1.2; min-width: 0; }
 .cev:hover { filter: brightness(1.1); }
 .cev .t { font-weight: 700; font-variant-numeric: tabular-nums; flex: none; }
-.cev .c { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-width: 0; }
+.cev { flex-wrap: wrap; align-items: center; }
+.cev .c { flex: 1 1 100%; overflow-wrap: anywhere; min-width: 0; }
 .cev .ic { flex: none; width: 18px; height: 18px; background: var(--surface); border-radius: 4px; display: inline-flex; }
 .cev .ic svg { width: 18px; height: 18px; }
 .cev.alert { box-shadow: inset 0 0 0 2px var(--alert); }
@@ -174,7 +177,7 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
   .layout { grid-template-columns: minmax(0, 1fr); }
   aside { position: static; max-height: none; }
 }
-@media (max-width: 900px) { .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); } .calbtns { grid-template-columns: repeat(3, minmax(0, 1fr)); } #calAtual { grid-column: span 2; } }
 @media (max-width: 640px) {
   .topbar-in, .layout, footer { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
   .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -195,7 +198,7 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 <div class="layout">
   <main>
     <div class="tabs" id="tabs" role="group" aria-label="Escolher leiloeira"></div>
-    <button class="calbtn" type="button" id="viewbtn" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5"/></svg><span>Calendário do mês</span></button>
+    <div class="calbtns"><button class="calbtn" type="button" id="calAtual" data-off="0" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5"/></svg><span>Calendário do mês</span></button><button class="calbtn" type="button" id="calProx" data-off="1" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5"/></svg><span>Próximo mês</span></button></div>
     <div id="list"><div class="empty">Carregando a agenda…</div></div>
     <div id="cal" hidden></div>
   </main>
@@ -419,7 +422,7 @@ function renderCal() {
   }
   const titulo = `${MESES[mesCal.getMonth()]} ${mesCal.getFullYear()}`;
   $("cal").innerHTML = `<div class="calbar"><span class="mt">${titulo}</span>
-    <div class="calnav"><button class="btn" type="button" data-m="-1" aria-label="Mês anterior">‹ Anterior</button><button class="btn" type="button" data-m="0">Hoje</button><button class="btn" type="button" data-m="1" aria-label="Próximo mês">Próximo ›</button></div></div>
+    <div class="calnav"><button class="btn" type="button" data-lista="1">Voltar para a lista</button><button class="btn" type="button" data-m="-1" aria-label="Mês anterior">‹ Anterior</button><button class="btn" type="button" data-m="0">Hoje</button><button class="btn" type="button" data-m="1" aria-label="Próximo mês">Próximo ›</button></div></div>
     <div class="calwrap"><div class="calgrid">${cells}</div></div>
     <div class="callegend">${LEILOEIRAS.map((x) => `<span><i style="--c:${x.c}"></i>${esc(x.n)}</span>`).join("")}<span>Clique num leilão para abrir a transmissão ou a página.</span></div>`;
 }
@@ -427,8 +430,14 @@ function renderCal() {
 function renderMain() {
   $("list").hidden = vista !== "lista";
   $("cal").hidden = vista !== "cal";
-  $("viewbtn").setAttribute("aria-pressed", vista === "cal");
-  $("viewbtn").querySelector("span").textContent = vista === "cal" ? "Voltar para a lista" : "Calendário do mês";
+  const h = hoje();
+  if (vista === "cal" && !mesCal) mesCal = new Date(h.getFullYear(), h.getMonth(), 1);
+  [["calAtual", 0], ["calProx", 1]].forEach(([id, off]) => {
+    const m = new Date(h.getFullYear(), h.getMonth() + off, 1);
+    const on = vista === "cal" && mesCal && mesCal.getTime() === m.getTime();
+    $(id).setAttribute("aria-pressed", on);
+    $(id).querySelector("span").textContent = off === 0 ? `Calendário de ${MESES[m.getMonth()]}` : MESES[m.getMonth()];
+  });
   if (vista === "cal") renderCal(); else renderList();
 }
 
@@ -444,17 +453,22 @@ $("list").addEventListener("click", (e) => {
   const b = e.target.closest("[data-sel]"); if (!b) return;
   selId = b.dataset.sel; renderList(); renderWx();
 });
-$("viewbtn").addEventListener("click", () => {
-  vista = vista === "cal" ? "lista" : "cal";
+document.querySelector(".calbtns").addEventListener("click", (e) => {
+  const b = e.target.closest(".calbtn"); if (!b) return;
+  const h = hoje();
+  const m = new Date(h.getFullYear(), h.getMonth() + Number(b.dataset.off), 1);
+  if (vista === "cal" && mesCal && mesCal.getTime() === m.getTime()) vista = "lista";
+  else { vista = "cal"; mesCal = m; }
   try { localStorage.setItem("vista", vista); } catch (err) {}
   renderMain();
 });
 $("cal").addEventListener("click", (e) => {
+  if (e.target.closest("[data-lista]")) { vista = "lista"; try { localStorage.setItem("vista", vista); } catch (err) {} renderMain(); return; }
   const b = e.target.closest("[data-m]"); if (!b) return;
   const m = Number(b.dataset.m);
   if (m === 0) { const h = hoje(); mesCal = new Date(h.getFullYear(), h.getMonth(), 1); }
   else mesCal = new Date(mesCal.getFullYear(), mesCal.getMonth() + m, 1);
-  renderCal();
+  renderMain();
 });
 $("others").addEventListener("click", (e) => {
   const b = e.target.closest(".cbtn"); if (!b) return;
