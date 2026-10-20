@@ -2,6 +2,6 @@
 
 Agenda das leiloeiras (Leiloingá, Gralha Azul, Panorama, Pampa Remates) com links do YouTube e previsão do tempo nos leilões da Leiloingá.
 
-Site: https://leiloingaleiloes.github.io/agenda/
+Site: https://leiloingaleiloes.github.io/AGENDA/
 
 Os dados ficam em `agenda.json`, atualizado todo dia de manhã.
