@@ -114,9 +114,9 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-t
 /* calendário */
 .topr { display: flex; align-items: center; gap: 16px; }
 .calbtns { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: -6px 0 20px; }
-#calAtual { grid-column: span 4; }
+.calpair { grid-column: span 4; display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
 .calbtn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); cursor: pointer; font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .05em; }
-.calbtn svg { width: 20px; height: 20px; }
+.calbtn svg { width: 20px; height: 20px; flex: none; }
 .calbtn:hover { border-color: var(--muted); }
 .calbtn[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 .calbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
@@ -177,7 +177,7 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
   .layout { grid-template-columns: minmax(0, 1fr); }
   aside { position: static; max-height: none; }
 }
-@media (max-width: 900px) { .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); } .calbtns { grid-template-columns: repeat(3, minmax(0, 1fr)); } #calAtual { grid-column: span 2; } }
+@media (max-width: 900px) { .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); } .calbtns { grid-template-columns: repeat(3, minmax(0, 1fr)); } .calpair { grid-column: span 2; } }
 @media (max-width: 640px) {
   .topbar-in, .layout, footer { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
   .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -198,7 +198,7 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 <div class="layout">
   <main>
     <div class="tabs" id="tabs" role="group" aria-label="Escolher leiloeira"></div>
-    <div class="calbtns"><button class="calbtn" type="button" id="calAtual" data-off="0" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5"/></svg><span>Calendário do mês</span></button><button class="calbtn" type="button" id="calProx" data-off="1" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5"/></svg><span>Próximo mês</span></button></div>
+    <div class="calbtns"><div class="calpair"><button class="calbtn" type="button" id="verLista" aria-pressed="true"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 4h9M5.5 8h9M5.5 12h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="2.2" cy="4" r="1.1" fill="currentColor"/><circle cx="2.2" cy="8" r="1.1" fill="currentColor"/><circle cx="2.2" cy="12" r="1.1" fill="currentColor"/></svg><span>Lista</span></button><button class="calbtn" type="button" id="calAtual" data-off="0" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5"/></svg><span>Calendário do mês</span></button></div><button class="calbtn" type="button" id="calProx" data-off="1" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5"/></svg><span>Próximo mês</span></button></div>
     <div id="list"><div class="empty">Carregando a agenda…</div></div>
     <div id="cal" hidden></div>
   </main>
@@ -432,6 +432,7 @@ function renderMain() {
   $("cal").hidden = vista !== "cal";
   const h = hoje();
   if (vista === "cal" && !mesCal) mesCal = new Date(h.getFullYear(), h.getMonth(), 1);
+  $("verLista").setAttribute("aria-pressed", vista === "lista");
   [["calAtual", 0], ["calProx", 1]].forEach(([id, off]) => {
     const m = new Date(h.getFullYear(), h.getMonth() + off, 1);
     const on = vista === "cal" && mesCal && mesCal.getTime() === m.getTime();
@@ -455,10 +456,10 @@ $("list").addEventListener("click", (e) => {
 });
 document.querySelector(".calbtns").addEventListener("click", (e) => {
   const b = e.target.closest(".calbtn"); if (!b) return;
+  if (b.id === "verLista") { vista = "lista"; try { localStorage.setItem("vista", vista); } catch (err) {} renderMain(); return; }
   const h = hoje();
   const m = new Date(h.getFullYear(), h.getMonth() + Number(b.dataset.off), 1);
-  if (vista === "cal" && mesCal && mesCal.getTime() === m.getTime()) vista = "lista";
-  else { vista = "cal"; mesCal = m; }
+  vista = "cal"; mesCal = m;
   try { localStorage.setItem("vista", vista); } catch (err) {}
   renderMain();
 });
