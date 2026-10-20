@@ -218,7 +218,7 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
   </aside>
 </div>
 
-<footer>Atualizado todo dia de manhã a partir dos sites das leiloeiras e do Climatempo. "Assistir" abre a transmissão do leilão; quando ela ainda não foi publicada, o botão "YouTube" leva ao canal da leiloeira.</footer>
+<footer>Atualizado todo dia de manhã a partir dos sites das leiloeiras e do Climatempo. "Assistir" abre o vídeo do leilão. "Ao vivo" abre a transmissão que estiver no ar no canal da leiloeira, ou a próxima agendada.</footer>
 
 <script>
 const LEILOEIRAS = [
@@ -267,7 +267,8 @@ const nossos = () => futuros(D.leiloes.filter((l) => l.leiloeira === "Leiloingá
 
 function videoBtn(l) {
   if (l.youtube) return `<a class="btn yt" href="${esc(l.youtube)}" target="_blank" rel="noopener">${ICON.play}Assistir</a>`;
-  if (l.canal) return `<a class="btn" href="${esc(l.canal)}" target="_blank" rel="noopener">${ICON.play}YouTube</a>`;
+  // sem link do vídeo: /live do canal abre direto a transmissão ao vivo ou a próxima agendada
+  if (l.canal) return `<a class="btn" href="${esc(l.canal.replace(/\/+$/, "") + "/live")}" target="_blank" rel="noopener" title="Abre a transmissão ao vivo do canal (ou a próxima agendada)">${ICON.play}Ao vivo</a>`;
   return "";
 }
 
