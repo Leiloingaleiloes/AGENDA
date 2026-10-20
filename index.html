@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2E6A3E">
+<title>Agenda de Leilões</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-title" content="Agenda Leilões">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}*{box-sizing:border-box}body{margin:0}
+.wrap{padding-top:max(20px, env(safe-area-inset-top))}
+/* Layout: coluna única de leitura rápida — Leiloingá + tempo no topo, agenda geral agrupada por dia abaixo */
+:root {
+  --bg: #F4F6F2;
+  --surface: #FFFFFF;
+  --line: #DCE2D8;
+  --fg: #1B231E;
+  --muted: #5C6A60;
+  --accent: #2E6A3E;
+  --accent-soft: #E3EEE4;
+  --warn: #9A5B00;
+  --warn-soft: #FBEFD9;
+  --alert: #B42318;
+  --alert-soft: #FDE7E4;
+  --c-leiloinga: #2E6A3E;
+  --c-gralha: #1F5FA8;
+  --c-panorama: #8A4B12;
+  --c-pampa: #6B3F8F;
+  --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Barlow", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121815; --surface: #1A221D; --line: #2C3830; --fg: #E6ECE7; --muted: #9AA89E;
+  --accent: #7CC48C; --accent-soft: #1F3326; --warn: #F0B45A; --warn-soft: #3A2C14;
+  --alert: #FF8A7A; --alert-soft: #3D1E1A;
+  --c-leiloinga: #7CC48C; --c-gralha: #7FB2F0; --c-panorama: #E0A46A; --c-pampa: #C4A0E6;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121815; --surface: #1A221D; --line: #2C3830; --fg: #E6ECE7; --muted: #9AA89E;
+  --accent: #7CC48C; --accent-soft: #1F3326; --warn: #F0B45A; --warn-soft: #3A2C14;
+  --alert: #FF8A7A; --alert-soft: #3D1E1A;
+  --c-leiloinga: #7CC48C; --c-gralha: #7FB2F0; --c-panorama: #E0A46A; --c-pampa: #C4A0E6;
+  color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; display: flex; flex-direction: column; gap: 28px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: 2.1rem; letter-spacing: .01em; margin: 0; line-height: 1; text-transform: uppercase; }
+.stamp { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 10px; color: var(--muted); }
+section { min-width: 0; }
+
+/* Leiloingá */
+.ours { display: flex; flex-direction: column; gap: 10px; }
+.our-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; grid-template-columns: 64px 1fr; gap: 4px 14px; }
+.our-card.has-alert { border-color: var(--alert); }
+.date { grid-row: span 3; text-align: center; font-family: var(--f-display); line-height: 1; padding-top: 2px; }
+.date .d { font-size: 2.1rem; font-weight: 700; display: block; font-variant-numeric: tabular-nums; }
+.date .m { font-size: .9rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.date .w { font-size: .8rem; text-transform: uppercase; color: var(--muted); display: block; margin-top: 3px; }
+.ttl { font-weight: 600; font-size: 1.02rem; min-width: 0; }
+.where { color: var(--muted); font-size: .9rem; }
+.wx { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: .9rem; font-variant-numeric: tabular-nums; margin-top: 4px; }
+.wx .t { font-weight: 600; }
+.wx .sum { color: var(--muted); flex-basis: 100%; }
+.wx .na { color: var(--muted); font-style: italic; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
+.pill.ok { background: var(--accent-soft); color: var(--accent); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.alert { background: var(--alert-soft); color: var(--alert); }
+.alertline { grid-column: 2; background: var(--alert-soft); color: var(--alert); font-size: .88rem; padding: 6px 10px; border-radius: 6px; margin-top: 6px; }
+.actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+/* botões */
+.btn { display: inline-flex; align-items: center; gap: 6px; font: 600 .86rem var(--f-body); text-decoration: none; padding: 7px 12px; border-radius: 7px; border: 1px solid var(--line); color: var(--fg); background: var(--surface); }
+.btn.yt { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.btn:focus-visible, .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn svg { width: 14px; height: 14px; flex: none; }
+
+/* filtros */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.chip { font: 600 .84rem var(--f-body); padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+/* agenda geral */
+.day { margin-bottom: 14px; }
+.dayhead { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .04em; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: 54px 1fr auto; gap: 2px 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.row .hr { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted); }
+.row .info { min-width: 0; }
+.row .nm { font-weight: 500; }
+.row .sub { font-size: .85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.tag { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.tag[data-l="Leiloingá"] { color: var(--c-leiloinga); }
+.tag[data-l="Gralha Azul"] { color: var(--c-gralha); }
+.tag[data-l="Panorama"] { color: var(--c-panorama); }
+.tag[data-l="Pampa Remates"] { color: var(--c-pampa); }
+@media (max-width: 520px) {
+  .row { grid-template-columns: 46px 1fr; }
+  .row .btn { grid-column: 2; justify-self: start; margin-top: 4px; }
+}
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; padding: 18px; color: var(--muted); }
+footer { font-size: .8rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Agenda de Leilões</h1>
+    <span class="stamp" id="stamp">Carregando…</span>
+  </header>
+
+  <section>
+    <h2>Leiloingá · próximos leilões e tempo</h2>
+    <div class="ours" id="ours"><div class="empty">Carregando a agenda da Leiloingá…</div></div>
+  </section>
+
+  <section>
+    <h2>Todas as leiloeiras</h2>
+    <div class="chips" id="chips" role="group" aria-label="Filtrar por leiloeira"></div>
+    <div id="agenda"><div class="empty">Carregando a agenda…</div></div>
+  </section>
+
+  <footer id="foot">Atualizado todo dia de manhã a partir dos sites das leiloeiras e do Climatempo. Sem link do YouTube ainda? O botão leva ao canal da leiloeira até a transmissão ser publicada.</footer>
+</div>
+
+<script>
+const LEILOEIRAS = ["Leiloingá", "Gralha Azul", "Panorama", "Pampa Remates"];
+const MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const DIAS = ["dom","seg","ter","qua","qui","sex","sáb"];
+const PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg>';
+
+let leiloes = [], previsao = {}, status = null;
+let filtro = "Todas";
+try { filtro = localStorage.getItem("filtroLeiloeira") || "Todas"; } catch (e) {}
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const parseD = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
+const hoje = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+
+function futuros(list) {
+  const h = hoje();
+  return list.filter((l) => l.data && parseD(l.data) >= h)
+    .sort((a, b) => (a.data + (a.hora || "99")).localeCompare(b.data + (b.hora || "99")));
+}
+
+function videoBtn(l) {
+  if (l.youtube) return `<a class="btn yt" href="${esc(l.youtube)}" target="_blank" rel="noopener">${PLAY}Assistir no YouTube</a>`;
+  if (l.canal) return `<a class="btn" href="${esc(l.canal)}" target="_blank" rel="noopener">${PLAY}Canal da leiloeira</a>`;
+  return "";
+}
+
+function wxBlock(l) {
+  const p = previsao[l.id];
+  if (!p) return `<div class="wx"><span class="na">Previsão ainda indisponível para esta data.</span></div>`;
+  if (p.indisponivel) return `<div class="wx"><span class="na">${esc(p.resumo || "Previsão sai cerca de 15 dias antes.")}</span></div>`;
+  const pct = p.chuvaPct;
+  let cls = "ok", txt = "Tempo bom";
+  if (p.alerta) { cls = "alert"; txt = "Atenção"; }
+  else if (pct != null && pct >= 40) { cls = "warn"; txt = "Chance de chuva"; }
+  const parts = [`<span class="pill ${cls}">${txt}</span>`];
+  if (p.min != null && p.max != null) parts.push(`<span class="t">${p.min}° a ${p.max}°</span>`);
+  if (pct != null) parts.push(`<span>Chuva ${pct}%${p.chuvaMm != null ? " · " + p.chuvaMm + " mm" : ""}</span>`);
+  else if (p.chuvaMm != null) parts.push(`<span>Chuva ${p.chuvaMm} mm</span>`);
+  if (p.rajada != null) parts.push(`<span>Rajadas ${p.rajada} km/h</span>`);
+  if (p.resumo) parts.push(`<span class="sum">${esc(p.resumo)}</span>`);
+  return `<div class="wx">${parts.join("")}</div>`;
+}
+
+function renderOurs() {
+  const list = futuros(leiloes.filter((l) => l.leiloeira === "Leiloingá"));
+  if (!list.length) { $("ours").innerHTML = `<div class="empty">Nenhum leilão da Leiloingá na agenda.</div>`; return; }
+  $("ours").innerHTML = list.map((l) => {
+    const d = parseD(l.data); const p = previsao[l.id];
+    const alert = p && p.alerta ? `<div class="alertline">${esc(p.alerta)}</div>` : "";
+    return `<article class="our-card${alert ? " has-alert" : ""}">
+      <div class="date"><span class="d">${String(d.getDate()).padStart(2, "0")}</span><span class="m">${MESES[d.getMonth()]}</span><span class="w">${DIAS[d.getDay()]}${l.hora ? " · " + esc(l.hora) : ""}</span></div>
+      <div class="ttl">${esc(l.nome)}</div>
+      <div class="where">${esc(l.cidade)}${l.local ? " · " + esc(l.local) : ""}</div>
+      ${wxBlock(l)}
+      ${alert}
+      <div class="actions">${videoBtn(l)}${l.pagina ? `<a class="btn" href="${esc(l.pagina)}" target="_blank" rel="noopener">Página do leilão</a>` : ""}</div>
+    </article>`;
+  }).join("");
+}
+
+function renderChips() {
+  $("chips").innerHTML = ["Todas", ...LEILOEIRAS].map((n) =>
+    `<button class="chip" type="button" data-f="${esc(n)}" aria-pressed="${n === filtro}">${esc(n)}</button>`).join("");
+}
+
+function renderAgenda() {
+  let list = futuros(leiloes);
+  if (filtro !== "Todas") list = list.filter((l) => l.leiloeira === filtro);
+  if (!list.length) { $("agenda").innerHTML = `<div class="empty">Nenhum leilão encontrado${filtro !== "Todas" ? " para " + esc(filtro) : ""}.</div>`; return; }
+  const byDay = {};
+  list.forEach((l) => (byDay[l.data] ||= []).push(l));
+  $("agenda").innerHTML = Object.keys(byDay).map((k) => {
+    const d = parseD(k);
+    const head = `${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`;
+    return `<div class="day"><div class="dayhead">${head}</div>${byDay[k].map((l) => `
+      <div class="row">
+        <span class="hr">${esc(l.hora || "—")}</span>
+        <div class="info"><div class="nm">${esc(l.nome)}</div>
+          <div class="sub"><span class="tag" data-l="${esc(l.leiloeira)}">${esc(l.leiloeira)}</span><span>${esc(l.cidade)}</span></div></div>
+        ${videoBtn(l)}
+      </div>`).join("")}</div>`;
+  }).join("");
+}
+
+function renderStamp() {
+  if (!status || !status.atualizadoEm) { $("stamp").textContent = ""; return; }
+  const t = new Date(status.atualizadoEm);
+  $("stamp").textContent = "Atualizado " + t.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+function renderAll() { renderOurs(); renderChips(); renderAgenda(); renderStamp(); }
+
+$("chips").addEventListener("click", (e) => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  filtro = b.dataset.f;
+  try { localStorage.setItem("filtroLeiloeira", filtro); } catch (err) {}
+  renderChips(); renderAgenda();
+});
+
+renderChips();
+
+async function carregar() {
+  try {
+    const r = await fetch("agenda.json?t=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    leiloes = j.leiloes || [];
+    previsao = j.previsao || {};
+    status = { atualizadoEm: j.atualizadoEm };
+    renderAll();
+  } catch (e) {
+    $("stamp").textContent = "Não foi possível carregar a agenda. Puxe para atualizar.";
+  }
+}
+carregar();
+document.addEventListener("visibilitychange", () => { if (!document.hidden) carregar(); });
+</script>
+</body>
+</html>
