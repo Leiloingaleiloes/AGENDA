@@ -89,6 +89,15 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-t
 .wxb .v span { display: block; font-size: .76rem; color: var(--muted); }
 .wxb .v span.r { color: var(--rain); }
 .wxb.na { opacity: .7; }
+.item.ours .dt { grid-row: span 2; }
+.strip { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; margin-top: 6px; }
+.mini { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 64px; padding: 5px 4px; border-radius: 8px; background: var(--surface-2); font-variant-numeric: tabular-nums; line-height: 1.15; text-align: center; }
+.mini svg { width: 24px; height: 24px; }
+.mini .dd { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.mini .tt { font-size: .76rem; font-weight: 600; }
+.mini .rr { font-size: .68rem; color: var(--rain); }
+.mini.na { opacity: .6; }
+.strip .wxb { border: 1px solid var(--line); }
 .item.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .item.has-alert .flag { display: inline-block; }
 .item { border-left: 5px solid var(--c); }
@@ -182,7 +191,7 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
   .topbar-in, .layout, footer { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
   .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .item { grid-template-columns: 52px minmax(0, 1fr); }
-  .acts, .wxb, .item > .nowx { grid-column: 2; justify-content: flex-start; }
+  .acts, .item > .nowx, .strip { grid-column: 2; justify-content: flex-start; }
   .wxb { justify-self: start; }
 }
 @media (prefers-reduced-motion: no-preference) { .tab, .btn, .cbtn { transition: background-color .15s, border-color .15s; } }
@@ -283,6 +292,18 @@ function wxBadge(l) {
   const chuva = x.chuvaPct != null ? `${x.chuvaPct}% de chuva` : (x.chuvaMm ? `${x.chuvaMm} mm` : "");
   return `<div class="wxb" title="${esc(x.resumo || "")}">${iconFor(x.resumo)}<div class="v">${x.min != null ? `<b>${x.min}° / ${x.max}°</b>` : ""}<span>${esc(rotulo(x.resumo))}</span>${chuva ? `<span class="r">${chuva}</span>` : ""}</div></div>`;
 }
+function miniDia(l, off) {
+  const dt = addDays(parseD(l.data), off), k = iso(dt);
+  const serie = (D.clima[l.cidade] && D.clima[l.cidade].dias) || [];
+  const x = serie.find((d) => d.data === k);
+  const lab = `<span class="dd">${DIAS[dt.getDay()]} ${dt.getDate()}</span>`;
+  if (!x) return `<div class="mini na" title="Sem previsão ainda">${lab}${ICON.none}<span class="tt">—</span></div>`;
+  const chuva = x.chuvaPct != null ? `${x.chuvaPct}%` : (x.chuvaMm ? `${x.chuvaMm} mm` : "");
+  return `<div class="mini" title="${esc(ddmm(dt) + " · " + (x.resumo || ""))}">${lab}${iconFor(x.resumo)}<span class="tt">${x.min != null ? `${x.min}°/${x.max}°` : "—"}</span>${chuva ? `<span class="rr">${chuva}</span>` : ""}</div>`;
+}
+function faixaTempo(l) {
+  return `<div class="strip">${miniDia(l, -3)}${miniDia(l, -2)}${miniDia(l, -1)}${wxBadge(l)}${miniDia(l, 1)}</div>`;
+}
 function rotulo(t) {
   const s = (t || "").toLowerCase();
   if (/severo|temporal/.test(s)) return "Temporal";
@@ -306,7 +327,7 @@ function renderList() {
     const ours = l.leiloeira === "Leiloingá";
     const p = ours ? D.previsao[l.id] : null;
     const alert = p && p.alerta;
-    html += `<article class="item${ours && l.id === selId ? " sel" : ""}${alert ? " has-alert" : ""}" style="--c:${COR[l.leiloeira] || "var(--c-todas)"}">
+    html += `<article class="item${ours ? " ours" : ""}${ours && l.id === selId ? " sel" : ""}${alert ? " has-alert" : ""}" style="--c:${COR[l.leiloeira] || "var(--c-todas)"}">
       <div class="dt"><span class="d">${String(d.getDate()).padStart(2, "0")}</span><span class="w">${DIAS[d.getDay()]}</span></div>
       <div class="info">
         ${todas ? `<span class="brand">${esc(l.leiloeira)}</span>` : ""}
@@ -314,12 +335,13 @@ function renderList() {
         <div class="sub"><span>${esc(l.cidade)}${l.local ? " · " + esc(l.local) : ""}</span>${l.hora ? `<span><b>${esc(l.hora)}</b></span>` : ""}</div>
         ${alert ? `<span class="flag">Alerta de tempo</span>` : ""}
       </div>
-      ${ours ? wxBadge(l) : `<div class="nowx"></div>`}
+      <div class="nowx"></div>
       <div class="acts">
         ${ours ? `<button class="btn wx" type="button" data-sel="${esc(l.id)}" aria-pressed="${l.id === selId}">Ver tempo</button>` : ""}
         ${videoBtn(l)}
         ${l.pagina ? `<a class="btn" href="${esc(l.pagina)}" target="_blank" rel="noopener">Página</a>` : ""}
       </div>
+      ${ours ? faixaTempo(l) : ""}
     </article>`;
   }
   $("list").innerHTML = html + `</div>`;
