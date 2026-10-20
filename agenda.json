@@ -515,5 +515,378 @@
    "indisponivel": true,
    "resumo": "A previsão sai cerca de 15 dias antes; entra aqui automaticamente."
   }
+ },
+ "clima": {
+  "Laranjeiras do Sul-PR": {
+   "fonte": "Climatempo",
+   "atualizado": "2026-10-20T16:30:00-03:00",
+   "dias": [
+    {
+     "data": "2026-10-20",
+     "min": 9,
+     "max": 26,
+     "chuvaMm": 0,
+     "chuvaPct": null,
+     "rajada": 26,
+     "resumo": "Sol, nevoeiro ao amanhecer; nuvens à tarde"
+    },
+    {
+     "data": "2026-10-21",
+     "min": 15,
+     "max": 21,
+     "chuvaMm": 7.4,
+     "chuvaPct": 85,
+     "rajada": 35,
+     "resumo": "Sol e pancadas de chuva de dia e à noite"
+    },
+    {
+     "data": "2026-10-22",
+     "min": 16,
+     "max": 20,
+     "chuvaMm": 49.1,
+     "chuvaPct": 97,
+     "rajada": 34,
+     "resumo": "Chuva forte de manhã; pancadas até a noite"
+    },
+    {
+     "data": "2026-10-23",
+     "min": 17,
+     "max": 19,
+     "chuvaMm": 21.1,
+     "chuvaPct": 98,
+     "rajada": 60,
+     "resumo": "Chuva forte de manhã; pancadas até a noite"
+    },
+    {
+     "data": "2026-10-24",
+     "min": 18,
+     "max": 23,
+     "chuvaMm": 28.4,
+     "chuvaPct": 89,
+     "rajada": 61,
+     "resumo": "Chuva forte de manhã; sol e pancadas à tarde"
+    },
+    {
+     "data": "2026-10-25",
+     "min": 13,
+     "max": 20,
+     "chuvaMm": 40.4,
+     "chuvaPct": 93,
+     "rajada": 67,
+     "resumo": "Chuvoso o dia todo"
+    },
+    {
+     "data": "2026-10-26",
+     "min": 11,
+     "max": 20,
+     "chuvaMm": 0,
+     "chuvaPct": null,
+     "rajada": 55,
+     "resumo": "Sol com muitas nuvens"
+    },
+    {
+     "data": "2026-10-27",
+     "min": 11,
+     "max": 22,
+     "chuvaMm": 0,
+     "chuvaPct": null,
+     "rajada": 37,
+     "resumo": "Sol com muitas nuvens"
+    },
+    {
+     "data": "2026-10-28",
+     "min": 14,
+     "max": 20,
+     "chuvaMm": 5.6,
+     "chuvaPct": 67,
+     "rajada": 33,
+     "resumo": "Pancadas de chuva à tarde e à noite"
+    },
+    {
+     "data": "2026-10-29",
+     "min": 16,
+     "max": 20,
+     "chuvaMm": 42.4,
+     "chuvaPct": 65,
+     "rajada": 40,
+     "resumo": "Chuva forte de manhã; pancadas até a noite"
+    },
+    {
+     "data": "2026-10-30",
+     "min": 16,
+     "max": 25,
+     "chuvaMm": 1.9,
+     "chuvaPct": 66,
+     "rajada": 28,
+     "resumo": "Sol e pancadas à tarde e à noite"
+    },
+    {
+     "data": "2026-10-31",
+     "min": 16,
+     "max": 26,
+     "chuvaMm": 0.2,
+     "chuvaPct": 56,
+     "rajada": 29,
+     "resumo": "Sol de manhã; pancadas à tarde e à noite"
+    },
+    {
+     "data": "2026-11-01",
+     "min": 16,
+     "max": 27,
+     "chuvaMm": 0,
+     "chuvaPct": null,
+     "rajada": 32,
+     "resumo": "Sol o dia todo"
+    },
+    {
+     "data": "2026-11-02",
+     "min": 16,
+     "max": 27,
+     "chuvaMm": 0,
+     "chuvaPct": null,
+     "rajada": 36,
+     "resumo": "Sol; nuvens a partir da tarde"
+    }
+   ]
+  },
+  "Guaraniaçu-PR": {
+   "fonte": "Climatempo",
+   "atualizado": "2026-10-20T16:30:00-03:00",
+   "dias": [
+    {
+     "data": "2026-10-20",
+     "min": 11,
+     "max": 26,
+     "chuvaMm": 0,
+     "chuvaPct": null,
+     "rajada": 29,
+     "resumo": "Sol, nevoeiro ao amanhecer; nuvens à tarde"
+    },
+    {
+     "data": "2026-10-21",
+     "min": 17,
+     "max": 21,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Pancadas e trovoadas de manhã; sol e chuva à tarde"
+    },
+    {
+     "data": "2026-10-22",
+     "min": 17,
+     "max": 20,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Chuva e trovoadas; sol e chuva à tarde"
+    },
+    {
+     "data": "2026-10-23",
+     "min": 17,
+     "max": 21,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Chuva de manhã; sol e chuva à tarde"
+    },
+    {
+     "data": "2026-10-24",
+     "min": 19,
+     "max": 23,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Chuva e trovoadas de manhã; sol e chuva à tarde"
+    },
+    {
+     "data": "2026-10-25",
+     "min": 14,
+     "max": 20,
+     "chuvaMm": 55.5,
+     "chuvaPct": 90,
+     "rajada": 64,
+     "resumo": "Chuvoso o dia todo"
+    },
+    {
+     "data": "2026-10-26",
+     "min": 11,
+     "max": 20,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Sol com algumas nuvens"
+    },
+    {
+     "data": "2026-10-27",
+     "min": 11,
+     "max": 21,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Sol com muitas nuvens"
+    },
+    {
+     "data": "2026-10-28",
+     "min": 16,
+     "max": 19,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Sol com nuvens; chuva à tarde e à noite"
+    },
+    {
+     "data": "2026-10-29",
+     "min": 17,
+     "max": 20,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Chuva e trovoadas de madrugada; sol e chuva"
+    },
+    {
+     "data": "2026-10-30",
+     "min": 17,
+     "max": 25,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Sol; pancadas e trovoadas à noite"
+    },
+    {
+     "data": "2026-10-31",
+     "min": 17,
+     "max": 25,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Sol de manhã; pancadas à tarde"
+    },
+    {
+     "data": "2026-11-01",
+     "min": 16,
+     "max": 27,
+     "chuvaMm": null,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Sol o dia todo"
+    },
+    {
+     "data": "2026-11-02",
+     "min": 17,
+     "max": 26,
+     "chuvaMm": 0,
+     "chuvaPct": null,
+     "rajada": 35,
+     "resumo": "Sol; nuvens a partir da tarde"
+    }
+   ]
+  },
+  "Palmital-PR": {
+   "fonte": "Climatempo",
+   "atualizado": "2026-10-20T16:30:00-03:00",
+   "dias": [
+    {
+     "data": "2026-10-20",
+     "min": 8,
+     "max": 26,
+     "chuvaMm": 0,
+     "chuvaPct": null,
+     "rajada": 29,
+     "resumo": "Sol, nevoeiro ao amanhecer; nuvens à tarde"
+    },
+    {
+     "data": "2026-10-21",
+     "min": 15,
+     "max": 22,
+     "chuvaMm": 10.9,
+     "chuvaPct": 81,
+     "rajada": 35,
+     "resumo": "Sol e chuva rápida de dia e à noite"
+    },
+    {
+     "data": "2026-10-22",
+     "min": 18,
+     "max": 21,
+     "chuvaMm": 13.7,
+     "chuvaPct": 96,
+     "rajada": 37,
+     "resumo": "Chuva com trovoadas de dia e à noite"
+    },
+    {
+     "data": "2026-10-23",
+     "min": 19,
+     "max": 21,
+     "chuvaMm": 26.9,
+     "chuvaPct": 97,
+     "rajada": 43,
+     "resumo": "Chuva de manhã; temporal à tarde"
+    },
+    {
+     "data": "2026-10-24",
+     "min": 19,
+     "max": 22,
+     "chuvaMm": 59.7,
+     "chuvaPct": 93,
+     "rajada": 40,
+     "resumo": "Tempo severo: chuva forte e trovoadas"
+    }
+   ]
+  },
+  "Marquinho-PR": {
+   "fonte": "Climatempo",
+   "atualizado": "2026-10-20T16:30:00-03:00",
+   "dias": [
+    {
+     "data": "2026-10-20",
+     "min": 9,
+     "max": 26,
+     "chuvaMm": 0,
+     "chuvaPct": null,
+     "rajada": 26,
+     "resumo": "Sol; nuvens à tarde, sem chuva"
+    },
+    {
+     "data": "2026-10-21",
+     "min": 15,
+     "max": 22,
+     "chuvaMm": 12.9,
+     "chuvaPct": 84,
+     "rajada": 36,
+     "resumo": "Pancadas e trovoadas; temporal à noite"
+    },
+    {
+     "data": "2026-10-22",
+     "min": 17,
+     "max": 20,
+     "chuvaMm": 6.9,
+     "chuvaPct": 96,
+     "rajada": 33,
+     "resumo": "Chuva rápida de dia e à noite"
+    },
+    {
+     "data": "2026-10-23",
+     "min": 18,
+     "max": 20,
+     "chuvaMm": 25.0,
+     "chuvaPct": 97,
+     "rajada": 41,
+     "resumo": "Chuva de manhã; temporal à tarde"
+    },
+    {
+     "data": "2026-10-24",
+     "min": 19,
+     "max": 21,
+     "chuvaMm": 62.3,
+     "chuvaPct": 94,
+     "rajada": 38,
+     "resumo": "Tempo severo: chuva forte e trovoadas"
+    }
+   ]
+  },
+  "Ivaiporã-PR": {
+   "fonte": "Climatempo",
+   "atualizado": "2026-10-20T16:30:00-03:00",
+   "dias": []
+  }
  }
 }

@@ -9,26 +9,25 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
-<meta name="apple-mobile-web-app-title" content="Agenda Leilões">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
-html{-webkit-text-size-adjust:100%}*{box-sizing:border-box}body{margin:0}
-.wrap{padding-top:max(20px, env(safe-area-inset-top))}
-/* Layout: coluna única de leitura rápida — Leiloingá + tempo no topo, agenda geral agrupada por dia abaixo */
+/* Layout: site de computador — faixa superior, agenda por leiloeira à esquerda, painel de tempo fixo à direita */
 :root {
-  --bg: #F4F6F2;
+  --bg: #EEF1EC;
   --surface: #FFFFFF;
-  --line: #DCE2D8;
+  --surface-2: #F6F8F4;
+  --line: #D8DFD3;
   --fg: #1B231E;
   --muted: #5C6A60;
   --accent: #2E6A3E;
-  --accent-soft: #E3EEE4;
+  --accent-soft: #E1EDE3;
   --warn: #9A5B00;
   --warn-soft: #FBEFD9;
   --alert: #B42318;
   --alert-soft: #FDE7E4;
+  --rain: #2F6FB0;
+  --sun: #C98A00;
   --c-leiloinga: #2E6A3E;
   --c-gralha: #1F5FA8;
   --c-panorama: #8A4B12;
@@ -37,214 +36,313 @@ html{-webkit-text-size-adjust:100%}*{box-sizing:border-box}body{margin:0}
   --f-body: "Barlow", "Segoe UI", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #121815; --surface: #1A221D; --line: #2C3830; --fg: #E6ECE7; --muted: #9AA89E;
+  --bg: #111613; --surface: #19201B; --surface-2: #1E2620; --line: #2C3830; --fg: #E6ECE7; --muted: #9AA89E;
   --accent: #7CC48C; --accent-soft: #1F3326; --warn: #F0B45A; --warn-soft: #3A2C14;
-  --alert: #FF8A7A; --alert-soft: #3D1E1A;
+  --alert: #FF8A7A; --alert-soft: #3D1E1A; --rain: #7FB2F0; --sun: #F0C45A;
   --c-leiloinga: #7CC48C; --c-gralha: #7FB2F0; --c-panorama: #E0A46A; --c-pampa: #C4A0E6;
   color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #121815; --surface: #1A221D; --line: #2C3830; --fg: #E6ECE7; --muted: #9AA89E;
+  --bg: #111613; --surface: #19201B; --surface-2: #1E2620; --line: #2C3830; --fg: #E6ECE7; --muted: #9AA89E;
   --accent: #7CC48C; --accent-soft: #1F3326; --warn: #F0B45A; --warn-soft: #3A2C14;
-  --alert: #FF8A7A; --alert-soft: #3D1E1A;
+  --alert: #FF8A7A; --alert-soft: #3D1E1A; --rain: #7FB2F0; --sun: #F0C45A;
   --c-leiloinga: #7CC48C; --c-gralha: #7FB2F0; --c-panorama: #E0A46A; --c-pampa: #C4A0E6;
   color-scheme: dark }
-body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.45; }
-.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; display: flex; flex-direction: column; gap: 28px; }
-header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
-h1 { font-family: var(--f-display); font-weight: 700; font-size: 2.1rem; letter-spacing: .01em; margin: 0; line-height: 1; text-transform: uppercase; }
-.stamp { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 10px; color: var(--muted); }
-section { min-width: 0; }
 
-/* Leiloingá */
-.ours { display: flex; flex-direction: column; gap: 10px; }
-.our-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; grid-template-columns: 64px 1fr; gap: 4px 14px; }
-.our-card.has-alert { border-color: var(--alert); }
-.date { grid-row: span 3; text-align: center; font-family: var(--f-display); line-height: 1; padding-top: 2px; }
-.date .d { font-size: 2.1rem; font-weight: 700; display: block; font-variant-numeric: tabular-nums; }
-.date .m { font-size: .9rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.date .w { font-size: .8rem; text-transform: uppercase; color: var(--muted); display: block; margin-top: 3px; }
-.ttl { font-weight: 600; font-size: 1.02rem; min-width: 0; }
-.where { color: var(--muted); font-size: .9rem; }
-.wx { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: .9rem; font-variant-numeric: tabular-nums; margin-top: 4px; }
-.wx .t { font-weight: 600; }
-.wx .sum { color: var(--muted); flex-basis: 100%; }
-.wx .na { color: var(--muted); font-style: italic; }
-.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
-.pill.ok { background: var(--accent-soft); color: var(--accent); }
-.pill.warn { background: var(--warn-soft); color: var(--warn); }
-.pill.alert { background: var(--alert-soft); color: var(--alert); }
-.alertline { grid-column: 2; background: var(--alert-soft); color: var(--alert); font-size: .88rem; padding: 6px 10px; border-radius: 6px; margin-top: 6px; }
-.actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.45; }
+a { color: inherit; }
+button { font: inherit; }
 
-/* botões */
-.btn { display: inline-flex; align-items: center; gap: 6px; font: 600 .86rem var(--f-body); text-decoration: none; padding: 7px 12px; border-radius: 7px; border: 1px solid var(--line); color: var(--fg); background: var(--surface); }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+.topbar-in { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-block: 18px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: 2.2rem; letter-spacing: .01em; margin: 0; line-height: 1; text-transform: uppercase; }
+h1 span { color: var(--accent); }
+.stamp { font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.layout { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-block: 24px 56px; display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 28px; align-items: start; }
+main, aside { min-width: 0; }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .07em; margin: 0 0 12px; color: var(--muted); }
+
+/* botões de leiloeira */
+.tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+.tab { text-align: left; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); cursor: pointer; display: flex; flex-direction: column; gap: 2px; border-top: 4px solid var(--c); }
+.tab .n { font-family: var(--f-display); font-weight: 700; font-size: 1.25rem; text-transform: uppercase; letter-spacing: .02em; line-height: 1.1; }
+.tab .c { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tab[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); border-top-color: var(--c); }
+.tab[aria-pressed="true"] .c { color: var(--bg); opacity: .75; }
+.tab:hover { border-color: var(--c); }
+
+/* lista de leilões */
+.month { font-family: var(--f-display); font-weight: 600; font-size: 1rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 18px 0 8px; }
+.month:first-child { margin-top: 0; }
+.list { display: flex; flex-direction: column; gap: 8px; }
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 4px 18px; align-items: center; }
+.item.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.item.has-alert { border-left: 4px solid var(--alert); }
+.dt { text-align: center; font-family: var(--f-display); line-height: 1; }
+.dt .d { font-size: 2rem; font-weight: 700; display: block; font-variant-numeric: tabular-nums; }
+.dt .w { font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.info { min-width: 0; }
+.nm { font-weight: 600; font-size: 1.02rem; }
+.sub { font-size: .88rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 14px; }
+.sub b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.flag { display: inline-block; margin-top: 4px; font-size: .8rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--alert-soft); color: var(--alert); }
+.acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; font: 600 .86rem var(--f-body); text-decoration: none; padding: 8px 12px; border-radius: 7px; border: 1px solid var(--line); color: var(--fg); background: var(--surface); cursor: pointer; white-space: nowrap; }
+.btn:hover { border-color: var(--muted); }
 .btn.yt { background: var(--accent); border-color: var(--accent); color: var(--surface); }
-.btn:focus-visible, .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn.wx[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 .btn svg { width: 14px; height: 14px; flex: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; padding: 20px; color: var(--muted); }
 
-/* filtros */
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-.chip { font: 600 .84rem var(--f-body); padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
-.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+/* painel de tempo */
+aside { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+.wx-head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
+.wx-head .lbl { font-size: .8rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; }
+.wx-head .ev { font-family: var(--f-display); font-size: 1.35rem; font-weight: 700; line-height: 1.15; }
+.alertbox { background: var(--alert-soft); color: var(--alert); font-size: .88rem; padding: 8px 10px; border-radius: 8px; margin-bottom: 14px; }
+.city { margin-bottom: 18px; }
+.city-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding-bottom: 6px; border-bottom: 2px solid var(--fg); margin-bottom: 4px; }
+.city-h .cn { font-family: var(--f-display); font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: .03em; }
+.city-h .tg { font-size: .76rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.day { display: grid; grid-template-columns: 58px 22px minmax(0, 1fr) auto; gap: 0 8px; align-items: center; padding: 6px 4px; border-bottom: 1px solid var(--line); font-size: .86rem; }
+.day:last-child { border-bottom: 0; }
+.day.ev { background: var(--accent-soft); border-radius: 6px; border-bottom-color: transparent; }
+.day .dd { font-variant-numeric: tabular-nums; line-height: 1.15; }
+.day .dd b { display: block; font-weight: 600; }
+.day .dd span { font-size: .74rem; color: var(--muted); text-transform: uppercase; }
+.day .ic svg { width: 20px; height: 20px; display: block; }
+.day .ds { color: var(--muted); font-size: .8rem; line-height: 1.25; min-width: 0; }
+.day .nums { text-align: right; font-variant-numeric: tabular-nums; line-height: 1.25; white-space: nowrap; }
+.day .nums .t { font-weight: 600; }
+.day .nums .r { font-size: .78rem; color: var(--rain); }
+.day .nums .g { font-size: .74rem; color: var(--muted); }
+.day.na .ds { font-style: italic; }
+.evtag { font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+.others h3 { font-family: var(--f-display); font-weight: 600; font-size: .95rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 6px 0 8px; }
+.cbtns { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.cbtn { font: 600 .82rem var(--f-body); padding: 6px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg); cursor: pointer; }
+.cbtn[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.src { font-size: .76rem; color: var(--muted); margin-top: 8px; }
 
-/* agenda geral */
-.day { margin-bottom: 14px; }
-.dayhead { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .04em; padding: 6px 0; border-bottom: 1px solid var(--line); }
-.row { display: grid; grid-template-columns: 54px 1fr auto; gap: 2px 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
-.row .hr { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted); }
-.row .info { min-width: 0; }
-.row .nm { font-weight: 500; }
-.row .sub { font-size: .85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
-.tag { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
-.tag[data-l="Leiloingá"] { color: var(--c-leiloinga); }
-.tag[data-l="Gralha Azul"] { color: var(--c-gralha); }
-.tag[data-l="Panorama"] { color: var(--c-panorama); }
-.tag[data-l="Pampa Remates"] { color: var(--c-pampa); }
-@media (max-width: 520px) {
-  .row { grid-template-columns: 46px 1fr; }
-  .row .btn { grid-column: 2; justify-self: start; margin-top: 4px; }
+footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-block: 0 32px; font-size: .8rem; color: var(--muted); }
+
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  aside { position: static; max-height: none; }
 }
-.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; padding: 18px; color: var(--muted); }
-footer { font-size: .8rem; color: var(--muted); }
+@media (max-width: 640px) {
+  .topbar-in, .layout, footer { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .item { grid-template-columns: 52px minmax(0, 1fr); }
+  .acts { grid-column: 2; justify-content: flex-start; }
+}
+@media (prefers-reduced-motion: no-preference) { .tab, .btn, .cbtn { transition: background-color .15s, border-color .15s; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Agenda de Leilões</h1>
-    <span class="stamp" id="stamp">Carregando…</span>
-  </header>
+<div class="topbar"><div class="topbar-in">
+  <h1>Agenda de <span>Leilões</span></h1>
+  <span class="stamp" id="stamp">Carregando…</span>
+</div></div>
 
-  <section>
-    <h2>Leiloingá · próximos leilões e tempo</h2>
-    <div class="ours" id="ours"><div class="empty">Carregando a agenda da Leiloingá…</div></div>
-  </section>
+<div class="layout">
+  <main>
+    <div class="tabs" id="tabs" role="group" aria-label="Escolher leiloeira"></div>
+    <div id="list"><div class="empty">Carregando a agenda…</div></div>
+  </main>
 
-  <section>
-    <h2>Todas as leiloeiras</h2>
-    <div class="chips" id="chips" role="group" aria-label="Filtrar por leiloeira"></div>
-    <div id="agenda"><div class="empty">Carregando a agenda…</div></div>
-  </section>
-
-  <footer id="foot">Atualizado todo dia de manhã a partir dos sites das leiloeiras e do Climatempo. Sem link do YouTube ainda? O botão leva ao canal da leiloeira até a transmissão ser publicada.</footer>
+  <aside aria-label="Previsão do tempo">
+    <div id="wx"><div class="empty">Carregando a previsão…</div></div>
+    <div class="others" id="others"></div>
+  </aside>
 </div>
 
-<script>
-const LEILOEIRAS = ["Leiloingá", "Gralha Azul", "Panorama", "Pampa Remates"];
-const MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
-const DIAS = ["dom","seg","ter","qua","qui","sex","sáb"];
-const PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg>';
+<footer>Atualizado todo dia de manhã a partir dos sites das leiloeiras e do Climatempo. Quando a transmissão ainda não foi publicada, o botão leva ao canal da leiloeira no YouTube.</footer>
 
-let leiloes = [], previsao = {}, status = null;
-let filtro = "Todas";
-try { filtro = localStorage.getItem("filtroLeiloeira") || "Todas"; } catch (e) {}
+<script>
+const LEILOEIRAS = [
+  { n: "Leiloingá", c: "var(--c-leiloinga)" },
+  { n: "Gralha Azul", c: "var(--c-gralha)" },
+  { n: "Panorama", c: "var(--c-panorama)" },
+  { n: "Pampa Remates", c: "var(--c-pampa)" },
+];
+const BASE = "Laranjeiras do Sul-PR";
+const MESES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const DIAS = ["dom","seg","ter","qua","qui","sex","sáb"];
+const ICON = {
+  play: '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="var(--sun)"/><g stroke="var(--sun)" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg>',
+  cloud: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--muted)" d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.1 4.5 4.5 0 0 0 7 18z"/></svg>',
+  partly: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3.6" fill="var(--sun)"/><path fill="var(--muted)" d="M9 19h9a3.5 3.5 0 0 0 .5-6.96A5 5 0 0 0 9 11.2 4 4 0 0 0 9 19z"/></svg>',
+  rain: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--muted)" d="M7 14h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 5.1 4.5 4.5 0 0 0 7 14z"/><g stroke="var(--rain)" stroke-width="2" stroke-linecap="round"><path d="M8 17l-1 3M12 17l-1 3M16 17l-1 3"/></g></svg>',
+  storm: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--muted)" d="M7 13h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 4.1 4.5 4.5 0 0 0 7 13z"/><path fill="var(--sun)" d="M12.5 13l-3 5h2.5l-1 4 4-6h-2.6l1.6-3z"/></svg>',
+  none: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2" fill="var(--line)"/></svg>',
+};
+
+let D = { leiloes: [], previsao: {}, clima: {} };
+let aba = "Leiloingá";
+let selId = null;       // leilão da Leiloingá escolhido para o painel de tempo
+let outraCidade = null; // cidade extra escolhida nos botões de baixo
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const parseD = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
+const iso = (dt) => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+const addDays = (dt, n) => { const x = new Date(dt); x.setDate(x.getDate() + n); return x; };
 const hoje = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const ddmm = (dt) => `${String(dt.getDate()).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(2, "0")}`;
 
 function futuros(list) {
   const h = hoje();
   return list.filter((l) => l.data && parseD(l.data) >= h)
     .sort((a, b) => (a.data + (a.hora || "99")).localeCompare(b.data + (b.hora || "99")));
 }
+const nossos = () => futuros(D.leiloes.filter((l) => l.leiloeira === "Leiloingá"));
 
 function videoBtn(l) {
-  if (l.youtube) return `<a class="btn yt" href="${esc(l.youtube)}" target="_blank" rel="noopener">${PLAY}Assistir no YouTube</a>`;
-  if (l.canal) return `<a class="btn" href="${esc(l.canal)}" target="_blank" rel="noopener">${PLAY}Canal da leiloeira</a>`;
+  if (l.youtube) return `<a class="btn yt" href="${esc(l.youtube)}" target="_blank" rel="noopener">${ICON.play}Assistir no YouTube</a>`;
+  if (l.canal) return `<a class="btn" href="${esc(l.canal)}" target="_blank" rel="noopener">${ICON.play}Canal no YouTube</a>`;
   return "";
 }
 
-function wxBlock(l) {
-  const p = previsao[l.id];
-  if (!p) return `<div class="wx"><span class="na">Previsão ainda indisponível para esta data.</span></div>`;
-  if (p.indisponivel) return `<div class="wx"><span class="na">${esc(p.resumo || "Previsão sai cerca de 15 dias antes.")}</span></div>`;
-  const pct = p.chuvaPct;
-  let cls = "ok", txt = "Tempo bom";
-  if (p.alerta) { cls = "alert"; txt = "Atenção"; }
-  else if (pct != null && pct >= 40) { cls = "warn"; txt = "Chance de chuva"; }
-  const parts = [`<span class="pill ${cls}">${txt}</span>`];
-  if (p.min != null && p.max != null) parts.push(`<span class="t">${p.min}° a ${p.max}°</span>`);
-  if (pct != null) parts.push(`<span>Chuva ${pct}%${p.chuvaMm != null ? " · " + p.chuvaMm + " mm" : ""}</span>`);
-  else if (p.chuvaMm != null) parts.push(`<span>Chuva ${p.chuvaMm} mm</span>`);
-  if (p.rajada != null) parts.push(`<span>Rajadas ${p.rajada} km/h</span>`);
-  if (p.resumo) parts.push(`<span class="sum">${esc(p.resumo)}</span>`);
-  return `<div class="wx">${parts.join("")}</div>`;
-}
-
-function renderOurs() {
-  const list = futuros(leiloes.filter((l) => l.leiloeira === "Leiloingá"));
-  if (!list.length) { $("ours").innerHTML = `<div class="empty">Nenhum leilão da Leiloingá na agenda.</div>`; return; }
-  $("ours").innerHTML = list.map((l) => {
-    const d = parseD(l.data); const p = previsao[l.id];
-    const alert = p && p.alerta ? `<div class="alertline">${esc(p.alerta)}</div>` : "";
-    return `<article class="our-card${alert ? " has-alert" : ""}">
-      <div class="date"><span class="d">${String(d.getDate()).padStart(2, "0")}</span><span class="m">${MESES[d.getMonth()]}</span><span class="w">${DIAS[d.getDay()]}${l.hora ? " · " + esc(l.hora) : ""}</span></div>
-      <div class="ttl">${esc(l.nome)}</div>
-      <div class="where">${esc(l.cidade)}${l.local ? " · " + esc(l.local) : ""}</div>
-      ${wxBlock(l)}
-      ${alert}
-      <div class="actions">${videoBtn(l)}${l.pagina ? `<a class="btn" href="${esc(l.pagina)}" target="_blank" rel="noopener">Página do leilão</a>` : ""}</div>
-    </article>`;
+function renderTabs() {
+  $("tabs").innerHTML = LEILOEIRAS.map(({ n, c }) => {
+    const qtd = futuros(D.leiloes.filter((l) => l.leiloeira === n)).length;
+    return `<button class="tab" type="button" style="--c:${c}" data-a="${esc(n)}" aria-pressed="${n === aba}">
+      <span class="n">${esc(n)}</span><span class="c">${qtd} ${qtd === 1 ? "leilão" : "leilões"}</span></button>`;
   }).join("");
 }
 
-function renderChips() {
-  $("chips").innerHTML = ["Todas", ...LEILOEIRAS].map((n) =>
-    `<button class="chip" type="button" data-f="${esc(n)}" aria-pressed="${n === filtro}">${esc(n)}</button>`).join("");
-}
-
-function renderAgenda() {
-  let list = futuros(leiloes);
-  if (filtro !== "Todas") list = list.filter((l) => l.leiloeira === filtro);
-  if (!list.length) { $("agenda").innerHTML = `<div class="empty">Nenhum leilão encontrado${filtro !== "Todas" ? " para " + esc(filtro) : ""}.</div>`; return; }
-  const byDay = {};
-  list.forEach((l) => (byDay[l.data] ||= []).push(l));
-  $("agenda").innerHTML = Object.keys(byDay).map((k) => {
-    const d = parseD(k);
-    const head = `${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`;
-    return `<div class="day"><div class="dayhead">${head}</div>${byDay[k].map((l) => `
-      <div class="row">
-        <span class="hr">${esc(l.hora || "—")}</span>
-        <div class="info"><div class="nm">${esc(l.nome)}</div>
-          <div class="sub"><span class="tag" data-l="${esc(l.leiloeira)}">${esc(l.leiloeira)}</span><span>${esc(l.cidade)}</span></div></div>
+function renderList() {
+  const list = futuros(D.leiloes.filter((l) => l.leiloeira === aba));
+  if (!list.length) { $("list").innerHTML = `<div class="empty">Nenhum leilão da ${esc(aba)} na agenda.</div>`; return; }
+  let html = "", mes = "";
+  for (const l of list) {
+    const d = parseD(l.data);
+    const m = `${MESES[d.getMonth()]} ${d.getFullYear()}`;
+    if (m !== mes) { if (mes) html += `</div>`; html += `<div class="month">${m}</div><div class="list">`; mes = m; }
+    const ours = l.leiloeira === "Leiloingá";
+    const p = ours ? D.previsao[l.id] : null;
+    const alert = p && p.alerta;
+    html += `<article class="item${ours && l.id === selId ? " sel" : ""}${alert ? " has-alert" : ""}">
+      <div class="dt"><span class="d">${String(d.getDate()).padStart(2, "0")}</span><span class="w">${DIAS[d.getDay()]}</span></div>
+      <div class="info">
+        <div class="nm">${esc(l.nome)}</div>
+        <div class="sub"><span>${esc(l.cidade)}${l.local ? " · " + esc(l.local) : ""}</span>${l.hora ? `<span><b>${esc(l.hora)}</b></span>` : ""}</div>
+        ${alert ? `<span class="flag">Alerta de tempo</span>` : ""}
+      </div>
+      <div class="acts">
+        ${ours ? `<button class="btn wx" type="button" data-sel="${esc(l.id)}" aria-pressed="${l.id === selId}">Ver tempo</button>` : ""}
         ${videoBtn(l)}
-      </div>`).join("")}</div>`;
-  }).join("");
+        ${l.pagina ? `<a class="btn" href="${esc(l.pagina)}" target="_blank" rel="noopener">Página</a>` : ""}
+      </div>
+    </article>`;
+  }
+  $("list").innerHTML = html + `</div>`;
 }
 
-function renderStamp() {
-  if (!status || !status.atualizadoEm) { $("stamp").textContent = ""; return; }
-  const t = new Date(status.atualizadoEm);
-  $("stamp").textContent = "Atualizado " + t.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+function iconFor(t) {
+  const s = (t || "").toLowerCase();
+  if (/trovoad|temporal|severo/.test(s)) return ICON.storm;
+  if (/chuv|pancad/.test(s)) return ICON.rain;
+  if (/nublad|encobert/.test(s)) return ICON.cloud;
+  if (/nuvens/.test(s)) return ICON.partly;
+  if (/sol/.test(s)) return ICON.sun;
+  return ICON.cloud;
 }
 
-function renderAll() { renderOurs(); renderChips(); renderAgenda(); renderStamp(); }
+// bloco de uma cidade: 7 dias antes do leilão até 1 dia depois (sem dias já passados)
+function cityBlock(cidade, evDate, tag) {
+  const serie = (D.clima[cidade] && D.clima[cidade].dias) || [];
+  const byDay = Object.fromEntries(serie.map((x) => [x.data, x]));
+  const ev = parseD(evDate), h = hoje();
+  let rows = "";
+  for (let i = -7; i <= 1; i++) {
+    const dt = addDays(ev, i);
+    if (dt < h) continue;
+    const x = byDay[iso(dt)];
+    const isEv = i === 0;
+    const label = `<div class="dd"><b>${ddmm(dt)}</b><span>${DIAS[dt.getDay()]}</span></div>`;
+    if (!x) {
+      rows += `<div class="day na${isEv ? " ev" : ""}">${label}<div class="ic">${ICON.none}</div><div class="ds">${isEv ? '<span class="evtag">Leilão · </span>' : ""}Sem previsão ainda</div><div class="nums"></div></div>`;
+      continue;
+    }
+    const chuva = x.chuvaPct != null ? `${x.chuvaPct}%${x.chuvaMm ? " · " + x.chuvaMm + " mm" : ""}` : (x.chuvaMm ? `${x.chuvaMm} mm` : "");
+    rows += `<div class="day${isEv ? " ev" : ""}">${label}
+      <div class="ic">${iconFor(x.resumo)}</div>
+      <div class="ds">${isEv ? '<span class="evtag">Leilão · </span>' : ""}${esc(x.resumo || "")}</div>
+      <div class="nums">${x.min != null ? `<div class="t">${x.min}° / ${x.max}°</div>` : ""}${chuva ? `<div class="r">${chuva}</div>` : ""}${x.rajada != null ? `<div class="g">rajadas ${x.rajada} km/h</div>` : ""}</div>
+    </div>`;
+  }
+  if (!rows) rows = `<div class="day na"><div></div><div></div><div class="ds">Período já passou.</div><div></div></div>`;
+  return `<div class="city"><div class="city-h"><span class="cn">${esc(cidade.replace(/-PR$/, ""))}</span><span class="tg">${esc(tag)}</span></div>${rows}</div>`;
+}
 
-$("chips").addEventListener("click", (e) => {
-  const b = e.target.closest(".chip"); if (!b) return;
-  filtro = b.dataset.f;
-  try { localStorage.setItem("filtroLeiloeira", filtro); } catch (err) {}
-  renderChips(); renderAgenda();
+function renderWx() {
+  const list = nossos();
+  if (!list.length) { $("wx").innerHTML = `<div class="empty">Nenhum leilão da Leiloingá na agenda.</div>`; $("others").innerHTML = ""; return; }
+  if (!list.find((l) => l.id === selId)) selId = list[0].id;
+  const l = list.find((x) => x.id === selId);
+  const d = parseD(l.data);
+  const p = D.previsao[l.id];
+  let html = `<div class="wx-head"><span class="lbl">Previsão do tempo · leilão Leiloingá</span>
+    <span class="ev">${esc(l.cidade.replace(/-PR$/, ""))} · ${DIAS[d.getDay()]} ${ddmm(d)}${l.hora ? " · " + esc(l.hora) : ""}</span></div>`;
+  if (p && p.alerta) html += `<div class="alertbox">${esc(p.alerta)}</div>`;
+  html += cityBlock(l.cidade, l.data, "cidade do leilão");
+  if (l.cidade !== BASE) html += cityBlock(BASE, l.data, "base da Leiloingá");
+  $("wx").innerHTML = html;
+
+  // outras cidades: demais cidades de leilões da Leiloingá, cada uma no período do seu próximo leilão
+  const vistas = new Set([l.cidade, BASE]);
+  const outras = [];
+  for (const x of list) if (!vistas.has(x.cidade)) { vistas.add(x.cidade); outras.push(x); }
+  if (!outras.length) { $("others").innerHTML = ""; return; }
+  if (outraCidade && !outras.find((x) => x.cidade === outraCidade)) outraCidade = null;
+  const sel = outras.find((x) => x.cidade === outraCidade);
+  $("others").innerHTML = `<h3>Outras cidades</h3>
+    <div class="cbtns">${outras.map((x) => `<button class="cbtn" type="button" data-c="${esc(x.cidade)}" aria-pressed="${x.cidade === outraCidade}">${esc(x.cidade.replace(/-PR$/, ""))} · ${ddmm(parseD(x.data))}</button>`).join("")}</div>
+    ${sel ? cityBlock(sel.cidade, sel.data, "leilão " + ddmm(parseD(sel.data))) : ""}
+    <div class="src">Fonte: Climatempo. A previsão de cada dia aparece cerca de 15 dias antes.</div>`;
+}
+
+function renderAll() { renderTabs(); renderList(); renderWx(); }
+
+$("tabs").addEventListener("click", (e) => {
+  const b = e.target.closest(".tab"); if (!b) return;
+  aba = b.dataset.a;
+  try { localStorage.setItem("aba", aba); } catch (err) {}
+  renderTabs(); renderList();
+});
+$("list").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-sel]"); if (!b) return;
+  selId = b.dataset.sel; renderList(); renderWx();
+});
+$("others").addEventListener("click", (e) => {
+  const b = e.target.closest(".cbtn"); if (!b) return;
+  outraCidade = outraCidade === b.dataset.c ? null : b.dataset.c; renderWx();
 });
 
-renderChips();
+try { const a = localStorage.getItem("aba"); if (LEILOEIRAS.some((x) => x.n === a)) aba = a; } catch (e) {}
 
 async function carregar() {
   try {
     const r = await fetch("agenda.json?t=" + Date.now(), { cache: "no-store" });
     if (!r.ok) throw new Error(r.status);
     const j = await r.json();
-    leiloes = j.leiloes || [];
-    previsao = j.previsao || {};
-    status = { atualizadoEm: j.atualizadoEm };
+    D = { leiloes: j.leiloes || [], previsao: j.previsao || {}, clima: j.clima || {} };
+    if (j.atualizadoEm) {
+      const t = new Date(j.atualizadoEm);
+      $("stamp").textContent = "Atualizado em " + t.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    }
     renderAll();
   } catch (e) {
-    $("stamp").textContent = "Não foi possível carregar a agenda. Puxe para atualizar.";
+    $("stamp").textContent = "Não foi possível carregar a agenda. Recarregue a página.";
   }
 }
+renderTabs();
 carregar();
 document.addEventListener("visibilitychange", () => { if (!document.hidden) carregar(); });
 </script>
