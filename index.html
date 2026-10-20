@@ -14,12 +14,12 @@
 <style>
 /* Layout: site de computador — faixa superior, agenda por leiloeira à esquerda, painel de tempo fixo à direita */
 :root {
-  --bg: #EEF1EC;
+  --bg: #EDEEF0;
   --surface: #FFFFFF;
-  --surface-2: #F6F8F4;
-  --line: #D8DFD3;
-  --fg: #1B231E;
-  --muted: #5C6A60;
+  --surface-2: #F5F6F7;
+  --line: #DADDE1;
+  --fg: #1D2024;
+  --muted: #5D636B;
   --accent: #2E6A3E;
   --accent-soft: #E1EDE3;
   --warn: #9A5B00;
@@ -34,20 +34,20 @@
   --c-leiloinga: #2E6A3E;
   --c-leiloinga-dark: #161B18;
   --c-gralha: #123E7A;
-  --c-panorama: #2B78C5;
+  --c-panorama: #0A8299;
   --c-pampa: #5B6E62;
-  --c-todas: #3F4A43;
+  --c-todas: #3E4349;
   --on-brand: #FFFFFF;
   --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
   --f-body: "Barlow", "Segoe UI", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #111613; --surface: #19201B; --surface-2: #1E2620; --line: #2C3830; --fg: #E6ECE7; --muted: #9AA89E;
+  --bg: #141517; --surface: #1C1E21; --surface-2: #222529; --line: #31353B; --fg: #E8EAED; --muted: #9DA3AB;
   --accent: #7CC48C; --accent-soft: #1F3326; --warn: #F0B45A; --warn-soft: #3A2C14;
   --alert: #FF8A7A; --alert-soft: #3D1E1A; --rain: #7FB2F0; --sun: #F0C45A; --cloud: #8D9A93; --cloud-2: #66736C;
   color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #111613; --surface: #19201B; --surface-2: #1E2620; --line: #2C3830; --fg: #E6ECE7; --muted: #9AA89E;
+  --bg: #141517; --surface: #1C1E21; --surface-2: #222529; --line: #31353B; --fg: #E8EAED; --muted: #9DA3AB;
   --accent: #7CC48C; --accent-soft: #1F3326; --warn: #F0B45A; --warn-soft: #3A2C14;
   --alert: #FF8A7A; --alert-soft: #3D1E1A; --rain: #7FB2F0; --sun: #F0C45A; --cloud: #8D9A93; --cloud-2: #66736C;
   color-scheme: dark }
@@ -113,7 +113,10 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-t
 
 /* calendário */
 .topr { display: flex; align-items: center; gap: 16px; }
-.viewbtn[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.calbtn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; margin: -6px 0 20px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); cursor: pointer; font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .05em; }
+.calbtn svg { width: 20px; height: 20px; }
+.calbtn:hover { border-color: var(--muted); }
+.calbtn[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 .calbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .calbar .mt { font-family: var(--f-display); font-weight: 700; font-size: 1.5rem; text-transform: uppercase; letter-spacing: .03em; }
 .calnav { display: flex; gap: 6px; }
@@ -186,12 +189,13 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 <div class="topbar"><div class="topbar-in">
   <h1>Agenda de <span>Leilões</span></h1>
   <div class="topr"><span class="stamp" id="stamp">Carregando…</span>
-  <button class="btn viewbtn" type="button" id="viewbtn" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5"/></svg><span>Calendário</span></button></div>
+</div>
 </div></div>
 
 <div class="layout">
   <main>
     <div class="tabs" id="tabs" role="group" aria-label="Escolher leiloeira"></div>
+    <button class="calbtn" type="button" id="viewbtn" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5"/></svg><span>Calendário do mês</span></button>
     <div id="list"><div class="empty">Carregando a agenda…</div></div>
     <div id="cal" hidden></div>
   </main>
@@ -424,7 +428,7 @@ function renderMain() {
   $("list").hidden = vista !== "lista";
   $("cal").hidden = vista !== "cal";
   $("viewbtn").setAttribute("aria-pressed", vista === "cal");
-  $("viewbtn").querySelector("span").textContent = vista === "cal" ? "Ver lista" : "Calendário";
+  $("viewbtn").querySelector("span").textContent = vista === "cal" ? "Voltar para a lista" : "Calendário do mês";
   if (vista === "cal") renderCal(); else renderList();
 }
 
