@@ -1,0 +1,1 @@
+Banners dos leilões da Leiloingá, nomeados pelo id do leilão (ex.: li-2026-10-24-guaraniacu.jpg).
