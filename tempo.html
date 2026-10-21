@@ -60,12 +60,12 @@ a { color: inherit; }
 button { font: inherit; }
 
 .topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
-.topbar-in { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-block: 18px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
-h1 { font-family: var(--f-display); font-weight: 700; font-size: 2.2rem; letter-spacing: .01em; margin: 0; line-height: 1; text-transform: uppercase; }
+.topbar-in { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-block: 8px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 24px; }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: 1.9rem; letter-spacing: .01em; margin: 0; line-height: 1; text-transform: uppercase; }
 h1 span { color: var(--accent); }
 .brandhead { display: flex; align-items: center; gap: 18px; min-width: 0; }
-.logo { height: 52px; width: auto; max-width: 220px; object-fit: contain; display: block; }
-@media (max-width: 640px) { .logo { height: 40px; } }
+.logo { height: 38px; width: auto; max-width: 220px; object-fit: contain; display: block; }
+@media (max-width: 640px) { .logo { height: 32px; } }
 .stamp { font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .layout { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-block: 24px 56px; display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 28px; align-items: start; }
@@ -224,14 +224,31 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 @media (max-width: 640px) { .wxpage { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); } }
 
 .mapwrap { margin-bottom: 16px; }
-#mapa { height: 480px; border-radius: 12px; border: 1px solid var(--line); z-index: 0; }
-.mapdias { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+#mapa { height: 420px; border-radius: 12px; border: 1px solid var(--line); z-index: 0; }
+.mapdias { display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; }
+.mapdias .cbtn { font-size: .78rem; padding: 6px 8px; border-radius: 6px; white-space: nowrap; flex: 1 0 auto; }
 .mk { display: flex; align-items: center; gap: 4px; background: var(--surface); color: var(--fg); border: 2px solid var(--fg); border-radius: 6px; padding: 2px 8px 2px 4px; font: 700 .85rem var(--f-body); white-space: nowrap; width: max-content; box-shadow: 0 1px 4px rgba(0,0,0,.3); transform: translate(-50%, -50%); }
 .mk svg { width: 24px; height: 24px; }
 .mk.sel { background: var(--fg); color: var(--bg); }
 .mk.al { border-color: var(--alert); }
 .mk .nm { font-weight: 600; font-size: .78rem; }
 .leaflet-container { font-family: var(--f-body); }
+
+.strip10 { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; }
+.dc { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; padding: 8px 4px; border-radius: 8px; background: var(--surface-2); border: 1px solid transparent; font-variant-numeric: tabular-nums; line-height: 1.2; min-width: 0; }
+.dc.ev { background: var(--accent-soft); border-color: var(--accent); }
+.dc.alert { background: var(--alert-soft); border-color: var(--alert); }
+.dc .dd b { display: block; font-size: .95rem; }
+.dc .dd span { font-size: .72rem; color: var(--muted); text-transform: uppercase; }
+.dc svg { width: 34px; height: 34px; }
+.dc .rs { font-size: .72rem; color: var(--muted); min-height: 2.6em; overflow-wrap: anywhere; }
+.dc .t { font-weight: 700; font-size: .9rem; }
+.dc .r { font-size: .74rem; color: var(--rain); }
+.dc .g { font-size: .7rem; color: var(--muted); }
+.dc .evtag { font-size: .62rem; }
+.avisos { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.avisos .alertbox { margin: 0; }
+@media (max-width: 900px) { .stripw { overflow-x: auto; } .strip10 { grid-template-columns: repeat(10, 92px); } }
 </style>
 </head>
 <body>
@@ -264,7 +281,9 @@ const ICON = {
 
 let D = { leiloes: [], previsao: {}, clima: {} };
 let cidade = BASE;
-let diaMapa = null, mapa = null, marcas = {};
+const NDIAS = 10;
+let diaMapa = null, mapa = null, marcas = {}, ajustaMapa = null;
+const DESLOC = { "Cantagalo-PR": [0, -34] }; // sobe o rótulo para não ficar atrás de Laranjeiras do Sul
 const COORD = {
   "Laranjeiras do Sul-PR": [-25.4075, -52.4106], "Cantagalo-PR": [-25.3736, -52.1219], "Palmital-PR": [-24.8864, -52.2008],
   "Marquinho-PR": [-25.1100, -52.2461], "Guaraniaçu-PR": [-25.0997, -52.8750], "Toledo-PR": [-24.7136, -53.7433], "Ivaiporã-PR": [-24.2483, -51.6750],
@@ -307,7 +326,7 @@ function alertaDoDia(c, x) {
 function diasMapa() {
   const set = new Set();
   Object.values(D.clima).forEach((c) => (c.dias || []).forEach((x) => { if (parseD(x.data) >= hoje()) set.add(x.data); }));
-  return [...set].sort().slice(0, 15);
+  return [...set].sort().slice(0, NDIAS);
 }
 function renderMapa() {
   const dias = diasMapa();
@@ -315,16 +334,19 @@ function renderMapa() {
   if (!diaMapa || !dias.includes(diaMapa)) diaMapa = dias[0];
   $("mapdias").innerHTML = dias.map((d) => { const dt = parseD(d); return `<button class="cbtn" type="button" data-d="${d}" aria-pressed="${d === diaMapa}">${DIAS[dt.getDay()]} ${ddmm(dt)}</button>`; }).join("");
   if (!mapa) {
-    mapa = L.map("mapa", { scrollWheelZoom: false }).setView([-25.0, -52.4], 8);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 12, attribution: "&copy; OpenStreetMap" }).addTo(mapa);
+    mapa = L.map("mapa", { scrollWheelZoom: false, zoomSnap: 0, zoomControl: true }).setView([-25.0, -52.4], 8);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 12, maxNativeZoom: 12, attribution: "&copy; OpenStreetMap" }).addTo(mapa);
     const pts = Object.keys(COORD).filter((c) => D.clima[c]).map((c) => COORD[c]);
-    if (pts.length) mapa.fitBounds(pts, { padding: [50, 50] });
+    ajustaMapa = () => { mapa.invalidateSize(); if (pts.length) mapa.fitBounds(pts, { paddingTopLeft: [70, 28], paddingBottomRight: [70, 28], animate: false }); };
+    ajustaMapa();
+    window.addEventListener("resize", ajustaMapa);
   }
   for (const c of Object.keys(COORD)) {
     if (!D.clima[c]) continue;
     const x = (D.clima[c].dias || []).find((v) => v.data === diaMapa);
     const al = x ? alertaDoDia(c, x) : null;
-    const html = `<div class="mk${c === cidade ? " sel" : ""}${al ? " al" : ""}">${x ? iconFor(x.resumo) : ""}<span>${x && x.max != null ? x.max + "°" : "—"}</span><span class="nm">${esc(nome(c))}</span></div>`;
+    const dz = DESLOC[c] || [0, 0];
+    const html = `<div class="mk${c === cidade ? " sel" : ""}${al ? " al" : ""}" style="margin:${dz[1]}px 0 0 ${dz[0]}px">${x ? iconFor(x.resumo) : ""}<span>${x && x.max != null ? x.max + "°" : "—"}</span><span class="nm">${esc(nome(c))}</span></div>`;
     const icon = L.divIcon({ html, className: "", iconSize: [0, 0] });
     if (marcas[c]) marcas[c].setIcon(icon);
     else marcas[c] = L.marker(COORD[c], { icon }).addTo(mapa).on("click", () => { cidade = c; renderCidades(); renderWx(); renderMapa(); });
@@ -345,20 +367,26 @@ function renderCidades() {
 }
 
 function renderWx() {
-  const dias = ((D.clima[cidade] || {}).dias || []).filter((x) => parseD(x.data) >= hoje());
+  const dias = ((D.clima[cidade] || {}).dias || []).filter((x) => parseD(x.data) >= hoje()).slice(0, NDIAS);
   const leil = nossos().filter((l) => l.cidade === cidade);
   const dataLeil = new Set(leil.map((l) => l.data));
   let html = `<div class="wxcard"><div class="city-h"><span class="cn">${esc(nome(cidade))}</span><span class="tg">próximos ${dias.length} dias</span></div>`;
   if (leil.length) html += `<div class="leilbox">Leilão Leiloingá aqui: ${leil.map((l) => `<b>${ddmm(parseD(l.data))}</b>${l.hora ? " às " + esc(l.hora) : ""}`).join(" · ")}</div>`;
   if (!dias.length) html += `<div class="empty">Sem previsão disponível para esta cidade.</div>`;
+  const avisos = [];
+  let cards = "";
   for (const x of dias) {
     const dt = parseD(x.data), isEv = dataLeil.has(x.data), al = alertaDoDia(cidade, x);
+    if (al) avisos.push(`<div class="alertbox"><b>${ddmm(dt)} ${DIAS[dt.getDay()]}:</b> ${esc(al)}</div>`);
     const chuva = x.chuvaPct != null ? `${x.chuvaPct}%${x.chuvaMm ? " · " + x.chuvaMm + " mm" : ""}` : (x.chuvaMm ? `${x.chuvaMm} mm` : "");
-    html += `<div class="day${isEv ? " ev" : ""}${al ? " alert" : ""}"><div class="dd"><b>${ddmm(dt)}</b><span>${DIAS[dt.getDay()]}</span></div>
-      <div class="ic">${iconFor(x.resumo)}</div>
-      <div class="ds">${isEv ? '<span class="evtag">Leilão · </span>' : ""}${esc(x.resumo || "")}${al ? `<span class="dayflag">Atenção: ${esc(al)}</span>` : ""}</div>
-      <div class="nums">${x.min != null ? `<div class="t">${x.min}° / ${x.max}°</div>` : ""}${chuva ? `<div class="r">${chuva}</div>` : ""}${x.mm2 != null ? `<div class="g">Agrolink: ${x.mm2} mm</div>` : ""}${x.rajada != null ? `<div class="g">rajadas ${x.rajada} km/h</div>` : ""}${x.src && x.src !== "Climatempo" ? `<div class="g">fonte: ${esc(x.src)}</div>` : ""}</div></div>`;
+    cards += `<div class="dc${isEv ? " ev" : ""}${al ? " alert" : ""}"><div class="dd"><b>${ddmm(dt)}</b><span>${DIAS[dt.getDay()]}</span></div>
+      ${isEv ? '<span class="evtag">Leilão</span>' : ""}${iconFor(x.resumo)}
+      <div class="t">${x.min != null ? `${x.min}° / ${x.max}°` : "—"}</div>
+      ${chuva ? `<div class="r">${chuva}</div>` : ""}${x.rajada != null ? `<div class="g">rajadas ${x.rajada} km/h</div>` : ""}
+      <div class="rs">${esc(x.resumo || "")}</div></div>`;
   }
+  if (cards) html += `<div class="stripw"><div class="strip10">${cards}</div></div>`;
+  if (avisos.length) html += `<div class="avisos">${avisos.join("")}</div>`;
   $("wx").innerHTML = html + "</div>";
 }
 
