@@ -325,6 +325,9 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
   .dc .r { grid-column: 4; grid-row: 2; text-align: right; }
   .dc .g { grid-column: 4; grid-row: 3; text-align: right; }
 }
+
+/* faixa das cidades fixa no topo ao rolar */
+.wxpage .cbtns { position: sticky; top: 0; z-index: 5; background: var(--bg); padding-block: 8px; margin-bottom: 8px; box-shadow: 0 6px 6px -6px rgba(0,0,0,.18); }
 </style>
 </head>
 <body class="tempo">
@@ -489,18 +492,23 @@ function renderWx() {
   $("wx").innerHTML = html + "</div>";
 }
 
+function irParaPrevisao() {
+  const alvo = $("wx"); if (!alvo) return;
+  const y = alvo.getBoundingClientRect().top + window.scrollY - $("cidades").offsetHeight - 8;
+  window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+}
 $("cidades").addEventListener("click", (e) => {
   const b = e.target.closest(".cbtn"); if (!b) return;
   cidade = b.dataset.c;
   try { localStorage.setItem("cidadeTempo", cidade); } catch (err) {}
-  renderCidades(); renderWx(); renderMapa();
+  renderCidades(); renderWx(); renderMapa(); irParaPrevisao();
 });
 $("lateral").addEventListener("click", (e) => {
   const b = e.target.closest("[data-c]"); if (!b) return;
   cidade = b.dataset.c;
   if (b.dataset.d && diasMapa().includes(b.dataset.d)) diaMapa = b.dataset.d;
   try { localStorage.setItem("cidadeTempo", cidade); } catch (err) {}
-  renderCidades(); renderWx(); renderMapa();
+  renderCidades(); renderWx(); renderMapa(); irParaPrevisao();
 });
 $("mapdias").addEventListener("click", (e) => {
   const b = e.target.closest("[data-d]"); if (!b) return;
