@@ -9,6 +9,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
@@ -221,6 +222,16 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 .dayflag { display: block; font-size: .78rem; font-weight: 600; color: var(--alert); }
 .leilbox { font-size: .9rem; margin: 0 0 14px; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); }
 @media (max-width: 640px) { .wxpage { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); } }
+
+.mapwrap { margin-bottom: 16px; }
+#mapa { height: 480px; border-radius: 12px; border: 1px solid var(--line); z-index: 0; }
+.mapdias { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.mk { display: flex; align-items: center; gap: 4px; background: var(--surface); color: var(--fg); border: 2px solid var(--fg); border-radius: 99px; padding: 2px 8px 2px 4px; font: 700 .85rem var(--f-body); white-space: nowrap; width: max-content; box-shadow: 0 1px 4px rgba(0,0,0,.3); transform: translate(-50%, -50%); }
+.mk svg { width: 24px; height: 24px; }
+.mk.sel { background: var(--fg); color: var(--bg); }
+.mk.al { border-color: var(--alert); }
+.mk .nm { font-weight: 600; font-size: .78rem; }
+.leaflet-container { font-family: var(--f-body); }
 </style>
 </head>
 <body>
@@ -231,10 +242,12 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 
 <div class="wxpage">
   <div class="cbtns" id="cidades" role="group" aria-label="Escolher cidade"></div>
+  <div class="mapwrap"><div class="mapdias" id="mapdias" role="group" aria-label="Dia no mapa"></div><div id="mapa" aria-label="Mapa do Paraná com a previsão das cidades"></div></div>
   <div id="wx"><div class="empty">Carregando a previsão…</div></div>
   <div class="src">Fontes: Climatempo; Agrolink como segunda opinião para a chuva. Atualizado todo dia de manhã.</div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const BASE = "Laranjeiras do Sul-PR";
 const DIAS = ["dom","seg","ter","qua","qui","sex","sáb"];
@@ -251,6 +264,11 @@ const ICON = {
 
 let D = { leiloes: [], previsao: {}, clima: {} };
 let cidade = BASE;
+let diaMapa = null, mapa = null, marcas = {};
+const COORD = {
+  "Laranjeiras do Sul-PR": [-25.4075, -52.4106], "Cantagalo-PR": [-25.3736, -52.1219], "Palmital-PR": [-24.8864, -52.2008],
+  "Marquinho-PR": [-25.1100, -52.2461], "Guaraniaçu-PR": [-25.0997, -52.8750], "Toledo-PR": [-24.7136, -53.7433], "Ivaiporã-PR": [-24.2483, -51.6750],
+};
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -286,6 +304,33 @@ function alertaDoDia(c, x) {
   return out.length ? out.join(", ") : null;
 }
 
+function diasMapa() {
+  const set = new Set();
+  Object.values(D.clima).forEach((c) => (c.dias || []).forEach((x) => { if (parseD(x.data) >= hoje()) set.add(x.data); }));
+  return [...set].sort().slice(0, 15);
+}
+function renderMapa() {
+  const dias = diasMapa();
+  if (!dias.length || typeof L === "undefined") { $("mapa").innerHTML = '<div class="empty">Mapa indisponível no momento.</div>'; return; }
+  if (!diaMapa || !dias.includes(diaMapa)) diaMapa = dias[0];
+  $("mapdias").innerHTML = dias.map((d) => { const dt = parseD(d); return `<button class="cbtn" type="button" data-d="${d}" aria-pressed="${d === diaMapa}">${DIAS[dt.getDay()]} ${ddmm(dt)}</button>`; }).join("");
+  if (!mapa) {
+    mapa = L.map("mapa", { scrollWheelZoom: false }).setView([-25.0, -52.4], 8);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 12, attribution: "&copy; OpenStreetMap" }).addTo(mapa);
+    const pts = Object.keys(COORD).filter((c) => D.clima[c]).map((c) => COORD[c]);
+    if (pts.length) mapa.fitBounds(pts, { padding: [50, 50] });
+  }
+  for (const c of Object.keys(COORD)) {
+    if (!D.clima[c]) continue;
+    const x = (D.clima[c].dias || []).find((v) => v.data === diaMapa);
+    const al = x ? alertaDoDia(c, x) : null;
+    const html = `<div class="mk${c === cidade ? " sel" : ""}${al ? " al" : ""}">${x ? iconFor(x.resumo) : ""}<span>${x && x.max != null ? x.max + "°" : "—"}</span><span class="nm">${esc(nome(c))}</span></div>`;
+    const icon = L.divIcon({ html, className: "", iconSize: [0, 0] });
+    if (marcas[c]) marcas[c].setIcon(icon);
+    else marcas[c] = L.marker(COORD[c], { icon }).addTo(mapa).on("click", () => { cidade = c; renderCidades(); renderWx(); renderMapa(); });
+    marcas[c].bindTooltip(x ? `${esc(x.resumo || "")} · ${x.min}° / ${x.max}°${x.chuvaPct != null ? " · chuva " + x.chuvaPct + "%" : ""}` : "Sem previsão", { direction: "top", offset: [0, -14] });
+  }
+}
 function cidadesLista() {
   const ks = Object.keys(D.clima);
   return [BASE, ...ks.filter((k) => k !== BASE)];
@@ -321,7 +366,11 @@ $("cidades").addEventListener("click", (e) => {
   const b = e.target.closest(".cbtn"); if (!b) return;
   cidade = b.dataset.c;
   try { localStorage.setItem("cidadeTempo", cidade); } catch (err) {}
-  renderCidades(); renderWx();
+  renderCidades(); renderWx(); renderMapa();
+});
+$("mapdias").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-d]"); if (!b) return;
+  diaMapa = b.dataset.d; renderMapa();
 });
 
 async function carregar() {
@@ -336,7 +385,7 @@ async function carregar() {
       const t = new Date(j.atualizadoEm);
       $("stamp").textContent = "Atualizado em " + t.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
     }
-    renderCidades(); renderWx();
+    renderCidades(); renderWx(); renderMapa();
   } catch (e) {
     $("stamp").textContent = "Não foi possível carregar a previsão. Recarregue a página.";
   }
