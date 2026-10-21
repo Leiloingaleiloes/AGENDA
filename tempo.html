@@ -209,7 +209,7 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 .pagebtn { display: inline-flex; align-items: center; gap: 8px; font: 700 .95rem var(--f-display); letter-spacing: .05em; text-transform: uppercase; text-decoration: none; padding: 9px 16px; border-radius: 8px; background: var(--accent); color: var(--surface); border: 1px solid var(--accent); }
 .pagebtn:hover { filter: brightness(1.1); }
 .pagebtn.alt { background: var(--surface); color: var(--fg); border-color: var(--line); }
-.wxpage { max-width: 1000px; margin: 0 auto; padding: 24px max(24px, env(safe-area-inset-left, 0px)) 56px; }
+.wxpage { max-width: 1240px; margin: 0 auto; padding: 24px max(24px, env(safe-area-inset-left, 0px)) 56px; }
 .wxpage .cbtns { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 10px 0; margin: 0 0 14px; }
 .wxpage .cbtn { border-radius: 6px; font-size: .95rem; padding: 8px 14px; }
 .wxpage .cbtn .al { color: var(--alert); font-weight: 700; }
@@ -223,8 +223,8 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 .leilbox { font-size: .9rem; margin: 0 0 14px; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); }
 @media (max-width: 640px) { .wxpage { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); } }
 
-.mapwrap { margin-bottom: 16px; }
-#mapa { height: 420px; border-radius: 12px; border: 1px solid var(--line); z-index: 0; }
+.mapwrap { margin-bottom: 0; }
+#mapa { border-radius: 12px; border: 1px solid var(--line); z-index: 0; }
 .mapdias { display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; }
 .mapdias .cbtn { font-size: .78rem; padding: 6px 8px; border-radius: 6px; white-space: nowrap; flex: 1 0 auto; }
 .mk { display: flex; align-items: center; gap: 4px; background: var(--surface); color: var(--fg); border: 2px solid var(--fg); border-radius: 6px; padding: 2px 8px 2px 4px; font: 700 .85rem var(--f-body); white-space: nowrap; width: max-content; box-shadow: 0 1px 4px rgba(0,0,0,.3); transform: translate(-50%, -50%); }
@@ -258,31 +258,9 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 .wxcard { background: none; border: 0; padding: 0; }
 @media (max-width: 900px) { .wxpage .cbtns { grid-template-columns: repeat(4, minmax(0, 1fr)); } .mapdias { grid-template-columns: repeat(10, 82px); overflow-x: auto; } }
 
-/* tela cheia no computador: o mapa estica para ocupar o espaço que sobra, sem rolagem da página */
-@media (min-width: 901px) and (min-height: 560px) {
-  body.tempo { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; overflow-y: auto; }
-  .tempo .wxpage { flex: 1; min-height: 0; width: 100%; max-width: 1240px; padding-top: 10px; padding-bottom: 10px; display: flex; flex-direction: column; }
-  .tempo .wxpage .cbtns { position: static; padding: 0; margin: 0 0 8px; }
-  .tempo .mapdias { margin-bottom: 8px; }
-  .tempo .mapwrap { flex: 1; min-height: 280px; display: flex; flex-direction: column; margin-bottom: 8px; }
-  .tempo #mapa { min-height: 0; }
-  .tempo .wxcard .city-h { margin-bottom: 6px; padding-bottom: 3px; }
-  .tempo .leilbox { margin: 0 0 6px; padding: 5px 10px; }
-  .tempo .dc { padding: 5px 3px; gap: 2px; }
-  .tempo .dc svg { width: 28px; height: 28px; }
-  .tempo .dc .rs { min-height: 0; }
-  .tempo .avisos { margin-top: 6px; flex-direction: row; flex-wrap: wrap; gap: 4px; }
-  .tempo .avisos .alertbox { font-size: .76rem; padding: 3px 8px; }
-  .tempo .src { margin-top: 2px; font-size: .7rem; }
-  .tempo .wxpage { padding-top: 8px; padding-bottom: 6px; }
-  .tempo .wxpage .cbtns { margin-bottom: 6px; }
-  .tempo .mapdias { margin-bottom: 6px; }
-  .tempo .mapwrap { margin-bottom: 6px; }
-  .tempo .dc { padding: 4px 3px; }
-  .tempo .topbar-in { padding-block: 6px; }
-}
 
-.mapgrid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 10px; }
+.mapgrid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 10px; margin-bottom: 14px; }
+#mapa { aspect-ratio: 1.7 / 1; width: 100%; }
 #lateral { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; overflow-y: auto; min-height: 0; }
 #lateral h3 { font-family: var(--f-display); font-weight: 700; font-size: .95rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 4px; }
 #lateral h3:not(:first-child) { margin-top: 12px; }
@@ -296,8 +274,16 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 .lrow .t { text-align: right; font-weight: 600; }
 .lrow.leil { grid-template-columns: 70px minmax(0, 1fr) 24px 70px; }
 .lrow .tg2 { font-size: .72rem; font-weight: 700; color: var(--alert); text-transform: uppercase; }
-@media (min-width: 901px) and (min-height: 560px) { .tempo .mapgrid { flex: 1; min-height: 0; } .tempo #mapa { height: 100%; } }
-@media (max-width: 900px) { .mapgrid { grid-template-columns: minmax(0, 1fr); } #mapa { height: 320px; } #lateral { max-height: 420px; } }
+@media (max-width: 900px) { .mapgrid { grid-template-columns: minmax(0, 1fr); } #mapa { aspect-ratio: 1.3 / 1; } #lateral { max-height: 420px; } }
+
+.wxpage { padding-top: 12px; }
+.wxpage .cbtns { position: static; padding: 0; margin: 0 0 6px; }
+.mapdias { margin-bottom: 6px; }
+.avisos { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+.avisos .alertbox { font-size: .78rem; padding: 3px 8px; }
+.dc { padding: 5px 3px; gap: 2px; }
+.dc .rs { min-height: 0; }
+.wxcard .city-h { margin-bottom: 6px; }
 </style>
 </head>
 <body class="tempo">
@@ -386,9 +372,9 @@ function renderMapa() {
     mapa = L.map("mapa", { scrollWheelZoom: false, zoomSnap: 0, zoomControl: true }).setView([-25.0, -52.4], 8);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 12, maxNativeZoom: 12, attribution: "&copy; OpenStreetMap" }).addTo(mapa);
     const pts = Object.keys(COORD).filter((c) => D.clima[c]).map((c) => COORD[c]);
-    ajustaMapa = () => { mapa.invalidateSize(); if (pts.length) mapa.fitBounds(pts, { paddingTopLeft: [70, 28], paddingBottomRight: [70, 28], animate: false }); };
+    ajustaMapa = () => { mapa.invalidateSize(); if (pts.length) mapa.fitBounds(pts, { paddingTopLeft: [72, 26], paddingBottomRight: [72, 26], animate: false }); };
     ajustaMapa();
-    window.addEventListener("resize", ajustaMapa);
+    window.addEventListener("resize", () => { ajustaMapa(); syncLateral(); });
   }
   for (const c of Object.keys(COORD)) {
     if (!D.clima[c]) continue;
@@ -403,6 +389,7 @@ function renderMapa() {
   }
   renderLateral();
 }
+function syncLateral() { $("lateral").style.height = innerWidth > 900 ? $("mapa").offsetHeight + "px" : ""; }
 function renderLateral() {
   const dt = parseD(diaMapa);
   let h = `<h3>Todas as cidades · ${DIAS[dt.getDay()]} ${ddmm(dt)}</h3>`;
@@ -425,6 +412,7 @@ function renderLateral() {
     }
   }
   $("lateral").innerHTML = h;
+  syncLateral();
 }
 function cidadesLista() {
   const ks = Object.keys(D.clima);
