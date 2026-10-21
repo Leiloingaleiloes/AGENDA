@@ -95,6 +95,11 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-t
 .card.soon:hover { border-color: var(--line); box-shadow: none; }
 .card.soon svg { color: var(--muted); }
 .soon-tag { align-self: flex-start; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 4px; background: var(--line); color: var(--muted); }
+.card.lotes .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 6px; }
+.act { font: 600 .86rem var(--f-body); text-decoration: none; padding: 8px 12px; border-radius: 7px; border: 1px solid var(--accent); background: var(--surface); color: var(--accent); cursor: pointer; white-space: nowrap; }
+.act.pri { background: var(--accent); color: var(--on-brand); }
+.act.zap { border-color: #1FA855; color: #1FA855; }
+.act:hover { filter: brightness(.95); }
 </style>
 </head>
 <body>
@@ -115,13 +120,27 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-t
       <span class="t">Previsão do tempo</span>
       <span class="d">Mapa e 10 dias de previsão das cidades dos leilões da Leiloingá.</span>
     </a>
-    <div class="card soon" aria-disabled="true">
+    <div class="card lotes">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 4h9M5.5 8h9M5.5 12h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="2.2" cy="4" r="1.1" fill="currentColor"/><circle cx="2.2" cy="8" r="1.1" fill="currentColor"/><circle cx="2.2" cy="12" r="1.1" fill="currentColor"/></svg>
-      <span class="soon-tag">Em breve</span>
       <span class="t">Lotes do leilão</span>
-      <span class="d">Lotes de cada leilão.</span>
+      <span class="d">Catálogo com fotos e vídeos para mandar ao cliente. Próximo: 7º Leilão das Águas · Laranjeiras do Sul · sáb 31/10, 14h30.</span>
+      <div class="acts">
+        <a class="act pri" href="https://leiloingaleiloes.github.io/LOTES/" target="_blank" rel="noopener">Abrir catálogo</a>
+        <button class="act" type="button" id="copiar-lotes" data-url="https://leiloingaleiloes.github.io/LOTES/">Copiar link</button>
+        <a class="act zap" href="https://wa.me/?text=7%C2%BA%20Leil%C3%A3o%20das%20%C3%81guas%20%E2%80%93%20Gado%20de%20Corte%20%C2%B7%20Laranjeiras%20do%20Sul%20-%20PR%20%C2%B7%20S%C3%A1bado%2C%2031%2F10%20%C2%B7%2014h30%0ACat%C3%A1logo%20dos%20lotes%3A%20https%3A%2F%2Fleiloingaleiloes.github.io%2FLOTES%2F" target="_blank" rel="noopener">Enviar no WhatsApp</a>
+      </div>
     </div>
   </div>
 </div>
+<script>
+(function () {
+  var b = document.getElementById("copiar-lotes"); if (!b) return;
+  b.addEventListener("click", function () {
+    var u = b.getAttribute("data-url"), ok = function () { b.textContent = "Link copiado ✓"; setTimeout(function () { b.textContent = "Copiar link"; }, 2000); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(ok, function () { prompt("Copie o link:", u); });
+    else prompt("Copie o link:", u);
+  });
+})();
+</script>
 </body>
 </html>
