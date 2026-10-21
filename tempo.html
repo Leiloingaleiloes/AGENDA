@@ -293,6 +293,38 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 .dc { padding: 5px 3px; gap: 2px; }
 .dc .rs { min-height: 0; }
 .wxcard .city-h { margin-bottom: 6px; }
+
+/* celular */
+@media (max-width: 640px) {
+  h1 { font-size: 1.45rem; }
+  .brandhead { gap: 12px; }
+  .topbar-in { padding-block: 8px 10px; }
+  .topr { flex-wrap: wrap; gap: 8px 10px; width: 100%; }
+  .topr .stamp { flex: 1 1 100%; }
+  .topr .pagebtn { padding: 7px 12px; font-size: .86rem; }
+  .wxpage { padding-top: 6px; }
+  .wxpage .cbtns { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px; padding: 8px 0; margin: 0 0 10px; scrollbar-width: none; }
+  .wxpage .cbtns::-webkit-scrollbar { display: none; }
+  .wxpage .cbtn { flex: none; padding: 8px 12px; font-size: .9rem; }
+  .mapdias { grid-template-columns: repeat(10, 62px); }
+  .mapdias .cbtn { font-size: .74rem; }
+  #mapa { aspect-ratio: 1.15 / 1; }
+  #lateral { max-height: 300px; }
+  .lrow { grid-template-columns: minmax(0, 1fr) 22px 62px 78px; font-size: .82rem; }
+  .city-h { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .city-h .cn { font-size: 1.25rem; }
+  .stripw { overflow: visible; }
+  .strip10 { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .dc { display: grid; grid-template-columns: 48px 34px minmax(0, 1fr) auto; column-gap: 10px; row-gap: 1px; align-items: center; text-align: left; padding: 8px 10px; }
+  .dc .dd { grid-column: 1; grid-row: 1 / 4; }
+  .dc > svg { grid-column: 2; grid-row: 1 / 4; width: 32px; height: 32px; }
+  .dc .evtag { display: none; }
+  .dc .rs { grid-column: 3; grid-row: 1 / 4; min-height: 0; font-size: .82rem; align-self: center; }
+  .dc.ev .rs::before { content: "Leilão"; display: block; font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+  .dc .t { grid-column: 4; grid-row: 1; text-align: right; }
+  .dc .r { grid-column: 4; grid-row: 2; text-align: right; }
+  .dc .g { grid-column: 4; grid-row: 3; text-align: right; }
+}
 </style>
 </head>
 <body class="tempo">

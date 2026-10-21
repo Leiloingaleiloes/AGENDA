@@ -217,6 +217,39 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
   .wxb { justify-self: start; }
 }
 @media (prefers-reduced-motion: no-preference) { .tab, .btn, .cbtn { transition: background-color .15s, border-color .15s; } }
+
+/* celular */
+.calbtn .lg { font-style: normal; }
+@media (max-width: 640px) {
+  h1 { font-size: 1.45rem; }
+  .brandhead { gap: 12px; }
+  .topbar-in { padding-block: 8px 10px; }
+  .tabs { gap: 8px; margin-bottom: 12px; }
+  .tab { padding: 9px 12px; }
+  .tab .n { font-size: 1.05rem; }
+  .calbtns { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 16px; }
+  .calpair { display: contents; }
+  .calbtn { padding: 10px 6px; gap: 6px; font-size: .98rem; letter-spacing: .03em; min-width: 0; }
+  .calbtn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .calbtn svg { display: none; }
+  .tabs .tab:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .calbtn .lg { display: none; }
+  .item { padding: 10px 12px; gap: 4px 12px; }
+  .acts .btn { padding: 7px 10px; }
+  .calbar { flex-wrap: wrap; }
+  .calbar .mt { font-size: 1.25rem; }
+  .calnav [data-lista] { display: none; }
+  .calwrap { overflow: visible; }
+  .calgrid { grid-template-columns: repeat(7, minmax(0, 1fr)); min-width: 0; }
+  .calgrid .wd { padding: 6px 0; font-size: .66rem; letter-spacing: .02em; }
+  .cell { min-height: 62px; padding: 3px; gap: 3px; }
+  .cell .n { font-size: .9rem; }
+  .cell.today .n { width: 22px; height: 22px; }
+  .cev { padding: 2px 3px; font-size: .62rem; border-radius: 4px; justify-content: center; }
+  .cev .ic, .cev .c { display: none; }
+  .callegend { font-size: .76rem; }
+  aside { padding: 14px; }
+}
 </style>
 </head>
 <body>
@@ -489,7 +522,7 @@ function renderMain() {
     const m = new Date(h.getFullYear(), h.getMonth() + off, 1);
     const on = vista === "cal" && mesCal && mesCal.getTime() === m.getTime();
     $(id).setAttribute("aria-pressed", on);
-    $(id).querySelector("span").textContent = off === 0 ? `Calendário de ${MESES[m.getMonth()]}` : MESES[m.getMonth()];
+    $(id).querySelector("span").innerHTML = off === 0 ? `<i class="lg">Calendário de </i>${MESES[m.getMonth()]}` : MESES[m.getMonth()];
   });
   if (vista === "cal") renderCal(); else renderList();
 }
