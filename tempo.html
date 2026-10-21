@@ -129,7 +129,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-t
 .empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; padding: 20px; color: var(--muted); }
 
 /* calendário */
-.topr { display: flex; align-items: center; gap: 16px; }
+.topr { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .calbtns { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: -6px 0 20px; }
 .calpair { grid-column: span 4; display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
 .calbtn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); cursor: pointer; font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .05em; }
@@ -289,7 +289,7 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 <body class="tempo">
 <div class="topbar"><div class="topbar-in">
   <div class="brandhead"><img class="logo" src="logo-leiloinga.png" alt="Leiloingá" onerror="this.remove()"><h1>Previsão do <span>Tempo</span></h1></div>
-  <div class="topr"><span class="stamp" id="stamp">Carregando…</span><a class="pagebtn alt" href="./">&larr; Agenda de leilões</a></div>
+  <div class="topr"><span class="stamp" id="stamp">Carregando…</span><a class="pagebtn alt" href="./">&larr; Início</a><a class="pagebtn alt" href="agenda.html">Agenda de leilões</a></div>
 </div></div>
 
 <div class="wxpage">
