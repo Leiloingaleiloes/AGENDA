@@ -249,6 +249,14 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 .avisos { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
 .avisos .alertbox { margin: 0; }
 @media (max-width: 900px) { .stripw { overflow-x: auto; } .strip10 { grid-template-columns: repeat(10, 92px); } }
+
+/* botões alinhados com os cartões dos dias: mesma largura total, colunas iguais */
+.wxpage .cbtns { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.wxpage .cbtn { text-align: center; font-size: .86rem; padding: 8px 4px; white-space: nowrap; }
+.mapdias { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; overflow-x: visible; }
+.mapdias .cbtn { padding: 6px 2px; flex: none; text-align: center; }
+.wxcard { background: none; border: 0; padding: 0; }
+@media (max-width: 900px) { .wxpage .cbtns { grid-template-columns: repeat(4, minmax(0, 1fr)); } .mapdias { grid-template-columns: repeat(10, 82px); overflow-x: auto; } }
 </style>
 </head>
 <body>
