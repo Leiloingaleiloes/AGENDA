@@ -257,9 +257,28 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 .mapdias .cbtn { padding: 6px 2px; flex: none; text-align: center; }
 .wxcard { background: none; border: 0; padding: 0; }
 @media (max-width: 900px) { .wxpage .cbtns { grid-template-columns: repeat(4, minmax(0, 1fr)); } .mapdias { grid-template-columns: repeat(10, 82px); overflow-x: auto; } }
+
+/* tela cheia no computador: o mapa estica para ocupar o espaço que sobra, sem rolagem da página */
+@media (min-width: 901px) and (min-height: 560px) {
+  body.tempo { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; overflow-y: auto; }
+  .tempo .wxpage { flex: 1; min-height: 0; width: 100%; max-width: 1240px; padding-top: 10px; padding-bottom: 10px; display: flex; flex-direction: column; }
+  .tempo .wxpage .cbtns { position: static; padding: 0; margin: 0 0 8px; }
+  .tempo .mapdias { margin-bottom: 8px; }
+  .tempo .mapwrap { flex: 1; min-height: 280px; display: flex; flex-direction: column; margin-bottom: 8px; }
+  .tempo #mapa { flex: 1; height: auto; min-height: 0; }
+  .tempo .wxcard .city-h { margin-bottom: 6px; padding-bottom: 3px; }
+  .tempo .leilbox { margin: 0 0 6px; padding: 5px 10px; }
+  .tempo .dc { padding: 5px 3px; gap: 2px; }
+  .tempo .dc svg { width: 28px; height: 28px; }
+  .tempo .dc .rs { min-height: 0; }
+  .tempo .avisos { margin-top: 6px; flex-direction: row; flex-wrap: wrap; gap: 4px; }
+  .tempo .avisos .alertbox { font-size: .76rem; padding: 3px 8px; }
+  .tempo .src { margin-top: 4px; }
+  .tempo .topbar-in { padding-block: 6px; }
+}
 </style>
 </head>
-<body>
+<body class="tempo">
 <div class="topbar"><div class="topbar-in">
   <div class="brandhead"><img class="logo" src="logo-leiloinga.png" alt="Leiloingá" onerror="this.remove()"><h1>Previsão do <span>Tempo</span></h1></div>
   <div class="topr"><span class="stamp" id="stamp">Carregando…</span><a class="pagebtn alt" href="./">&larr; Agenda de leilões</a></div>
