@@ -360,9 +360,7 @@ function cidadesLista() {
 
 function renderCidades() {
   $("cidades").innerHTML = cidadesLista().map((c) => {
-    const dias = (D.clima[c] && D.clima[c].dias) || [];
-    const temAlerta = dias.some((x) => parseD(x.data) >= hoje() && alertaDoDia(c, x));
-    return `<button class="cbtn" type="button" data-c="${esc(c)}" aria-pressed="${c === cidade}">${esc(nome(c))}${temAlerta ? ' <span class="al" title="Há dias com alerta">!</span>' : ""}</button>`;
+    return `<button class="cbtn" type="button" data-c="${esc(c)}" aria-pressed="${c === cidade}">${esc(nome(c))}</button>`;
   }).join("");
 }
 
