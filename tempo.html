@@ -265,7 +265,7 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
   .tempo .wxpage .cbtns { position: static; padding: 0; margin: 0 0 8px; }
   .tempo .mapdias { margin-bottom: 8px; }
   .tempo .mapwrap { flex: 1; min-height: 280px; display: flex; flex-direction: column; margin-bottom: 8px; }
-  .tempo #mapa { flex: 1; height: auto; min-height: 0; }
+  .tempo #mapa { min-height: 0; }
   .tempo .wxcard .city-h { margin-bottom: 6px; padding-bottom: 3px; }
   .tempo .leilbox { margin: 0 0 6px; padding: 5px 10px; }
   .tempo .dc { padding: 5px 3px; gap: 2px; }
@@ -276,6 +276,23 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
   .tempo .src { margin-top: 4px; }
   .tempo .topbar-in { padding-block: 6px; }
 }
+
+.mapgrid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 10px; }
+#lateral { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; overflow-y: auto; min-height: 0; }
+#lateral h3 { font-family: var(--f-display); font-weight: 700; font-size: .95rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 4px; }
+#lateral h3:not(:first-child) { margin-top: 12px; }
+.lrow { display: grid; grid-template-columns: minmax(0, 1fr) 26px 74px 100px; align-items: center; gap: 6px; width: 100%; padding: 2px 6px; white-space: nowrap; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: none; color: var(--fg); cursor: pointer; text-align: left; font: .86rem var(--f-body); font-variant-numeric: tabular-nums; }
+.lrow:last-of-type { border-bottom: 0; }
+.lrow:hover { background: var(--surface-2); }
+.lrow.sel { background: var(--surface-2); font-weight: 600; box-shadow: inset 3px 0 0 var(--fg); }
+.lrow.al { color: var(--alert); }
+.lrow svg { width: 22px; height: 22px; }
+.lrow .r { color: var(--rain); font-size: .8rem; text-align: right; }
+.lrow .t { text-align: right; font-weight: 600; }
+.lrow.leil { grid-template-columns: 78px minmax(0, 1fr) 26px 74px; }
+.lrow .tg2 { font-size: .72rem; font-weight: 700; color: var(--alert); text-transform: uppercase; }
+@media (min-width: 901px) and (min-height: 560px) { .tempo .mapgrid { flex: 1; min-height: 0; } .tempo #mapa { height: 100%; } }
+@media (max-width: 900px) { .mapgrid { grid-template-columns: minmax(0, 1fr); } #mapa { height: 320px; } #lateral { max-height: 420px; } }
 </style>
 </head>
 <body class="tempo">
@@ -286,7 +303,7 @@ footer { max-width: 1320px; margin: 0 auto; padding-left: max(24px, env(safe-are
 
 <div class="wxpage">
   <div class="cbtns" id="cidades" role="group" aria-label="Escolher cidade"></div>
-  <div class="mapwrap"><div class="mapdias" id="mapdias" role="group" aria-label="Dia no mapa"></div><div id="mapa" aria-label="Mapa do Paraná com a previsão das cidades"></div></div>
+  <div class="mapwrap"><div class="mapdias" id="mapdias" role="group" aria-label="Dia no mapa"></div><div class="mapgrid"><div id="mapa" aria-label="Mapa do Paraná com a previsão das cidades"></div><div id="lateral"></div></div></div>
   <div id="wx"><div class="empty">Carregando a previsão…</div></div>
   <div class="src">Fontes: Climatempo; Agrolink como segunda opinião para a chuva. Atualizado todo dia de manhã.</div>
 </div>
@@ -379,6 +396,30 @@ function renderMapa() {
     else marcas[c] = L.marker(COORD[c], { icon }).addTo(mapa).on("click", () => { cidade = c; renderCidades(); renderWx(); renderMapa(); });
     marcas[c].bindTooltip(x ? `${esc(x.resumo || "")} · ${x.min}° / ${x.max}°${x.chuvaPct != null ? " · chuva " + x.chuvaPct + "%" : ""}` : "Sem previsão", { direction: "top", offset: [0, -14] });
   }
+  renderLateral();
+}
+function renderLateral() {
+  const dt = parseD(diaMapa);
+  let h = `<h3>Todas as cidades · ${DIAS[dt.getDay()]} ${ddmm(dt)}</h3>`;
+  for (const c of Object.keys(COORD)) {
+    if (!D.clima[c]) continue;
+    const x = (D.clima[c].dias || []).find((v) => v.data === diaMapa);
+    if (!x) { h += `<button class="lrow${c === cidade ? " sel" : ""}" type="button" data-c="${esc(c)}"><span>${esc(nome(c))}</span><span></span><span class="t">—</span><span></span></button>`; continue; }
+    const al = alertaDoDia(c, x);
+    const chuva = x.chuvaPct != null ? `${x.chuvaPct}%${x.chuvaMm ? " · " + x.chuvaMm + " mm" : ""}` : "";
+    h += `<button class="lrow${c === cidade ? " sel" : ""}${al ? " al" : ""}" type="button" data-c="${esc(c)}" title="${esc(x.resumo || "")}"><span>${esc(nome(c))}</span>${iconFor(x.resumo)}<span class="t">${x.min}° / ${x.max}°</span><span class="r">${chuva}</span></button>`;
+  }
+  const prox = nossos().sort((a, b) => a.data.localeCompare(b.data)).slice(0, 3);
+  if (prox.length) {
+    h += `<h3>Próximos leilões da Leiloingá</h3>`;
+    for (const l of prox) {
+      const x = ((D.clima[l.cidade] || {}).dias || []).find((v) => v.data === l.data);
+      const al = x ? alertaDoDia(l.cidade, x) : null;
+      const d = parseD(l.data);
+      h += `<button class="lrow leil${al ? " al" : ""}" type="button" data-c="${esc(l.cidade)}" data-d="${l.data}" title="${esc(x ? x.resumo || "" : "Previsão ainda não disponível")}"><span>${DIAS[d.getDay()]} ${ddmm(d)}</span><span>${esc(nome(l.cidade))}${al ? ' <span class="tg2">alerta</span>' : ""}</span>${x ? iconFor(x.resumo) : "<span></span>"}<span class="t">${x ? x.min + "° / " + x.max + "°" : "—"}</span></button>`;
+    }
+  }
+  $("lateral").innerHTML = h;
 }
 function cidadesLista() {
   const ks = Object.keys(D.clima);
@@ -418,6 +459,13 @@ function renderWx() {
 $("cidades").addEventListener("click", (e) => {
   const b = e.target.closest(".cbtn"); if (!b) return;
   cidade = b.dataset.c;
+  try { localStorage.setItem("cidadeTempo", cidade); } catch (err) {}
+  renderCidades(); renderWx(); renderMapa();
+});
+$("lateral").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-c]"); if (!b) return;
+  cidade = b.dataset.c;
+  if (b.dataset.d && diasMapa().includes(b.dataset.d)) diaMapa = b.dataset.d;
   try { localStorage.setItem("cidadeTempo", cidade); } catch (err) {}
   renderCidades(); renderWx(); renderMapa();
 });
