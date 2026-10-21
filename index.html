@@ -95,7 +95,8 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; text-t
 .card.soon:hover { border-color: var(--line); box-shadow: none; }
 .card.soon svg { color: var(--muted); }
 .soon-tag { align-self: flex-start; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 4px; background: var(--line); color: var(--muted); }
-.card.lotes .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 6px; }
+.card.lotes .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; padding-top: 6px; }
+.card.lotes .act { text-align: center; padding: 10px 8px; }
 .act { font: 600 .86rem var(--f-body); text-decoration: none; padding: 8px 12px; border-radius: 7px; border: 1px solid var(--accent); background: var(--surface); color: var(--accent); cursor: pointer; white-space: nowrap; }
 .act.pri { background: var(--accent); color: var(--on-brand); }
 .act.zap { border-color: #1FA855; color: #1FA855; }
