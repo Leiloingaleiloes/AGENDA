@@ -1,2 +1,15 @@
+# Site interno: fora dos buscadores, mas liberado para a pré-visualização de links (WhatsApp, Facebook, etc.)
+User-agent: WhatsApp
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Facebot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
 User-agent: *
 Disallow: /
