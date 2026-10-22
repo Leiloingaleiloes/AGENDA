@@ -209,6 +209,7 @@ function linhasDaPagina(items){
   return grupos.map(function(g){return g.its.sort(function(a,b){return a.x-b.x;}).map(function(i){return i.s;}).join(" ").replace(/\s+/g," ").trim();});
 }
 var RE_LINHA=/^(\d{1,3})\s+(\d{1,4})\s+(\d{1,4})\s*([MF])\s+(.+?)\s+((?:\d{1,2}\s*A\s*\d{1,2}|\d{1,2}\s*\/\s*\d{1,2})\s*M\w*|\+\s*\d{1,2}\s*M\w*)\s+(.+?)\s+(\d{2,4})(?:\s.*)?$/i;
+var RE_CATALOGO=/^(\d{1,3})\s*º\s+(\d{1,4})\s+(.+?)\s+(\+?\d{1,2}(?:\s*\/\s*\d{1,2})?\s*M)\s+(Macho|F[êe]mea)\s+(\d{1,4})\s+(\d{2,4})\s*kg/i;
 var RE_COMECO=/^(\d{1,3})\s+(\d{2,4})\s+\d/;
 function interpretar(linhas){
   var out={leilao:"",data:"",totais:null,lotes:[],naoEntendi:[]};
@@ -224,6 +225,9 @@ function interpretar(linhas){
     }
     if((m=t.match(RE_LINHA))){
       out.lotes.push({ord:+m[1],lote:m[2],qtde:+m[3],sexo:m[4].toUpperCase(),vendedor:m[5],idade:m[6],raca:m[7],peso:+m[8]});
+    }else if((m=t.match(RE_CATALOGO))){
+      out.catalogo=true;
+      out.lotes.push({ord:+m[1],lote:m[2],qtde:+m[6],sexo:m[5].charAt(0).toUpperCase(),vendedor:"",idade:m[4],raca:m[3],peso:+m[7]});
     }else if((m=t.match(RE_COMECO))&&!/Ord\.|Lote/i.test(t)){
       out.naoEntendi.push(t);
       out.lotes.push({ord:+m[1],lote:m[2],qtde:null,sexo:"",vendedor:"",idade:"",raca:"",peso:null,duvida:true,bruto:t});
@@ -288,13 +292,14 @@ async function addFiles(list){
     var x={file:f,name:f.name,state:"run",msg:"lendo…"};files.push(x);novos.push(x);
   });
   renderFiles();
-  var totalNovos=0,erros=0,semLotes=0;
+  var totalNovos=0,erros=0,semLotes=0,catalogo=false;
   for(var i=0;i<novos.length;i++){
     var f=novos[i];
     try{
       var r=await lerPdf(f.file);
       if(!r.info.lotes.length){f.state="err";f.msg="nenhum lote encontrado";semLotes++;}
       else{
+        if(r.info.catalogo)catalogo=true;
         totalNovos+=juntar(r.info);
         f.state="done";f.msg=r.info.lotes.length+" lotes lidos"+(r.info.naoEntendi.length?" · "+r.info.naoEntendi.length+" para conferir":"");
       }
@@ -304,6 +309,7 @@ async function addFiles(list){
   salvar();render();
   var st=$("status");
   if(erros||semLotes){st.className="status err";st.textContent=semLotes?"Não achei lotes neste PDF. Se ele for uma foto escaneada, mande para o Claude, que ele devolve um PDF com texto.":"Algum PDF não abriu. Tente baixar o PDF de novo do sistema.";}
+  else if(catalogo){st.className="status err";st.textContent="Este PDF é a ordem de entrada do site dos lotes, que não tem o nome do vendedor. Os lotes entraram, mas o campo VEND. ficou vazio. Para as fichas completas, use o PDF do sistema.";}
   else{st.className="status";st.textContent=totalNovos?totalNovos+" lotes novos na tabela. Confira antes de gerar o Word.":"PDF lido. Nenhum lote novo; os que já estavam foram atualizados.";}
 }
 var drop=$("drop");
