@@ -235,9 +235,20 @@ function interpretar(linhas){
   });
   return out;
 }
+var semWorker=false;
+async function abrirDoc(bytes){
+  try{return await pdfjsLib.getDocument({data:bytes.slice(0),isEvalSupported:false}).promise;}
+  catch(e){
+    if(semWorker||(e&&/password|Invalid PDF|corrupt/i.test(e.message||"")))throw e;
+    /* alguns navegadores não abrem o leitor em segundo plano: tenta de novo na própria página */
+    await import("./vendor/pdfjs/pdf.worker.min.mjs").then(function(m){globalThis.pdfjsWorker=m;});
+    semWorker=true;
+    return await pdfjsLib.getDocument({data:bytes.slice(0),isEvalSupported:false}).promise;
+  }
+}
 async function lerPdf(file){
-  var buf=await file.arrayBuffer();
-  var doc=await pdfjsLib.getDocument({data:buf,isEvalSupported:false}).promise;
+  var buf=new Uint8Array(await file.arrayBuffer());
+  var doc=await abrirDoc(buf);
   var linhas=[];
   for(var p=1;p<=doc.numPages;p++){
     var page=await doc.getPage(p);
@@ -282,7 +293,9 @@ function renderFiles(){
   var ul=$("files");ul.textContent="";
   files.forEach(function(f){
     var li=el("li",f.state==="done"?"ok":f.state==="err"?"err":f.state==="run"?"run":"");
-    li.append(el("span","n",f.name),el("span","s",f.msg));ul.append(li);
+    li.append(el("span","n",f.name),el("span","s",f.msg));
+    if(f.det){var d=el("span","n",f.det);d.style.gridColumn="1 / -1";d.style.fontSize=".78rem";d.style.color="var(--muted)";li.append(d);}
+    ul.append(li);
   });
 }
 async function addFiles(list){
@@ -303,7 +316,11 @@ async function addFiles(list){
         totalNovos+=juntar(r.info);
         f.state="done";f.msg=r.info.lotes.length+" lotes lidos"+(r.info.naoEntendi.length?" · "+r.info.naoEntendi.length+" para conferir":"");
       }
-    }catch(e){f.state="err";f.msg="não deu para abrir este PDF";erros++;}
+    }catch(e){
+      var txt=String(e&&(e.name||"")+": "+(e.message||e)).slice(0,160);
+      f.state="err";f.msg=/password/i.test(txt)?"PDF com senha":"não deu para abrir este PDF";f.det=txt;erros++;
+      try{console.error("fichas:",e);}catch(_){}
+    }
     renderFiles();
   }
   salvar();render();
