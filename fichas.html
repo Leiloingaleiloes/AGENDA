@@ -186,10 +186,23 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:po
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
 <script type="module">
 /* ---------- leitura do PDF (aqui mesmo, no navegador) ---------- */
-import * as pdfjsLib from "./vendor/pdfjs/pdf.min.mjs";
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL("./vendor/pdfjs/pdf.worker.min.mjs", import.meta.url).href;
+/* pdf.js 3 (versão "legacy", que funciona em iPhones e navegadores mais antigos);
+   se o CDN não carregar, usa a cópia mais nova guardada no próprio site */
+var CDN3="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/";
+var pdfjsLib=null;
+async function biblioteca(){
+  if(pdfjsLib)return pdfjsLib;
+  if(window.pdfjsLib&&window.pdfjsLib.getDocument){
+    pdfjsLib=window.pdfjsLib;pdfjsLib.GlobalWorkerOptions.workerSrc=CDN3+"pdf.worker.min.js";
+  }else{
+    pdfjsLib=await import("./vendor/pdfjs/pdf.min.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc=new URL("./vendor/pdfjs/pdf.worker.min.mjs",import.meta.url).href;
+  }
+  return pdfjsLib;
+}
 
 /* junta os pedaços de texto em linhas da folha (tolerando colunas um pouco acima ou abaixo) */
 function linhasDaPagina(items){
@@ -237,13 +250,14 @@ function interpretar(linhas){
 }
 var semWorker=false;
 async function abrirDoc(bytes){
-  try{return await pdfjsLib.getDocument({data:bytes.slice(0),isEvalSupported:false}).promise;}
+  var lib=await biblioteca();
+  try{return await lib.getDocument({data:bytes.slice(0),isEvalSupported:false}).promise;}
   catch(e){
     if(semWorker||(e&&/password|Invalid PDF|corrupt/i.test(e.message||"")))throw e;
     /* alguns navegadores não abrem o leitor em segundo plano: tenta de novo na própria página */
-    await import("./vendor/pdfjs/pdf.worker.min.mjs").then(function(m){globalThis.pdfjsWorker=m;});
     semWorker=true;
-    return await pdfjsLib.getDocument({data:bytes.slice(0),isEvalSupported:false}).promise;
+    try{lib.GlobalWorkerOptions.workerPort=null;}catch(_){}
+    return await lib.getDocument({data:bytes.slice(0),isEvalSupported:false,disableWorker:true}).promise;
   }
 }
 async function lerPdf(file){
