@@ -1,6 +1,6 @@
 {
- "atualizadoEm": "2026-10-23T10:40:00-03:00",
- "observacao": "Agendas conferidas; removido leilão passado (Gralha Azul Candói 20/10); clima renovado (Climatempo). Alerta de temporal em Guaraniaçu 24/10 (72 mm).",
+ "atualizadoEm": "2026-10-24T07:40:00-03:00",
+ "observacao": "Agendas conferidas (sem mudanças nos leilões); clima renovado (Climatempo + Agrolink; Palmital/Marquinho sem Agrolink por dados idênticos). Alerta Guaraniaçu 24/10: chuva forte e rajadas até 57 km/h; Palmital 07/11: 34 mm.",
  "leiloes": [
   {
    "id": "pa-2026-10-22-virtual",
@@ -625,25 +625,44 @@
   }
  ],
  "previsao": {
+  "li-2026-10-24-guaraniacu": {
+   "cidade": "Guaraniaçu-PR",
+   "data": "2026-10-24",
+   "min": 18,
+   "max": 22,
+   "chuvaPct": 96,
+   "chuvaMm": 58.7,
+   "rajada": 57,
+   "resumo": "Nublado, chuva forte",
+   "alerta": "Chuva 96% e 58.7 mm (Climatempo); rajadas de 57 km/h no dia; rajadas de 61 km/h no dia seguinte; fontes discordam (Agrolink 8 mm)",
+   "fonte": "Climatempo + Agrolink",
+   "atualizado": "2026-10-24T07:40:00-03:00"
+  },
   "li-2026-10-31-laranjeiras": {
    "cidade": "Laranjeiras do Sul-PR",
    "data": "2026-10-31",
-   "min": 14,
-   "max": 25,
-   "chuvaPct": null,
-   "chuvaMm": 0.0,
-   "rajada": 33,
-   "resumo": "Sol o dia todo",
-   "alerta": null,
-   "fonte": "Climatempo",
-   "atualizado": "2026-10-23T10:40:00-03:00"
+   "min": 15,
+   "max": 23,
+   "chuvaPct": 71,
+   "chuvaMm": 0.9,
+   "rajada": 27,
+   "resumo": "Sol, nuvens e pancadas de chuva",
+   "alerta": "Chuva 71% e 0.9 mm (Climatempo)",
+   "fonte": "Climatempo + Agrolink",
+   "atualizado": "2026-10-24T07:40:00-03:00"
   },
   "li-2026-11-07-palmital": {
    "cidade": "Palmital-PR",
    "data": "2026-11-07",
-   "indisponivel": true,
-   "resumo": "A previsão sai cerca de 15 dias antes; entra aqui automaticamente.",
-   "alerta": null
+   "min": 18,
+   "max": 27,
+   "chuvaPct": 69,
+   "chuvaMm": 34.4,
+   "rajada": 32,
+   "resumo": "Nublado, chuva forte",
+   "alerta": "Chuva 69% e 34.4 mm (Climatempo)",
+   "fonte": "Climatempo",
+   "atualizado": "2026-10-24T07:40:00-03:00"
   },
   "li-2026-11-15-marquinho": {
    "cidade": "Marquinho-PR",
@@ -679,1024 +698,1038 @@
    "indisponivel": true,
    "resumo": "A previsão sai cerca de 15 dias antes; entra aqui automaticamente.",
    "alerta": null
-  },
-  "li-2026-10-24-guaraniacu": {
-   "cidade": "Guaraniaçu-PR",
-   "data": "2026-10-24",
-   "min": 20,
-   "max": 23,
-   "chuvaPct": 99,
-   "chuvaMm": 72.2,
-   "rajada": 51,
-   "resumo": "Temporal, chuva forte e trovoadas o dia todo",
-   "alerta": "Chuva forte e trovoadas: 72 mm (Climatempo; Agrolink prevê 27 mm), rajadas de até 51 km/h. Hoje ~24 mm e domingo (25/10) pancadas com rajadas de 48 km/h — atenção ao embarque e às estradas.",
-   "fonte": "Climatempo",
-   "atualizado": "2026-10-23T10:40:00-03:00"
   }
  },
  "clima": {
   "Laranjeiras do Sul-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-23T10:40:00-03:00",
+   "atualizado": "2026-10-24T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-23",
-     "min": 18,
-     "max": 22,
-     "chuvaMm": 45.8,
-     "chuvaPct": 99,
-     "rajada": 44,
-     "resumo": "Nublado, chuva forte de dia",
-     "mm2": 29
-    },
-    {
      "data": "2026-10-24",
-     "min": 19,
-     "max": 22,
-     "chuvaMm": 98.5,
-     "chuvaPct": 99,
-     "rajada": 55,
-     "resumo": "Temporal, chuva forte e trovoadas",
-     "mm2": 44
+     "min": 17,
+     "max": 21,
+     "chuvaMm": 74.1,
+     "chuvaPct": 98,
+     "rajada": 50,
+     "resumo": "Nublado, temporal e chuva forte",
+     "mm2": 52.0
     },
     {
      "data": "2026-10-25",
-     "min": 14,
-     "max": 21,
-     "chuvaMm": 6.7,
-     "chuvaPct": 96,
-     "rajada": 55,
-     "resumo": "Sol, pancadas de manhã, nuvens",
-     "mm2": 3
+     "min": 15,
+     "max": 20,
+     "chuvaMm": 7.8,
+     "chuvaPct": 95,
+     "rajada": 53,
+     "resumo": "Sol, nuvens e chuva passageira",
+     "mm2": 7.0
     },
     {
      "data": "2026-10-26",
-     "min": 12,
-     "max": 22,
+     "min": 11,
+     "max": 20,
      "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 40,
-     "resumo": "Muitas nuvens, algum sol",
-     "mm2": 0
+     "chuvaPct": 0,
+     "rajada": 42,
+     "resumo": "Sol e nuvens",
+     "mm2": 0.0
     },
     {
      "data": "2026-10-27",
-     "min": 12,
-     "max": 22,
-     "chuvaMm": 0.2,
-     "chuvaPct": 57,
-     "rajada": 37,
-     "resumo": "Sol e nuvens, noite com chuva",
-     "mm2": 0
+     "min": 11,
+     "max": 21,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 33,
+     "resumo": "Sol e muitas nuvens",
+     "mm2": 1.0
     },
     {
      "data": "2026-10-28",
-     "min": 15,
-     "max": 20,
-     "chuvaMm": 8.9,
-     "chuvaPct": 74,
-     "rajada": 25,
-     "resumo": "Sol e nuvens, pancadas à tarde",
-     "mm2": 0
+     "min": 14,
+     "max": 23,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 27,
+     "resumo": "Sol e muitas nuvens",
+     "mm2": 0.0
     },
     {
      "data": "2026-10-29",
      "min": 17,
      "max": 18,
-     "chuvaMm": 43.6,
-     "chuvaPct": 83,
-     "rajada": 26,
-     "resumo": "Chuva e temporal à tarde",
-     "mm2": 5
+     "chuvaMm": 4.1,
+     "chuvaPct": 91,
+     "rajada": 24,
+     "resumo": "Sol e nuvens",
+     "mm2": 3.0
     },
     {
      "data": "2026-10-30",
      "min": 17,
-     "max": 24,
-     "chuvaMm": 10.9,
-     "chuvaPct": 69,
-     "rajada": 27,
-     "resumo": "Sol e nuvens, pancadas à tarde",
-     "mm2": 5
+     "max": 23,
+     "chuvaMm": 1.9,
+     "chuvaPct": 86,
+     "rajada": 26,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 3.0
     },
     {
      "data": "2026-10-31",
-     "min": 14,
-     "max": 25,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 32,
-     "resumo": "Sol e céu limpo",
-     "mm2": 2
+     "min": 15,
+     "max": 23,
+     "chuvaMm": 0.9,
+     "chuvaPct": 71,
+     "rajada": 27,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 0.0
     },
     {
      "data": "2026-11-01",
-     "min": 14,
-     "max": 26,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 36,
-     "resumo": "Sol e céu limpo"
+     "min": 16,
+     "max": 27,
+     "chuvaMm": 1.7,
+     "chuvaPct": 66,
+     "rajada": 26,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 2.0
     },
     {
      "data": "2026-11-02",
-     "min": 17,
+     "min": 18,
      "max": 24,
-     "chuvaMm": 1.0,
-     "chuvaPct": 61,
-     "rajada": 48,
-     "resumo": "Sol, nuvens e chuva rápida"
+     "chuvaMm": 11.7,
+     "chuvaPct": 77,
+     "rajada": 43,
+     "resumo": "Sol e nuvens"
     },
     {
      "data": "2026-11-03",
-     "min": 19,
-     "max": 27,
-     "chuvaMm": 2.3,
-     "chuvaPct": 77,
-     "rajada": 61,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 16,
+     "max": 24,
+     "chuvaMm": 58.2,
+     "chuvaPct": 81,
+     "rajada": 42,
+     "resumo": "Sol, nuvens e chuva passageira"
     },
     {
      "data": "2026-11-04",
-     "min": 21,
-     "max": 29,
-     "chuvaMm": 0.3,
-     "chuvaPct": 72,
-     "rajada": 35,
-     "resumo": "Nuvens e pancadas à tarde"
+     "min": 17,
+     "max": 26,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 28,
+     "resumo": "Sol e nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 21,
-     "max": 23,
-     "chuvaMm": 10.7,
-     "chuvaPct": 63,
-     "rajada": 38,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 17,
+     "max": 26,
+     "chuvaMm": 2.3,
+     "chuvaPct": 72,
+     "rajada": 31,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-11-06",
-     "min": 21,
-     "max": 23,
-     "chuvaMm": 10.7,
-     "chuvaPct": 75,
-     "rajada": 32,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 18,
+     "max": 26,
+     "chuvaMm": 6.0,
+     "chuvaPct": 53,
+     "rajada": 29,
+     "resumo": "Sol e nuvens"
+    },
+    {
+     "data": "2026-11-07",
+     "min": 18,
+     "max": 26,
+     "chuvaMm": 26.1,
+     "chuvaPct": 62,
+     "rajada": 33,
+     "resumo": "Sol e nuvens"
     }
    ]
   },
   "Cantagalo-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-23T10:40:00-03:00",
+   "atualizado": "2026-10-24T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-23",
-     "min": 18,
-     "max": 21,
-     "chuvaMm": 53.0,
-     "chuvaPct": 99,
-     "rajada": 34,
-     "resumo": "Nublado, chuva forte de dia"
-    },
-    {
      "data": "2026-10-24",
-     "min": 19,
+     "min": 17,
      "max": 21,
-     "chuvaMm": 102.5,
-     "chuvaPct": 99,
-     "rajada": 46,
-     "resumo": "Temporal, chuva forte e trovoadas"
+     "chuvaMm": 60.8,
+     "chuvaPct": 97,
+     "rajada": 43,
+     "resumo": "Nublado, temporal e chuva forte",
+     "mm2": 32.0
     },
     {
      "data": "2026-10-25",
      "min": 15,
-     "max": 22,
-     "chuvaMm": 7.4,
+     "max": 20,
+     "chuvaMm": 7.6,
      "chuvaPct": 97,
-     "rajada": 51,
-     "resumo": "Sol, pancadas de manhã, nuvens"
+     "rajada": 54,
+     "resumo": "Sol, nuvens e chuva passageira",
+     "mm2": 7.0
     },
     {
      "data": "2026-10-26",
-     "min": 12,
-     "max": 22,
+     "min": 11,
+     "max": 20,
      "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 34,
-     "resumo": "Sol e nuvens"
+     "chuvaPct": 0,
+     "rajada": 41,
+     "resumo": "Sol e nuvens",
+     "mm2": 0.0
     },
     {
      "data": "2026-10-27",
-     "min": 12,
-     "max": 22,
+     "min": 11,
+     "max": 21,
      "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 34,
-     "resumo": "Sol e nuvens"
+     "chuvaPct": 0,
+     "rajada": 33,
+     "resumo": "Sol e muitas nuvens",
+     "mm2": 2.0
     },
     {
      "data": "2026-10-28",
-     "min": 15,
-     "max": 20,
-     "chuvaMm": 7.2,
-     "chuvaPct": 73,
-     "rajada": 24,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 14,
+     "max": 23,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 26,
+     "resumo": "Sol e muitas nuvens",
+     "mm2": 0.0
     },
     {
      "data": "2026-10-29",
-     "min": 17,
-     "max": 18,
-     "chuvaMm": 38.5,
-     "chuvaPct": 84,
-     "rajada": 23,
-     "resumo": "Chuva e temporal à tarde"
+     "min": 16,
+     "max": 17,
+     "chuvaMm": 3.0,
+     "chuvaPct": 92,
+     "rajada": 15,
+     "resumo": "Sol e nuvens",
+     "mm2": 4.0
     },
     {
      "data": "2026-10-30",
      "min": 17,
-     "max": 25,
-     "chuvaMm": 9.7,
-     "chuvaPct": 71,
-     "rajada": 25,
-     "resumo": "Sol e nuvens, chuva rápida"
+     "max": 23,
+     "chuvaMm": 1.4,
+     "chuvaPct": 89,
+     "rajada": 29,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 5.0
     },
     {
      "data": "2026-10-31",
-     "min": 14,
-     "max": 26,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 31,
-     "resumo": "Sol, céu limpo"
+     "min": 16,
+     "max": 23,
+     "chuvaMm": 1.4,
+     "chuvaPct": 72,
+     "rajada": 29,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 0.0
     },
     {
      "data": "2026-11-01",
-     "min": 12,
-     "max": 27,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 28,
-     "resumo": "Sol, céu limpo"
+     "min": 16,
+     "max": 28,
+     "chuvaMm": 0.3,
+     "chuvaPct": 67,
+     "rajada": 25,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 2.0
     },
     {
      "data": "2026-11-02",
-     "min": 16,
-     "max": 25,
-     "chuvaMm": 2.8,
-     "chuvaPct": 61,
-     "rajada": 38,
-     "resumo": "Sol e nuvens, chuva rápida"
+     "min": 18,
+     "max": 24,
+     "chuvaMm": 14.7,
+     "chuvaPct": 77,
+     "rajada": 39,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-11-03",
-     "min": 18,
-     "max": 29,
-     "chuvaMm": 1.3,
-     "chuvaPct": 77,
-     "rajada": 45,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 17,
+     "max": 25,
+     "chuvaMm": 53.0,
+     "chuvaPct": 81,
+     "rajada": 43,
+     "resumo": "Nublado, temporal e chuva forte"
     },
     {
      "data": "2026-11-04",
-     "min": 21,
-     "max": 31,
+     "min": 16,
+     "max": 28,
      "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 37,
+     "chuvaPct": 0,
+     "rajada": 27,
      "resumo": "Sol e nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 21,
-     "max": 23,
-     "chuvaMm": 4.9,
-     "chuvaPct": 63,
-     "rajada": 38,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 18,
+     "max": 25,
+     "chuvaMm": 2.4,
+     "chuvaPct": 72,
+     "rajada": 29,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-11-06",
-     "min": 22,
-     "max": 23,
-     "chuvaMm": 4.9,
-     "chuvaPct": 79,
+     "min": 19,
+     "max": 28,
+     "chuvaMm": 3.8,
+     "chuvaPct": 56,
+     "rajada": 33,
+     "resumo": "Sol e nuvens"
+    },
+    {
+     "data": "2026-11-07",
+     "min": 18,
+     "max": 28,
+     "chuvaMm": 32.3,
+     "chuvaPct": 66,
      "rajada": 30,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "resumo": "Nublado, chuva forte"
     }
    ]
   },
   "Palmital-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-23T10:40:00-03:00",
+   "atualizado": "2026-10-24T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-23",
-     "min": 19,
-     "max": 23,
-     "chuvaMm": 36.3,
-     "chuvaPct": 97,
-     "rajada": 35,
-     "resumo": "Nublado, chuva forte de dia"
-    },
-    {
      "data": "2026-10-24",
-     "min": 20,
+     "min": 17,
      "max": 23,
-     "chuvaMm": 80.1,
-     "chuvaPct": 99,
-     "rajada": 43,
-     "resumo": "Temporal, chuva forte e trovoadas"
+     "chuvaMm": 34.9,
+     "chuvaPct": 96,
+     "rajada": 55,
+     "resumo": "Nublado, temporal e chuva forte"
     },
     {
      "data": "2026-10-25",
      "min": 16,
-     "max": 23,
-     "chuvaMm": 22.5,
+     "max": 21,
+     "chuvaMm": 15.4,
      "chuvaPct": 98,
-     "rajada": 50,
-     "resumo": "Sol, nuvens e pancadas rápidas"
+     "rajada": 55,
+     "resumo": "Sol, nuvens e chuva passageira"
     },
     {
      "data": "2026-10-26",
-     "min": 13,
-     "max": 23,
+     "min": 12,
+     "max": 21,
      "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 35,
-     "resumo": "Sol com muitas nuvens"
+     "chuvaPct": 0,
+     "rajada": 41,
+     "resumo": "Sol com poucas nuvens"
     },
     {
      "data": "2026-10-27",
-     "min": 13,
-     "max": 22,
-     "chuvaMm": 0.7,
-     "chuvaPct": 54,
-     "rajada": 40,
-     "resumo": "Sol e nuvens, noite com chuva"
+     "min": 12,
+     "max": 20,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 41,
+     "resumo": "Sol e muitas nuvens"
     },
     {
      "data": "2026-10-28",
-     "min": 16,
-     "max": 22,
-     "chuvaMm": 5.8,
-     "chuvaPct": 77,
-     "rajada": 26,
-     "resumo": "Pancadas à tarde e à noite"
+     "min": 15,
+     "max": 23,
+     "chuvaMm": 1.0,
+     "chuvaPct": 42,
+     "rajada": 28,
+     "resumo": "Sol e muitas nuvens"
     },
     {
      "data": "2026-10-29",
      "min": 17,
-     "max": 19,
-     "chuvaMm": 51.0,
-     "chuvaPct": 82,
-     "rajada": 21,
-     "resumo": "Chuva e temporal à tarde"
+     "max": 18,
+     "chuvaMm": 8.8,
+     "chuvaPct": 92,
+     "rajada": 19,
+     "resumo": "Sol e nuvens"
     },
     {
      "data": "2026-10-30",
-     "min": 18,
-     "max": 25,
-     "chuvaMm": 11.2,
-     "chuvaPct": 71,
-     "rajada": 29,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 17,
+     "max": 23,
+     "chuvaMm": 1.3,
+     "chuvaPct": 87,
+     "rajada": 26,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-10-31",
-     "min": 15,
-     "max": 25,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 35,
-     "resumo": "Sol o dia todo"
+     "min": 17,
+     "max": 24,
+     "chuvaMm": 1.4,
+     "chuvaPct": 71,
+     "rajada": 26,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-11-01",
-     "min": 14,
-     "max": 27,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 35,
-     "resumo": "Sol, nevoeiro à noite"
+     "min": 17,
+     "max": 26,
+     "chuvaMm": 0.9,
+     "chuvaPct": 68,
+     "rajada": 27,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-11-02",
-     "min": 17,
+     "min": 19,
      "max": 24,
-     "chuvaMm": 0.7,
-     "chuvaPct": 60,
-     "rajada": 45,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "chuvaMm": 8.4,
+     "chuvaPct": 75,
+     "rajada": 39,
+     "resumo": "Sol e nuvens"
     },
     {
      "data": "2026-11-03",
-     "min": 20,
-     "max": 28,
-     "chuvaMm": 1.8,
-     "chuvaPct": 77,
-     "rajada": 64,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 18,
+     "max": 22,
+     "chuvaMm": 49.4,
+     "chuvaPct": 81,
+     "rajada": 38,
+     "resumo": "Nublado, chuva forte"
     },
     {
      "data": "2026-11-04",
-     "min": 21,
-     "max": 30,
-     "chuvaMm": 1.0,
-     "chuvaPct": 72,
-     "rajada": 35,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 16,
+     "max": 26,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 23,
+     "resumo": "Sol com poucas nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 21,
-     "max": 24,
-     "chuvaMm": 9.5,
-     "chuvaPct": 64,
-     "rajada": 44,
-     "resumo": "Chuva rápida de dia e à noite"
+     "min": 19,
+     "max": 26,
+     "chuvaMm": 0.8,
+     "chuvaPct": 71,
+     "rajada": 31,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-11-06",
-     "min": 21,
-     "max": 24,
-     "chuvaMm": 9.5,
-     "chuvaPct": 82,
-     "rajada": 36,
-     "resumo": "Chuva rápida de dia e à noite"
+     "min": 19,
+     "max": 27,
+     "chuvaMm": 1.0,
+     "chuvaPct": 56,
+     "rajada": 26,
+     "resumo": "Sol, nuvens e pancadas de chuva"
+    },
+    {
+     "data": "2026-11-07",
+     "min": 18,
+     "max": 27,
+     "chuvaMm": 34.4,
+     "chuvaPct": 69,
+     "rajada": 32,
+     "resumo": "Nublado, chuva forte"
     }
    ]
   },
   "Marquinho-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-23T10:40:00-03:00",
+   "atualizado": "2026-10-24T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-23",
-     "min": 18,
-     "max": 23,
-     "chuvaMm": 34.5,
-     "chuvaPct": 97,
-     "rajada": 33,
-     "resumo": "Nublado, chuva forte de dia"
-    },
-    {
      "data": "2026-10-24",
-     "min": 20,
+     "min": 17,
      "max": 22,
-     "chuvaMm": 78.4,
-     "chuvaPct": 98,
-     "rajada": 44,
-     "resumo": "Temporal, chuva forte e trovoadas"
+     "chuvaMm": 49.0,
+     "chuvaPct": 96,
+     "rajada": 39,
+     "resumo": "Nublado, temporal e chuva forte"
     },
     {
      "data": "2026-10-25",
-     "min": 16,
-     "max": 22,
-     "chuvaMm": 12.0,
+     "min": 15,
+     "max": 21,
+     "chuvaMm": 10.9,
      "chuvaPct": 97,
-     "rajada": 48,
-     "resumo": "Pancadas de manhã, nuvens à tarde"
+     "rajada": 51,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-10-26",
-     "min": 13,
-     "max": 23,
+     "min": 12,
+     "max": 20,
      "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 37,
+     "chuvaPct": 0,
+     "rajada": 43,
      "resumo": "Sol e nuvens"
     },
     {
      "data": "2026-10-27",
-     "min": 13,
-     "max": 23,
-     "chuvaMm": 0.5,
-     "chuvaPct": 55,
+     "min": 12,
+     "max": 20,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
      "rajada": 37,
-     "resumo": "Sol e nuvens, noite com chuva"
+     "resumo": "Sol e muitas nuvens"
     },
     {
      "data": "2026-10-28",
      "min": 15,
-     "max": 21,
-     "chuvaMm": 9.0,
-     "chuvaPct": 77,
-     "rajada": 24,
-     "resumo": "Nuvens, pancadas à tarde"
+     "max": 23,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 31,
+     "resumo": "Sol e muitas nuvens"
     },
     {
      "data": "2026-10-29",
-     "min": 18,
-     "max": 19,
-     "chuvaMm": 70.9,
-     "chuvaPct": 83,
-     "rajada": 24,
-     "resumo": "Chuva e temporal à tarde"
+     "min": 17,
+     "max": 18,
+     "chuvaMm": 5.1,
+     "chuvaPct": 92,
+     "rajada": 18,
+     "resumo": "Sol e nuvens"
     },
     {
      "data": "2026-10-30",
-     "min": 18,
-     "max": 25,
-     "chuvaMm": 13.3,
-     "chuvaPct": 70,
-     "rajada": 24,
-     "resumo": "Sol e nuvens, chuva rápida"
+     "min": 17,
+     "max": 23,
+     "chuvaMm": 1.0,
+     "chuvaPct": 87,
+     "rajada": 28,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-10-31",
-     "min": 16,
-     "max": 26,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
+     "min": 17,
+     "max": 24,
+     "chuvaMm": 1.2,
+     "chuvaPct": 71,
      "rajada": 30,
-     "resumo": "Céu aberto, sol"
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-11-01",
-     "min": 15,
+     "min": 17,
      "max": 27,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 32,
-     "resumo": "Céu aberto, sol"
+     "chuvaMm": 0.3,
+     "chuvaPct": 65,
+     "rajada": 26,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-11-02",
-     "min": 17,
-     "max": 25,
-     "chuvaMm": 0.5,
-     "chuvaPct": 61,
-     "rajada": 47,
-     "resumo": "Nuvens, pancadas à tarde"
+     "min": 19,
+     "max": 24,
+     "chuvaMm": 10.2,
+     "chuvaPct": 76,
+     "rajada": 36,
+     "resumo": "Sol e nuvens"
     },
     {
      "data": "2026-11-03",
-     "min": 19,
-     "max": 27,
-     "chuvaMm": 2.2,
-     "chuvaPct": 76,
-     "rajada": 55,
-     "resumo": "Nuvens, pancadas à tarde"
+     "min": 18,
+     "max": 24,
+     "chuvaMm": 58.9,
+     "chuvaPct": 80,
+     "rajada": 37,
+     "resumo": "Nublado, temporal e chuva forte"
     },
     {
      "data": "2026-11-04",
-     "min": 21,
-     "max": 30,
+     "min": 18,
+     "max": 27,
      "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 37,
+     "chuvaPct": 0,
+     "rajada": 23,
      "resumo": "Sol e nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 21,
+     "min": 19,
      "max": 25,
-     "chuvaMm": 6.7,
-     "chuvaPct": 64,
-     "rajada": 37,
-     "resumo": "Sol e nuvens, chuva rápida"
+     "chuvaMm": 1.5,
+     "chuvaPct": 73,
+     "rajada": 31,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-11-06",
-     "min": 21,
-     "max": 24,
-     "chuvaMm": 6.7,
-     "chuvaPct": 78,
-     "rajada": 35,
-     "resumo": "Sol e nuvens, chuva rápida"
+     "min": 19,
+     "max": 27,
+     "chuvaMm": 1.8,
+     "chuvaPct": 55,
+     "rajada": 28,
+     "resumo": "Sol, nuvens e pancadas de chuva"
+    },
+    {
+     "data": "2026-11-07",
+     "min": 18,
+     "max": 26,
+     "chuvaMm": 23.7,
+     "chuvaPct": 66,
+     "rajada": 28,
+     "resumo": "Sol e nuvens"
     }
    ]
   },
   "Guaraniaçu-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-23T10:40:00-03:00",
+   "atualizado": "2026-10-24T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-23",
-     "min": 19,
-     "max": 24,
-     "chuvaMm": 23.5,
-     "chuvaPct": 97,
-     "rajada": 47,
-     "resumo": "Nublado, chuva forte à tarde",
-     "mm2": 28
-    },
-    {
      "data": "2026-10-24",
-     "min": 20,
-     "max": 23,
-     "chuvaMm": 72.2,
-     "chuvaPct": 99,
-     "rajada": 51,
-     "resumo": "Temporal, chuva forte e trovoadas",
-     "mm2": 27
+     "min": 18,
+     "max": 22,
+     "chuvaMm": 58.7,
+     "chuvaPct": 96,
+     "rajada": 57,
+     "resumo": "Nublado, chuva forte",
+     "mm2": 8.0
     },
     {
      "data": "2026-10-25",
-     "min": 15,
-     "max": 22,
-     "chuvaMm": 6.2,
-     "chuvaPct": 96,
-     "rajada": 48,
-     "resumo": "Pancadas de chuva de manhã, nuvens",
-     "mm2": 6
+     "min": 16,
+     "max": 20,
+     "chuvaMm": 9.3,
+     "chuvaPct": 95,
+     "rajada": 61,
+     "resumo": "Sol, nuvens e chuva passageira",
+     "mm2": 3.0
     },
     {
      "data": "2026-10-26",
      "min": 12,
-     "max": 22,
+     "max": 20,
      "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 24,
-     "resumo": "Nuvens com aberturas de sol",
-     "mm2": 0
+     "chuvaPct": 0,
+     "rajada": 53,
+     "resumo": "Sol e nuvens",
+     "mm2": 0.0
     },
     {
      "data": "2026-10-27",
-     "min": 14,
-     "max": 22,
-     "chuvaMm": 1.4,
-     "chuvaPct": 58,
-     "rajada": 33,
-     "resumo": "Sol e nuvens, noite com chuva",
-     "mm2": 0
+     "min": 12,
+     "max": 20,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 36,
+     "resumo": "Sol e muitas nuvens",
+     "mm2": 2.0
     },
     {
      "data": "2026-10-28",
      "min": 16,
-     "max": 21,
-     "chuvaMm": 9.0,
-     "chuvaPct": 72,
-     "rajada": 18,
-     "resumo": "Sol e nuvens, pancadas à tarde",
-     "mm2": 0
+     "max": 23,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 28,
+     "resumo": "Sol e muitas nuvens",
+     "mm2": 0.0
     },
     {
      "data": "2026-10-29",
      "min": 17,
      "max": 19,
-     "chuvaMm": 50.5,
-     "chuvaPct": 82,
-     "rajada": 48,
-     "resumo": "Chuva e temporal à tarde",
-     "mm2": 2
+     "chuvaMm": 4.0,
+     "chuvaPct": 91,
+     "rajada": 26,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 6.0
     },
     {
      "data": "2026-10-30",
-     "min": 17,
+     "min": 18,
      "max": 24,
-     "chuvaMm": 9.2,
-     "chuvaPct": 68,
-     "rajada": 38,
-     "resumo": "Chuva rápida, sol e nuvens",
-     "mm2": 2
+     "chuvaMm": 2.9,
+     "chuvaPct": 82,
+     "rajada": 24,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 4.0
     },
     {
      "data": "2026-10-31",
-     "min": 14,
-     "max": 25,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 33,
-     "resumo": "Sol o dia todo",
-     "mm2": 0
+     "min": 16,
+     "max": 23,
+     "chuvaMm": 2.3,
+     "chuvaPct": 69,
+     "rajada": 26,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 0.0
     },
     {
      "data": "2026-11-01",
-     "min": 15,
+     "min": 17,
      "max": 27,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 21,
-     "resumo": "Sol o dia todo"
+     "chuvaMm": 1.1,
+     "chuvaPct": 66,
+     "rajada": 24,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 2.0
     },
     {
      "data": "2026-11-02",
-     "min": 17,
-     "max": 24,
-     "chuvaMm": 1.4,
-     "chuvaPct": 62,
-     "rajada": 37,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 19,
+     "max": 25,
+     "chuvaMm": 13.0,
+     "chuvaPct": 78,
+     "rajada": 41,
+     "resumo": "Sol, nuvens e temporal"
     },
     {
      "data": "2026-11-03",
-     "min": 19,
-     "max": 28,
-     "chuvaMm": 1.8,
-     "chuvaPct": 78,
-     "rajada": 30,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 18,
+     "max": 23,
+     "chuvaMm": 56.3,
+     "chuvaPct": 81,
+     "rajada": 41,
+     "resumo": "Nublado, temporal e chuva forte"
     },
     {
      "data": "2026-11-04",
-     "min": 21,
-     "max": 30,
-     "chuvaMm": 0.4,
-     "chuvaPct": 52,
-     "rajada": 54,
+     "min": 18,
+     "max": 26,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 30,
      "resumo": "Sol e nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 22,
-     "max": 26,
-     "chuvaMm": 3.3,
-     "chuvaPct": 63,
-     "rajada": 56,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "min": 18,
+     "max": 25,
+     "chuvaMm": 1.3,
+     "chuvaPct": 68,
+     "rajada": 38,
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
      "data": "2026-11-06",
-     "min": 22,
+     "min": 19,
      "max": 26,
-     "chuvaMm": 3.3,
-     "chuvaPct": 71,
-     "rajada": 56,
-     "resumo": "Sol e nuvens, pancadas à tarde"
+     "chuvaMm": 5.3,
+     "chuvaPct": 54,
+     "rajada": 30,
+     "resumo": "Sol e nuvens"
+    },
+    {
+     "data": "2026-11-07",
+     "min": 18,
+     "max": 26,
+     "chuvaMm": 9.2,
+     "chuvaPct": 64,
+     "rajada": 37,
+     "resumo": "Sol e nuvens"
     }
    ]
   },
   "Toledo-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-23T10:40:00-03:00",
+   "atualizado": "2026-10-24T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-23",
-     "min": 20,
-     "max": 28,
-     "chuvaMm": 2.9,
-     "chuvaPct": 90,
-     "rajada": 45,
-     "resumo": "Sol e nuvens, chuva rápida"
-    },
-    {
      "data": "2026-10-24",
-     "min": 22,
+     "min": 19,
      "max": 26,
-     "chuvaMm": 72.9,
-     "chuvaPct": 98,
-     "rajada": 60,
-     "resumo": "Temporal, chuva forte e trovoadas"
+     "chuvaMm": 34.4,
+     "chuvaPct": 96,
+     "rajada": 56,
+     "resumo": "Sol, nuvens e temporal",
+     "mm2": 3.0
     },
     {
      "data": "2026-10-25",
-     "min": 16,
-     "max": 23,
-     "chuvaMm": 3.7,
-     "chuvaPct": 95,
+     "min": 17,
+     "max": 22,
+     "chuvaMm": 8.9,
+     "chuvaPct": 96,
+     "rajada": 56,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 1.0
+    },
+    {
+     "data": "2026-10-26",
+     "min": 13,
+     "max": 21,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 49,
+     "resumo": "Sol e muitas nuvens",
+     "mm2": 0.0
+    },
+    {
+     "data": "2026-10-27",
+     "min": 15,
+     "max": 21,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 38,
+     "resumo": "Sol e muitas nuvens",
+     "mm2": 0.0
+    },
+    {
+     "data": "2026-10-28",
+     "min": 17,
+     "max": 24,
+     "chuvaMm": 0.1,
+     "chuvaPct": 40,
+     "rajada": 26,
+     "resumo": "Sol e muitas nuvens",
+     "mm2": 0.0
+    },
+    {
+     "data": "2026-10-29",
+     "min": 19,
+     "max": 20,
+     "chuvaMm": 4.1,
+     "chuvaPct": 92,
+     "rajada": 26,
+     "resumo": "Sol e nuvens",
+     "mm2": 2.0
+    },
+    {
+     "data": "2026-10-30",
+     "min": 19,
+     "max": 24,
+     "chuvaMm": 2.4,
+     "chuvaPct": 79,
+     "rajada": 29,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 4.0
+    },
+    {
+     "data": "2026-10-31",
+     "min": 17,
+     "max": 26,
+     "chuvaMm": 1.4,
+     "chuvaPct": 61,
+     "rajada": 28,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 0.0
+    },
+    {
+     "data": "2026-11-01",
+     "min": 17,
+     "max": 28,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 25,
+     "resumo": "Sol com poucas nuvens",
+     "mm2": 6.0
+    },
+    {
+     "data": "2026-11-02",
+     "min": 20,
+     "max": 27,
+     "chuvaMm": 9.3,
+     "chuvaPct": 75,
+     "rajada": 42,
+     "resumo": "Sol e nuvens"
+    },
+    {
+     "data": "2026-11-03",
+     "min": 20,
+     "max": 25,
+     "chuvaMm": 49.8,
+     "chuvaPct": 81,
+     "rajada": 40,
+     "resumo": "Nublado, temporal e chuva forte"
+    },
+    {
+     "data": "2026-11-04",
+     "min": 19,
+     "max": 28,
+     "chuvaMm": 0.5,
+     "chuvaPct": 72,
+     "rajada": 29,
+     "resumo": "Sol, nuvens e pancadas de chuva"
+    },
+    {
+     "data": "2026-11-05",
+     "min": 19,
+     "max": 27,
+     "chuvaMm": 0.6,
+     "chuvaPct": 65,
+     "rajada": 36,
+     "resumo": "Sol, nuvens e pancadas de chuva"
+    },
+    {
+     "data": "2026-11-06",
+     "min": 20,
+     "max": 28,
+     "chuvaMm": 9.3,
+     "chuvaPct": 49,
+     "rajada": 32,
+     "resumo": "Sol e nuvens"
+    },
+    {
+     "data": "2026-11-07",
+     "min": 20,
+     "max": 28,
+     "chuvaMm": 13.1,
+     "chuvaPct": 56,
+     "rajada": 42,
+     "resumo": "Sol e nuvens"
+    }
+   ]
+  },
+  "Ivaiporã-PR": {
+   "fonte": "Climatempo",
+   "atualizado": "2026-10-24T07:40:00-03:00",
+   "dias": [
+    {
+     "data": "2026-10-24",
+     "min": 17,
+     "max": 27,
+     "chuvaMm": 25.1,
+     "chuvaPct": 97,
      "rajada": 50,
-     "resumo": "Pancadas de manhã, nuvens à tarde"
+     "resumo": "Sol, nuvens e chuva passageira",
+     "mm2": 12.0
+    },
+    {
+     "data": "2026-10-25",
+     "min": 17,
+     "max": 25,
+     "chuvaMm": 39.0,
+     "chuvaPct": 97,
+     "rajada": 56,
+     "resumo": "Sol, nuvens e chuva passageira",
+     "mm2": 32.0
     },
     {
      "data": "2026-10-26",
      "min": 13,
      "max": 23,
      "chuvaMm": 0.0,
-     "chuvaPct": null,
+     "chuvaPct": 0,
+     "rajada": 39,
+     "resumo": "Sol com poucas nuvens",
+     "mm2": 0.0
+    },
+    {
+     "data": "2026-10-27",
+     "min": 13,
+     "max": 23,
+     "chuvaMm": 0.0,
+     "chuvaPct": 0,
+     "rajada": 49,
+     "resumo": "Sol e muitas nuvens",
+     "mm2": 0.0
+    },
+    {
+     "data": "2026-10-28",
+     "min": 15,
+     "max": 25,
+     "chuvaMm": 1.2,
+     "chuvaPct": 37,
+     "rajada": 36,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 0.0
+    },
+    {
+     "data": "2026-10-29",
+     "min": 18,
+     "max": 21,
+     "chuvaMm": 4.1,
+     "chuvaPct": 89,
+     "rajada": 26,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 0.0
+    },
+    {
+     "data": "2026-10-30",
+     "min": 17,
+     "max": 26,
+     "chuvaMm": 2.7,
+     "chuvaPct": 81,
+     "rajada": 25,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 2.0
+    },
+    {
+     "data": "2026-10-31",
+     "min": 18,
+     "max": 26,
+     "chuvaMm": 3.4,
+     "chuvaPct": 71,
      "rajada": 29,
+     "resumo": "Sol e nuvens",
+     "mm2": 0.0
+    },
+    {
+     "data": "2026-11-01",
+     "min": 18,
+     "max": 28,
+     "chuvaMm": 1.1,
+     "chuvaPct": 67,
+     "rajada": 26,
+     "resumo": "Sol, nuvens e pancadas de chuva",
+     "mm2": 11.0
+    },
+    {
+     "data": "2026-11-02",
+     "min": 20,
+     "max": 24,
+     "chuvaMm": 4.0,
+     "chuvaPct": 75,
+     "rajada": 34,
+     "resumo": "Sol e nuvens"
+    },
+    {
+     "data": "2026-11-03",
+     "min": 19,
+     "max": 21,
+     "chuvaMm": 42.5,
+     "chuvaPct": 78,
+     "rajada": 38,
+     "resumo": "Nublado, temporal e chuva forte"
+    },
+    {
+     "data": "2026-11-04",
+     "min": 18,
+     "max": 27,
+     "chuvaMm": 1.3,
+     "chuvaPct": 79,
+     "rajada": 34,
+     "resumo": "Sol, nuvens e pancadas de chuva"
+    },
+    {
+     "data": "2026-11-05",
+     "min": 18,
+     "max": 27,
+     "chuvaMm": 0.5,
+     "chuvaPct": 61,
+     "rajada": 37,
      "resumo": "Sol e muitas nuvens"
     },
     {
-     "data": "2026-10-27",
-     "min": 16,
-     "max": 22,
-     "chuvaMm": 4.1,
-     "chuvaPct": 61,
-     "rajada": 35,
-     "resumo": "Nuvens, noite com chuva"
-    },
-    {
-     "data": "2026-10-28",
-     "min": 17,
-     "max": 23,
-     "chuvaMm": 5.5,
-     "chuvaPct": 73,
-     "rajada": 26,
-     "resumo": "Sol e nuvens, chuva rápida"
-    },
-    {
-     "data": "2026-10-29",
+     "data": "2026-11-06",
      "min": 19,
-     "max": 21,
-     "chuvaMm": 109.4,
-     "chuvaPct": 80,
-     "rajada": 31,
-     "resumo": "Temporal, chuva forte e trovoadas"
-    },
-    {
-     "data": "2026-10-30",
-     "min": 18,
-     "max": 25,
-     "chuvaMm": 0.9,
-     "chuvaPct": 61,
-     "rajada": 28,
-     "resumo": "Sol e nuvens, pancadas rápidas"
-    },
-    {
-     "data": "2026-10-31",
-     "min": 17,
-     "max": 27,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 39,
-     "resumo": "Sol o dia todo"
-    },
-    {
-     "data": "2026-11-01",
-     "min": 17,
-     "max": 28,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 44,
-     "resumo": "Sol o dia todo"
-    },
-    {
-     "data": "2026-11-02",
-     "min": 19,
-     "max": 23,
-     "chuvaMm": 7.3,
-     "chuvaPct": 62,
-     "rajada": 58,
-     "resumo": "Sol e pancadas com trovoadas"
-    },
-    {
-     "data": "2026-11-03",
-     "min": 20,
-     "max": 30,
-     "chuvaMm": 0.8,
-     "chuvaPct": 75,
-     "rajada": 54,
-     "resumo": "Sol, nuvens e chuva à tarde"
-    },
-    {
-     "data": "2026-11-04",
-     "min": 23,
-     "max": 31,
+     "max": 29,
      "chuvaMm": 1.4,
-     "chuvaPct": 70,
-     "rajada": 36,
-     "resumo": "Nuvens, pancadas à tarde"
-    },
-    {
-     "data": "2026-11-05",
-     "min": 23,
-     "max": 27,
-     "chuvaMm": 2.9,
-     "chuvaPct": 58,
-     "rajada": 36,
-     "resumo": "Nuvens, pancadas à tarde"
-    },
-    {
-     "data": "2026-11-06",
-     "min": 23,
-     "max": 27,
-     "chuvaMm": 2.8,
-     "chuvaPct": 60,
-     "rajada": 41,
-     "resumo": "Nuvens, pancadas à tarde"
-    }
-   ]
-  },
-  "Ivaiporã-PR": {
-   "fonte": "Climatempo",
-   "atualizado": "2026-10-23T10:40:00-03:00",
-   "dias": [
-    {
-     "data": "2026-10-23",
-     "min": 18,
-     "max": 23,
-     "chuvaMm": 23.2,
-     "chuvaPct": 96,
-     "rajada": 31,
-     "resumo": "Chuva forte de manhã, sol à tarde"
-    },
-    {
-     "data": "2026-10-24",
-     "min": 21,
-     "max": 25,
-     "chuvaMm": 52.3,
-     "chuvaPct": 97,
-     "rajada": 50,
-     "resumo": "Temporal, chuva forte e trovoadas"
-    },
-    {
-     "data": "2026-10-25",
-     "min": 18,
-     "max": 25,
-     "chuvaMm": 54.2,
-     "chuvaPct": 97,
-     "rajada": 48,
-     "resumo": "Chuva forte de manhã, pancadas à noite"
-    },
-    {
-     "data": "2026-10-26",
-     "min": 15,
-     "max": 25,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 29,
-     "resumo": "Sol com algumas nuvens"
-    },
-    {
-     "data": "2026-10-27",
-     "min": 14,
-     "max": 22,
-     "chuvaMm": 0.8,
-     "chuvaPct": 57,
-     "rajada": 44,
-     "resumo": "Nuvens, noite com chuva"
-    },
-    {
-     "data": "2026-10-28",
-     "min": 17,
-     "max": 26,
-     "chuvaMm": 0.5,
-     "chuvaPct": 64,
-     "rajada": 31,
-     "resumo": "Nublado, chuva à tarde"
-    },
-    {
-     "data": "2026-10-29",
-     "min": 18,
-     "max": 21,
-     "chuvaMm": 29.8,
-     "chuvaPct": 81,
-     "rajada": 30,
-     "resumo": "Pancadas e noite com trovoadas"
-    },
-    {
-     "data": "2026-10-30",
-     "min": 18,
-     "max": 27,
-     "chuvaMm": 24.5,
-     "chuvaPct": 73,
-     "rajada": 32,
-     "resumo": "Chuva rápida de dia e à noite"
-    },
-    {
-     "data": "2026-10-31",
-     "min": 18,
-     "max": 27,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 43,
-     "resumo": "Céu limpo, sol"
-    },
-    {
-     "data": "2026-11-01",
-     "min": 18,
-     "max": 28,
-     "chuvaMm": 0.0,
-     "chuvaPct": null,
-     "rajada": 41,
-     "resumo": "Céu limpo, sol"
-    },
-    {
-     "data": "2026-11-02",
-     "min": 19,
-     "max": 26,
-     "chuvaMm": 3.2,
-     "chuvaPct": 60,
-     "rajada": 43,
-     "resumo": "Nuvens, pancadas à tarde"
-    },
-    {
-     "data": "2026-11-03",
-     "min": 20,
-     "max": 30,
-     "chuvaMm": 0.4,
-     "chuvaPct": 70,
-     "rajada": 36,
-     "resumo": "Nuvens, pancadas à tarde"
-    },
-    {
-     "data": "2026-11-04",
-     "min": 22,
-     "max": 31,
-     "chuvaMm": 1.5,
-     "chuvaPct": 75,
+     "chuvaPct": 59,
      "rajada": 39,
-     "resumo": "Nuvens, pancadas à tarde"
+     "resumo": "Sol, nuvens e pancadas de chuva"
     },
     {
-     "data": "2026-11-05",
-     "min": 22,
+     "data": "2026-11-07",
+     "min": 19,
      "max": 28,
-     "chuvaMm": 1.7,
-     "chuvaPct": 66,
-     "rajada": 48,
-     "resumo": "Sol e nuvens, pancadas à noite"
-    },
-    {
-     "data": "2026-11-06",
-     "min": 22,
-     "max": 28,
-     "chuvaMm": 1.7,
-     "chuvaPct": 80,
-     "rajada": 44,
-     "resumo": "Sol e nuvens, pancadas à noite"
+     "chuvaMm": 4.1,
+     "chuvaPct": 68,
+     "rajada": 36,
+     "resumo": "Sol e nuvens"
     }
    ]
   }
