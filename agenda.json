@@ -1,18 +1,7 @@
 {
- "atualizadoEm": "2026-10-24T07:40:00-03:00",
- "observacao": "Agendas conferidas (sem mudanças nos leilões); clima renovado (Climatempo + Agrolink; Palmital/Marquinho sem Agrolink por dados idênticos). Alerta Guaraniaçu 24/10: chuva forte e rajadas até 57 km/h; Palmital 07/11: 34 mm.",
+ "atualizadoEm": "2026-10-25T07:40:00-03:00",
+ "observacao": "Novo: Leilão Especial Fim de Ano Palmital 12/12 (Leiloingá); Brangus HP 10/11 agora 20:00; removido Panorama 22/10. Clima renovado (Climatempo; Agrolink indisponível nesta rodada).",
  "leiloes": [
-  {
-   "id": "pa-2026-10-22-virtual",
-   "canal": "https://www.youtube.com/channel/UC8Vh7MbJbHrCx0KquOUaUNA",
-   "cidade": "Virtual (Cascavel-PR)",
-   "data": "2026-10-22",
-   "hora": "19:30",
-   "leiloeira": "Panorama",
-   "nome": "Leilão Virtual Gado de Corte",
-   "pagina": "https://panoramaleiloes.com.br/agenda/leilao-virtual-gado-de-corte-2026-10-25",
-   "youtube": null
-  },
   {
    "id": "pr-2026-10-23-doisvizinhos",
    "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
@@ -22,6 +11,17 @@
    "leiloeira": "Pampa Remates",
    "nome": "43º Leilão Virtual Parceiros da Pecuária",
    "pagina": "https://www.pamparemates.com.br/leilao/1990/43°-leilao-virtual-parceiros-da-pecuaria--31-12-1969",
+   "youtube": null
+  },
+  {
+   "id": "pr-2026-10-24-quedas",
+   "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
+   "cidade": "Quedas do Iguaçu-PR",
+   "data": "2026-10-24",
+   "hora": "14:00",
+   "leiloeira": "Pampa Remates",
+   "nome": "Leilão de Gado Geral",
+   "pagina": "https://www.pamparemates.com.br/leilao/2003/leilao-de-gado-geral--24-10-2026",
    "youtube": null
   },
   {
@@ -36,17 +36,6 @@
    "pagina": "https://www.leiloinga.com.br/leilao/6-leilao-da-uniao-gado-de-corte-guaraniacu-pr",
    "youtube": null,
    "banner": "https://www.leiloinga.com.br/uploads/images/2026/10/6-leilao-da-uniao-gado-de-corte-guaraniacu-pr-1792004082.jpeg"
-  },
-  {
-   "id": "pr-2026-10-24-quedas",
-   "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
-   "cidade": "Quedas do Iguaçu-PR",
-   "data": "2026-10-24",
-   "hora": "14:00",
-   "leiloeira": "Pampa Remates",
-   "nome": "Leilão de Gado Geral",
-   "pagina": "https://www.pamparemates.com.br/leilao/2003/leilao-de-gado-geral--24-10-2026",
-   "youtube": null
   },
   {
    "id": "pa-2026-10-26-santafe1",
@@ -71,17 +60,6 @@
    "youtube": null
   },
   {
-   "id": "pa-2026-10-27-santafe2",
-   "canal": "https://www.youtube.com/channel/UC8Vh7MbJbHrCx0KquOUaUNA",
-   "cidade": "Virtual (Cascavel-PR)",
-   "data": "2026-10-27",
-   "hora": "19:30",
-   "leiloeira": "Panorama",
-   "nome": "Leilão Touros Fazenda Santa Fé – Etapa 2",
-   "pagina": "https://panoramaleiloes.com.br/agenda/leilao-touros-fazenda-santa-fe-etapa-2-2026-10-27",
-   "youtube": null
-  },
-  {
    "id": "pr-2026-10-27-capaoalto",
    "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
    "cidade": "Capão Alto-SC",
@@ -90,6 +68,17 @@
    "leiloeira": "Pampa Remates",
    "nome": "Leilão de Gado Geral",
    "pagina": "https://www.pamparemates.com.br/leilao/1987/leilao-de-gado-geral--27-10-2026",
+   "youtube": null
+  },
+  {
+   "id": "pa-2026-10-27-santafe2",
+   "canal": "https://www.youtube.com/channel/UC8Vh7MbJbHrCx0KquOUaUNA",
+   "cidade": "Virtual (Cascavel-PR)",
+   "data": "2026-10-27",
+   "hora": "19:30",
+   "leiloeira": "Panorama",
+   "nome": "Leilão Touros Fazenda Santa Fé – Etapa 2",
+   "pagina": "https://panoramaleiloes.com.br/agenda/leilao-touros-fazenda-santa-fe-etapa-2-2026-10-27",
    "youtube": null
   },
   {
@@ -126,6 +115,17 @@
    "youtube": null
   },
   {
+   "id": "pr-2026-10-31-pinhalzinho",
+   "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
+   "cidade": "Pinhalzinho-SC",
+   "data": "2026-10-31",
+   "hora": "14:00",
+   "leiloeira": "Pampa Remates",
+   "nome": "Leilão de Gado Geral",
+   "pagina": "https://www.pamparemates.com.br/leilao/1989/leilao-de-gado-geral--31-10-2026",
+   "youtube": null
+  },
+  {
    "id": "li-2026-10-31-laranjeiras",
    "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
    "cidade": "Laranjeiras do Sul-PR",
@@ -137,17 +137,6 @@
    "pagina": "https://www.leiloinga.com.br/leilao/7-leilao-das-aguas-gado-de-corte-laranjeiras-do-sul",
    "youtube": null,
    "banner": "https://www.leiloinga.com.br/uploads/images/2026/10/7-leilao-das-aguas-gado-de-corte-laranjeiras-do-sul-1792004136.jpeg"
-  },
-  {
-   "id": "pr-2026-10-31-pinhalzinho",
-   "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
-   "cidade": "Pinhalzinho-SC",
-   "data": "2026-10-31",
-   "hora": "14:00",
-   "leiloeira": "Pampa Remates",
-   "nome": "Leilão de Gado Geral",
-   "pagina": "https://www.pamparemates.com.br/leilao/1989/leilao-de-gado-geral--31-10-2026",
-   "youtube": null
   },
   {
    "id": "pa-2026-11-01-virtual",
@@ -216,19 +205,6 @@
    "youtube": null
   },
   {
-   "id": "li-2026-11-07-palmital",
-   "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
-   "cidade": "Palmital-PR",
-   "data": "2026-11-07",
-   "hora": "14:30",
-   "leiloeira": "Leiloingá",
-   "local": "Recinto de Leilões da Prefeitura",
-   "nome": "Leilão Especial Gado de Corte",
-   "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-gado-de-corte",
-   "youtube": null,
-   "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-gado-de-corte-1790790843.jpeg"
-  },
-  {
    "id": "pr-2026-11-07-smoeste",
    "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
    "cidade": "São Miguel do Oeste-SC",
@@ -240,15 +216,17 @@
    "youtube": null
   },
   {
-   "id": "ga-2026-11-08-candoi",
-   "canal": "https://www.youtube.com/channel/UCvBX7h1bHDiJZ53H65vK83g",
-   "cidade": "Candói-PR",
-   "data": "2026-11-08",
-   "hora": "15:00",
-   "leiloeira": "Gralha Azul",
-   "nome": "Leilão Gado Geral",
-   "pagina": "https://gralhaazulleiloes.com.br/auctions",
-   "youtube": null
+   "id": "li-2026-11-07-palmital",
+   "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
+   "cidade": "Palmital-PR",
+   "data": "2026-11-07",
+   "hora": "14:30",
+   "leiloeira": "Leiloingá",
+   "local": "Recinto de Leilões da Prefeitura",
+   "nome": "Leilão Especial Gado de Corte",
+   "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-gado-de-corte",
+   "youtube": null,
+   "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-gado-de-corte-1790790843.jpeg"
   },
   {
    "id": "pa-2026-11-08-virtual",
@@ -273,6 +251,17 @@
    "youtube": null
   },
   {
+   "id": "ga-2026-11-08-candoi",
+   "canal": "https://www.youtube.com/channel/UCvBX7h1bHDiJZ53H65vK83g",
+   "cidade": "Candói-PR",
+   "data": "2026-11-08",
+   "hora": "15:00",
+   "leiloeira": "Gralha Azul",
+   "nome": "Leilão Gado Geral",
+   "pagina": "https://gralhaazulleiloes.com.br/auctions",
+   "youtube": null
+  },
+  {
    "id": "pa-2026-11-10-angelus",
    "canal": "https://www.youtube.com/channel/UC8Vh7MbJbHrCx0KquOUaUNA",
    "cidade": "Virtual (Cascavel-PR)",
@@ -288,7 +277,7 @@
    "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
    "cidade": "São Paulo-SP",
    "data": "2026-11-10",
-   "hora": "19:00",
+   "hora": "20:00",
    "leiloeira": "Pampa Remates",
    "nome": "2º Circuito Genético HP – Brangus HP",
    "pagina": "https://www.pamparemates.com.br/leilao/2002/2°-circuito-genetico-hp---brangus-hp--31-12-1969",
@@ -306,6 +295,17 @@
    "youtube": null
   },
   {
+   "id": "pa-2026-11-15-virtual",
+   "canal": "https://www.youtube.com/channel/UC8Vh7MbJbHrCx0KquOUaUNA",
+   "cidade": "Virtual (Cascavel-PR)",
+   "data": "2026-11-15",
+   "hora": "14:00",
+   "leiloeira": "Panorama",
+   "nome": "8° Leilão Oeste Santa Nice – Edição Primavera",
+   "pagina": "https://panoramaleiloes.com.br/agenda/leilao-virtual-gado-de-corte-2026-11-15",
+   "youtube": null
+  },
+  {
    "id": "li-2026-11-15-marquinho",
    "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
    "cidade": "Marquinho-PR",
@@ -317,17 +317,6 @@
    "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-gado-de-corte-marquinho-pr-108",
    "youtube": null,
    "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-gado-de-corte-marquinho-pr-108-1790790898.jpeg"
-  },
-  {
-   "id": "pa-2026-11-15-virtual",
-   "canal": "https://www.youtube.com/channel/UC8Vh7MbJbHrCx0KquOUaUNA",
-   "cidade": "Virtual (Cascavel-PR)",
-   "data": "2026-11-15",
-   "hora": "14:00",
-   "leiloeira": "Panorama",
-   "nome": "8° Leilão Oeste Santa Nice – Edição Primavera",
-   "pagina": "https://panoramaleiloes.com.br/agenda/leilao-virtual-gado-de-corte-2026-11-15",
-   "youtube": null
   },
   {
    "id": "ga-2026-11-17-candoi",
@@ -376,30 +365,6 @@
    "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-gado-de-corte-ivaipora-pr-129-1790790993.jpeg"
   },
   {
-   "id": "ga-2026-11-22-turvo",
-   "canal": "https://www.youtube.com/channel/UCvBX7h1bHDiJZ53H65vK83g",
-   "cidade": "Turvo-PR",
-   "data": "2026-11-22",
-   "hora": "15:00",
-   "leiloeira": "Gralha Azul",
-   "nome": "Leilão Aniversário APB",
-   "pagina": "https://gralhaazulleiloes.com.br/auctions",
-   "youtube": null
-  },
-  {
-   "id": "li-2026-11-22-guaraniacu",
-   "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
-   "cidade": "Guaraniaçu-PR",
-   "data": "2026-11-22",
-   "hora": "14:30",
-   "leiloeira": "Leiloingá",
-   "local": "Recinto de Leilões",
-   "nome": "Leilão Especial Fim de Ano – Gado de Corte",
-   "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-fim-de-ano-gado-de-corte-guaraniacu-pr",
-   "youtube": null,
-   "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-gado-de-corte-guaraniacu-pr-1790791061.jpeg"
-  },
-  {
    "id": "pa-2026-11-22-virtual",
    "canal": "https://www.youtube.com/channel/UC8Vh7MbJbHrCx0KquOUaUNA",
    "cidade": "Virtual (Cascavel-PR)",
@@ -419,6 +384,30 @@
    "leiloeira": "Pampa Remates",
    "nome": "Leilão do Pecuarista",
    "pagina": "https://www.pamparemates.com.br/leilao/1998/leilao-do-pecuarista--22-11-2026",
+   "youtube": null
+  },
+  {
+   "id": "li-2026-11-22-guaraniacu",
+   "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
+   "cidade": "Guaraniaçu-PR",
+   "data": "2026-11-22",
+   "hora": "14:30",
+   "leiloeira": "Leiloingá",
+   "local": "Recinto de Leilões",
+   "nome": "Leilão Especial Fim de Ano – Gado de Corte",
+   "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-fim-de-ano-gado-de-corte-guaraniacu-pr",
+   "youtube": null,
+   "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-gado-de-corte-guaraniacu-pr-1790791061.jpeg"
+  },
+  {
+   "id": "ga-2026-11-22-turvo",
+   "canal": "https://www.youtube.com/channel/UCvBX7h1bHDiJZ53H65vK83g",
+   "cidade": "Turvo-PR",
+   "data": "2026-11-22",
+   "hora": "15:00",
+   "leiloeira": "Gralha Azul",
+   "nome": "Leilão Aniversário APB",
+   "pagina": "https://gralhaazulleiloes.com.br/auctions",
    "youtube": null
   },
   {
@@ -466,19 +455,6 @@
    "youtube": null
   },
   {
-   "id": "li-2026-11-29-cantagalo",
-   "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
-   "cidade": "Cantagalo-PR",
-   "data": "2026-11-29",
-   "hora": "14:30",
-   "leiloeira": "Leiloingá",
-   "local": "CTG Jacob Fritz",
-   "nome": "Leilão Especial Fim de Ano",
-   "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-fim-de-ano-cantagalo-pr",
-   "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-cantagalo-pr-1790791135.jpeg",
-   "youtube": null
-  },
-  {
    "id": "pa-2026-11-29-virtual",
    "canal": "https://www.youtube.com/channel/UC8Vh7MbJbHrCx0KquOUaUNA",
    "cidade": "Virtual (Cascavel-PR)",
@@ -498,6 +474,19 @@
    "leiloeira": "Pampa Remates",
    "nome": "Leilão Aniversário 65 Anos do Município",
    "pagina": "https://www.pamparemates.com.br/leilao/2001/leilao-aniversario-65-anos-do-municipio--29-11-2026",
+   "youtube": null
+  },
+  {
+   "id": "li-2026-11-29-cantagalo",
+   "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
+   "cidade": "Cantagalo-PR",
+   "data": "2026-11-29",
+   "hora": "14:30",
+   "leiloeira": "Leiloingá",
+   "local": "CTG Jacob Fritz",
+   "nome": "Leilão Especial Fim de Ano",
+   "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-fim-de-ano-cantagalo-pr",
+   "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-cantagalo-pr-1790791135.jpeg",
    "youtube": null
   },
   {
@@ -523,14 +512,14 @@
    "youtube": null
   },
   {
-   "id": "ga-2026-12-06-candoi",
-   "canal": "https://www.youtube.com/channel/UCvBX7h1bHDiJZ53H65vK83g",
-   "cidade": "Candói-PR",
+   "id": "pr-2026-12-06-beltrao",
+   "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
+   "cidade": "Francisco Beltrão-PR",
    "data": "2026-12-06",
-   "hora": "15:00",
-   "leiloeira": "Gralha Azul",
-   "nome": "Leilão Gado Geral",
-   "pagina": "https://gralhaazulleiloes.com.br/auctions",
+   "hora": "14:00",
+   "leiloeira": "Pampa Remates",
+   "nome": "Leilão de Gado Geral",
+   "pagina": "https://www.pamparemates.com.br/leilao/2006/leilao-de-gado-geral--06-12-2026",
    "youtube": null
   },
   {
@@ -547,14 +536,14 @@
    "youtube": null
   },
   {
-   "id": "pr-2026-12-06-beltrao",
-   "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
-   "cidade": "Francisco Beltrão-PR",
+   "id": "ga-2026-12-06-candoi",
+   "canal": "https://www.youtube.com/channel/UCvBX7h1bHDiJZ53H65vK83g",
+   "cidade": "Candói-PR",
    "data": "2026-12-06",
-   "hora": "14:00",
-   "leiloeira": "Pampa Remates",
-   "nome": "Leilão de Gado Geral",
-   "pagina": "https://www.pamparemates.com.br/leilao/2006/leilao-de-gado-geral--06-12-2026",
+   "hora": "15:00",
+   "leiloeira": "Gralha Azul",
+   "nome": "Leilão Gado Geral",
+   "pagina": "https://gralhaazulleiloes.com.br/auctions",
    "youtube": null
   },
   {
@@ -580,17 +569,6 @@
    "youtube": null
   },
   {
-   "id": "ga-2026-12-12-pitanga",
-   "canal": "https://www.youtube.com/channel/UCvBX7h1bHDiJZ53H65vK83g",
-   "cidade": "Pitanga-PR",
-   "data": "2026-12-12",
-   "hora": "15:00",
-   "leiloeira": "Gralha Azul",
-   "nome": "Leilão Gado Geral",
-   "pagina": "https://gralhaazulleiloes.com.br/auctions",
-   "youtube": null
-  },
-  {
    "id": "pr-2026-12-12-quedas",
    "canal": "https://www.youtube.com/c/CANALPAMPAREMATES",
    "cidade": "Quedas do Iguaçu-PR",
@@ -599,6 +577,30 @@
    "leiloeira": "Pampa Remates",
    "nome": "Leilão de Gado Geral",
    "pagina": "https://www.pamparemates.com.br/leilao/2009/leilao-de-gado-geral--12-12-2026",
+   "youtube": null
+  },
+  {
+   "id": "li-2026-12-12-palmital",
+   "leiloeira": "Leiloingá",
+   "nome": "Leilão Especial Fim de Ano – Gado de Corte",
+   "data": "2026-12-12",
+   "hora": "14:30",
+   "cidade": "Palmital-PR",
+   "local": "Recinto de Leilões",
+   "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-fim-de-ano-palmital-pr-131",
+   "youtube": null,
+   "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
+   "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-palmital-pr-131-1790791674.jpeg"
+  },
+  {
+   "id": "ga-2026-12-12-pitanga",
+   "canal": "https://www.youtube.com/channel/UCvBX7h1bHDiJZ53H65vK83g",
+   "cidade": "Pitanga-PR",
+   "data": "2026-12-12",
+   "hora": "15:00",
+   "leiloeira": "Gralha Azul",
+   "nome": "Leilão Gado Geral",
+   "pagina": "https://gralhaazulleiloes.com.br/auctions",
    "youtube": null
   },
   {
@@ -642,27 +644,27 @@
    "cidade": "Laranjeiras do Sul-PR",
    "data": "2026-10-31",
    "min": 15,
-   "max": 23,
+   "max": 26,
    "chuvaPct": 71,
-   "chuvaMm": 0.9,
-   "rajada": 27,
-   "resumo": "Sol, nuvens e pancadas de chuva",
-   "alerta": "Chuva 71% e 0.9 mm (Climatempo)",
-   "fonte": "Climatempo + Agrolink",
-   "atualizado": "2026-10-24T07:40:00-03:00"
+   "chuvaMm": 1.5,
+   "rajada": 28,
+   "resumo": "Sol, pancadas de chuva, nuvens",
+   "alerta": "Chuva 71% (Climatempo)",
+   "fonte": "Climatempo",
+   "atualizado": "2026-10-25T07:40:00-03:00"
   },
   "li-2026-11-07-palmital": {
    "cidade": "Palmital-PR",
    "data": "2026-11-07",
-   "min": 18,
-   "max": 27,
-   "chuvaPct": 69,
-   "chuvaMm": 34.4,
-   "rajada": 32,
-   "resumo": "Nublado, chuva forte",
-   "alerta": "Chuva 69% e 34.4 mm (Climatempo)",
+   "min": 14,
+   "max": 26,
+   "chuvaPct": null,
+   "chuvaMm": 0.0,
+   "rajada": 37,
+   "resumo": "Sol, nuvens",
+   "alerta": null,
    "fonte": "Climatempo",
-   "atualizado": "2026-10-24T07:40:00-03:00"
+   "atualizado": "2026-10-25T07:40:00-03:00"
   },
   "li-2026-11-15-marquinho": {
    "cidade": "Marquinho-PR",
@@ -698,1038 +700,1000 @@
    "indisponivel": true,
    "resumo": "A previsão sai cerca de 15 dias antes; entra aqui automaticamente.",
    "alerta": null
+  },
+  "li-2026-12-12-palmital": {
+   "cidade": "Palmital-PR",
+   "data": "2026-12-12",
+   "indisponivel": true,
+   "resumo": "A previsão sai cerca de 15 dias antes; entra aqui automaticamente.",
+   "alerta": null
   }
  },
  "clima": {
   "Laranjeiras do Sul-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-24T07:40:00-03:00",
+   "atualizado": "2026-10-25T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-24",
-     "min": 17,
-     "max": 21,
-     "chuvaMm": 74.1,
-     "chuvaPct": 98,
-     "rajada": 50,
-     "resumo": "Nublado, temporal e chuva forte",
-     "mm2": 52.0
-    },
-    {
      "data": "2026-10-25",
-     "min": 15,
+     "min": 14,
      "max": 20,
-     "chuvaMm": 7.8,
+     "chuvaMm": 1.1,
      "chuvaPct": 95,
-     "rajada": 53,
-     "resumo": "Sol, nuvens e chuva passageira",
-     "mm2": 7.0
+     "rajada": 50,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-10-26",
-     "min": 11,
+     "min": 10,
      "max": 20,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 42,
-     "resumo": "Sol e nuvens",
-     "mm2": 0.0
+     "chuvaPct": null,
+     "rajada": 41,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-27",
      "min": 11,
-     "max": 21,
+     "max": 22,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 33,
-     "resumo": "Sol e muitas nuvens",
-     "mm2": 1.0
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-28",
-     "min": 14,
-     "max": 23,
+     "min": 15,
+     "max": 22,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 27,
-     "resumo": "Sol e muitas nuvens",
-     "mm2": 0.0
+     "chuvaPct": null,
+     "rajada": 22,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-29",
-     "min": 17,
+     "min": 16,
      "max": 18,
-     "chuvaMm": 4.1,
-     "chuvaPct": 91,
-     "rajada": 24,
-     "resumo": "Sol e nuvens",
-     "mm2": 3.0
+     "chuvaMm": 2.6,
+     "chuvaPct": 89,
+     "rajada": 27,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-30",
      "min": 17,
      "max": 23,
-     "chuvaMm": 1.9,
-     "chuvaPct": 86,
+     "chuvaMm": 0.3,
+     "chuvaPct": 78,
      "rajada": 26,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 3.0
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-10-31",
      "min": 15,
-     "max": 23,
-     "chuvaMm": 0.9,
+     "max": 26,
+     "chuvaMm": 1.5,
      "chuvaPct": 71,
-     "rajada": 27,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 0.0
+     "rajada": 28,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-01",
      "min": 16,
-     "max": 27,
-     "chuvaMm": 1.7,
-     "chuvaPct": 66,
-     "rajada": 26,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 2.0
+     "max": 25,
+     "chuvaMm": 0.8,
+     "chuvaPct": 74,
+     "rajada": 29,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-02",
-     "min": 18,
-     "max": 24,
-     "chuvaMm": 11.7,
-     "chuvaPct": 77,
-     "rajada": 43,
-     "resumo": "Sol e nuvens"
+     "min": 17,
+     "max": 25,
+     "chuvaMm": 6.8,
+     "chuvaPct": 75,
+     "rajada": 42,
+     "resumo": "Sol, nublado, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-03",
-     "min": 16,
-     "max": 24,
-     "chuvaMm": 58.2,
-     "chuvaPct": 81,
-     "rajada": 42,
-     "resumo": "Sol, nuvens e chuva passageira"
+     "min": 18,
+     "max": 23,
+     "chuvaMm": 15.9,
+     "chuvaPct": 80,
+     "rajada": 47,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-04",
-     "min": 17,
-     "max": 26,
-     "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 28,
-     "resumo": "Sol e nuvens"
+     "min": 18,
+     "max": 23,
+     "chuvaMm": 7.2,
+     "chuvaPct": 80,
+     "rajada": 50,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 17,
-     "max": 26,
-     "chuvaMm": 2.3,
-     "chuvaPct": 72,
-     "rajada": 31,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 14,
+     "max": 22,
+     "chuvaMm": 2.8,
+     "chuvaPct": 59,
+     "rajada": 44,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-11-06",
-     "min": 18,
+     "min": 12,
      "max": 26,
-     "chuvaMm": 6.0,
-     "chuvaPct": 53,
-     "rajada": 29,
-     "resumo": "Sol e nuvens"
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 45,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-11-07",
-     "min": 18,
+     "min": 14,
      "max": 26,
-     "chuvaMm": 26.1,
-     "chuvaPct": 62,
-     "rajada": 33,
-     "resumo": "Sol e nuvens"
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 34,
+     "resumo": "Sol, nuvens"
+    },
+    {
+     "data": "2026-11-08",
+     "min": 21,
+     "max": 22,
+     "chuvaMm": 15.0,
+     "chuvaPct": 72,
+     "rajada": 44,
+     "resumo": "Sol, chuva, nuvens"
     }
    ]
   },
   "Cantagalo-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-24T07:40:00-03:00",
+   "atualizado": "2026-10-25T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-24",
-     "min": 17,
-     "max": 21,
-     "chuvaMm": 60.8,
-     "chuvaPct": 97,
-     "rajada": 43,
-     "resumo": "Nublado, temporal e chuva forte",
-     "mm2": 32.0
-    },
-    {
      "data": "2026-10-25",
-     "min": 15,
+     "min": 13,
      "max": 20,
-     "chuvaMm": 7.6,
+     "chuvaMm": 0.8,
      "chuvaPct": 97,
-     "rajada": 54,
-     "resumo": "Sol, nuvens e chuva passageira",
-     "mm2": 7.0
+     "rajada": 51,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-10-26",
-     "min": 11,
-     "max": 20,
+     "min": 10,
+     "max": 19,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 41,
-     "resumo": "Sol e nuvens",
-     "mm2": 0.0
+     "chuvaPct": null,
+     "rajada": 39,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-27",
      "min": 11,
-     "max": 21,
+     "max": 22,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 33,
-     "resumo": "Sol e muitas nuvens",
-     "mm2": 2.0
+     "chuvaPct": null,
+     "rajada": 32,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-28",
      "min": 14,
-     "max": 23,
+     "max": 22,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 26,
-     "resumo": "Sol e muitas nuvens",
-     "mm2": 0.0
+     "chuvaPct": null,
+     "rajada": 30,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-29",
      "min": 16,
-     "max": 17,
-     "chuvaMm": 3.0,
-     "chuvaPct": 92,
-     "rajada": 15,
-     "resumo": "Sol e nuvens",
-     "mm2": 4.0
+     "max": 18,
+     "chuvaMm": 2.6,
+     "chuvaPct": 90,
+     "rajada": 23,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-10-30",
-     "min": 17,
+     "min": 16,
      "max": 23,
-     "chuvaMm": 1.4,
-     "chuvaPct": 89,
-     "rajada": 29,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 5.0
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 28,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-31",
-     "min": 16,
-     "max": 23,
-     "chuvaMm": 1.4,
-     "chuvaPct": 72,
-     "rajada": 29,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 0.0
+     "min": 14,
+     "max": 26,
+     "chuvaMm": 0.9,
+     "chuvaPct": 71,
+     "rajada": 28,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-01",
      "min": 16,
-     "max": 28,
-     "chuvaMm": 0.3,
-     "chuvaPct": 67,
+     "max": 27,
+     "chuvaMm": 0.6,
+     "chuvaPct": 73,
      "rajada": 25,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 2.0
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-02",
-     "min": 18,
-     "max": 24,
-     "chuvaMm": 14.7,
-     "chuvaPct": 77,
-     "rajada": 39,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 17,
+     "max": 25,
+     "chuvaMm": 3.8,
+     "chuvaPct": 76,
+     "rajada": 37,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-03",
-     "min": 17,
-     "max": 25,
-     "chuvaMm": 53.0,
-     "chuvaPct": 81,
-     "rajada": 43,
-     "resumo": "Nublado, temporal e chuva forte"
+     "min": 18,
+     "max": 24,
+     "chuvaMm": 17.3,
+     "chuvaPct": 80,
+     "rajada": 37,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-04",
-     "min": 16,
-     "max": 28,
-     "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 27,
-     "resumo": "Sol e nuvens"
+     "min": 18,
+     "max": 25,
+     "chuvaMm": 4.5,
+     "chuvaPct": 77,
+     "rajada": 46,
+     "resumo": "Sol, nublado, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 18,
-     "max": 25,
-     "chuvaMm": 2.4,
-     "chuvaPct": 72,
-     "rajada": 29,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 15,
+     "max": 23,
+     "chuvaMm": 2.7,
+     "chuvaPct": 58,
+     "rajada": 42,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-11-06",
-     "min": 19,
-     "max": 28,
-     "chuvaMm": 3.8,
-     "chuvaPct": 56,
-     "rajada": 33,
-     "resumo": "Sol e nuvens"
+     "min": 13,
+     "max": 27,
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 39,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-11-07",
-     "min": 18,
+     "min": 14,
      "max": 28,
-     "chuvaMm": 32.3,
-     "chuvaPct": 66,
-     "rajada": 30,
-     "resumo": "Nublado, chuva forte"
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 34,
+     "resumo": "Sol, nuvens"
+    },
+    {
+     "data": "2026-11-08",
+     "min": 20,
+     "max": 24,
+     "chuvaMm": 22.2,
+     "chuvaPct": 71,
+     "rajada": 37,
+     "resumo": "Sol, chuva, nuvens"
     }
    ]
   },
   "Palmital-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-24T07:40:00-03:00",
+   "atualizado": "2026-10-25T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-24",
-     "min": 17,
-     "max": 23,
-     "chuvaMm": 34.9,
-     "chuvaPct": 96,
-     "rajada": 55,
-     "resumo": "Nublado, temporal e chuva forte"
-    },
-    {
      "data": "2026-10-25",
-     "min": 16,
-     "max": 21,
-     "chuvaMm": 15.4,
-     "chuvaPct": 98,
-     "rajada": 55,
-     "resumo": "Sol, nuvens e chuva passageira"
+     "min": 15,
+     "max": 22,
+     "chuvaMm": 0.5,
+     "chuvaPct": 92,
+     "rajada": 50,
+     "resumo": "Sol, chuva, nuvens"
     },
     {
      "data": "2026-10-26",
-     "min": 12,
+     "min": 10,
      "max": 21,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 41,
-     "resumo": "Sol com poucas nuvens"
+     "chuvaPct": null,
+     "rajada": 39,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-27",
      "min": 12,
-     "max": 20,
+     "max": 22,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 41,
-     "resumo": "Sol e muitas nuvens"
+     "chuvaPct": null,
+     "rajada": 37,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-28",
      "min": 15,
      "max": 23,
-     "chuvaMm": 1.0,
-     "chuvaPct": 42,
-     "rajada": 28,
-     "resumo": "Sol e muitas nuvens"
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 23,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-29",
-     "min": 17,
-     "max": 18,
-     "chuvaMm": 8.8,
-     "chuvaPct": 92,
-     "rajada": 19,
-     "resumo": "Sol e nuvens"
+     "min": 16,
+     "max": 19,
+     "chuvaMm": 8.6,
+     "chuvaPct": 90,
+     "rajada": 28,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-10-30",
-     "min": 17,
-     "max": 23,
-     "chuvaMm": 1.3,
-     "chuvaPct": 87,
-     "rajada": 26,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 16,
+     "max": 24,
+     "chuvaMm": 0.3,
+     "chuvaPct": 92,
+     "rajada": 28,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-10-31",
-     "min": 17,
-     "max": 24,
-     "chuvaMm": 1.4,
-     "chuvaPct": 71,
-     "rajada": 26,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 15,
+     "max": 26,
+     "chuvaMm": 1.2,
+     "chuvaPct": 69,
+     "rajada": 28,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-01",
      "min": 17,
-     "max": 26,
-     "chuvaMm": 0.9,
-     "chuvaPct": 68,
-     "rajada": 27,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "max": 25,
+     "chuvaMm": 2.2,
+     "chuvaPct": 74,
+     "rajada": 28,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-02",
      "min": 19,
      "max": 24,
-     "chuvaMm": 8.4,
-     "chuvaPct": 75,
+     "chuvaMm": 3.4,
+     "chuvaPct": 76,
      "rajada": 39,
-     "resumo": "Sol e nuvens"
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-03",
-     "min": 18,
-     "max": 22,
-     "chuvaMm": 49.4,
-     "chuvaPct": 81,
-     "rajada": 38,
-     "resumo": "Nublado, chuva forte"
+     "min": 19,
+     "max": 23,
+     "chuvaMm": 10.7,
+     "chuvaPct": 79,
+     "rajada": 40,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-04",
-     "min": 16,
-     "max": 26,
-     "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 23,
-     "resumo": "Sol com poucas nuvens"
+     "min": 19,
+     "max": 25,
+     "chuvaMm": 10.0,
+     "chuvaPct": 79,
+     "rajada": 43,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 19,
-     "max": 26,
-     "chuvaMm": 0.8,
-     "chuvaPct": 71,
-     "rajada": 31,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 15,
+     "max": 24,
+     "chuvaMm": 3.6,
+     "chuvaPct": 61,
+     "rajada": 43,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-06",
-     "min": 19,
-     "max": 27,
-     "chuvaMm": 1.0,
-     "chuvaPct": 56,
-     "rajada": 26,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 13,
+     "max": 25,
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 50,
+     "resumo": "Sol, chuva, nuvens"
     },
     {
      "data": "2026-11-07",
-     "min": 18,
-     "max": 27,
-     "chuvaMm": 34.4,
-     "chuvaPct": 69,
-     "rajada": 32,
-     "resumo": "Nublado, chuva forte"
+     "min": 14,
+     "max": 26,
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 37,
+     "resumo": "Sol, nuvens"
+    },
+    {
+     "data": "2026-11-08",
+     "min": 20,
+     "max": 23,
+     "chuvaMm": 15.0,
+     "chuvaPct": 70,
+     "rajada": 46,
+     "resumo": "Sol, chuva, nuvens"
     }
    ]
   },
   "Marquinho-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-24T07:40:00-03:00",
+   "atualizado": "2026-10-25T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-24",
-     "min": 17,
-     "max": 22,
-     "chuvaMm": 49.0,
-     "chuvaPct": 96,
-     "rajada": 39,
-     "resumo": "Nublado, temporal e chuva forte"
-    },
-    {
      "data": "2026-10-25",
-     "min": 15,
+     "min": 14,
      "max": 21,
-     "chuvaMm": 10.9,
-     "chuvaPct": 97,
-     "rajada": 51,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "chuvaMm": 0.1,
+     "chuvaPct": 91,
+     "rajada": 48,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-26",
-     "min": 12,
+     "min": 10,
      "max": 20,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 43,
-     "resumo": "Sol e nuvens"
+     "chuvaPct": null,
+     "rajada": 38,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-27",
-     "min": 12,
-     "max": 20,
+     "min": 11,
+     "max": 22,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 37,
-     "resumo": "Sol e muitas nuvens"
+     "chuvaPct": null,
+     "rajada": 36,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-28",
      "min": 15,
-     "max": 23,
+     "max": 22,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 31,
-     "resumo": "Sol e muitas nuvens"
+     "chuvaPct": null,
+     "rajada": 21,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-29",
-     "min": 17,
+     "min": 16,
      "max": 18,
-     "chuvaMm": 5.1,
-     "chuvaPct": 92,
-     "rajada": 18,
-     "resumo": "Sol e nuvens"
+     "chuvaMm": 8.1,
+     "chuvaPct": 90,
+     "rajada": 21,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-10-30",
-     "min": 17,
-     "max": 23,
-     "chuvaMm": 1.0,
-     "chuvaPct": 87,
+     "min": 16,
+     "max": 24,
+     "chuvaMm": 1.2,
+     "chuvaPct": 91,
      "rajada": 28,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-10-31",
-     "min": 17,
-     "max": 24,
-     "chuvaMm": 1.2,
-     "chuvaPct": 71,
-     "rajada": 30,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 15,
+     "max": 26,
+     "chuvaMm": 0.4,
+     "chuvaPct": 70,
+     "rajada": 26,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-01",
      "min": 17,
-     "max": 27,
-     "chuvaMm": 0.3,
-     "chuvaPct": 65,
-     "rajada": 26,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "max": 26,
+     "chuvaMm": 1.3,
+     "chuvaPct": 74,
+     "rajada": null,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-02",
      "min": 19,
      "max": 24,
-     "chuvaMm": 10.2,
-     "chuvaPct": 76,
-     "rajada": 36,
-     "resumo": "Sol e nuvens"
+     "chuvaMm": 4.7,
+     "chuvaPct": 75,
+     "rajada": null,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-03",
-     "min": 18,
-     "max": 24,
-     "chuvaMm": 58.9,
+     "min": 19,
+     "max": 23,
+     "chuvaMm": 17.6,
      "chuvaPct": 80,
-     "rajada": 37,
-     "resumo": "Nublado, temporal e chuva forte"
+     "rajada": 38,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-04",
-     "min": 18,
-     "max": 27,
-     "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 23,
-     "resumo": "Sol e nuvens"
+     "min": 19,
+     "max": 25,
+     "chuvaMm": 9.7,
+     "chuvaPct": 79,
+     "rajada": null,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 19,
-     "max": 25,
-     "chuvaMm": 1.5,
-     "chuvaPct": 73,
-     "rajada": 31,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 16,
+     "max": 24,
+     "chuvaMm": 2.3,
+     "chuvaPct": 60,
+     "rajada": 39,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-11-06",
-     "min": 19,
-     "max": 27,
-     "chuvaMm": 1.8,
-     "chuvaPct": 55,
-     "rajada": 28,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 14,
+     "max": 26,
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 41,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-11-07",
-     "min": 18,
+     "min": 14,
      "max": 26,
-     "chuvaMm": 23.7,
-     "chuvaPct": 66,
-     "rajada": 28,
-     "resumo": "Sol e nuvens"
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 38,
+     "resumo": "Sol, nuvens"
+    },
+    {
+     "data": "2026-11-08",
+     "min": 20,
+     "max": 24,
+     "chuvaMm": 19.0,
+     "chuvaPct": 71,
+     "rajada": null,
+     "resumo": "Sol, chuva, nuvens"
     }
    ]
   },
   "Guaraniaçu-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-24T07:40:00-03:00",
+   "atualizado": "2026-10-25T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-24",
-     "min": 18,
-     "max": 22,
-     "chuvaMm": 58.7,
-     "chuvaPct": 96,
-     "rajada": 57,
-     "resumo": "Nublado, chuva forte",
-     "mm2": 8.0
-    },
-    {
      "data": "2026-10-25",
-     "min": 16,
-     "max": 20,
-     "chuvaMm": 9.3,
-     "chuvaPct": 95,
-     "rajada": 61,
-     "resumo": "Sol, nuvens e chuva passageira",
-     "mm2": 3.0
+     "min": 14,
+     "max": 21,
+     "chuvaMm": 2.4,
+     "chuvaPct": 98,
+     "rajada": 55,
+     "resumo": "Sol, chuva, nuvens"
     },
     {
      "data": "2026-10-26",
-     "min": 12,
+     "min": 11,
      "max": 20,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 53,
-     "resumo": "Sol e nuvens",
-     "mm2": 0.0
+     "chuvaPct": null,
+     "rajada": 45,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-27",
      "min": 12,
-     "max": 20,
+     "max": 22,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
+     "chuvaPct": null,
      "rajada": 36,
-     "resumo": "Sol e muitas nuvens",
-     "mm2": 2.0
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-28",
      "min": 16,
-     "max": 23,
+     "max": 22,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 28,
-     "resumo": "Sol e muitas nuvens",
-     "mm2": 0.0
+     "chuvaPct": null,
+     "rajada": 22,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-29",
      "min": 17,
      "max": 19,
-     "chuvaMm": 4.0,
-     "chuvaPct": 91,
-     "rajada": 26,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 6.0
+     "chuvaMm": 6.6,
+     "chuvaPct": 90,
+     "rajada": 23,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-30",
-     "min": 18,
+     "min": 17,
      "max": 24,
-     "chuvaMm": 2.9,
+     "chuvaMm": 1.2,
      "chuvaPct": 82,
-     "rajada": 24,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 4.0
+     "rajada": 26,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-10-31",
-     "min": 16,
-     "max": 23,
-     "chuvaMm": 2.3,
-     "chuvaPct": 69,
-     "rajada": 26,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 0.0
+     "min": 15,
+     "max": 27,
+     "chuvaMm": 0.4,
+     "chuvaPct": 68,
+     "rajada": 23,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-01",
      "min": 17,
-     "max": 27,
-     "chuvaMm": 1.1,
-     "chuvaPct": 66,
-     "rajada": 24,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 2.0
+     "max": 26,
+     "chuvaMm": 0.5,
+     "chuvaPct": 72,
+     "rajada": 29,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-02",
      "min": 19,
-     "max": 25,
-     "chuvaMm": 13.0,
-     "chuvaPct": 78,
-     "rajada": 41,
-     "resumo": "Sol, nuvens e temporal"
+     "max": 26,
+     "chuvaMm": 3.3,
+     "chuvaPct": 76,
+     "rajada": 47,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-03",
-     "min": 18,
-     "max": 23,
-     "chuvaMm": 56.3,
-     "chuvaPct": 81,
-     "rajada": 41,
-     "resumo": "Nublado, temporal e chuva forte"
+     "min": 19,
+     "max": 24,
+     "chuvaMm": 13.9,
+     "chuvaPct": 79,
+     "rajada": 43,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-04",
-     "min": 18,
-     "max": 26,
-     "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 30,
-     "resumo": "Sol e nuvens"
+     "min": 19,
+     "max": 23,
+     "chuvaMm": 13.2,
+     "chuvaPct": 79,
+     "rajada": 44,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 18,
-     "max": 25,
-     "chuvaMm": 1.3,
-     "chuvaPct": 68,
-     "rajada": 38,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 14,
+     "max": 22,
+     "chuvaMm": 2.1,
+     "chuvaPct": 59,
+     "rajada": 48,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-11-06",
-     "min": 19,
-     "max": 26,
-     "chuvaMm": 5.3,
-     "chuvaPct": 54,
-     "rajada": 30,
-     "resumo": "Sol e nuvens"
+     "min": 13,
+     "max": 25,
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": null,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-11-07",
-     "min": 18,
+     "min": 16,
      "max": 26,
-     "chuvaMm": 9.2,
-     "chuvaPct": 64,
-     "rajada": 37,
-     "resumo": "Sol e nuvens"
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 40,
+     "resumo": "Sol, nuvens"
+    },
+    {
+     "data": "2026-11-08",
+     "min": 20,
+     "max": 23,
+     "chuvaMm": 12.1,
+     "chuvaPct": 68,
+     "rajada": 48,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     }
    ]
   },
   "Toledo-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-24T07:40:00-03:00",
+   "atualizado": "2026-10-25T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-24",
-     "min": 19,
-     "max": 26,
-     "chuvaMm": 34.4,
-     "chuvaPct": 96,
-     "rajada": 56,
-     "resumo": "Sol, nuvens e temporal",
-     "mm2": 3.0
-    },
-    {
      "data": "2026-10-25",
-     "min": 17,
+     "min": 16,
      "max": 22,
-     "chuvaMm": 8.9,
-     "chuvaPct": 96,
-     "rajada": 56,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 1.0
+     "chuvaMm": 1.7,
+     "chuvaPct": 97,
+     "rajada": 53,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-26",
-     "min": 13,
+     "min": 12,
      "max": 21,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 49,
-     "resumo": "Sol e muitas nuvens",
-     "mm2": 0.0
+     "chuvaPct": null,
+     "rajada": 42,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-27",
-     "min": 15,
-     "max": 21,
+     "min": 14,
+     "max": 22,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 38,
-     "resumo": "Sol e muitas nuvens",
-     "mm2": 0.0
+     "chuvaPct": null,
+     "rajada": 39,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-28",
      "min": 17,
      "max": 24,
-     "chuvaMm": 0.1,
-     "chuvaPct": 40,
-     "rajada": 26,
-     "resumo": "Sol e muitas nuvens",
-     "mm2": 0.0
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 27,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-29",
-     "min": 19,
+     "min": 18,
      "max": 20,
-     "chuvaMm": 4.1,
-     "chuvaPct": 92,
-     "rajada": 26,
-     "resumo": "Sol e nuvens",
-     "mm2": 2.0
+     "chuvaMm": 4.9,
+     "chuvaPct": 88,
+     "rajada": 24,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-30",
-     "min": 19,
-     "max": 24,
-     "chuvaMm": 2.4,
-     "chuvaPct": 79,
-     "rajada": 29,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 4.0
+     "min": 18,
+     "max": 26,
+     "chuvaMm": 1.0,
+     "chuvaPct": 81,
+     "rajada": null,
+     "resumo": "Sol, chuva, nuvens"
     },
     {
      "data": "2026-10-31",
      "min": 17,
-     "max": 26,
-     "chuvaMm": 1.4,
-     "chuvaPct": 61,
-     "rajada": 28,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 0.0
+     "max": 28,
+     "chuvaMm": 0.7,
+     "chuvaPct": 59,
+     "rajada": 26,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-01",
-     "min": 17,
-     "max": 28,
-     "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 25,
-     "resumo": "Sol com poucas nuvens",
-     "mm2": 6.0
+     "min": 18,
+     "max": 27,
+     "chuvaMm": 0.8,
+     "chuvaPct": 61,
+     "rajada": 31,
+     "resumo": "Sol, nublado, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-02",
      "min": 20,
-     "max": 27,
-     "chuvaMm": 9.3,
+     "max": 26,
+     "chuvaMm": 6.6,
      "chuvaPct": 75,
-     "rajada": 42,
-     "resumo": "Sol e nuvens"
+     "rajada": 36,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-11-03",
-     "min": 20,
-     "max": 25,
-     "chuvaMm": 49.8,
-     "chuvaPct": 81,
-     "rajada": 40,
-     "resumo": "Nublado, temporal e chuva forte"
+     "min": 21,
+     "max": 27,
+     "chuvaMm": 8.3,
+     "chuvaPct": 80,
+     "rajada": 43,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-04",
-     "min": 19,
-     "max": 28,
-     "chuvaMm": 0.5,
-     "chuvaPct": 72,
-     "rajada": 29,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 20,
+     "max": 23,
+     "chuvaMm": 15.6,
+     "chuvaPct": 77,
+     "rajada": 41,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 19,
-     "max": 27,
-     "chuvaMm": 0.6,
-     "chuvaPct": 65,
-     "rajada": 36,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 17,
+     "max": 24,
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 43,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-11-06",
-     "min": 20,
-     "max": 28,
-     "chuvaMm": 9.3,
-     "chuvaPct": 49,
-     "rajada": 32,
-     "resumo": "Sol e nuvens"
+     "min": 16,
+     "max": 25,
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 41,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-11-07",
-     "min": 20,
-     "max": 28,
-     "chuvaMm": 13.1,
-     "chuvaPct": 56,
-     "rajada": 42,
-     "resumo": "Sol e nuvens"
+     "min": 19,
+     "max": 27,
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 41,
+     "resumo": "Sol, nuvens"
+    },
+    {
+     "data": "2026-11-08",
+     "min": 22,
+     "max": 24,
+     "chuvaMm": 19.7,
+     "chuvaPct": 60,
+     "rajada": 52,
+     "resumo": "Sol, chuva, nuvens"
     }
    ]
   },
   "Ivaiporã-PR": {
    "fonte": "Climatempo",
-   "atualizado": "2026-10-24T07:40:00-03:00",
+   "atualizado": "2026-10-25T07:40:00-03:00",
    "dias": [
     {
-     "data": "2026-10-24",
-     "min": 17,
-     "max": 27,
-     "chuvaMm": 25.1,
-     "chuvaPct": 97,
-     "rajada": 50,
-     "resumo": "Sol, nuvens e chuva passageira",
-     "mm2": 12.0
-    },
-    {
      "data": "2026-10-25",
-     "min": 17,
-     "max": 25,
-     "chuvaMm": 39.0,
-     "chuvaPct": 97,
-     "rajada": 56,
-     "resumo": "Sol, nuvens e chuva passageira",
-     "mm2": 32.0
+     "min": 18,
+     "max": 26,
+     "chuvaMm": 16.1,
+     "chuvaPct": 95,
+     "rajada": 54,
+     "resumo": "Sol, chuva, nuvens"
     },
     {
      "data": "2026-10-26",
      "min": 13,
      "max": 23,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
-     "rajada": 39,
-     "resumo": "Sol com poucas nuvens",
-     "mm2": 0.0
+     "chuvaPct": null,
+     "rajada": 46,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-27",
      "min": 13,
      "max": 23,
      "chuvaMm": 0.0,
-     "chuvaPct": 0,
+     "chuvaPct": null,
      "rajada": 49,
-     "resumo": "Sol e muitas nuvens",
-     "mm2": 0.0
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-28",
-     "min": 15,
+     "min": 16,
      "max": 25,
-     "chuvaMm": 1.2,
-     "chuvaPct": 37,
-     "rajada": 36,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 0.0
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 41,
+     "resumo": "Sol, nublado, nuvens"
     },
     {
      "data": "2026-10-29",
      "min": 18,
-     "max": 21,
-     "chuvaMm": 4.1,
+     "max": 19,
+     "chuvaMm": 7.3,
      "chuvaPct": 89,
-     "rajada": 26,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 0.0
+     "rajada": 27,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-10-30",
      "min": 17,
      "max": 26,
-     "chuvaMm": 2.7,
-     "chuvaPct": 81,
-     "rajada": 25,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 2.0
+     "chuvaMm": 1.0,
+     "chuvaPct": 82,
+     "rajada": 30,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-10-31",
      "min": 18,
-     "max": 26,
-     "chuvaMm": 3.4,
-     "chuvaPct": 71,
-     "rajada": 29,
-     "resumo": "Sol e nuvens",
-     "mm2": 0.0
+     "max": 27,
+     "chuvaMm": 2.2,
+     "chuvaPct": 70,
+     "rajada": null,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-01",
      "min": 18,
-     "max": 28,
-     "chuvaMm": 1.1,
-     "chuvaPct": 67,
-     "rajada": 26,
-     "resumo": "Sol, nuvens e pancadas de chuva",
-     "mm2": 11.0
+     "max": 27,
+     "chuvaMm": 1.8,
+     "chuvaPct": 72,
+     "rajada": 28,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-02",
      "min": 20,
-     "max": 24,
-     "chuvaMm": 4.0,
-     "chuvaPct": 75,
-     "rajada": 34,
-     "resumo": "Sol e nuvens"
+     "max": 23,
+     "chuvaMm": 6.5,
+     "chuvaPct": 77,
+     "rajada": 30,
+     "resumo": "Sol, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-03",
      "min": 19,
-     "max": 21,
-     "chuvaMm": 42.5,
-     "chuvaPct": 78,
-     "rajada": 38,
-     "resumo": "Nublado, temporal e chuva forte"
+     "max": 25,
+     "chuvaMm": 16.8,
+     "chuvaPct": 74,
+     "rajada": 35,
+     "resumo": "Sol, temporal, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-04",
-     "min": 18,
-     "max": 27,
-     "chuvaMm": 1.3,
-     "chuvaPct": 79,
-     "rajada": 34,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 19,
+     "max": 26,
+     "chuvaMm": 12.8,
+     "chuvaPct": 75,
+     "rajada": 35,
+     "resumo": "Sol, nublado, pancadas de chuva, nuvens"
     },
     {
      "data": "2026-11-05",
-     "min": 18,
+     "min": 19,
      "max": 27,
-     "chuvaMm": 0.5,
+     "chuvaMm": 3.3,
      "chuvaPct": 61,
-     "rajada": 37,
-     "resumo": "Sol e muitas nuvens"
+     "rajada": 52,
+     "resumo": "Sol, chuva, nuvens"
     },
     {
      "data": "2026-11-06",
-     "min": 19,
-     "max": 29,
-     "chuvaMm": 1.4,
-     "chuvaPct": 59,
-     "rajada": 39,
-     "resumo": "Sol, nuvens e pancadas de chuva"
+     "min": 15,
+     "max": 26,
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 58,
+     "resumo": "Sol, nuvens"
     },
     {
      "data": "2026-11-07",
-     "min": 19,
-     "max": 28,
-     "chuvaMm": 4.1,
-     "chuvaPct": 68,
-     "rajada": 36,
-     "resumo": "Sol e nuvens"
+     "min": 15,
+     "max": 27,
+     "chuvaMm": 0.0,
+     "chuvaPct": null,
+     "rajada": 46,
+     "resumo": "Sol, chuva, nuvens"
+    },
+    {
+     "data": "2026-11-08",
+     "min": 20,
+     "max": 24,
+     "chuvaMm": 24.1,
+     "chuvaPct": 62,
+     "rajada": 42,
+     "resumo": "Sol, chuva, nuvens"
     }
    ]
   }
