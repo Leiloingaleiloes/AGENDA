@@ -123,6 +123,29 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:po
 .note{font-size:.85rem;color:var(--muted);margin-top:8px}
 @media (max-width:520px){.bar{padding-block:8px calc(8px + env(safe-area-inset-bottom,0px))}.btn.big{min-height:44px;font-size:1rem;padding:0 14px}h1{font-size:1.7rem}}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));max-width:min(92vw,520px);padding:12px 18px;border-radius:8px;background:var(--fg);color:var(--bg);font-weight:600;z-index:10}
+.man{margin-top:16px}
+.man .cols{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.man.comfoto .cols{grid-template-columns:minmax(0,1fr)}
+@media (min-width:960px){.man.comfoto .cols{grid-template-columns:minmax(0,6fr) minmax(0,5fr)}}
+.foto{display:none;flex-direction:column;gap:8px;min-width:0}
+.man.comfoto .foto{display:flex}
+.foto .vis{position:relative;overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);-webkit-overflow-scrolling:touch}
+.foto .vis img{display:block;width:100%;height:auto;cursor:zoom-in}
+.foto .vis.z img{width:220%;max-width:none;cursor:zoom-out}
+.ff{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ff .w2{grid-column:span 2}.ff .w3{grid-column:1/-1}
+.ff label{display:grid;gap:4px;font:600 .78rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);min-width:0}
+.ff input{height:46px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);font:600 1.05rem var(--f-body);color:var(--fg);text-transform:uppercase;width:100%;min-width:0}
+.ff input:focus{border-color:var(--accent);background:var(--surface)}
+.ff input.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opc{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.opc button{min-height:38px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0}
+.opc button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.opc.sx button{min-width:64px;font-size:1.05rem}
+.man .acoes{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.drop2{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.drop2 input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+@media (max-width:520px){.ff{grid-template-columns:repeat(2,minmax(0,1fr))}.ff .w2{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -137,13 +160,13 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:po
     <section class="box" aria-labelledby="t-env">
       <h2 id="t-env">1 · Escolher o PDF</h2>
       <label class="drop" id="drop" for="arq">
-        <input id="arq" type="file" accept="application/pdf,.pdf" multiple>
+        <input id="arq" type="file" accept="application/pdf,.pdf,image/*" multiple>
         <b>Escolher o PDF</b>
         <span>O PDF da ordem de entrada que o sistema gera. Também dá para arrastar o arquivo aqui.</span>
       </label>
       <ul class="files" id="files"></ul>
       <div class="status" id="status" role="status" aria-live="polite"></div>
-      <p class="note">O PDF é lido aqui mesmo, no navegador, e não é enviado para lugar nenhum. Um PDF novo se junta ao que já está na tabela: os lotes repetidos são atualizados e os novos entram marcados. Se só tiver a foto da lista, mande a foto para o Claude, que ele devolve um PDF pronto para usar aqui.</p>
+      <p class="note">O PDF é lido aqui mesmo, no navegador, e não é enviado para lugar nenhum. Um PDF novo se junta ao que já está na tabela: os lotes repetidos são atualizados e os novos entram marcados. Se só tiver a foto da lista, abra a foto no quadro "Ou digite o lote" logo abaixo e digite os lotes olhando para ela, ou mande a foto para o Claude, que ele devolve um PDF pronto.</p>
     </section>
 
     <section class="box" aria-labelledby="t-res">
@@ -157,13 +180,44 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:po
     </section>
   </div>
 
+  <section class="box man" id="man" aria-labelledby="t-man">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <h2 id="t-man" style="margin:0">Ou digite o lote</h2>
+      <label class="btn drop2" for="fotoArq"><input id="fotoArq" type="file" accept="image/*">📷 Abrir foto da lista</label>
+    </div>
+    <div class="cols">
+      <div class="foto" id="fotoBox">
+        <div class="vis" id="fotoVis"><img id="fotoImg" alt="Foto da lista de lotes"></div>
+        <div class="row"><span class="note" style="margin:0">Toque na foto para aumentar. Ela fica só aqui, para você digitar olhando.</span><button class="btn link danger" type="button" id="fotoFechar">Fechar foto</button></div>
+      </div>
+      <div>
+        <div class="ff">
+          <label>Lote<input id="m-lote" inputmode="numeric" autocomplete="off"></label>
+          <label>Mangueira<input id="m-mang" inputmode="numeric" autocomplete="off" placeholder="= lote"></label>
+          <label>Qtde<input id="m-qtde" inputmode="numeric" autocomplete="off"></label>
+          <label>Sexo<div class="opc sx" id="o-sexo"><button type="button" data-v="M" aria-pressed="false">M</button><button type="button" data-v="F" aria-pressed="false">F</button></div></label>
+          <label class="w2">Peso médio (kg)<input id="m-peso" inputmode="numeric" autocomplete="off"></label>
+          <label class="w3">Vendedor<input id="m-vend" autocomplete="off"></label>
+          <label class="w3">Idade<input id="m-idade" autocomplete="off" placeholder="toque abaixo ou digite">
+            <div class="opc" id="o-idade"></div></label>
+          <label class="w3">Raça<input id="m-raca" autocomplete="off" placeholder="toque abaixo ou digite">
+            <div class="opc" id="o-raca"></div></label>
+        </div>
+        <div class="acoes">
+          <button class="btn pri big" type="button" id="m-add">Adicionar lote</button>
+          <button class="btn link" type="button" id="m-limpar">Limpar campos</button>
+          <span class="status" id="m-status" style="margin:0"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="tools">
     <h2>Lotes</h2>
     <div class="row">
       <button class="btn link" type="button" id="selFaltam">Marcar só os sem ficha</button>
       <button class="btn link" type="button" id="selTodos">Marcar todos</button>
       <button class="btn link" type="button" id="selNenhum">Desmarcar</button>
-      <button class="btn" type="button" id="addLote">+ Lote</button>
     </div>
   </div>
   <div class="tablewrap">
@@ -173,7 +227,7 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:po
       </tr></thead>
       <tbody id="tbody"></tbody>
     </table>
-    <div class="empty" id="vazio"><b>Nenhum lote ainda</b>Escolha o PDF da ordem de entrada acima. Os lotes aparecem aqui para você conferir antes de gerar o Word.</div>
+    <div class="empty" id="vazio"><b>Nenhum lote ainda</b>Escolha o PDF da ordem de entrada ou digite os lotes acima. Os lotes aparecem aqui para você conferir antes de gerar o Word.</div>
   </div>
 
   <div class="bar">
@@ -315,7 +369,7 @@ function renderFiles(){
 async function addFiles(list){
   var novos=[];
   Array.prototype.forEach.call(list,function(f){
-    if(!(f.type==="application/pdf"||/\.pdf$/i.test(f.name))){toast("O arquivo "+f.name+" não é PDF. Se for foto, mande para o Claude, que ele devolve o PDF.",6000);return;}
+    if(!(f.type==="application/pdf"||/\.pdf$/i.test(f.name))){if(/^image\//.test(f.type)){abrirFoto(f);return;}toast("O arquivo "+f.name+" não é PDF.",6000);return;}
     var x={file:f,name:f.name,state:"run",msg:"lendo…"};files.push(x);novos.push(x);
   });
   renderFiles();
@@ -487,11 +541,6 @@ $("nomeLeilao").addEventListener("change",function(e){S.leilao=up(e.target.value
 $("selFaltam").addEventListener("click",function(){S.rows.forEach(function(r){r.sel=!r.feita;});salvar();render();});
 $("selTodos").addEventListener("click",function(){S.rows.forEach(function(r){r.sel=true;});salvar();render();});
 $("selNenhum").addEventListener("click",function(){S.rows.forEach(function(r){r.sel=false;});salvar();render();});
-$("addLote").addEventListener("click",function(){
-  var max=0;S.rows.forEach(function(r){if(r.lote>max)max=r.lote;});
-  var r={id:seq++,lote:max+1,mang:max+1,qtde:null,sexo:"",vendedor:"",idade:"",raca:"",peso:null,ord:null,duvida:false,feita:false,sel:true,nova:true};
-  S.rows.push(r);salvar();render();var i=$("qtde-"+r.id);if(i)i.focus();
-});
 var armado=false,armT=null;
 $("limpar").addEventListener("click",function(){
   var b=$("limpar");
@@ -590,8 +639,63 @@ $("gerar").addEventListener("click",async function(){
 });
 
 
+/* ---------- digitar lote à mão (com a foto da lista ao lado, se quiser) ---------- */
+var IDADES=["6/12 M","12/15 M","12/18 M","15/18 M","15/20 M","18/20 M","20/24 M","24/36 M","+36 M"];
+var RACAS=["NELORE","½ TABAPUÃ","TABAPUÃ","½ ANGUS","BRANGUS","CRUZ. INDUSTRIAL","CRUZADOS","½ BRAFORD"];
+var M={sexo:""};
+function opcoes(box,lista,inp){
+  lista.forEach(function(v){var b=el("button",null,v);b.type="button";b.dataset.v=v;b.setAttribute("aria-pressed","false");box.append(b);});
+  box.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;e.preventDefault();inp.value=b.dataset.v;marcar(box,inp.value);});
+  inp.addEventListener("input",function(){marcar(box,inp.value);});
+}
+function marcar(box,v){[].forEach.call(box.children,function(b){b.setAttribute("aria-pressed",up(b.dataset.v)===up(v)?"true":"false");});}
+opcoes($("o-idade"),IDADES,$("m-idade"));
+opcoes($("o-raca"),RACAS,$("m-raca"));
+$("o-sexo").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;e.preventDefault();M.sexo=b.dataset.v;marcar($("o-sexo"),M.sexo);});
+function proximoLote(){var max=0;S.rows.forEach(function(r){if(r.lote>max)max=r.lote;});return max+1;}
+function limparMan(){
+  ["m-mang","m-qtde","m-peso","m-vend","m-idade","m-raca"].forEach(function(id){$(id).value="";$(id).classList.remove("bad");});
+  $("m-lote").value=dois(proximoLote());M.sexo="";marcar($("o-sexo"),"");marcar($("o-idade"),"");marcar($("o-raca"),"");
+}
+$("m-limpar").addEventListener("click",function(){limparMan();$("m-status").textContent="";});
+$("m-add").addEventListener("click",function(){
+  var n=loteN($("m-lote").value);
+  $("m-lote").classList.toggle("bad",n==null);
+  if(n==null){$("m-status").className="status err";$("m-status").textContent="Coloque o número do lote.";$("m-lote").focus();return;}
+  var mg=loteN($("m-mang").value);
+  var d={lote:n,mang:mg==null?n:mg,qtde:loteN($("m-qtde").value),sexo:M.sexo,vendedor:up($("m-vend").value),
+    idade:up($("m-idade").value),raca:up($("m-raca").value),peso:loteN($("m-peso").value),ord:null,duvida:false};
+  var ex=S.rows.find(function(x){return x.lote===n;});
+  S.rows.forEach(function(x){x.nova=false;});
+  if(ex){Object.keys(d).forEach(function(k){if(k!=="ord")ex[k]=d[k];});ex.sel=true;ex.nova=true;}
+  else{d.id=seq++;d.feita=false;d.sel=true;d.nova=true;S.rows.push(d);}
+  S.rows.sort(function(a,b){return (a.ord!=null&&b.ord!=null?a.ord-b.ord:0)||((a.lote||9999)-(b.lote||9999));});
+  salvar();render();
+  var falta=Object.keys(problemas(d,{})).length;
+  $("m-status").className="status"+(falta?" err":"");
+  $("m-status").textContent="Lote "+dois(n)+(ex?" atualizado":" adicionado")+(falta?" — ficou campo vazio, está em vermelho na tabela.":".");
+  limparMan();$("m-lote").focus();
+});
+/* Enter num campo passa para o próximo; no último, adiciona */
+var ordemCampos=["m-lote","m-mang","m-qtde","m-peso","m-vend","m-idade","m-raca"];
+ordemCampos.forEach(function(id,i){$(id).addEventListener("keydown",function(e){
+  if(e.key!=="Enter")return;e.preventDefault();
+  if(i<ordemCampos.length-1)$(ordemCampos[i+1]).focus();else $("m-add").click();
+});});
+
+var fotoUrl=null;
+function abrirFoto(f){
+  if(fotoUrl)URL.revokeObjectURL(fotoUrl);
+  fotoUrl=URL.createObjectURL(f);$("fotoImg").src=fotoUrl;$("fotoVis").classList.remove("z");
+  $("man").classList.add("comfoto");$("man").scrollIntoView({behavior:"smooth",block:"start"});
+  toast("Foto aberta ao lado dos campos. Digite os lotes olhando para ela.",5000);
+}
+$("fotoArq").addEventListener("change",function(e){if(e.target.files[0])abrirFoto(e.target.files[0]);e.target.value="";});
+$("fotoImg").addEventListener("click",function(){$("fotoVis").classList.toggle("z");});
+$("fotoFechar").addEventListener("click",function(){$("man").classList.remove("comfoto");$("fotoImg").removeAttribute("src");if(fotoUrl){URL.revokeObjectURL(fotoUrl);fotoUrl=null;}});
+
 /* ---------- início ---------- */
-carregarLocal();render();renderFiles();
+carregarLocal();render();renderFiles();limparMan();
 window.__fichas_estado=function(){return S;};
 </script>
 </body>
