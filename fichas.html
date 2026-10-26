@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#2E6A3E">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light only">
 <title>Fichas dos Lotes · Leiloingá</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -13,23 +14,13 @@
 <style>
 /* Layout: faixa do topo; passo 1 (enviar a lista) e resumo lado a lado no computador; tabela dos lotes larga embaixo; barra de gerar o Word. */
 :root{
-  --bg:#EDEFEA; --surface:#FFFFFF; --surface-2:#F4F6F1; --line:#D5DBD0; --fg:#18201B; --muted:#5A665D;
-  --accent:#2E6A3E; --accent-ink:#FFFFFF; --accent-soft:#E1EDE3;
+  --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F3F8F4; --line:#D3E3D7; --fg:#18201B; --muted:#56655A;
+  --accent:#1E8A43; --accent-ink:#FFFFFF; --accent-soft:#E3F4E8;
   --tag:#F0B400; --tag-ink:#1A1400;
   --warn:#8A5200; --warn-soft:#FBEFD9; --bad:#B42318; --bad-soft:#FDE7E4; --good:#25693A; --good-soft:#DCEFE0;
   --f-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
   --f-body:"Barlow","Segoe UI",system-ui,sans-serif;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#121614; --surface:#1A201C; --surface-2:#212823; --line:#323C35; --fg:#E7ECE8; --muted:#9DABA1;
-  --accent:#7CC48C; --accent-ink:#0E1A12; --accent-soft:#1F3326; --tag:#F5C230; --tag-ink:#1A1400;
-  --warn:#F0B45A; --warn-soft:#3A2C14; --bad:#FF8A7A; --bad-soft:#3D1E1A; --good:#7BD08F; --good-soft:#1B3A26;
-  color-scheme:dark } }
-:root[data-theme="dark"]{
-  --bg:#121614; --surface:#1A201C; --surface-2:#212823; --line:#323C35; --fg:#E7ECE8; --muted:#9DABA1;
-  --accent:#7CC48C; --accent-ink:#0E1A12; --accent-soft:#1F3326; --tag:#F5C230; --tag-ink:#1A1400;
-  --warn:#F0B45A; --warn-soft:#3A2C14; --bad:#FF8A7A; --bad-soft:#3D1E1A; --good:#7BD08F; --good-soft:#1B3A26;
-  color-scheme:dark }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--fg);font:400 15px/1.45 var(--f-body);padding-block:0 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -146,6 +137,20 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:po
 .drop2{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
 .drop2 input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 @media (max-width:520px){.ff{grid-template-columns:repeat(2,minmax(0,1fr))}.ff .w2{grid-column:1/-1}}
+/* fundo branco com destaques verdes */
+:root{color-scheme:light}
+header.top{border-bottom:3px solid var(--accent);margin-bottom:12px}
+.box{border-color:var(--line);box-shadow:0 1px 3px rgba(20,60,30,.06)}
+.box h2,.tools h2{color:var(--accent)}
+.box{border-top:4px solid var(--accent)}
+.drop{border-color:#A9D3B5;background:var(--accent-soft)}
+.drop b{color:var(--accent)}
+.nums div{background:var(--surface-2)}
+.nums b{color:var(--accent)}
+th{border-bottom-color:var(--accent);color:var(--accent)}
+.ff input,.leilao input{background:#fff}
+.opc button:hover{border-color:var(--accent)}
+.bar{background:#fff}
 </style>
 </head>
 <body>
