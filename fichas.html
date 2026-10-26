@@ -151,6 +151,25 @@ th{border-bottom-color:var(--accent);color:var(--accent)}
 .ff input,.leilao input{background:#fff}
 .opc button:hover{border-color:var(--accent)}
 .bar{background:#fff}
+
+/* campos com borda mais forte e destaque laranja */
+:root{--borda:#7F9887;--destaque:#E8730C;--destaque-soft:#FFF1E3}
+.ff input,.leilao input{border:2px solid var(--borda);background:#fff}
+.ff input:focus,.leilao input:focus{outline:0;border-color:var(--destaque);box-shadow:0 0 0 3px rgba(232,115,12,.22);background:#fff}
+.ff input.bad{border-color:var(--bad);background:var(--bad-soft)}
+.ff label{color:#2E4436}
+.opc button{border:2px solid var(--borda)}
+.opc button[aria-pressed=true]{background:var(--destaque);border-color:var(--destaque);color:#fff}
+.opc.bad button{border-color:var(--bad)}
+td input{border:1.5px solid #B4C6B9}
+td input:focus{border-color:var(--destaque)}
+.drop{border-color:var(--borda)}
+.box{border:1.5px solid #B4C6B9}
+.alerta{margin-top:12px;display:grid;gap:3px;padding:11px 13px;border-radius:10px;background:var(--destaque-soft);border:2px solid var(--destaque);color:#6B3300}
+.man .acoes .alerta{flex:1 0 100%;margin-top:2px}
+.alerta b{font-size:1rem}
+.alerta span{font-size:.92rem;color:var(--fg)}
+#m-add{background:var(--destaque);border-color:var(--destaque);color:#fff}
 </style>
 </head>
 <body>
@@ -208,10 +227,11 @@ th{border-bottom-color:var(--accent);color:var(--accent)}
           <label class="w3">Raça<input id="m-raca" autocomplete="off" placeholder="toque abaixo ou digite">
             <div class="opc" id="o-raca"></div></label>
         </div>
+        <div class="alerta" id="m-alerta" role="alert" hidden></div>
         <div class="acoes">
           <button class="btn pri big" type="button" id="m-add">Adicionar lote</button>
           <button class="btn link" type="button" id="m-limpar">Limpar campos</button>
-          <span class="status" id="m-status" style="margin:0"></span>
+      <span class="status" id="m-status" style="margin:0"></span>
         </div>
       </div>
     </div>
@@ -457,7 +477,7 @@ function renderChecks(){
   if(t){
     if(t.animais===cab&&(t.machos==null||t.machos===m)&&(t.femeas==null||t.femeas===f))add("ok","Os totais batem com a lista: "+cab+" animais, "+m+" machos e "+f+" fêmeas.");
     else add("bad","Os totais não batem. A lista diz "+t.animais+" animais ("+t.machos+" M, "+t.femeas+" F) e a tabela soma "+cab+" ("+m+" M, "+f+" F). Confira a quantidade e o sexo dos lotes.");
-  }else add("warn","A lista lida não tinha a linha de totais. Se a última folha tiver, mande ela também para conferir a soma.");
+  }else if(S.rows.some(function(r){return r.ord!=null;}))add("warn","A lista lida não tinha a linha de totais. Se a última folha tiver, mande ela também para conferir a soma.");
   var dups=contaDups(),comProb=0,duv=0;
   S.rows.forEach(function(r){if(Object.keys(problemas(r,dups)).length)comProb++;if(r.duvida)duv++;});
   if(comProb)add("bad",comProb+(comProb>1?" lotes têm":" lote tem")+" campo vazio ou estranho. Estão marcados em vermelho na tabela.");
@@ -647,7 +667,12 @@ $("gerar").addEventListener("click",async function(){
 /* ---------- digitar lote à mão (com a foto da lista ao lado, se quiser) ---------- */
 var IDADES=["6/12 M","12/15 M","12/18 M","15/18 M","15/20 M","18/20 M","20/24 M","24/36 M","+36 M"];
 var RACAS=["NELORE","½ TABAPUÃ","TABAPUÃ","½ ANGUS","BRANGUS","CRUZ. INDUSTRIAL","CRUZADOS","½ BRAFORD"];
-var M={sexo:""};
+var M={sexo:"",confirmar:null};
+var CAMPO_ID={mang:"m-mang",qtde:"m-qtde",vendedor:"m-vend",idade:"m-idade",raca:"m-raca",peso:"m-peso"};
+var NOME_CAMPO={lote:"número do lote",mang:"mangueira",qtde:"quantidade",sexo:"sexo",vendedor:"vendedor",idade:"idade",raca:"raça",peso:"peso"};
+var TXT_ADD=$("m-add").textContent;
+/* ao mexer de novo nos campos, volta ao "Adicionar lote" normal */
+["m-lote","m-mang","m-qtde","m-peso","m-vend","m-idade","m-raca"].forEach(function(id){$(id).addEventListener("input",function(){$(id).classList.remove("bad");});});
 function opcoes(box,lista,inp){
   lista.forEach(function(v){var b=el("button",null,v);b.type="button";b.dataset.v=v;b.setAttribute("aria-pressed","false");box.append(b);});
   box.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;e.preventDefault();inp.value=b.dataset.v;marcar(box,inp.value);});
@@ -661,6 +686,7 @@ function proximoLote(){var max=0;S.rows.forEach(function(r){if(r.lote>max)max=r.
 function limparMan(){
   ["m-mang","m-qtde","m-peso","m-vend","m-idade","m-raca"].forEach(function(id){$(id).value="";$(id).classList.remove("bad");});
   $("m-lote").value=dois(proximoLote());M.sexo="";marcar($("o-sexo"),"");marcar($("o-idade"),"");marcar($("o-raca"),"");
+  $("o-sexo").classList.remove("bad");M.confirmar=null;$("m-alerta").hidden=true;$("m-add").textContent=TXT_ADD;
 }
 $("m-limpar").addEventListener("click",function(){limparMan();$("m-status").textContent="";});
 $("m-add").addEventListener("click",function(){
@@ -670,6 +696,21 @@ $("m-add").addEventListener("click",function(){
   var mg=loteN($("m-mang").value);
   var d={lote:n,mang:mg==null?n:mg,qtde:loteN($("m-qtde").value),sexo:M.sexo,vendedor:up($("m-vend").value),
     idade:up($("m-idade").value),raca:up($("m-raca").value),peso:loteN($("m-peso").value),ord:null,duvida:false};
+  /* alerta: diz o que falta e só adiciona assim mesmo no segundo toque */
+  var prob=problemas(d,{}),faltas=Object.keys(prob);
+  Object.keys(CAMPO_ID).forEach(function(k){var x=$(CAMPO_ID[k]);if(x)x.classList.toggle("bad",!!prob[k]);});
+  $("o-sexo").classList.toggle("bad",!!prob.sexo);
+  var assin=n+"|"+faltas.join(",");
+  if(faltas.length&&M.confirmar!==assin){
+    M.confirmar=assin;
+    var al=$("m-alerta");al.hidden=false;al.textContent="";
+    al.append(el("b",null,"Atenção: falta "+(faltas.length>1?"preencher ":"")+faltas.map(function(k){return NOME_CAMPO[k];}).join(", ")+"."),
+      el("span",null,"Complete os campos em vermelho, ou toque em \u201cAdicionar mesmo assim\u201d."));
+    $("m-add").textContent="Adicionar mesmo assim";
+    var pri=$(CAMPO_ID[faltas[0]]);if(pri)pri.focus();
+    return;
+  }
+  M.confirmar=null;$("m-alerta").hidden=true;$("m-add").textContent=TXT_ADD;
   var ex=S.rows.find(function(x){return x.lote===n;});
   S.rows.forEach(function(x){x.nova=false;});
   if(ex){Object.keys(d).forEach(function(k){if(k!=="ord")ex[k]=d[k];});ex.sel=true;ex.nova=true;}
@@ -678,7 +719,7 @@ $("m-add").addEventListener("click",function(){
   salvar();render();
   var falta=Object.keys(problemas(d,{})).length;
   $("m-status").className="status"+(falta?" err":"");
-  $("m-status").textContent="Lote "+dois(n)+(ex?" atualizado":" adicionado")+(falta?" — ficou campo vazio, está em vermelho na tabela.":".");
+  $("m-status").textContent="Lote "+dois(n)+(ex?" atualizado":" adicionado")+(falta?" sem "+faltas.map(function(k){return NOME_CAMPO[k];}).join(", ")+". Está em vermelho na tabela para completar depois.":".");
   limparMan();$("m-lote").focus();
 });
 /* Enter num campo passa para o próximo; no último, adiciona */
