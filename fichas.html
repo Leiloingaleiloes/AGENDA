@@ -293,6 +293,33 @@ function linhasDaPagina(items){
   var passo=dif.length?dif[Math.floor(dif.length/2)]:12, tol=Math.max(2,passo*0.42);
   its.sort(function(a,b){return b.y-a.y;});
   var grupos=[];
+  /* âncoras: os números da coluna "Ord." (a mais à esquerda). Cada pedaço de texto vai para a
+     linha do lote mais próxima, mesmo que Idade/Raça/Peso estejam bem mais acima ou abaixo */
+  var nums=its.filter(function(i){return /^\d{1,3}º?$/.test(i.s);});
+  if(nums.length){
+    var minX=Math.min.apply(null,nums.map(function(i){return i.x;}));
+    var anc=nums.filter(function(i){return i.x<=minX+8;}).map(function(i){return i.y;});
+    var ga=[];for(var a=1;a<anc.length;a++){var dd=Math.abs(anc[a-1]-anc[a]);if(dd>3)ga.push(dd);}
+    ga.sort(function(p,q){return p-q;});
+    var passoL=ga.length?ga[Math.floor(ga.length/2)]:Math.max(passo,12);
+    var lim=passoL*0.5;
+    anc.forEach(function(y){grupos.push({y:y,its:[],anc:true});});
+    var resto=[];
+    its.forEach(function(i){
+      var best=null,bd=1e9;
+      grupos.forEach(function(g){var d=Math.abs(g.y-i.y);if(d<bd){bd=d;best=g;}});
+      /* fora das linhas de lote (título, cabeçalho, totais) ou abaixo do lote do lado esquerdo */
+      if(best&&bd<lim&&!/Total|Ord\.|Vendedor|Peso\(|Idade|Ra[çc]a/i.test(i.s))best.its.push(i);else resto.push(i);
+    });
+    var outros=[];
+    resto.forEach(function(i){
+      var g=outros.length?outros[outros.length-1]:null;
+      if(g&&Math.abs(g.y-i.y)<=tol){g.its.push(i);g.y=(g.y*(g.its.length-1)+i.y)/g.its.length;}
+      else outros.push({y:i.y,its:[i]});
+    });
+    grupos=grupos.filter(function(g){return g.its.length;}).concat(outros).sort(function(p,q){return q.y-p.y;});
+    return grupos.map(function(g){return g.its.sort(function(a,b){return a.x-b.x;}).map(function(i){return i.s;}).join(" ").replace(/\s+/g," ").trim();});
+  }
   its.forEach(function(i){
     var g=grupos.length?grupos[grupos.length-1]:null;
     if(g&&Math.abs(g.y-i.y)<=tol){g.its.push(i);g.y=(g.y*(g.its.length-1)+i.y)/g.its.length;}
@@ -430,6 +457,12 @@ drop.addEventListener("drop",function(e){if(e.dataTransfer&&e.dataTransfer.files
 
 function juntar(r){
   if(!r||!Array.isArray(r.lotes))return 0;
+  /* PDF de outro leilão (outra data): não misturar com a tabela do leilão anterior */
+  if(S.rows.length&&r.data&&S.data&&String(r.data)!==String(S.data)){
+    var novo=true;
+    try{novo=window.confirm("A tabela tem os lotes do leilão de "+S.data+" e este PDF é do leilão de "+r.data+".\n\nOK = começar tabela nova só com este leilão\nCancelar = juntar com os lotes antigos");}catch(e){}
+    if(novo)S={leilao:"",data:"",totais:null,rows:[]};
+  }
   if(r.leilao&&!S.leilao)S.leilao=up(r.leilao);
   if(r.data&&!S.data)S.data=String(r.data);
   if(r.totais&&num(r.totais.animais))S.totais={animais:num(r.totais.animais),machos:num(r.totais.machos),femeas:num(r.totais.femeas)};
