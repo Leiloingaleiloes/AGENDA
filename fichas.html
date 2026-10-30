@@ -671,7 +671,7 @@ function fc(w,span,text,o){
     '<w:p><w:pPr><w:spacing w:before="0" w:after="0"/>'+(o.center?'<w:jc w:val="center"/>':'')+'</w:pPr>'+
     (text===""||text==null?"":'<w:r>'+rpr+'<w:t xml:space="preserve">'+xe(text)+'</w:t></w:r>')+'</w:p></w:tc>';
 }
-function frow(cells){return '<w:tr><w:trPr><w:cantSplit/><w:trHeight w:val="1960" w:hRule="atLeast"/></w:trPr>'+cells+'</w:tr>';}
+function frow(cells){return '<w:tr><w:trPr><w:cantSplit/><w:trHeight w:val="1800" w:hRule="atLeast"/></w:trPr>'+cells+'</w:tr>';}
 function lotXml(l,first){
   var G=[3100,1900,1900,1300,3300,3638],soma=function(a,b){return a+b;},resto=G.slice(1).reduce(soma,0);
   var vend=up(l.vendedor),szV=vend.length>34?44:vend.length>26?52:64;
