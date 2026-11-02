@@ -58,8 +58,16 @@ h1 span { color: var(--accent); }
 .grupo-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding-bottom: 8px; margin-bottom: 12px; border-bottom: 2px solid var(--accent); }
 .grupo-h h2 { font-family: var(--f-display); font-weight: 700; font-size: 1.35rem; text-transform: uppercase; letter-spacing: .02em; margin: 0; line-height: 1.15; }
 .grupo-h .info { color: var(--muted); font-size: .9rem; }
-.grupo-h .passou { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 4px; background: var(--line); color: var(--muted); }
-.grupo-h .vem { background: var(--accent-soft); color: var(--accent); }
+.cidades { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.chip { font: 600 .88rem var(--f-body); padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.chip b { font-weight: 600; color: var(--muted); margin-left: 2px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-brand); }
+.chip[aria-pressed="true"] b { color: var(--on-brand); opacity: .8; }
+.post-t { display: flex; flex-direction: column; gap: 2px; padding: 12px 12px 10px; border-bottom: 1px solid var(--line); }
+.post-t strong { font-family: var(--f-display); font-weight: 700; font-size: 1.12rem; text-transform: uppercase; letter-spacing: .02em; line-height: 1.15; }
+.post-t > span { font-size: .86rem; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.passou { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 4px; background: var(--line); color: var(--muted); }
+.vem { background: var(--accent-soft); color: var(--accent); }
 
 .posts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; align-items: start; }
 .post { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
@@ -84,8 +92,9 @@ h1 span { color: var(--accent); }
 <div class="wrap">
   <div class="intro">
     <p id="resumo">Carregando…</p>
-    <input class="busca" id="busca" type="search" placeholder="Buscar por leilão, cidade ou mês" aria-label="Buscar">
+    <input class="busca" id="busca" type="search" placeholder="Buscar por leilão ou mês" aria-label="Buscar">
   </div>
+  <div class="cidades" id="cidades" role="group" aria-label="Filtrar por cidade"></div>
   <div class="aviso" id="aviso" hidden></div>
   <div id="lista"></div>
 </div>
@@ -104,30 +113,35 @@ h1 span { color: var(--accent); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
   function sem(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
 
+  var cidadeSel = "";
+
   function render(filtro) {
     var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
     var f = sem(filtro || "");
     var grupos = {}, ordem = [];
     dados.forEach(function (p) {
-      var texto = sem([p.leilao, p.local, p.chamada, MESES_LONGO[d(p.data_leilao).getMonth()], curta(p.data_leilao)].join(" "));
+      if (cidadeSel && p.cidade !== cidadeSel) return;
+      var texto = sem([p.leilao, p.local, p.cidade, p.chamada, MESES_LONGO[d(p.data_leilao).getMonth()], curta(p.data_leilao)].join(" "));
       if (f && texto.indexOf(f) < 0) return;
-      var k = p.leilao + "|" + p.data_leilao;
-      if (!grupos[k]) { grupos[k] = { leilao: p.leilao, data: p.data_leilao, hora: p.hora, local: p.local, posts: [] }; ordem.push(k); }
-      grupos[k].posts.push(p);
+      if (!grupos[p.cidade]) { grupos[p.cidade] = []; ordem.push(p.cidade); }
+      grupos[p.cidade].push(p);
     });
-    ordem.sort(function (a, b) { return grupos[b].data.localeCompare(grupos[a].data); });
+    ordem.sort(function (a, b) { return a.localeCompare(b, "pt-BR"); });
 
-    var html = ordem.map(function (k) {
-      var g = grupos[k];
-      g.posts.sort(function (a, b) { return b.publicado.localeCompare(a.publicado); });
-      var futuro = d(g.data) >= hoje;
-      return '<section class="grupo"><div class="grupo-h"><h2>' + esc(g.leilao) + '</h2>' +
-        '<span class="info">' + longa(g.data) + ' · ' + esc(g.hora) + ' · ' + esc(g.local) + '</span>' +
-        '<span class="passou' + (futuro ? ' vem' : '') + '">' + (futuro ? 'Vem aí' : 'Realizado') + '</span></div>' +
-        '<div class="posts">' + g.posts.map(function (p) {
+    var html = ordem.map(function (c) {
+      var ps = grupos[c];
+      ps.sort(function (a, b) { return b.data_leilao.localeCompare(a.data_leilao) || b.publicado.localeCompare(a.publicado); });
+      var nLeiloes = {}; ps.forEach(function (p) { nLeiloes[p.leilao + p.data_leilao] = 1; });
+      var nl = Object.keys(nLeiloes).length;
+      return '<section class="grupo"><div class="grupo-h"><h2>' + esc(c) + '</h2>' +
+        '<span class="info">' + ps.length + (ps.length === 1 ? ' propaganda' : ' propagandas') + ' · ' + nl + (nl === 1 ? ' leilão' : ' leilões') + '</span></div>' +
+        '<div class="posts">' + ps.map(function (p) {
           var u = link(p.codigo);
+          var futuro = d(p.data_leilao) >= hoje;
           var zap = "https://wa.me/?text=" + encodeURIComponent(p.leilao + " · " + curta(p.data_leilao) + " · " + p.hora + " · " + p.local + "\n" + u);
-          return '<article class="post"><div class="post-h"><span class="chamada">' + esc(p.chamada) + '</span><span class="pub">postado ' + curta(p.publicado) + '</span></div>' +
+          return '<article class="post"><div class="post-t"><strong>' + esc(p.leilao) + '</strong>' +
+            '<span>' + longa(p.data_leilao) + ' · ' + esc(p.hora) + '<span class="passou' + (futuro ? ' vem' : '') + '">' + (futuro ? 'Vem aí' : 'Realizado') + '</span></span></div>' +
+            '<div class="post-h"><span class="chamada">' + esc(p.chamada) + '</span><span class="pub">postado ' + curta(p.publicado) + '</span></div>' +
             '<div class="embed"><iframe src="' + u + 'embed/" loading="lazy" title="Post do Instagram: ' + esc(p.leilao) + '" scrolling="no" allowtransparency="true"></iframe></div>' +
             '<div class="acts"><a class="act" href="' + u + '" target="_blank" rel="noopener">Abrir</a>' +
             '<button class="act" type="button" data-copiar="' + u + '">Copiar link</button>' +
@@ -137,6 +151,20 @@ h1 span { color: var(--accent); }
 
     document.getElementById("lista").innerHTML = html || '<p class="vazio">Nenhuma propaganda encontrada.</p>';
     ajusta();
+  }
+
+  function chips() {
+    var cont = {}; dados.forEach(function (p) { cont[p.cidade] = (cont[p.cidade] || 0) + 1; });
+    var cs = Object.keys(cont).sort(function (a, b) { return a.localeCompare(b, "pt-BR"); });
+    var el = document.getElementById("cidades");
+    el.innerHTML = '<button type="button" class="chip" data-cidade="" aria-pressed="true">Todas <b>' + dados.length + '</b></button>' +
+      cs.map(function (c) { return '<button type="button" class="chip" data-cidade="' + esc(c) + '" aria-pressed="false">' + esc(c) + ' <b>' + cont[c] + '</b></button>'; }).join("");
+    el.addEventListener("click", function (e) {
+      var b = e.target.closest(".chip"); if (!b) return;
+      cidadeSel = b.getAttribute("data-cidade");
+      el.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      render(document.getElementById("busca").value);
+    });
   }
 
   // artes 4:5 + cabeçalho e rodapé do Instagram (~210px)
@@ -165,6 +193,7 @@ h1 span { color: var(--accent); }
     var leiloes = {}; dados.forEach(function (p) { leiloes[p.leilao + p.data_leilao] = 1; });
     document.getElementById("resumo").textContent = dados.length + " propagandas de " + Object.keys(leiloes).length + " leilões · atualizado em " + curta(j.atualizado);
     if (j.observacao) { var a = document.getElementById("aviso"); a.textContent = j.observacao; a.hidden = false; }
+    chips();
     render("");
   }).catch(function () {
     document.getElementById("resumo").textContent = "Não foi possível carregar a lista.";

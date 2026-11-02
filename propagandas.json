@@ -10,7 +10,8 @@
       "data_leilao": "2026-10-31",
       "hora": "14h30",
       "local": "Laranjeiras do Sul – PR",
-      "chamada": "É hoje"
+      "chamada": "É hoje",
+      "cidade": "Laranjeiras do Sul"
     },
     {
       "codigo": "DfHzNiHARF4",
@@ -19,7 +20,8 @@
       "data_leilao": "2026-10-31",
       "hora": "14h30",
       "local": "Laranjeiras do Sul – PR",
-      "chamada": "É amanhã"
+      "chamada": "É amanhã",
+      "cidade": "Laranjeiras do Sul"
     },
     {
       "codigo": "De9hv-ODrOk",
@@ -28,7 +30,8 @@
       "data_leilao": "2026-10-31",
       "hora": "14h30",
       "local": "Laranjeiras do Sul – PR",
-      "chamada": "Convite"
+      "chamada": "Convite",
+      "cidade": "Laranjeiras do Sul"
     },
     {
       "codigo": "DegzRkCjAlI",
@@ -37,7 +40,8 @@
       "data_leilao": "2026-10-18",
       "hora": "14h30",
       "local": "Cantagalo – PR",
-      "chamada": "Convite"
+      "chamada": "Convite",
+      "cidade": "Cantagalo"
     },
     {
       "codigo": "Dd9Q6RDxr1o",
@@ -46,7 +50,8 @@
       "data_leilao": "2026-10-03",
       "hora": "14h30",
       "local": "Recinto Rubens Linhares Clazer, Palmital – PR",
-      "chamada": "Convite"
+      "chamada": "Convite",
+      "cidade": "Palmital"
     },
     {
       "codigo": "DdWIPEpiCfz",
@@ -55,7 +60,8 @@
       "data_leilao": "2026-09-16",
       "hora": "19h30",
       "local": "Recinto Admar Meurer, Marquinho – PR",
-      "chamada": "É hoje"
+      "chamada": "É hoje",
+      "cidade": "Marquinho"
     },
     {
       "codigo": "DdJ1Z-sxfGe",
@@ -64,7 +70,8 @@
       "data_leilao": "2026-09-16",
       "hora": "19h30",
       "local": "Recinto Admar Meurer, Marquinho – PR",
-      "chamada": "Adiado (era 13/09)"
+      "chamada": "Adiado (era 13/09)",
+      "cidade": "Marquinho"
     },
     {
       "codigo": "DbrNyN5Dq8O",
@@ -73,7 +80,8 @@
       "data_leilao": "2026-08-30",
       "hora": "14h",
       "local": "Laranjeiras do Sul – PR",
-      "chamada": "Convite"
+      "chamada": "Convite",
+      "cidade": "Laranjeiras do Sul"
     }
   ]
 }
