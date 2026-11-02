@@ -1,0 +1,79 @@
+{
+  "atualizado": "2026-11-02",
+  "perfil": "leiloingaleiloes",
+  "observacao": "Coletado sem login no Instagram: só os 12 posts mais recentes estavam visíveis. Posts mais antigos ainda faltam.",
+  "posts": [
+    {
+      "codigo": "DfKAFEwId-j",
+      "publicado": "2026-10-31",
+      "leilao": "7º Leilão das Águas – Gado de Corte",
+      "data_leilao": "2026-10-31",
+      "hora": "14h30",
+      "local": "Laranjeiras do Sul – PR",
+      "chamada": "É hoje"
+    },
+    {
+      "codigo": "DfHzNiHARF4",
+      "publicado": "2026-10-30",
+      "leilao": "7º Leilão das Águas – Gado de Corte",
+      "data_leilao": "2026-10-31",
+      "hora": "14h30",
+      "local": "Laranjeiras do Sul – PR",
+      "chamada": "É amanhã"
+    },
+    {
+      "codigo": "De9hv-ODrOk",
+      "publicado": "2026-10-26",
+      "leilao": "7º Leilão das Águas – Gado de Corte",
+      "data_leilao": "2026-10-31",
+      "hora": "14h30",
+      "local": "Laranjeiras do Sul – PR",
+      "chamada": "Convite"
+    },
+    {
+      "codigo": "DegzRkCjAlI",
+      "publicado": "2026-10-15",
+      "leilao": "Feira Especial de Gado de Corte",
+      "data_leilao": "2026-10-18",
+      "hora": "14h30",
+      "local": "Cantagalo – PR",
+      "chamada": "Convite"
+    },
+    {
+      "codigo": "Dd9Q6RDxr1o",
+      "publicado": "2026-10-01",
+      "leilao": "Leilão de Gado de Corte de Palmital",
+      "data_leilao": "2026-10-03",
+      "hora": "14h30",
+      "local": "Recinto Rubens Linhares Clazer, Palmital – PR",
+      "chamada": "Convite"
+    },
+    {
+      "codigo": "DdWIPEpiCfz",
+      "publicado": "2026-09-16",
+      "leilao": "Leilão Gado de Corte de Marquinho",
+      "data_leilao": "2026-09-16",
+      "hora": "19h30",
+      "local": "Recinto Admar Meurer, Marquinho – PR",
+      "chamada": "É hoje"
+    },
+    {
+      "codigo": "DdJ1Z-sxfGe",
+      "publicado": "2026-09-11",
+      "leilao": "Leilão Gado de Corte de Marquinho",
+      "data_leilao": "2026-09-16",
+      "hora": "19h30",
+      "local": "Recinto Admar Meurer, Marquinho – PR",
+      "chamada": "Adiado (era 13/09)"
+    },
+    {
+      "codigo": "DbrNyN5Dq8O",
+      "publicado": "2026-08-05",
+      "leilao": "7º Leilão Reprodutores União das Raças e Leilão Gado de Corte",
+      "data_leilao": "2026-08-30",
+      "hora": "14h",
+      "local": "Laranjeiras do Sul – PR",
+      "chamada": "Convite"
+    }
+  ]
+}

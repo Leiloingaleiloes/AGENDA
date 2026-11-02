@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2E6A3E">
+<title>Propagandas · Leiloingá</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Leiloingá · Propagandas dos leilões">
+<meta property="og:description" content="Todas as artes de divulgação dos leilões, em um só lugar">
+<meta property="og:url" content="https://leiloingaleiloes.github.io/AGENDA/propagandas.html">
+<meta property="og:image" content="https://leiloingaleiloes.github.io/AGENDA/og-banner.png?v=3">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #EDEEF0;
+  --surface: #FFFFFF;
+  --surface-2: #F5F6F7;
+  --line: #DADDE1;
+  --fg: #1D2024;
+  --muted: #5D636B;
+  --accent: #2E6A3E;
+  --accent-soft: #E1EDE3;
+  --warn: #9A5B00;
+  --warn-soft: #FBEFD9;
+  --on-brand: #FFFFFF;
+  --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Barlow", "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.45; }
+a { color: inherit; }
+button { font: inherit; }
+
+.topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+.topbar-in { max-width: 1100px; margin: 0 auto; padding: 8px max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 20px; }
+.brandhead { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.logo { height: 34px; width: auto; max-width: 200px; object-fit: contain; display: block; }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: 1.7rem; margin: 0; line-height: 1; text-transform: uppercase; letter-spacing: .01em; }
+h1 span { color: var(--accent); }
+.homebtn { font: 600 .86rem var(--f-body); text-decoration: none; padding: 7px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); white-space: nowrap; }
+.homebtn:hover { border-color: var(--muted); }
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 22px max(16px, env(safe-area-inset-left, 0px)) 56px; }
+.intro { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.intro p { margin: 0; color: var(--muted); font-size: .92rem; }
+.busca { flex: 1 1 260px; max-width: 380px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font: inherit; }
+.busca:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.aviso { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 10px 14px; font-size: .88rem; margin-bottom: 18px; }
+
+.grupo { margin-bottom: 30px; }
+.grupo-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding-bottom: 8px; margin-bottom: 12px; border-bottom: 2px solid var(--accent); }
+.grupo-h h2 { font-family: var(--f-display); font-weight: 700; font-size: 1.35rem; text-transform: uppercase; letter-spacing: .02em; margin: 0; line-height: 1.15; }
+.grupo-h .info { color: var(--muted); font-size: .9rem; }
+.grupo-h .passou { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 4px; background: var(--line); color: var(--muted); }
+.grupo-h .vem { background: var(--accent-soft); color: var(--accent); }
+
+.posts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; align-items: start; }
+.post { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+.post-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.chamada { font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .03em; color: var(--accent); }
+.pub { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.embed { padding: 8px; background: var(--surface-2); min-height: 120px; }
+.embed .instagram-media { margin: 0 !important; min-width: 0 !important; width: 100% !important; max-width: 100% !important; }
+.acts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 10px 12px; border-top: 1px solid var(--line); }
+.act { font: 600 .82rem var(--f-body); text-decoration: none; text-align: center; padding: 9px 4px; border-radius: 7px; border: 1px solid var(--accent); background: var(--surface); color: var(--accent); cursor: pointer; white-space: nowrap; }
+.act.zap { border-color: #1FA855; color: #1FA855; }
+.act:hover { filter: brightness(.95); }
+.vazio { color: var(--muted); padding: 30px 0; text-align: center; }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-in">
+  <div class="brandhead"><img class="logo" src="logo-leiloinga.png" alt="Leiloingá" onerror="this.remove()"><h1>Leiloingá <span>Propagandas</span></h1></div>
+  <a class="homebtn" href="./">← Painel</a>
+</div></div>
+
+<div class="wrap">
+  <div class="intro">
+    <p id="resumo">Carregando…</p>
+    <input class="busca" id="busca" type="search" placeholder="Buscar por leilão, cidade ou mês" aria-label="Buscar">
+  </div>
+  <div class="aviso" id="aviso" hidden></div>
+  <div id="lista"></div>
+</div>
+
+<script>
+(function () {
+  var MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  var MESES_LONGO = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+  var SEMANA = ["dom","seg","ter","qua","qui","sex","sáb"];
+  var dados = [];
+
+  function d(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function curta(iso) { var x = d(iso); return String(x.getDate()).padStart(2, "0") + "/" + String(x.getMonth() + 1).padStart(2, "0") + "/" + x.getFullYear(); }
+  function longa(iso) { var x = d(iso); return SEMANA[x.getDay()] + " " + x.getDate() + " " + MESES[x.getMonth()] + " " + x.getFullYear(); }
+  function link(c) { return "https://www.instagram.com/p/" + c + "/"; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function sem(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+
+  function render(filtro) {
+    var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    var f = sem(filtro || "");
+    var grupos = {}, ordem = [];
+    dados.forEach(function (p) {
+      var texto = sem([p.leilao, p.local, p.chamada, MESES_LONGO[d(p.data_leilao).getMonth()], curta(p.data_leilao)].join(" "));
+      if (f && texto.indexOf(f) < 0) return;
+      var k = p.leilao + "|" + p.data_leilao;
+      if (!grupos[k]) { grupos[k] = { leilao: p.leilao, data: p.data_leilao, hora: p.hora, local: p.local, posts: [] }; ordem.push(k); }
+      grupos[k].posts.push(p);
+    });
+    ordem.sort(function (a, b) { return grupos[b].data.localeCompare(grupos[a].data); });
+
+    var html = ordem.map(function (k) {
+      var g = grupos[k];
+      g.posts.sort(function (a, b) { return b.publicado.localeCompare(a.publicado); });
+      var futuro = d(g.data) >= hoje;
+      return '<section class="grupo"><div class="grupo-h"><h2>' + esc(g.leilao) + '</h2>' +
+        '<span class="info">' + longa(g.data) + ' · ' + esc(g.hora) + ' · ' + esc(g.local) + '</span>' +
+        '<span class="passou' + (futuro ? ' vem' : '') + '">' + (futuro ? 'Vem aí' : 'Realizado') + '</span></div>' +
+        '<div class="posts">' + g.posts.map(function (p) {
+          var u = link(p.codigo);
+          var zap = "https://wa.me/?text=" + encodeURIComponent(p.leilao + " · " + curta(p.data_leilao) + " · " + p.hora + " · " + p.local + "\n" + u);
+          return '<article class="post"><div class="post-h"><span class="chamada">' + esc(p.chamada) + '</span><span class="pub">postado ' + curta(p.publicado) + '</span></div>' +
+            '<div class="embed"><blockquote class="instagram-media" data-instgrm-permalink="' + u + '?utm_source=ig_embed" data-instgrm-version="14"><a href="' + u + '" target="_blank" rel="noopener">Ver post no Instagram</a></blockquote></div>' +
+            '<div class="acts"><a class="act" href="' + u + '" target="_blank" rel="noopener">Abrir</a>' +
+            '<button class="act" type="button" data-copiar="' + u + '">Copiar link</button>' +
+            '<a class="act zap" href="' + zap + '" target="_blank" rel="noopener">WhatsApp</a></div></article>';
+        }).join("") + '</div></section>';
+    }).join("");
+
+    document.getElementById("lista").innerHTML = html || '<p class="vazio">Nenhuma propaganda encontrada.</p>';
+    if (window.instgrm && window.instgrm.Embeds) window.instgrm.Embeds.process();
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-copiar]"); if (!b) return;
+    var u = b.getAttribute("data-copiar");
+    var ok = function () { var t = b.textContent; b.textContent = "Copiado!"; setTimeout(function () { b.textContent = t; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(u).then(ok, function () { prompt("Copie o link:", u); });
+    else prompt("Copie o link:", u);
+  });
+
+  var timer;
+  document.getElementById("busca").addEventListener("input", function (e) {
+    clearTimeout(timer); var v = e.target.value; timer = setTimeout(function () { render(v); }, 250);
+  });
+
+  fetch("propagandas.json?v=" + Date.now()).then(function (r) { return r.json(); }).then(function (j) {
+    dados = j.posts || [];
+    var leiloes = {}; dados.forEach(function (p) { leiloes[p.leilao + p.data_leilao] = 1; });
+    document.getElementById("resumo").textContent = dados.length + " propagandas de " + Object.keys(leiloes).length + " leilões · atualizado em " + curta(j.atualizado);
+    if (j.observacao) { var a = document.getElementById("aviso"); a.textContent = j.observacao; a.hidden = false; }
+    render("");
+    var s = document.createElement("script"); s.async = true; s.src = "https://www.instagram.com/embed.js"; document.body.appendChild(s);
+  }).catch(function () {
+    document.getElementById("resumo").textContent = "Não foi possível carregar a lista.";
+  });
+})();
+</script>
+</body>
+</html>
