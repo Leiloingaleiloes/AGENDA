@@ -201,8 +201,8 @@ td input:focus{border-color:var(--destaque)}
 .th .rm{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:.9rem;line-height:1;cursor:pointer}
 .th .rm.armado{background:var(--bad);width:auto;padding:0 7px;border-radius:12px;font-size:.7rem;font-weight:700}
 .lc-a{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:8px}
-.lc-a label{position:relative;min-height:52px;font-size:1rem}
-.lc-a label input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+.lc-a .btn{min-height:52px;font-size:1rem;touch-action:manipulation}
+.arqcam{position:fixed;left:-200px;top:0;width:1px;height:1px;opacity:0}
 .lc-a .cam{background:var(--destaque);border-color:var(--destaque);color:#fff;font:700 1.15rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.04em}
 .lc-st{font-size:.86rem;font-weight:600;color:var(--accent);min-height:0}
 .lc-st:empty{display:none}
@@ -210,7 +210,7 @@ td input:focus{border-color:var(--destaque)}
 .lc-st.run::before{content:"";display:inline-block;width:10px;height:10px;margin-right:7px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:gira .8s linear infinite;vertical-align:-1px}
 @keyframes gira{to{transform:rotate(360deg)}}
 .camrodape{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
-.modal{position:fixed;inset:0;z-index:20;background:rgba(10,20,14,.5);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{position:fixed;top:0;right:0;bottom:0;left:0;z-index:20;background:rgba(10,20,14,.5);display:flex;align-items:center;justify-content:center;padding:16px}
 .modal .caixa{background:#fff;border-radius:16px;padding:20px;width:min(100%,520px);max-height:92vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .vazio2{grid-column:1/-1;padding:28px 18px;text-align:center;color:var(--muted);border:2px dashed var(--line);border-radius:14px}
 .vazio2 b{display:block;font:700 1.3rem/1.1 var(--f-display);text-transform:uppercase;color:var(--fg);margin-bottom:6px}
@@ -1255,9 +1255,29 @@ async function removerMidia(n,tipo,idx){
   });
 }
 
+/* campos de arquivo fixos (fora dos cartões), para o iPhone abrir a câmera com segurança */
+var ARQ_CAM=null,ARQ_GAL=null,LOTE_ESCOLHIDO=null;
+function criarArq(cam){
+  var i=document.createElement("input");i.type="file";i.className="arqcam";i.accept="image/*,video/*";i.tabIndex=-1;i.setAttribute("aria-hidden","true");
+  if(cam)i.setAttribute("capture","environment");else i.multiple=true;
+  i.addEventListener("change",function(){var n=LOTE_ESCOLHIDO,fs=Array.prototype.slice.call(this.files||[]);this.value="";if(n!=null&&fs.length)enviarArquivos(n,fs);});
+  document.body.appendChild(i);return i;
+}
+function escolher(n,modo){
+  if(!GH.token){abrirConexao();return;}
+  LOTE_ESCOLHIDO=n;
+  if(!ARQ_CAM)ARQ_CAM=criarArq(true);
+  if(!ARQ_GAL)ARQ_GAL=criarArq(false);
+  (modo==="cam"?ARQ_CAM:ARQ_GAL).click();
+}
+var CAM_CHAVE="";
 window.__renderCam=renderCam;
 function renderCam(){
   var box=$("cams");if(!box||$("v-cam").hidden)return;
+  /* só redesenha se algo mudou (não atrapalha quem está tocando nos botões) */
+  var chave=JSON.stringify([!!GH.token,S.leilao,S.data,$("camBusca").value,$("camSo").checked,S.rows.map(function(r){return [r.lote,r.qtde,r.sexo,r.peso,r.raca,r.idade,r.vendedor];}),MID.dados]);
+  if(chave===CAM_CHAVE&&box.childElementCount)return;
+  CAM_CHAVE=chave;
   var aviso=$("camAviso");
   if(!GH.token){
     aviso.hidden=false;aviso.innerHTML="";
@@ -1292,14 +1312,10 @@ function renderCam(){
       c.append(th);
     }
     var a=el("div","lc-a");
-    var l1=el("label","btn cam");var i1=document.createElement("input");i1.type="file";i1.accept="video/*,image/*";i1.setAttribute("capture","environment");
-    i1.setAttribute("aria-label","Filmar ou fotografar o lote "+dois(r.lote));
-    i1.addEventListener("change",function(){enviarArquivos(r.lote,this.files);this.value="";});
-    l1.append(document.createTextNode("📷 Filmar / foto"),i1);
-    var l2=el("label","btn");var i2=document.createElement("input");i2.type="file";i2.accept="video/*,image/*";i2.multiple=true;
-    i2.setAttribute("aria-label","Escolher da galeria para o lote "+dois(r.lote));
-    i2.addEventListener("change",function(){enviarArquivos(r.lote,this.files);this.value="";});
-    l2.append(document.createTextNode("Da galeria"),i2);
+    var l1=el("button","btn cam","📷 Filmar / foto");l1.type="button";l1.setAttribute("aria-label","Filmar ou fotografar o lote "+dois(r.lote));
+    l1.addEventListener("click",function(){escolher(r.lote,"cam");});
+    var l2=el("button","btn","Da galeria");l2.type="button";l2.setAttribute("aria-label","Escolher da galeria para o lote "+dois(r.lote));
+    l2.addEventListener("click",function(){escolher(r.lote,"gal");});
     a.append(l1,l2);c.append(a);
     var st=el("div","lc-st");c.append(st);
     box.append(c);pintarStatus(r.lote);
