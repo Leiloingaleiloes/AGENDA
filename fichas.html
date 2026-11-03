@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="color-scheme" content="light only">
-<title>Fichas dos Lotes · Leiloingá</title>
+<title>Lotes · ADM · Leiloingá</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -170,14 +170,69 @@ td input:focus{border-color:var(--destaque)}
 .alerta b{font-size:1rem}
 .alerta span{font-size:.92rem;color:var(--fg)}
 #m-add{background:var(--destaque);border-color:var(--destaque);color:#fff}
+/* ===== ADM: nuvem, abas e câmera ===== */
+.nuvem{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 12px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;font-size:.86rem;cursor:pointer;white-space:nowrap}
+.nuvem i{width:9px;height:9px;border-radius:50%;background:#9AA79C}
+.nuvem.ok i{background:var(--accent)} .nuvem.ok{border-color:#A9D3B5}
+.nuvem.sync i{background:var(--destaque);animation:pisca 1s infinite}
+.nuvem.erro i,.nuvem.off i{background:var(--bad)} .nuvem.off{border-color:var(--bad);color:var(--bad)}
+@keyframes pisca{50%{opacity:.3}}
+.abas{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:520px;margin:4px 0 14px;padding:5px;border-radius:14px;background:var(--surface-2);border:1.5px solid #B4C6B9}
+.abas button{min-height:46px;border:0;border-radius:10px;background:none;font:700 1.1rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer}
+.abas button[aria-pressed=true]{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(30,138,67,.3)}
+.camtopo{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px 16px;margin-bottom:12px}
+.busca{height:44px;width:9em;padding:0 12px;border:2px solid var(--borda);border-radius:10px;font-weight:700;font-size:1.05rem}
+.chk{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.92rem;cursor:pointer}
+.avisocam{padding:12px 14px;border-radius:12px;background:var(--destaque-soft);border:2px solid var(--destaque);color:#6B3300;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.cams{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+.lc{background:var(--surface);border:1.5px solid #B4C6B9;border-radius:14px;padding:12px;display:grid;gap:10px;align-content:start;min-width:0}
+.lc.tem{border-color:#A9D3B5;box-shadow:inset 0 4px 0 var(--accent)}
+.lc-h{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}
+.lc-h .tag{font-size:1.5rem}
+.lc-info{min-width:0;display:grid;gap:1px}
+.lc-info b{font-weight:700}
+.lc-info span{font-size:.85rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lc-n{font:600 .78rem var(--f-body);color:var(--muted);text-align:right;white-space:nowrap}
+.lc-n b{display:block;font:700 1.3rem/1 var(--f-display);color:var(--accent)}
+.thumbs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.th{position:relative;flex:none;width:76px;height:76px;border-radius:9px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line)}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th .tipo{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.65);color:#fff;font-size:.66rem;font-weight:700;padding:1px 5px;border-radius:4px}
+.th .rm{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:.9rem;line-height:1;cursor:pointer}
+.th .rm.armado{background:var(--bad);width:auto;padding:0 7px;border-radius:12px;font-size:.7rem;font-weight:700}
+.lc-a{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:8px}
+.lc-a label{position:relative;min-height:52px;font-size:1rem}
+.lc-a label input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+.lc-a .cam{background:var(--destaque);border-color:var(--destaque);color:#fff;font:700 1.15rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.04em}
+.lc-st{font-size:.86rem;font-weight:600;color:var(--accent);min-height:0}
+.lc-st:empty{display:none}
+.lc-st.err{color:var(--bad)}
+.lc-st.run::before{content:"";display:inline-block;width:10px;height:10px;margin-right:7px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:gira .8s linear infinite;vertical-align:-1px}
+@keyframes gira{to{transform:rotate(360deg)}}
+.camrodape{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.modal{position:fixed;inset:0;z-index:20;background:rgba(10,20,14,.5);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal .caixa{background:#fff;border-radius:16px;padding:20px;width:min(100%,520px);max-height:92vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.vazio2{grid-column:1/-1;padding:28px 18px;text-align:center;color:var(--muted);border:2px dashed var(--line);border-radius:14px}
+.vazio2 b{display:block;font:700 1.3rem/1.1 var(--f-display);text-transform:uppercase;color:var(--fg);margin-bottom:6px}
+@media (prefers-reduced-motion:reduce){.nuvem.sync i,.lc-st.run::before{animation:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="marca"><img src="logo-leiloinga.png" alt="Leiloingá" onerror="this.remove()"><h1>Fichas dos <span>Lotes</span></h1></div>
-    <a class="home" href="./">&larr; Início</a>
+    <div class="marca"><img src="logo-leiloinga.png" alt="Leiloingá" onerror="this.remove()"><h1>Lotes <span>ADM</span></h1></div>
+    <div class="row">
+      <button class="nuvem" type="button" id="nuvemBtn"><i></i><span id="nuvemTxt">Só neste aparelho</span></button>
+      <a class="home" href="https://leiloingaleiloes.github.io/LOTES/" target="_blank" rel="noopener">Site dos produtores ↗</a>
+      <a class="home" href="./">&larr; Início</a>
+    </div>
   </header>
+  <nav class="abas" aria-label="Telas">
+    <button type="button" data-v="fichas" aria-pressed="true">Fichas</button>
+    <button type="button" data-v="cam" aria-pressed="false">📷 Câmera</button>
+  </nav>
+
+  <div id="v-fichas">
   <p class="lead2">Escolha o PDF da ordem de entrada, confira os lotes e baixe as fichas em Word, uma por página.</p>
 
   <div class="grid" style="margin-top:12px">
@@ -260,6 +315,44 @@ td input:focus{border-color:var(--destaque)}
     <div class="row">
       <button class="btn danger" type="button" id="limpar">Limpar tudo</button>
       <button class="btn pri big" type="button" id="gerar" disabled>Gerar Word</button>
+    </div>
+  </div>
+  </div>
+
+  <div id="v-cam" hidden>
+    <div class="camtopo">
+      <div>
+        <p class="lead2" style="margin:0">Toque em <b>Filmar / foto</b> no lote. O que você gravar vai direto para o site dos produtores.</p>
+        <p class="note" style="margin:4px 0 0" id="camLeilao"></p>
+      </div>
+      <div class="row">
+        <input class="busca" id="camBusca" type="search" inputmode="numeric" placeholder="Nº do lote" aria-label="Procurar lote pelo número">
+        <label class="chk"><input type="checkbox" id="camSo"> Só sem mídia</label>
+      </div>
+    </div>
+    <div class="avisocam" id="camAviso" hidden></div>
+    <div class="cams" id="cams"></div>
+    <div class="camrodape">
+      <button class="btn" type="button" id="pubDados">Atualizar dados no site</button>
+      <button class="btn danger" type="button" id="novoLeilao">Começar leilão novo no site</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="conexao" hidden role="dialog" aria-modal="true" aria-labelledby="t-con">
+  <div class="caixa">
+    <h2 id="t-con" style="color:var(--accent)">Salvar na nuvem (GitHub)</h2>
+    <p class="note" style="margin:0 0 12px">Com a chave, os lotes ficam iguais no computador e no celular, e a câmera envia fotos e vídeos para o site dos produtores. A chave fica guardada só neste aparelho. Faça isso uma vez em cada aparelho.</p>
+    <div class="ff" style="grid-template-columns:minmax(0,1fr)">
+      <label>Chave do GitHub<input id="c-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" style="text-transform:none"></label>
+      <label>Repositório privado dos dados<input id="c-repo" autocomplete="off" spellcheck="false" value="ADM" style="text-transform:none"></label>
+    </div>
+    <div class="alerta" id="c-erro" hidden></div>
+    <div class="row" style="margin-top:14px;justify-content:space-between">
+      <button class="btn danger" type="button" id="c-sair" hidden>Desconectar este aparelho</button>
+      <span style="flex:1"></span>
+      <button class="btn" type="button" id="c-fechar">Fechar</button>
+      <button class="btn pri" type="button" id="c-ok">Conectar</button>
     </div>
   </div>
 </div>
@@ -433,11 +526,14 @@ function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null
 var toastT=null;
 function toast(t,ms){var e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){e.hidden=true;},ms||3500);}
 
-/* ---------- estado (fica só neste navegador) ---------- */
+/* ---------- estado (cópia neste navegador + nuvem no GitHub, quando conectado) ---------- */
 var KEY="fichas-lotes-v1";
 var S={leilao:"",data:"",totais:null,rows:[]};
 var files=[], seq=1, busy=false;
-function salvar(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function salvar(){
+  try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+  if(window.__nuvemSalvar)window.__nuvemSalvar();
+}
 function carregarLocal(){
   try{var x=JSON.parse(localStorage.getItem(KEY)||"null");if(x&&Array.isArray(x.rows)){S=x;S.rows.forEach(function(r){r.id=seq++;});}}catch(e){}
 }
@@ -614,6 +710,7 @@ function render(){
     tb.append(tr);
   });
   renderBar();
+  if(window.__renderCam)window.__renderCam();
 }
 function renderBar(){
   var sel=S.rows.filter(function(r){return r.sel;});
@@ -823,8 +920,427 @@ $("fotoArq").addEventListener("change",function(e){if(e.target.files[0])abrirFot
 $("fotoImg").addEventListener("click",function(){$("fotoVis").classList.toggle("z");});
 $("fotoFechar").addEventListener("click",function(){$("man").classList.remove("comfoto");$("fotoImg").removeAttribute("src");if(fotoUrl){URL.revokeObjectURL(fotoUrl);fotoUrl=null;}});
 
+/* ---------- nuvem: dados do ADM num repositório PRIVADO do GitHub ---------- */
+var DONO="Leiloingaleiloes", PUB="LOTES", ARQ="fichas.json";
+var RAWPUB="https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/";
+var GH={token:"",repo:"ADM"};
+try{var gx=JSON.parse(localStorage.getItem("leiloinga-adm-gh")||"null");if(gx&&gx.token){GH.token=gx.token;GH.repo=gx.repo||"ADM";}}catch(e){}
+var nuvem={sha:null,etag:null,base:null,sujo:false,enviando:false,timer:null};
+
+function api(path,opt){
+  opt=opt||{};
+  var h={"Accept":"application/vnd.github+json","Authorization":"Bearer "+GH.token,"X-GitHub-Api-Version":"2022-11-28"};
+  if(opt.headers)Object.keys(opt.headers).forEach(function(k){h[k]=opt.headers[k];});
+  return fetch("https://api.github.com"+path,{method:opt.method||"GET",headers:h,body:opt.body,cache:"no-store"});
+}
+function b64enc(str){var b=new TextEncoder().encode(str),s="";for(var i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s);}
+function b64dec(b){var s=atob(String(b).replace(/\s/g,"")),u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return new TextDecoder().decode(u);}
+function caminho(repo,p){return "/repos/"+DONO+"/"+repo+"/contents/"+p.split("/").map(encodeURIComponent).join("/");}
+function erroGH(r){var e=new Error("GitHub "+r.status);e.status=r.status;if(r.status===409||r.status===422)e.conflito=true;return e;}
+async function lerArq(repo,p,etag){
+  var r=await api(caminho(repo,p),etag?{headers:{"If-None-Match":etag}}:{});
+  if(r.status===304)return {naoMudou:true};
+  if(r.status===404)return {naoExiste:true};
+  if(!r.ok)throw erroGH(r);
+  var j=await r.json();
+  return {sha:j.sha,texto:j.content?b64dec(j.content):"",etag:r.headers.get("ETag")};
+}
+async function gravarArq(repo,p,b64,sha,msg){
+  var body={message:msg||("Atualiza "+p),content:b64};if(sha)body.sha=sha;
+  var r=await api(caminho(repo,p),{method:"PUT",body:JSON.stringify(body),headers:{"Content-Type":"application/json"}});
+  if(!r.ok)throw erroGH(r);
+  var j=await r.json();return j.content.sha;
+}
+async function apagarArq(repo,p,msg){
+  var r=await api(caminho(repo,p));if(!r.ok)return;var j=await r.json();
+  await api(caminho(repo,p),{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:msg||("Apaga "+p),sha:j.sha})});
+}
+/* grava texto só se mudou; se outro aparelho gravou antes, lê de novo e tenta outra vez */
+async function gravarTexto(repo,p,texto,msg){
+  for(var t=0;t<4;t++){
+    var rr=await lerArq(repo,p);
+    if(!rr.naoExiste&&rr.texto===texto)return;
+    try{await gravarArq(repo,p,b64enc(texto),rr.sha||null,msg);return;}
+    catch(e){if(!e.conflito||t===3)throw e;}
+  }
+}
+
+function limpo(st){
+  st=st||{};
+  return {leilao:st.leilao||"",data:st.data||"",totais:st.totais||null,
+    rows:(st.rows||[]).map(function(r){var o={};Object.keys(r).forEach(function(k){if(k!=="id")o[k]=r[k];});return o;})};
+}
+function porLote(st){var m={};((st&&st.rows)||[]).forEach(function(r){if(r.lote!=null)m[r.lote]=r;});return m;}
+function js(x){return JSON.stringify(x==null?null:x);}
+/* junta as mudanças deste aparelho (desde a última sincronização) com o que está na nuvem */
+function mesclar(base,local,remoto){
+  base=base||{rows:[]};remoto=remoto||{rows:[]};
+  var B=porLote(base),L=porLote(local),res=porLote(remoto);
+  Object.keys(L).forEach(function(k){if(js(L[k])!==js(B[k]))res[k]=L[k];});
+  Object.keys(B).forEach(function(k){if(!L[k])delete res[k];});
+  var out={
+    leilao:local.leilao!==base.leilao?local.leilao:(remoto.leilao||""),
+    data:local.data!==base.data?local.data:(remoto.data||""),
+    totais:js(local.totais)!==js(base.totais)?local.totais:(remoto.totais||null),
+    rows:Object.keys(res).map(function(k){return res[k];})
+  };
+  (local.rows||[]).forEach(function(r){if(r.lote==null)out.rows.push(r);});
+  out.rows.sort(function(a,b){return (a.ord!=null&&b.ord!=null?a.ord-b.ord:0)||((a.lote||9999)-(b.lote||9999));});
+  return out;
+}
+function aplicarEstado(novo){
+  var x=limpo(novo);x.rows.forEach(function(r){r.id=seq++;});
+  S=x;try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+  render();
+}
+
+function estadoNuvem(st){
+  var b=$("nuvemBtn"),t=$("nuvemTxt");
+  var txt={off:"Só neste aparelho · Conectar",carregando:"Carregando…",salvando:"Salvando…",ok:"Salvo na nuvem",erro:"Sem conexão · tentando"}[st]||st;
+  b.className="nuvem "+(st==="ok"?"ok":st==="off"?"off":st==="erro"?"erro":"sync");t.textContent=txt;
+}
+
+window.__nuvemSalvar=function(){
+  if(!GH.token||!nuvem.base)return;
+  nuvem.sujo=true;estadoNuvem("salvando");
+  clearTimeout(nuvem.timer);nuvem.timer=setTimeout(enviar,1200);
+};
+async function enviar(){
+  if(nuvem.enviando){clearTimeout(nuvem.timer);nuvem.timer=setTimeout(enviar,800);return;}
+  if(!nuvem.sujo)return;
+  nuvem.enviando=true;nuvem.sujo=false;
+  var inicio=limpo(S),local=inicio;
+  try{
+    for(var t=0;t<4;t++){
+      try{
+        nuvem.sha=await gravarArq(GH.repo,ARQ,b64enc(JSON.stringify(local)),nuvem.sha,"Lotes: "+(local.leilao||"fichas"));
+        nuvem.base=local;nuvem.etag=null;break;
+      }catch(e){
+        if(!e.conflito||t===3)throw e;
+        var rr=await lerArq(GH.repo,ARQ);
+        var remoto={rows:[]};try{remoto=rr.naoExiste?{rows:[]}:JSON.parse(rr.texto||"{}");}catch(_){}
+        nuvem.sha=rr.sha||null;
+        local=mesclar(nuvem.base,local,remoto);
+      }
+    }
+    /* se outro aparelho mudou algo, mostra aqui sem perder o que foi digitado enquanto enviava */
+    if(js(local)!==js(inicio)){aplicarEstado(mesclar(inicio,limpo(S),local));nuvem.sujo=nuvem.sujo||js(limpo(S))!==js(local);}
+    estadoNuvem(nuvem.sujo?"salvando":"ok");
+  }catch(e){
+    nuvem.sujo=true;
+    if(e.status===401||e.status===403){estadoNuvem("erro");toast("A chave do GitHub não tem permissão para salvar. Toque no botão da nuvem para conferir.",8000);}
+    else{estadoNuvem("erro");clearTimeout(nuvem.timer);nuvem.timer=setTimeout(enviar,10000);}
+  }finally{nuvem.enviando=false;if(nuvem.sujo&&!nuvem.timer)nuvem.timer=setTimeout(enviar,1500);}
+}
+function editando(){var a=document.activeElement;return !!(a&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")&&a.closest("#tbody,#man,.leilao"));}
+async function puxar(){
+  if(!GH.token||!nuvem.base||nuvem.sujo||nuvem.enviando||document.hidden||editando())return;
+  try{
+    var rr=await lerArq(GH.repo,ARQ,nuvem.etag);
+    if(rr.naoMudou||rr.naoExiste)return;
+    nuvem.etag=rr.etag;
+    if(rr.sha===nuvem.sha||nuvem.sujo||nuvem.enviando)return;
+    var remoto=JSON.parse(rr.texto||"{}");
+    nuvem.sha=rr.sha;nuvem.base=limpo(remoto);aplicarEstado(remoto);
+    estadoNuvem("ok");toast("Lotes atualizados pelo outro aparelho.");
+  }catch(e){}
+  if(MID.carregado)carregarMidia();
+}
+setInterval(puxar,15000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)puxar();});
+
+async function iniciarNuvem(){
+  if(!GH.token){estadoNuvem("off");renderCam();return;}
+  estadoNuvem("carregando");
+  try{
+    var rr=await lerArq(GH.repo,ARQ),local=limpo(S);
+    if(rr.naoExiste){nuvem.sha=null;nuvem.base={rows:[]};nuvem.sujo=true;await enviar();}
+    else{
+      var remoto={rows:[]};try{remoto=JSON.parse(rr.texto||"{}");}catch(e){}
+      nuvem.sha=rr.sha;nuvem.etag=rr.etag;
+      if(local.rows.length&&!(remoto.rows||[]).length){nuvem.base=limpo(remoto);nuvem.sujo=true;await enviar();}
+      else{nuvem.base=limpo(remoto);aplicarEstado(remoto);estadoNuvem("ok");}
+    }
+  }catch(e){
+    estadoNuvem("erro");
+    if(e.status===401)toast("A chave do GitHub expirou ou está errada. Toque no botão da nuvem para colar outra.",8000);
+  }
+  carregarMidia();
+}
+
+/* ---------- janela de conexão ---------- */
+function abrirConexao(){
+  $("c-token").value=GH.token?"••••••••••••":"";$("c-repo").value=GH.repo||"ADM";
+  $("c-erro").hidden=true;$("c-sair").hidden=!GH.token;$("conexao").hidden=false;
+  setTimeout(function(){$("c-token").focus();},50);
+}
+function erroConexao(t){var a=$("c-erro");a.textContent=t;a.hidden=false;}
+$("nuvemBtn").addEventListener("click",abrirConexao);
+$("c-fechar").addEventListener("click",function(){$("conexao").hidden=true;});
+$("conexao").addEventListener("click",function(e){if(e.target===$("conexao"))$("conexao").hidden=true;});
+$("c-token").addEventListener("focus",function(){if(/^•+$/.test(this.value))this.value="";});
+$("c-sair").addEventListener("click",function(){
+  try{localStorage.removeItem("leiloinga-adm-gh");}catch(e){}
+  GH.token="";nuvem.base=null;nuvem.sha=null;MID.carregado=false;
+  $("conexao").hidden=true;estadoNuvem("off");renderCam();toast("Este aparelho foi desconectado da nuvem.");
+});
+$("c-ok").addEventListener("click",async function(){
+  var tok=$("c-token").value.trim(),repo=$("c-repo").value.trim().replace(/^.*\//,"")||"ADM";
+  if(/^•+$/.test(tok)||!tok){if(GH.token&&/^•+$/.test(tok)){tok=GH.token;}else return erroConexao("Cole a chave do GitHub (começa com github_pat_).");}
+  var b=this;b.disabled=true;b.textContent="Conferindo…";
+  var antes={token:GH.token,repo:GH.repo};GH.token=tok;GH.repo=repo;
+  try{
+    var r1=await api("/repos/"+DONO+"/"+repo);
+    if(r1.status===401)throw new Error("A chave está errada ou venceu. Gere outra no GitHub e cole aqui.");
+    if(r1.status===404)throw new Error("Não achei o repositório "+DONO+"/"+repo+". Confira o nome e se a chave dá acesso a ele.");
+    if(!r1.ok)throw new Error("O GitHub não respondeu ("+r1.status+"). Tente de novo.");
+    var j1=await r1.json();
+    if(!j1.private)throw new Error("O repositório "+repo+" está público. Os dados têm o nome dos vendedores: deixe ele privado (Settings → Change visibility) e tente de novo.");
+    var r2=await api("/repos/"+DONO+"/"+PUB);
+    if(!r2.ok)throw new Error("A chave não dá acesso ao repositório "+PUB+" (site dos produtores). Inclua ele na chave.");
+    try{localStorage.setItem("leiloinga-adm-gh",JSON.stringify({token:tok,repo:repo}));}catch(e){}
+    $("conexao").hidden=true;
+    await iniciarNuvem();
+    if($("nuvemBtn").classList.contains("ok"))toast("Conectado. Os lotes agora ficam iguais em todos os aparelhos conectados.",6000);
+  }catch(e){GH.token=antes.token;GH.repo=antes.repo;erroConexao(e.message||"Não deu para conectar.");}
+  finally{b.disabled=false;b.textContent="Conectar";}
+});
+
+/* ---------- abas ---------- */
+var VIEW="fichas";
+try{VIEW=localStorage.getItem("leiloinga-adm-view")||(window.innerWidth<700?"cam":"fichas");}catch(e){}
+function mostrar(v){
+  VIEW=v;$("v-fichas").hidden=v!=="fichas";$("v-cam").hidden=v!=="cam";
+  document.querySelectorAll(".abas button").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.v===v));});
+  try{localStorage.setItem("leiloinga-adm-view",v);}catch(e){}
+  if(v==="cam")renderCam();
+}
+document.querySelectorAll(".abas button").forEach(function(b){b.addEventListener("click",function(){mostrar(b.dataset.v);});});
+
+/* ---------- câmera: fotos e vídeos de cada lote para o site dos produtores ---------- */
+var MID={dados:{},carregado:false};
+var ST={};          /* situação do envio, por lote */
+async function carregarMidia(){
+  if(!GH.token)return;
+  try{var rr=await lerArq(PUB,"midia.json");var d={};try{d=JSON.parse(rr.texto||"{}");}catch(e){}MID.dados=d;MID.carregado=true;renderCam();}catch(e){}
+}
+async function mexerMidia(fn,msg){
+  for(var t=0;t<4;t++){
+    var rr=await lerArq(PUB,"midia.json"),d={};
+    try{d=JSON.parse(rr.texto||"{}");}catch(e){}
+    fn(d);
+    try{await gravarArq(PUB,"midia.json",b64enc(JSON.stringify(d,null,1)+"\n"),rr.sha||null,msg);MID.dados=d;MID.carregado=true;return;}
+    catch(e){if(!e.conflito||t===3)throw e;}
+  }
+}
+function blobB64(b){return new Promise(function(ok,no){var fr=new FileReader();fr.onload=function(){ok(String(fr.result).split(",")[1]);};fr.onerror=function(){no(new Error("leitura"));};fr.readAsDataURL(b);});}
+function abrirImg(file){return new Promise(function(ok,no){var u=URL.createObjectURL(file),i=new Image();i.onload=function(){ok({i:i,u:u});};i.onerror=function(){URL.revokeObjectURL(u);no(new Error("Esta foto não abriu. Tente tirar de novo."));};i.src=u;});}
+function reduzir(img,max,q){
+  var w=img.naturalWidth,h=img.naturalHeight,s=Math.min(1,max/Math.max(w,h)),c=document.createElement("canvas");
+  c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+  return new Promise(function(ok){c.toBlob(ok,"image/jpeg",q);});
+}
+function capaVideo(file){
+  return new Promise(function(ok){
+    var u=URL.createObjectURL(file),v=document.createElement("video"),feito=false;
+    v.muted=true;v.playsInline=true;v.setAttribute("playsinline","");v.preload="auto";
+    var fim=function(b){if(feito)return;feito=true;try{v.pause();}catch(e){}v.removeAttribute("src");URL.revokeObjectURL(u);ok(b);};
+    var tirar=function(){
+      try{
+        var w=v.videoWidth,h=v.videoHeight;if(!w)return fim(null);
+        var s=Math.min(1,960/Math.max(w,h)),c=document.createElement("canvas");
+        c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+        c.toBlob(function(b){fim(b);},"image/jpeg",.8);
+      }catch(e){fim(null);}
+    };
+    v.addEventListener("loadeddata",function(){try{v.currentTime=Math.min(.6,(v.duration||2)/3);}catch(e){tirar();}});
+    v.addEventListener("seeked",tirar,{once:true});
+    v.addEventListener("error",function(){fim(null);});
+    setTimeout(function(){if(!feito)tirar();},9000);
+    setTimeout(function(){fim(null);},15000);
+    v.src=u;try{var p=v.play();if(p&&p.then)p.then(function(){v.pause();}).catch(function(){});}catch(e){}
+  });
+}
+function idCurto(){return Math.random().toString(16).slice(2,10);}
+function mb(n){return (n/1048576).toFixed(n>10485760?0:1).replace(".",",")+" MB";}
+function statusLote(n,txt,cls){ST[n]={t:txt,c:cls||""};pintarStatus(n);}
+function pintarStatus(n){var e=document.querySelector('.lc[data-l="'+n+'"] .lc-st');if(e){var s=ST[n]||{t:"",c:""};e.className="lc-st "+s.c;e.textContent=s.t;}}
+
+var fila=Promise.resolve();
+function naFila(fn){var p=fila.then(fn);fila=p.catch(function(){});return p;}
+
+function csvPublico(){
+  var L=["LOTE;RAÇA;IDADE;SEXO;QTDE;PESO MÉDIO;MANGUEIRA;OBSERVAÇÃO"];
+  S.rows.filter(function(r){return r.lote!=null;}).slice().sort(function(a,b){return a.lote-b.lote;}).forEach(function(r){
+    var sx=r.sexo==="M"?"Macho":r.sexo==="F"?"Fêmea":"";
+    L.push([r.lote,racaFicha(r.raca),idadeFicha(r.idade),sx,r.qtde==null?"":r.qtde,r.peso==null?"":r.peso,r.mang==null?"":r.mang,""]
+      .map(function(x){return String(x).replace(/;/g,",");}).join(";"));
+  });
+  return L.join("\n")+"\n";
+}
+/* manda para o site dos produtores só o que é público: sem o nome do vendedor */
+async function publicarDados(){
+  await gravarTexto(PUB,"lotes.csv",csvPublico(),"Lotes: dados do leilão "+(S.leilao||""));
+  var ord=S.rows.filter(function(r){return r.ord!=null&&r.lote!=null;}).sort(function(a,b){return a.ord-b.ord;});
+  if(ord.length)await gravarTexto(PUB,"ordem.txt",ord.map(function(r){return r.lote;}).join("\n")+"\n","Lotes: ordem de entrada");
+  await gravarTexto(PUB,"leilao.json",JSON.stringify({nome:S.leilao||"",data:S.data||""})+"\n","Lotes: leilão atual");
+}
+var LEILAO_PUB=null;
+async function lerLeilaoPub(){var rr=await lerArq(PUB,"leilao.json");var x={};try{x=JSON.parse(rr.texto||"{}");}catch(e){}LEILAO_PUB=x;return x;}
+/* antes de mandar fotos de um leilão novo, tira do site as do leilão anterior */
+async function conferirLeilaoNovo(){
+  var pub=LEILAO_PUB||await lerLeilaoPub();
+  if(!S.data||!pub.data||pub.data===S.data)return true;
+  var ok=window.confirm("O site dos produtores ainda mostra o leilão de "+pub.data+(pub.nome?" ("+pub.nome+")":"")+".\n\nOK = começar o leilão de "+S.data+" no site (as fotos e vídeos do leilão anterior saem do site)\nCancelar = não enviar agora");
+  if(!ok)return false;
+  await mexerMidia(function(d){Object.keys(d).forEach(function(k){delete d[k];});},"Lotes: começa o leilão de "+S.data);
+  await publicarDados();LEILAO_PUB={nome:S.leilao||"",data:S.data||""};
+  return true;
+}
+
+async function enviarArquivos(n,lista){
+  if(!GH.token){abrirConexao();return;}
+  lista=Array.prototype.slice.call(lista||[]);if(!lista.length)return;
+  return naFila(async function(){
+    try{
+      if(!(await conferirLeilaoNovo())){statusLote(n,"Envio cancelado.","err");return;}
+      var dir="midia/lote-"+dois(n)+"/",feitos=0;
+      for(var i=0;i<lista.length;i++){
+        var f=lista[i],id=idCurto(),qual=lista.length>1?" ("+(i+1)+" de "+lista.length+")":"";
+        var ehVideo=/^video\//.test(f.type)||/\.(mov|mp4|m4v|webm|3gp)$/i.test(f.name||"");
+        if(ehVideo){
+          if(f.size>95*1048576){statusLote(n,"Vídeo de "+mb(f.size)+" é grande demais (máximo 95 MB). Grave mais curto ou em 1080p.","err");continue;}
+          statusLote(n,"Preparando vídeo"+qual+"…","run");
+          var capa=await capaVideo(f);
+          var ext=((f.name||"").match(/\.(mov|mp4|m4v|webm|3gp)$/i)||[0,/quicktime/.test(f.type)?"mov":"mp4"])[1].toLowerCase();if(ext==="m4v")ext="mp4";
+          var src=dir+"video-"+id+"."+ext;
+          statusLote(n,"Enviando vídeo"+qual+" · "+mb(f.size)+"… não feche a página","run");
+          await gravarArq(PUB,src,await blobB64(f),null,"Lote "+dois(n)+": vídeo");
+          var capaP="";
+          if(capa){capaP=dir+"video-"+id+"-capa.jpg";await gravarArq(PUB,capaP,await blobB64(capa),null,"Lote "+dois(n)+": capa do vídeo");}
+          await mexerMidia(function(d){var m=d[String(n)]=d[String(n)]||{};m.fotos=m.fotos||[];m.videos=m.videos||[];m.videos.push({src:src,capa:capaP});},"Lote "+dois(n)+": novo vídeo");
+        }else{
+          statusLote(n,"Preparando foto"+qual+"…","run");
+          var im=await abrirImg(f),grande=await reduzir(im.i,1600,.82),mini=await reduzir(im.i,520,.74);URL.revokeObjectURL(im.u);
+          var fs=dir+"foto-"+id+".jpg",fm=dir+"foto-"+id+"-mini.jpg";
+          statusLote(n,"Enviando foto"+qual+"…","run");
+          await gravarArq(PUB,fs,await blobB64(grande),null,"Lote "+dois(n)+": foto");
+          await gravarArq(PUB,fm,await blobB64(mini),null,"Lote "+dois(n)+": miniatura");
+          await mexerMidia(function(d){var m=d[String(n)]=d[String(n)]||{};m.fotos=m.fotos||[];m.videos=m.videos||[];m.fotos.push({src:fs,mini:fm});},"Lote "+dois(n)+": nova foto");
+        }
+        feitos++;renderCam();
+      }
+      if(feitos){
+        statusLote(n,"Atualizando os dados no site…","run");
+        await publicarDados();
+        statusLote(n,"✓ No site dos produtores. Aparece em 1 a 2 minutos.","");
+      }
+    }catch(e){
+      statusLote(n,e.status===401||e.status===403?"A chave do GitHub não deixou enviar. Toque no botão da nuvem.":(e.message&&!/^GitHub/.test(e.message)?e.message:"Não enviou. Confira a internet e tente de novo."),"err");
+    }
+    renderCam();
+  });
+}
+async function removerMidia(n,tipo,idx){
+  return naFila(async function(){
+    var m=(MID.dados[String(n)]||{})[tipo]||[],item=m[idx];if(!item)return;
+    statusLote(n,"Tirando do site…","run");
+    try{
+      await mexerMidia(function(d){var x=d[String(n)];if(!x||!x[tipo])return;x[tipo]=x[tipo].filter(function(it){return it.src!==item.src;});
+        if(!(x.fotos||[]).length&&!(x.videos||[]).length)delete d[String(n)];},"Lote "+dois(n)+": tira "+(tipo==="videos"?"vídeo":"foto"));
+      [item.src,item.mini,item.capa].filter(Boolean).forEach(function(p){apagarArq(PUB,p,"Lote "+dois(n)+": apaga arquivo").catch(function(){});});
+      statusLote(n,"Tirado do site.","");
+    }catch(e){statusLote(n,"Não deu para tirar agora. Tente de novo.","err");}
+    renderCam();
+  });
+}
+
+window.__renderCam=renderCam;
+function renderCam(){
+  var box=$("cams");if(!box||$("v-cam").hidden)return;
+  var aviso=$("camAviso");
+  if(!GH.token){
+    aviso.hidden=false;aviso.innerHTML="";
+    aviso.append(el("span",null,"Para enviar fotos e vídeos ao site, conecte este aparelho à nuvem (uma vez só)."));
+    var bc=el("button","btn pri","Conectar");bc.type="button";bc.onclick=abrirConexao;aviso.append(bc);
+  }else aviso.hidden=true;
+  $("camLeilao").textContent=S.leilao?(S.leilao+(S.data?" · "+S.data:"")):"";
+  var q=($("camBusca").value||"").replace(/\D/g,""),so=$("camSo").checked;
+  var rows=S.rows.filter(function(r){return r.lote!=null;}).slice().sort(function(a,b){return a.lote-b.lote;});
+  var foco=document.activeElement&&document.activeElement.closest&&document.activeElement.closest(".lc");
+  box.textContent="";
+  if(!rows.length){
+    var v=el("div","vazio2");v.append(el("b",null,"Nenhum lote ainda"),document.createTextNode("Os lotes aparecem aqui depois que entram nas fichas (PDF da ordem de entrada ou digitados)."));box.append(v);return;
+  }
+  var mostrados=0;
+  rows.forEach(function(r){
+    var m=MID.dados[String(r.lote)]||{},fotos=m.fotos||[],videos=m.videos||[],tem=fotos.length+videos.length>0;
+    if(q&&String(r.lote).indexOf(String(Number(q)))!==0&&dois(r.lote).indexOf(q)!==0)return;
+    if(so&&tem)return;
+    mostrados++;
+    var c=el("div","lc"+(tem?" tem":""));c.dataset.l=r.lote;
+    var h=el("div","lc-h"),tg=el("span","tag",dois(r.lote)),inf=el("div","lc-info");
+    inf.append(el("b",null,[r.qtde!=null?r.qtde+" cab.":"",r.sexo==="M"?"Machos":r.sexo==="F"?"Fêmeas":"",r.peso!=null?r.peso+" kg":""].filter(Boolean).join(" · ")||"Lote "+dois(r.lote)));
+    inf.append(el("span",null,[racaFicha(r.raca),idadeFicha(r.idade)].filter(Boolean).join(" · ")));
+    if(r.vendedor)inf.append(el("span",null,r.vendedor));
+    var cn=el("div","lc-n");cn.append(el("b",null,String(videos.length+fotos.length)));cn.append(document.createTextNode(videos.length+" vídeo"+(videos.length===1?"":"s")+" · "+fotos.length+" foto"+(fotos.length===1?"":"s")));
+    h.append(tg,inf,cn);c.append(h);
+    if(tem){
+      var th=el("div","thumbs");
+      videos.forEach(function(it,i){th.append(miniatura(r.lote,"videos",i,it.capa,"VÍDEO"));});
+      fotos.forEach(function(it,i){th.append(miniatura(r.lote,"fotos",i,it.mini||it.src,"FOTO"));});
+      c.append(th);
+    }
+    var a=el("div","lc-a");
+    var l1=el("label","btn cam");var i1=document.createElement("input");i1.type="file";i1.accept="video/*,image/*";i1.setAttribute("capture","environment");
+    i1.setAttribute("aria-label","Filmar ou fotografar o lote "+dois(r.lote));
+    i1.addEventListener("change",function(){enviarArquivos(r.lote,this.files);this.value="";});
+    l1.append(document.createTextNode("📷 Filmar / foto"),i1);
+    var l2=el("label","btn");var i2=document.createElement("input");i2.type="file";i2.accept="video/*,image/*";i2.multiple=true;
+    i2.setAttribute("aria-label","Escolher da galeria para o lote "+dois(r.lote));
+    i2.addEventListener("change",function(){enviarArquivos(r.lote,this.files);this.value="";});
+    l2.append(document.createTextNode("Da galeria"),i2);
+    a.append(l1,l2);c.append(a);
+    var st=el("div","lc-st");c.append(st);
+    box.append(c);pintarStatus(r.lote);
+  });
+  if(!mostrados){var v2=el("div","vazio2");v2.append(el("b",null,q?"Nenhum lote "+q:"Todos os lotes já têm mídia"));box.append(v2);}
+}
+function miniatura(n,tipo,i,src,rot){
+  var d=el("div","th");
+  if(src){var im=document.createElement("img");im.loading="lazy";im.alt=rot+" do lote "+dois(n);im.src=RAWPUB+src;d.append(im);}
+  d.append(el("span","tipo",rot));
+  var b=el("button","rm","×");b.type="button";b.setAttribute("aria-label","Tirar do site");
+  b.addEventListener("click",function(){
+    if(!b.classList.contains("armado")){b.classList.add("armado");b.textContent="Tirar";setTimeout(function(){b.classList.remove("armado");b.textContent="×";},4000);return;}
+    removerMidia(n,tipo,i);
+  });
+  d.append(b);return d;
+}
+$("camBusca").addEventListener("input",renderCam);
+$("camSo").addEventListener("change",renderCam);
+$("pubDados").addEventListener("click",async function(){
+  if(!GH.token){abrirConexao();return;}
+  var b=this;b.disabled=true;b.textContent="Atualizando…";
+  try{await naFila(publicarDados);toast("Dados dos lotes atualizados no site dos produtores (sem o nome do vendedor).");}
+  catch(e){toast("Não deu para atualizar o site agora. Tente de novo.",6000);}
+  finally{b.disabled=false;b.textContent="Atualizar dados no site";}
+});
+var novoArm=false;
+$("novoLeilao").addEventListener("click",async function(){
+  if(!GH.token){abrirConexao();return;}
+  var b=this;
+  if(!novoArm){novoArm=true;b.textContent="Toque de novo: tira todas as fotos e vídeos do site";setTimeout(function(){novoArm=false;b.textContent="Começar leilão novo no site";},5000);return;}
+  novoArm=false;b.disabled=true;b.textContent="Limpando…";
+  try{
+    await naFila(async function(){await mexerMidia(function(d){Object.keys(d).forEach(function(k){delete d[k];});},"Lotes: começa leilão novo");await publicarDados();LEILAO_PUB={nome:S.leilao||"",data:S.data||""};});
+    toast("Site dos produtores zerado para o leilão novo. As fotos que você enviar agora aparecem lá.",6000);renderCam();
+  }catch(e){toast("Não deu para limpar o site agora. Tente de novo.",6000);}
+  finally{b.disabled=false;b.textContent="Começar leilão novo no site";}
+});
+
 /* ---------- início ---------- */
-carregarLocal();render();renderFiles();limparMan();
+carregarLocal();mostrar(VIEW);render();renderFiles();limparMan();iniciarNuvem();
 window.__fichas_estado=function(){return S;};
 </script>
 </body>
