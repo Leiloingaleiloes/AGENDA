@@ -177,7 +177,7 @@ td input:focus{border-color:var(--destaque)}
 .nuvem.sync i{background:var(--destaque);animation:pisca 1s infinite}
 .nuvem.erro i,.nuvem.off i{background:var(--bad)} .nuvem.off{border-color:var(--bad);color:var(--bad)}
 @keyframes pisca{50%{opacity:.3}}
-.abas{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:520px;margin:4px 0 14px;padding:5px;border-radius:14px;background:var(--surface-2);border:1.5px solid #B4C6B9}
+.abas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;max-width:640px;margin:4px 0 14px;padding:5px;border-radius:14px;background:var(--surface-2);border:1.5px solid #B4C6B9}
 .abas button{min-height:46px;border:0;border-radius:10px;background:none;font:700 1.1rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer}
 .abas button[aria-pressed=true]{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(30,138,67,.3)}
 .camtopo{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px 16px;margin-bottom:12px}
@@ -215,6 +215,32 @@ td input:focus{border-color:var(--destaque)}
 .vazio2{grid-column:1/-1;padding:28px 18px;text-align:center;color:var(--muted);border:2px dashed var(--line);border-radius:14px}
 .vazio2 b{display:block;font:700 1.3rem/1.1 var(--f-display);text-transform:uppercase;color:var(--fg);margin-bottom:6px}
 @media (prefers-reduced-motion:reduce){.nuvem.sync i,.lc-st.run::before{animation:none}}
+
+/* ===== relatório ===== */
+.reltopo{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:8px 20px;margin-bottom:14px}
+.relsexo{margin-bottom:22px}
+.relsexo>h3{font:700 1.5rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.03em;margin:0 0 10px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.relsexo>h3 small{font:600 .9rem var(--f-body);text-transform:none;letter-spacing:0;color:var(--muted)}
+.relgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.relgrid{grid-template-columns:minmax(0,1fr)}}
+.faixa{background:var(--surface);border:1.5px solid #B4C6B9;border-radius:14px;padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.faixa .ft{font:700 1.05rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+.faixa .media{display:flex;align-items:baseline;gap:6px}
+.faixa .media b{font:700 2.6rem/1 var(--f-display);font-variant-numeric:tabular-nums}
+.faixa .media span{color:var(--muted);font-weight:600}
+.faixa .mini{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-radius:9px;overflow:hidden}
+.faixa .mini div{background:var(--surface-2);padding:7px 10px;display:grid;gap:1px}
+.faixa .mini .k{font:600 .7rem var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.faixa .mini b{font:700 1.25rem/1 var(--f-display);font-variant-numeric:tabular-nums}
+.faixa .lotes{font-size:.85rem;color:var(--muted);line-height:1.5}
+.faixa .lotes b{color:var(--fg);font-variant-numeric:tabular-nums}
+.faixa.vazia{opacity:.6}
+.reltotal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.reltotal div{background:var(--surface-2);padding:10px 12px;display:grid;gap:2px}
+.reltotal .k{font:600 .72rem var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.reltotal b{font:700 1.8rem/1 var(--f-display);color:var(--accent);font-variant-numeric:tabular-nums}
+@media (max-width:520px){.reltotal{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.relaviso{padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:.92rem;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -230,6 +256,7 @@ td input:focus{border-color:var(--destaque)}
   <nav class="abas" aria-label="Telas">
     <button type="button" data-v="fichas" aria-pressed="true">Fichas</button>
     <button type="button" data-v="cam" aria-pressed="false">📷 Câmera</button>
+    <button type="button" data-v="rel" aria-pressed="false">Relatório</button>
   </nav>
 
   <div id="v-fichas">
@@ -319,12 +346,23 @@ td input:focus{border-color:var(--destaque)}
   </div>
   </div>
 
+  <div id="v-rel" hidden>
+    <div class="reltopo">
+      <div>
+        <h2 style="margin:0;color:var(--accent)">Relatório por peso</h2>
+        <p class="note" style="margin:4px 0 0" id="relLeilao"></p>
+      </div>
+      <p class="note" style="margin:0;max-width:44ch">Cada lote entra na faixa pelo seu peso médio. A média de cada faixa é ponderada pela quantidade de animais de cada lote.</p>
+    </div>
+    <div id="relCorpo"></div>
+  </div>
+
   <div id="v-cam" hidden>
     <div class="camtopo">
       <div>
         <p class="lead2" style="margin:0">Toque em <b>Filmar / foto</b> no lote. O que você gravar vai direto para o site dos produtores.</p>
         <p class="note" style="margin:4px 0 0" id="camLeilao"></p>
-        <p class="note" style="margin:2px 0 0">Versão da câmera: 2</p>
+        <p class="note" style="margin:2px 0 0">Versão da câmera: 3</p>
       </div>
       <div class="row">
         <input class="busca" id="camBusca" type="search" inputmode="numeric" placeholder="Nº do lote" aria-label="Procurar lote pelo número">
@@ -712,6 +750,7 @@ function render(){
   });
   renderBar();
   if(window.__renderCam)window.__renderCam();
+  if(window.__renderRel)window.__renderRel();
 }
 function renderBar(){
   var sel=S.rows.filter(function(r){return r.sel;});
@@ -1111,10 +1150,11 @@ $("c-ok").addEventListener("click",async function(){
 var VIEW="fichas";
 try{VIEW=localStorage.getItem("leiloinga-adm-view")||(window.innerWidth<700?"cam":"fichas");}catch(e){}
 function mostrar(v){
-  VIEW=v;$("v-fichas").hidden=v!=="fichas";$("v-cam").hidden=v!=="cam";
+  VIEW=v;$("v-fichas").hidden=v!=="fichas";$("v-cam").hidden=v!=="cam";$("v-rel").hidden=v!=="rel";
   document.querySelectorAll(".abas button").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.v===v));});
   try{localStorage.setItem("leiloinga-adm-view",v);}catch(e){}
   if(v==="cam")renderCam();
+  if(v==="rel")renderRel();
 }
 document.querySelectorAll(".abas button").forEach(function(b){b.addEventListener("click",function(){mostrar(b.dataset.v);});});
 
@@ -1356,6 +1396,46 @@ $("novoLeilao").addEventListener("click",async function(){
   finally{b.disabled=false;b.textContent="Começar leilão novo no site";}
 });
 
+
+/* ---------- relatório: machos e fêmeas por faixa de peso ---------- */
+var FAIXAS=[{t:"Até 200 kg",f:function(p){return p<=200;}},{t:"De 201 a 300 kg",f:function(p){return p>200&&p<=300;}},{t:"Acima de 300 kg",f:function(p){return p>300;}}];
+function fmtKg(n){return Math.round(n).toLocaleString("pt-BR");}
+window.__renderRel=renderRel;
+function renderRel(){
+  var box=$("relCorpo");if(!box||$("v-rel").hidden)return;
+  box.textContent="";
+  $("relLeilao").textContent=S.leilao?(S.leilao+(S.data?" · "+S.data:"")):"";
+  var rows=S.rows.filter(function(r){return r.lote!=null;});
+  if(!rows.length){var v=el("div","vazio2");v.append(el("b",null,"Nenhum lote ainda"),document.createTextNode("O relatório aparece quando os lotes entram nas fichas."));box.append(v);return;}
+  var validos=rows.filter(function(r){return (r.sexo==="M"||r.sexo==="F")&&r.peso!=null&&r.qtde>0;});
+  var fora=rows.filter(function(r){return validos.indexOf(r)<0;});
+  var cab=0,soma=0;validos.forEach(function(r){cab+=r.qtde;soma+=r.qtde*r.peso;});
+  var tot=el("div","reltotal");
+  [["Lotes",String(validos.length)],["Animais",String(cab)],["Peso médio geral",cab?fmtKg(soma/cab)+" kg":"–"],["Peso total",cab?fmtKg(soma)+" kg":"–"]].forEach(function(x){var d=el("div");d.append(el("span","k",x[0]),el("b",null,x[1]));tot.append(d);});
+  box.append(tot);
+  if(fora.length){box.append(el("div","relaviso","Ficaram de fora "+fora.length+(fora.length>1?" lotes":" lote")+" sem sexo, peso ou quantidade: "+fora.map(function(r){return dois(r.lote);}).join(", ")+". Complete na aba Fichas."));}
+  [["M","Machos"],["F","Fêmeas"]].forEach(function(sx){
+    var dosexo=validos.filter(function(r){return r.sexo===sx[0];});
+    var cs=0,ps=0;dosexo.forEach(function(r){cs+=r.qtde;ps+=r.qtde*r.peso;});
+    var sec=el("section","relsexo"),h=el("h3",null,sx[1]);
+    h.append(el("small",null,dosexo.length+" lotes · "+cs+" animais"+(cs?" · média "+fmtKg(ps/cs)+" kg":"")));
+    sec.append(h);
+    var g=el("div","relgrid");
+    FAIXAS.forEach(function(fx){
+      var ls=dosexo.filter(function(r){return fx.f(r.peso);}).sort(function(a,b){return a.lote-b.lote;});
+      var c=0,p=0;ls.forEach(function(r){c+=r.qtde;p+=r.qtde*r.peso;});
+      var card=el("div","faixa"+(ls.length?"":" vazia"));
+      card.append(el("div","ft",sx[1]+" · "+fx.t));
+      var md=el("div","media");md.append(el("b",null,c?fmtKg(p/c):"–"),el("span",null,c?"kg de média":"sem lotes"));card.append(md);
+      var mi=el("div","mini");
+      [["Animais",String(c)],["Lotes",String(ls.length)]].forEach(function(x){var d=el("div");d.append(el("span","k",x[0]),el("b",null,x[1]));mi.append(d);});
+      card.append(mi);
+      if(ls.length){var lt=el("div","lotes");lt.append(el("b",null,"Lotes: "),document.createTextNode(ls.map(function(r){return dois(r.lote)+" ("+r.qtde+" × "+r.peso+")";}).join(", ")));card.append(lt);}
+      g.append(card);
+    });
+    sec.append(g);box.append(sec);
+  });
+}
 /* ---------- início ---------- */
 carregarLocal();mostrar(VIEW);render();renderFiles();limparMan();iniciarNuvem();
 window.__fichas_estado=function(){return S;};
