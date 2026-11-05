@@ -177,7 +177,7 @@ td input:focus{border-color:var(--destaque)}
 .nuvem.sync i{background:var(--destaque);animation:pisca 1s infinite}
 .nuvem.erro i,.nuvem.off i{background:var(--bad)} .nuvem.off{border-color:var(--bad);color:var(--bad)}
 @keyframes pisca{50%{opacity:.3}}
-.abas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;max-width:640px;margin:4px 0 14px;padding:5px;border-radius:14px;background:var(--surface-2);border:1.5px solid #B4C6B9}
+.abas{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;max-width:860px;margin:4px 0 14px;padding:5px;border-radius:14px;background:var(--surface-2);border:1.5px solid #B4C6B9}
 .abas button{min-height:46px;border:0;border-radius:10px;background:none;font:700 1.1rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer}
 .abas button[aria-pressed=true]{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(30,138,67,.3)}
 .camtopo{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px 16px;margin-bottom:12px}
@@ -241,6 +241,55 @@ td input:focus{border-color:var(--destaque)}
 .reltotal b{font:700 1.8rem/1 var(--f-display);color:var(--accent);font-variant-numeric:tabular-nums}
 @media (max-width:520px){.reltotal{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .relaviso{padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:.92rem;margin-bottom:14px}
+
+/* ===== sugestão de ordem de entrada ===== */
+.ordtopo{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px 20px;margin-bottom:12px}
+.ordregra{font-size:.88rem;color:var(--muted);margin:6px 0 0;max-width:78ch}
+.ordregra b{color:var(--fg)}
+.olist{list-style:none;margin:0;padding:0;border:1.5px solid #B4C6B9;border-radius:12px;overflow:hidden;background:var(--surface)}
+.ocab,.orow{display:grid;grid-template-columns:4.6em 48px 5.2em 4.6em minmax(9em,1.4fr) 6.5em 4.2em 5.2em minmax(8em,1.6fr);gap:8px;align-items:center;padding:6px 10px}
+.ocab{font:600 .74rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--accent);border-bottom:2px solid var(--accent);background:var(--surface)}
+.orow{border-bottom:1px solid var(--line);background:var(--surface);min-height:58px}
+.orow:last-child{border-bottom:0}
+.orow .on{width:100%;height:40px;padding:0 6px;border:2px solid var(--borda);border-radius:8px;text-align:center;font:700 1.15rem var(--f-display);font-variant-numeric:tabular-nums;background:#fff}
+.orow .on:focus{outline:0;border-color:var(--destaque);box-shadow:0 0 0 3px rgba(232,115,12,.22)}
+.mexe{width:44px;height:48px;border:2px solid var(--borda);border-radius:9px;background:var(--surface-2);cursor:grab;touch-action:none;display:grid;grid-template-rows:1fr 1fr;padding:0;color:var(--accent);user-select:none;-webkit-user-select:none}
+.mexe span{display:flex;align-items:center;justify-content:center;font-size:.95rem;line-height:1}
+.mexe span:first-child{border-bottom:1px solid #B4C6B9}
+.mexe:hover{border-color:var(--accent);background:var(--accent-soft)}
+.mexe:active{cursor:grabbing}
+.orow.arrasta{background:var(--destaque-soft);box-shadow:0 6px 18px rgba(0,0,0,.18);position:relative;z-index:2}
+.orow.arrasta .mexe{border-color:var(--destaque);color:var(--destaque);background:#fff}
+.orow.pisca{animation:pisca2 .9s ease-out}
+@keyframes pisca2{from{background:var(--destaque-soft)}to{background:var(--surface)}}
+.orow .tag{font-size:1.15rem;justify-self:start}
+.orow .cel{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
+.orow .vend{color:var(--muted);font-size:.88rem}
+.orow .desc{display:none;min-width:0}
+.orow .desc b{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.orow .desc span{display:block;font-size:.85rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill.m{background:#E3EEFB;color:#1F4E8C}
+.pill.fe{background:#FBE7F0;color:#8C1F57}
+.osep{padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--line);font:700 1.05rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+.osep small{font:600 .85rem var(--f-body);text-transform:none;letter-spacing:0;color:var(--muted);margin-left:8px}
+@media (max-width:760px){
+  .ocab{display:none}
+  .orow{grid-template-columns:3.2em 44px auto minmax(0,1fr);gap:7px;padding:6px 8px}
+  .orow .cel{display:none}
+  .orow .desc{display:block}
+  .orow .desc b,.orow .desc span{white-space:normal;line-height:1.25}
+  .orow .tag{font-size:1.05rem;padding:4px 7px 4px 6px}
+}
+@media print{
+  body{padding:0}
+  header.top,.abas,#v-fichas,#v-cam,#v-rel,.ordacoes,.ordregra,.toast,.modal{display:none!important}
+  #v-ord{display:block!important}
+  .mexe{display:none}
+  .ocab,.orow{grid-template-columns:4em 4.4em 4.2em minmax(8em,1.4fr) 6em 3.6em 4.6em minmax(8em,1.6fr)}
+  .ocab span:nth-child(2){display:none}
+  .orow{min-height:0;padding:3px 8px;break-inside:avoid}
+  .orow .on{border:0;height:auto}
+}
 </style>
 </head>
 <body>
@@ -257,6 +306,7 @@ td input:focus{border-color:var(--destaque)}
     <button type="button" data-v="fichas" aria-pressed="true">Fichas</button>
     <button type="button" data-v="cam" aria-pressed="false">📷 Câmera</button>
     <button type="button" data-v="rel" aria-pressed="false">Relatório</button>
+    <button type="button" data-v="ord" aria-pressed="false">Ordem de entrada</button>
   </nav>
 
   <div id="v-fichas">
@@ -355,6 +405,21 @@ td input:focus{border-color:var(--destaque)}
       <p class="note" style="margin:0;max-width:44ch">Cada lote entra na faixa pelo seu peso médio. A média de cada faixa é ponderada pela quantidade de animais de cada lote.</p>
     </div>
     <div id="relCorpo"></div>
+  </div>
+
+  <div id="v-ord" hidden>
+    <div class="ordtopo">
+      <div>
+        <h2 style="margin:0;color:var(--accent)">Sugestão de ordem de entrada</h2>
+        <p class="note" style="margin:4px 0 0" id="ordLeilao"></p>
+        <p class="ordregra">Sugestão montada pela regra dos últimos leilões: <b>machos antes das fêmeas</b>; depois o grupo de raça (<b>Nelore e ½ Tabapuã</b> → Anelorados → cruzas europeias → Cruz. Industrial → Canchim → <b>Cruzados</b>); dentro do grupo, <b>do mais leve pro mais pesado</b>. Lotes de 1 ou 2 cabeças e vacas (+36 M) vão pro fim de cada sexo.<br>Para mudar: digite o número da ordem, ou segure o botão <b>▲▼</b> e arraste o lote. Um toque na setinha de cima sobe uma posição; na de baixo, desce.</p>
+      </div>
+      <div class="row ordacoes">
+        <button class="btn" type="button" id="ordImprimir">Imprimir</button>
+        <button class="btn danger" type="button" id="ordRefazer">Refazer sugestão</button>
+      </div>
+    </div>
+    <div id="ordCorpo"></div>
   </div>
 
   <div id="v-cam" hidden>
@@ -751,6 +816,7 @@ function render(){
   renderBar();
   if(window.__renderCam)window.__renderCam();
   if(window.__renderRel)window.__renderRel();
+  if(window.__renderOrd)window.__renderOrd();
 }
 function renderBar(){
   var sel=S.rows.filter(function(r){return r.sel;});
@@ -1072,7 +1138,7 @@ async function enviar(){
     else{estadoNuvem("erro");clearTimeout(nuvem.timer);nuvem.timer=setTimeout(enviar,10000);}
   }finally{nuvem.enviando=false;if(nuvem.sujo&&!nuvem.timer)nuvem.timer=setTimeout(enviar,1500);}
 }
-function editando(){var a=document.activeElement;return !!(a&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")&&a.closest("#tbody,#man,.leilao"));}
+function editando(){if(window.__arrastando)return true;var a=document.activeElement;return !!(a&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")&&a.closest("#tbody,#man,.leilao,#ordCorpo"));}
 async function puxar(){
   if(!GH.token||!nuvem.base||nuvem.sujo||nuvem.enviando||document.hidden||editando())return;
   try{
@@ -1150,11 +1216,12 @@ $("c-ok").addEventListener("click",async function(){
 var VIEW="fichas";
 try{VIEW=localStorage.getItem("leiloinga-adm-view")||(window.innerWidth<700?"cam":"fichas");}catch(e){}
 function mostrar(v){
-  VIEW=v;$("v-fichas").hidden=v!=="fichas";$("v-cam").hidden=v!=="cam";$("v-rel").hidden=v!=="rel";
+  VIEW=v;$("v-fichas").hidden=v!=="fichas";$("v-cam").hidden=v!=="cam";$("v-rel").hidden=v!=="rel";$("v-ord").hidden=v!=="ord";
   document.querySelectorAll(".abas button").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.v===v));});
   try{localStorage.setItem("leiloinga-adm-view",v);}catch(e){}
   if(v==="cam")renderCam();
   if(v==="rel")renderRel();
+  if(v==="ord")renderOrd();
 }
 document.querySelectorAll(".abas button").forEach(function(b){b.addEventListener("click",function(){mostrar(b.dataset.v);});});
 
@@ -1436,6 +1503,177 @@ function renderRel(){
     sec.append(g);box.append(sec);
   });
 }
+/* ---------- sugestão de ordem de entrada (editável: número, arrastar ou setinhas) ---------- */
+/* a posição fica em cada lote (campo "os"), então sincroniza na nuvem junto com as fichas */
+function semAcento(s){return up(s).normalize("NFD").replace(/[̀-ͯ]/g,"");}
+function grupoRaca(raca){
+  var s=semAcento(raca).replace(/^(½|1\/2)\s*/,"");
+  if(/ANELORAD/.test(s))return 1;
+  if(/NELORE|TABAPUA/.test(s))return 0;
+  if(/BRAHMAN|GIR\b|GUZERA/.test(s))return 1;
+  if(/ANGUS|BRANGUS|BRAFORD|HEREFORD|CHAROL|SIMENTAL|LIMOUSIN|SENEPOL|WAGYU|DEVON/.test(s))return 2;
+  if(/INDUSTRIAL/.test(s))return 3;
+  if(/CANCHI/.test(s))return 4;
+  if(/CRUZAD/.test(s))return 6;
+  return 5;
+}
+function ehVaca(r){var s=up(r.idade),m;if(/^\+/.test(s))return true;if((m=s.match(/^(\d+)/))&&+m[1]>=36)return true;return /VACA/.test(up(r.raca));}
+function chaveOrd(r){
+  var sx=r.sexo==="M"?0:r.sexo==="F"?1:2;
+  var balde=r.peso==null?3:ehVaca(r)?2:(r.qtde!=null&&r.qtde<=2)?1:0;
+  return [sx,balde,grupoRaca(r.raca),r.peso==null?9999:r.peso,r.lote==null?9999:r.lote];
+}
+function cmpOrd(a,b){var x=chaveOrd(a),y=chaveOrd(b);for(var i=0;i<x.length;i++){if(x[i]!==y[i])return x[i]-y[i];}return 0;}
+function ordLista(){return S.rows.filter(function(r){return r.lote!=null&&r.os!=null;}).sort(function(a,b){return a.os-b.os;});}
+/* dá posição aos lotes que ainda não têm: se já existe uma ordem, encaixa cada lote novo onde a regra mandaria */
+var ORD_NOVOS={};
+function garantirOrdem(){
+  var rows=S.rows.filter(function(r){return r.lote!=null;});
+  var com=rows.filter(function(r){return r.os!=null;}).sort(function(a,b){return a.os-b.os;});
+  var sem=rows.filter(function(r){return r.os==null;}).sort(cmpOrd);
+  var lista=com.slice();
+  sem.forEach(function(n){
+    if(com.length)ORD_NOVOS[n.id]=true;
+    var i=lista.findIndex(function(x){return cmpOrd(n,x)<0;});
+    if(i<0)lista.push(n);else lista.splice(i,0,n);
+  });
+  var mudou=false;
+  lista.forEach(function(r,i){if(r.os!==i+1){r.os=i+1;mudou=true;}});
+  S.rows.forEach(function(r){if(r.lote==null&&r.os!=null){delete r.os;mudou=true;}});
+  return {mudou:mudou,novos:com.length?sem.length:0};
+}
+function moverPara(r,pos){
+  var l=ordLista(),i=l.indexOf(r);if(i<0)return false;
+  pos=Math.max(0,Math.min(l.length-1,pos));if(pos===i)return false;
+  l.splice(i,1);l.splice(pos,0,r);l.forEach(function(x,k){x.os=k+1;});return true;
+}
+var ORD_FOCO=null;   /* {id, alvo:"mexe"|"on"} para devolver o foco depois de redesenhar */
+function depoisDeMover(r,alvo){ORD_FOCO={id:r.id,alvo:alvo};salvar();renderOrd();}
+window.__renderOrd=renderOrd;
+function renderOrd(){
+  var box=$("ordCorpo");if(!box||$("v-ord").hidden||window.__arrastando)return;
+  var g=garantirOrdem();
+  if(g.mudou)salvar();
+  if(g.novos)toast(g.novos+(g.novos>1?" lotes novos foram encaixados":" lote novo foi encaixado")+" na ordem pela regra.",5000);
+  var l=ordLista(),cab=0;l.forEach(function(r){cab+=r.qtde||0;});
+  $("ordLeilao").textContent=[S.leilao,S.data,l.length?l.length+" lotes · "+cab+" cabeças":""].filter(Boolean).join(" · ");
+  box.textContent="";
+  if(!l.length){var v=el("div","vazio2");v.append(el("b",null,"Nenhum lote ainda"),document.createTextNode("A sugestão aparece quando os lotes entram nas fichas (PDF da ordem de entrada ou digitados)."));box.append(v);return;}
+  var cabec=el("div","ocab");
+  ["Ordem","","Lote","Sexo","Raça","Idade","Qtde","Peso","Vendedor"].forEach(function(t){cabec.append(el("span",null,t));});
+  box.append(cabec);
+  var ol=el("ol","olist");ol.id="olist";
+  /* separador a cada troca de sexo (Machos / Fêmeas), com a conta daquele trecho */
+  var i=0;
+  while(i<l.length){
+    var sx=l[i].sexo,j=i,cs=0;while(j<l.length&&l[j].sexo===sx){cs+=l[j].qtde||0;j++;}
+    var sep=el("li","osep",sx==="M"?"Machos":sx==="F"?"Fêmeas":"Sem sexo");sep.setAttribute("aria-hidden","true");
+    sep.append(el("small",null,(j-i)+(j-i>1?" lotes":" lote")+" · "+cs+" cab."));ol.append(sep);
+    for(var k=i;k<j;k++)ol.append(linhaOrd(l[k],l.length));
+    i=j;
+  }
+  box.append(ol);
+  if(ORD_FOCO){
+    var f=ORD_FOCO;ORD_FOCO=null;
+    var li=ol.querySelector('.orow[data-id="'+f.id+'"]');
+    if(li){li.classList.add("pisca");var alvo=li.querySelector(f.alvo==="on"?".on":".mexe");if(alvo){alvo.focus({preventScroll:true});}
+      var rc=li.getBoundingClientRect();if(rc.top<60||rc.bottom>window.innerHeight-20)li.scrollIntoView({block:"center",behavior:"smooth"});}
+  }
+  Object.keys(ORD_NOVOS).forEach(function(id){var li=ol.querySelector('.orow[data-id="'+id+'"]');if(li)li.classList.add("pisca");});
+  ORD_NOVOS={};
+}
+function linhaOrd(r,total){
+  var li=el("li","orow");li.dataset.id=r.id;
+  var on=document.createElement("input");on.className="on";on.value=String(r.os);on.inputMode="numeric";on.autocomplete="off";
+  on.setAttribute("aria-label","Ordem de entrada do lote "+dois(r.lote)+" (1 a "+total+")");
+  var mx=el("button","mexe");mx.type="button";mx.title="Arraste para mudar a ordem. Toque na seta de cima para subir, na de baixo para descer.";
+  mx.setAttribute("aria-label","Mover o lote "+dois(r.lote)+": arraste, ou use as setas do teclado");
+  mx.append(el("span",null,"▲"),el("span",null,"▼"));
+  var sx=r.sexo==="M"?el("span","pill m","Macho"):r.sexo==="F"?el("span","pill fe","Fêmea"):el("span","pill w","?");
+  var cSx=el("span","cel");cSx.append(sx);
+  var desc=el("div","desc");
+  desc.append(el("b",null,[r.sexo==="M"?"Macho":r.sexo==="F"?"Fêmea":"",racaFicha(r.raca),idadeFicha(r.idade)].filter(Boolean).join(" · ")||"Lote "+dois(r.lote)));
+  desc.append(el("span",null,[r.qtde!=null?r.qtde+" cab.":"",r.peso!=null?r.peso+" kg":"sem peso",r.vendedor].filter(Boolean).join(" · ")));
+  li.append(on,mx,el("span","tag",dois(r.lote)),cSx,el("span","cel",racaFicha(r.raca)||"–"),el("span","cel",idadeFicha(r.idade)||"–"),
+    el("span","cel",r.qtde!=null?dois(r.qtde):"–"),el("span","cel",r.peso!=null?r.peso+" kg":"–"),el("span","cel vend",r.vendedor||""),desc);
+  return li;
+}
+/* digitar o número da ordem */
+$("ordCorpo").addEventListener("change",function(e){
+  var t=e.target;if(!t.classList.contains("on"))return;
+  var r=achar(t.closest(".orow").dataset.id);if(!r)return;
+  var n=parseInt(String(t.value).replace(/\D/g,""),10);
+  if(!(n>0)){t.value=String(r.os);return;}
+  if(moverPara(r,n-1))depoisDeMover(r,"on");else t.value=String(r.os);
+});
+$("ordCorpo").addEventListener("keydown",function(e){
+  var t=e.target;
+  if(t.classList.contains("on")&&e.key==="Enter"){e.preventDefault();t.blur();return;}
+  if(t.classList.contains("mexe")&&(e.key==="ArrowUp"||e.key==="ArrowDown")){
+    e.preventDefault();var r=achar(t.closest(".orow").dataset.id);if(!r)return;
+    if(moverPara(r,r.os-1+(e.key==="ArrowUp"?-1:1)))depoisDeMover(r,"mexe");
+  }
+});
+$("ordCorpo").addEventListener("focusin",function(e){if(e.target.classList.contains("on"))e.target.select();});
+/* arrastar pelo botão ▲▼ (mouse, dedo ou caneta); toque curto = sobe ou desce uma posição */
+var DR=null,DR_T=null;
+function ordReposicionar(){
+  if(!DR)return;
+  var ol=$("olist");if(!ol)return;
+  var rows=[].filter.call(ol.querySelectorAll(".orow"),function(x){return x!==DR.li;});
+  var alvo=null;
+  for(var i=0;i<rows.length;i++){var rc=rows[i].getBoundingClientRect();if(DR.y<rc.top+rc.height/2){alvo=rows[i];break;}}
+  if(alvo){if(DR.li.nextElementSibling!==alvo)ol.insertBefore(DR.li,alvo);}
+  else if(ol.lastElementChild!==DR.li)ol.appendChild(DR.li);
+}
+$("ordCorpo").addEventListener("pointerdown",function(e){
+  var h=e.target.closest(".mexe");if(!h||(e.button!=null&&e.button>0))return;
+  e.preventDefault();
+  DR={h:h,li:h.closest(".orow"),pid:e.pointerId,y0:e.clientY,y:e.clientY,moveu:false};
+  try{h.setPointerCapture(e.pointerId);}catch(_){}
+});
+document.addEventListener("pointermove",function(e){
+  if(!DR||e.pointerId!==DR.pid)return;
+  DR.y=e.clientY;
+  if(!DR.moveu&&Math.abs(DR.y-DR.y0)>6){
+    DR.moveu=true;window.__arrastando=true;DR.li.classList.add("arrasta");
+    clearInterval(DR_T);
+    DR_T=setInterval(function(){
+      if(!DR)return;
+      var m=70,v=0;if(DR.y<m)v=-Math.ceil((m-DR.y)/4);else if(DR.y>window.innerHeight-m)v=Math.ceil((DR.y-(window.innerHeight-m))/4);
+      if(v){window.scrollBy(0,v);ordReposicionar();}
+    },16);
+  }
+  if(DR.moveu){e.preventDefault();ordReposicionar();}
+},{passive:false});
+function ordSoltar(e){
+  if(!DR||e.pointerId!==DR.pid)return;
+  clearInterval(DR_T);DR_T=null;
+  var d=DR;DR=null;window.__arrastando=false;d.li.classList.remove("arrasta");
+  try{d.h.releasePointerCapture(d.pid);}catch(_){}
+  var r=achar(d.li.dataset.id);if(!r){renderOrd();return;}
+  if(d.moveu){
+    var ids=[].map.call($("olist").querySelectorAll(".orow"),function(x){return Number(x.dataset.id);});
+    ids.forEach(function(id,k){var x=achar(id);if(x)x.os=k+1;});
+    depoisDeMover(r,"mexe");
+  }else if(e.type==="pointerup"){
+    var rc=d.h.getBoundingClientRect(),subir=e.clientY<rc.top+rc.height/2;
+    if(moverPara(r,r.os-1+(subir?-1:1)))depoisDeMover(r,"mexe");
+    else{toast(subir?"O lote "+dois(r.lote)+" já é o primeiro.":"O lote "+dois(r.lote)+" já é o último.");}
+  }else renderOrd();
+}
+document.addEventListener("pointerup",ordSoltar);
+document.addEventListener("pointercancel",ordSoltar);
+var ordArm=false,ordArmT=null;
+$("ordRefazer").addEventListener("click",function(){
+  var b=this;
+  if(!ordArm){ordArm=true;b.textContent="Toque de novo: desfaz as mudanças à mão";clearTimeout(ordArmT);ordArmT=setTimeout(function(){ordArm=false;b.textContent="Refazer sugestão";},4500);return;}
+  ordArm=false;clearTimeout(ordArmT);b.textContent="Refazer sugestão";
+  S.rows.forEach(function(r){delete r.os;});
+  renderOrd();toast("Ordem refeita pela regra.");
+});
+$("ordImprimir").addEventListener("click",function(){window.print();});
+
 /* ---------- início ---------- */
 carregarLocal();mostrar(VIEW);render();renderFiles();limparMan();iniciarNuvem();
 window.__fichas_estado=function(){return S;};
