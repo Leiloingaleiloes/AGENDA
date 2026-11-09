@@ -1,7 +1,7 @@
 {
-  "atualizado": "2026-11-02",
+  "atualizado": "2026-11-09",
   "perfil": "leiloingaleiloes",
-  "observacao": "Coletado sem login no Instagram: só os 12 posts mais recentes estavam visíveis. Posts mais antigos ainda faltam.",
+  "observacao": "Artes: posts recentes do Instagram e banners do site da Leiloingá. Vídeos: transmissões encontradas do canal da Leiloingá no YouTube. Ainda faltam posts antigos do Instagram (precisa de login).",
   "posts": [
     {
       "codigo": "DfKAFEwId-j",
@@ -11,7 +11,8 @@
       "hora": "14h30",
       "local": "Laranjeiras do Sul – PR",
       "chamada": "É hoje",
-      "cidade": "Laranjeiras do Sul"
+      "cidade": "Laranjeiras do Sul",
+      "fonte": "instagram"
     },
     {
       "codigo": "DfHzNiHARF4",
@@ -21,7 +22,8 @@
       "hora": "14h30",
       "local": "Laranjeiras do Sul – PR",
       "chamada": "É amanhã",
-      "cidade": "Laranjeiras do Sul"
+      "cidade": "Laranjeiras do Sul",
+      "fonte": "instagram"
     },
     {
       "codigo": "De9hv-ODrOk",
@@ -31,7 +33,8 @@
       "hora": "14h30",
       "local": "Laranjeiras do Sul – PR",
       "chamada": "Convite",
-      "cidade": "Laranjeiras do Sul"
+      "cidade": "Laranjeiras do Sul",
+      "fonte": "instagram"
     },
     {
       "codigo": "DegzRkCjAlI",
@@ -41,7 +44,8 @@
       "hora": "14h30",
       "local": "Cantagalo – PR",
       "chamada": "Convite",
-      "cidade": "Cantagalo"
+      "cidade": "Cantagalo",
+      "fonte": "instagram"
     },
     {
       "codigo": "Dd9Q6RDxr1o",
@@ -51,7 +55,8 @@
       "hora": "14h30",
       "local": "Recinto Rubens Linhares Clazer, Palmital – PR",
       "chamada": "Convite",
-      "cidade": "Palmital"
+      "cidade": "Palmital",
+      "fonte": "instagram"
     },
     {
       "codigo": "DdWIPEpiCfz",
@@ -61,7 +66,8 @@
       "hora": "19h30",
       "local": "Recinto Admar Meurer, Marquinho – PR",
       "chamada": "É hoje",
-      "cidade": "Marquinho"
+      "cidade": "Marquinho",
+      "fonte": "instagram"
     },
     {
       "codigo": "DdJ1Z-sxfGe",
@@ -71,7 +77,8 @@
       "hora": "19h30",
       "local": "Recinto Admar Meurer, Marquinho – PR",
       "chamada": "Adiado (era 13/09)",
-      "cidade": "Marquinho"
+      "cidade": "Marquinho",
+      "fonte": "instagram"
     },
     {
       "codigo": "DbrNyN5Dq8O",
@@ -81,7 +88,165 @@
       "hora": "14h",
       "local": "Laranjeiras do Sul – PR",
       "chamada": "Convite",
-      "cidade": "Laranjeiras do Sul"
+      "cidade": "Laranjeiras do Sul",
+      "fonte": "instagram"
+    },
+    {
+      "fonte": "site",
+      "imagem": "https://www.leiloinga.com.br/uploads/images/2026/11/leilao-especial-gado-de-corte-marquinho-pr-108-1794059597.jpeg",
+      "publicado": "2026-11-09",
+      "leilao": "Leilão Especial Gado de Corte",
+      "data_leilao": "2026-11-11",
+      "hora": "19h30",
+      "local": "Recinto Admar Meurer, Marquinho – PR",
+      "cidade": "Marquinho",
+      "chamada": "Banner do site"
+    },
+    {
+      "fonte": "site",
+      "imagem": "https://www.leiloinga.com.br/uploads/images/2026/11/leilao-especial-gado-de-corte-ivaipora-pr-129-1794059619.png",
+      "publicado": "2026-11-09",
+      "leilao": "Leilão Especial Gado de Corte",
+      "data_leilao": "2026-11-20",
+      "hora": "16h",
+      "local": "Parque de Exposições, Ivaiporã – PR",
+      "cidade": "Ivaiporã",
+      "chamada": "Banner do site"
+    },
+    {
+      "fonte": "site",
+      "imagem": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-gado-de-corte-guaraniacu-pr-1790791061.jpeg",
+      "publicado": "2026-11-09",
+      "leilao": "Leilão Especial Fim de Ano – Gado de Corte",
+      "data_leilao": "2026-11-22",
+      "hora": "14h30",
+      "local": "Recinto de Leilões, Guaraniaçu – PR",
+      "cidade": "Guaraniaçu",
+      "chamada": "Banner do site"
+    },
+    {
+      "fonte": "site",
+      "imagem": "https://www.leiloinga.com.br/uploads/images/2026/11/leilao-especial-fim-de-ano-cantagalo-pr-1794059665.jpeg",
+      "publicado": "2026-11-09",
+      "leilao": "Leilão Especial Fim de Ano",
+      "data_leilao": "2026-11-29",
+      "hora": "14h30",
+      "local": "CTG Jacob Fritz, Cantagalo – PR",
+      "cidade": "Cantagalo",
+      "chamada": "Banner do site"
+    },
+    {
+      "fonte": "site",
+      "imagem": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-laranjeiras-do-sul-1790791250.jpeg",
+      "publicado": "2026-11-09",
+      "leilao": "Leilão Especial Fim de Ano",
+      "data_leilao": "2026-12-06",
+      "hora": "14h30",
+      "local": "Recinto de Leilões, Laranjeiras do Sul – PR",
+      "cidade": "Laranjeiras do Sul",
+      "chamada": "Foto genérica do site"
+    },
+    {
+      "fonte": "site",
+      "imagem": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-palmital-pr-131-1790791674.jpeg",
+      "publicado": "2026-11-09",
+      "leilao": "Leilão Especial Fim de Ano",
+      "data_leilao": "2026-12-12",
+      "hora": "14h30",
+      "local": "Recinto de Leilões, Palmital – PR",
+      "cidade": "Palmital",
+      "chamada": "Foto genérica do site"
+    },
+    {
+      "fonte": "site",
+      "imagem": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-marquinho-pr-1790791501.jpeg",
+      "publicado": "2026-11-09",
+      "leilao": "Leilão Especial Fim de Ano",
+      "data_leilao": "2026-12-13",
+      "hora": "14h30",
+      "local": "Recinto Admar Meurer, Marquinho – PR",
+      "cidade": "Marquinho",
+      "chamada": "Foto genérica do site"
+    }
+  ],
+  "videos": [
+    {
+      "id": "zapxgldJaVA",
+      "titulo": "Leilão Especial Gado de Corte – Cantagalo/PR",
+      "cidade": "Cantagalo",
+      "data": null
+    },
+    {
+      "id": "4J86pAXOAX0",
+      "titulo": "1º Leilão Só Qualidade Gado de Corte – Cantagalo/PR",
+      "cidade": "Cantagalo",
+      "data": null
+    },
+    {
+      "id": "-sIkIrwMpY8",
+      "titulo": "2º Leilão Extra Gado de Corte – Cantagalo/PR",
+      "cidade": "Cantagalo",
+      "data": null
+    },
+    {
+      "id": "OJ64OiAjWR0",
+      "titulo": "Leilão Virtual de Gado de Corte – Cantagalo/PR",
+      "cidade": "Cantagalo",
+      "data": null
+    },
+    {
+      "id": "9Z_OxCDpHes",
+      "titulo": "LeiloIngá Leilão de Gado ao vivo – Cantagalo/PR",
+      "cidade": "Cantagalo",
+      "data": "2021-03-28"
+    },
+    {
+      "id": "uTSFDjQQElk",
+      "titulo": "Leilão de Gado de Corte – Palmital/PR",
+      "cidade": "Palmital",
+      "data": null
+    },
+    {
+      "id": "YqpsdOR9qPo",
+      "titulo": "Leiloingá – Leilão de Gado ao vivo – Palmital/PR",
+      "cidade": "Palmital",
+      "data": "2021-05-08"
+    },
+    {
+      "id": "W8WjCNWOCKY",
+      "titulo": "1ª Feira de Gado – Inauguração do Recinto de Leilões – Marquinho/PR",
+      "cidade": "Marquinho",
+      "data": null
+    },
+    {
+      "id": "9Drr70X1B9k",
+      "titulo": "6º Leilão Top da Pecuária – Laranjeiras do Sul/PR",
+      "cidade": "Laranjeiras do Sul",
+      "data": null
+    },
+    {
+      "id": "L6RnqSByOmE",
+      "titulo": "Leilão Virtual de Gado de Corte – Guaraniaçu/PR",
+      "cidade": "Guaraniaçu",
+      "data": null
+    },
+    {
+      "id": "RE2A7k0Cdew",
+      "titulo": "LeiloIngá Leilão de Gado ao vivo – Guaraniaçu/PR",
+      "cidade": "Guaraniaçu",
+      "data": "2021-04-25"
+    },
+    {
+      "id": "xctKLAwi7IQ",
+      "titulo": "Leilão Gado de Corte – Toledo/PR",
+      "cidade": "Toledo",
+      "data": null
+    },
+    {
+      "id": "lPdoFvIcodQ",
+      "titulo": "Leiloingá – Leilão de Gado ao vivo – Toledo/PR",
+      "cidade": "Toledo",
+      "data": "2021-05-16"
     }
   ]
 }
