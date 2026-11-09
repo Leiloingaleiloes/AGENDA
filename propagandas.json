@@ -8581,82 +8581,291 @@
  ],
  "videos": [
   {
-   "id": "zapxgldJaVA",
-   "titulo": "Leilão Especial Gado de Corte – Cantagalo/PR",
-   "cidade": "Cantagalo",
-   "data": null
-  },
-  {
-   "id": "4J86pAXOAX0",
-   "titulo": "1º Leilão Só Qualidade Gado de Corte – Cantagalo/PR",
-   "cidade": "Cantagalo",
-   "data": null
-  },
-  {
-   "id": "-sIkIrwMpY8",
-   "titulo": "2º Leilão Extra Gado de Corte – Cantagalo/PR",
-   "cidade": "Cantagalo",
-   "data": null
-  },
-  {
-   "id": "OJ64OiAjWR0",
-   "titulo": "Leilão Virtual de Gado de Corte – Cantagalo/PR",
-   "cidade": "Cantagalo",
-   "data": null
-  },
-  {
-   "id": "9Z_OxCDpHes",
-   "titulo": "LeiloIngá Leilão de Gado ao vivo – Cantagalo/PR",
-   "cidade": "Cantagalo",
-   "data": "2021-03-28"
-  },
-  {
-   "id": "uTSFDjQQElk",
-   "titulo": "Leilão de Gado de Corte – Palmital/PR",
-   "cidade": "Palmital",
-   "data": null
-  },
-  {
-   "id": "YqpsdOR9qPo",
-   "titulo": "Leiloingá – Leilão de Gado ao vivo – Palmital/PR",
-   "cidade": "Palmital",
-   "data": "2021-05-08"
-  },
-  {
-   "id": "W8WjCNWOCKY",
-   "titulo": "1ª Feira de Gado – Inauguração do Recinto de Leilões – Marquinho/PR",
+   "id": "2IPh15NT7Cw",
+   "titulo": "Leilão Especial Gado de Corte",
    "cidade": "Marquinho",
-   "data": null
+   "data": "2026-11-11",
+   "thumb": "https://i.ytimg.com/vi/2IPh15NT7Cw/maxresdefault.jpg"
   },
   {
-   "id": "9Drr70X1B9k",
-   "titulo": "6º Leilão Top da Pecuária – Laranjeiras do Sul/PR",
+   "id": "CtioW466rN4",
+   "titulo": "7º Leilão Reprodutores União de Raças",
    "cidade": "Laranjeiras do Sul",
-   "data": null
+   "data": "2026-08-26",
+   "thumb": "https://i.ytimg.com/vi/CtioW466rN4/maxresdefault.jpg"
   },
   {
-   "id": "L6RnqSByOmE",
-   "titulo": "Leilão Virtual de Gado de Corte – Guaraniaçu/PR",
-   "cidade": "Guaraniaçu",
-   "data": null
+   "id": "_ja__93xYlE",
+   "titulo": "Leilão Especial Gado de Corte",
+   "cidade": "Marquinho",
+   "data": "2026-08-16",
+   "thumb": "https://i.ytimg.com/vi/_ja__93xYlE/maxresdefault.jpg"
   },
   {
-   "id": "RE2A7k0Cdew",
-   "titulo": "LeiloIngá Leilão de Gado ao vivo – Guaraniaçu/PR",
+   "id": "UsJYPApR6DU",
+   "titulo": "Feira de Gado de Corte",
+   "cidade": "Cantagalo",
+   "data": "2026-06-22",
+   "thumb": "https://i.ytimg.com/vi/UsJYPApR6DU/maxresdefault.jpg"
+  },
+  {
+   "id": "ewRyk9X5d_o",
+   "titulo": "Leilão Gado de Corte",
+   "cidade": "Toledo",
+   "data": "2026-05-06",
+   "thumb": "https://i.ytimg.com/vi/ewRyk9X5d_o/maxresdefault.jpg"
+  },
+  {
+   "id": "coEE2_jBmHo",
+   "titulo": "7º Leilão Top da Pecuária",
+   "cidade": "Laranjeiras do Sul",
+   "data": "2026-05-02",
+   "thumb": "https://i.ytimg.com/vi/coEE2_jBmHo/maxresdefault.jpg"
+  },
+  {
+   "id": "8ES52kaSjQU",
+   "titulo": "2º Leilão da Cabanha Double V - Cavalo Crioulo",
+   "cidade": "Marquinho",
+   "data": "2026-04-11",
+   "thumb": "https://i.ytimg.com/vi/8ES52kaSjQU/maxresdefault.jpg"
+  },
+  {
+   "id": "6kumjqUxvJA",
+   "titulo": "Feira de Bezerros e Bezerras - ExpoAgro",
+   "cidade": "Laranjeiras do Sul",
+   "data": "2026-03-15",
+   "thumb": "https://i.ytimg.com/vi/6kumjqUxvJA/maxresdefault.jpg"
+  },
+  {
+   "id": "hspIBD33p5w",
+   "titulo": "Leilão Especial de Gado de Corte",
+   "cidade": "Palmital",
+   "data": "2025-12-10",
+   "thumb": "https://i.ytimg.com/vi/hspIBD33p5w/maxresdefault.jpg"
+  },
+  {
+   "id": "MXxmt_0Ppig",
+   "titulo": "Leilão Especial Fim de Ano - Gado de Corte",
+   "cidade": "Laranjeiras do Sul",
+   "data": "2025-12-07",
+   "thumb": "https://i.ytimg.com/vi/MXxmt_0Ppig/maxresdefault.jpg"
+  },
+  {
+   "id": "My72Zj9OZSk",
+   "titulo": "Leilão Especial Fim de Ano - Gado de Corte",
+   "cidade": "Cantagalo",
+   "data": "2025-11-30",
+   "thumb": "https://i.ytimg.com/vi/My72Zj9OZSk/maxresdefault.jpg"
+  },
+  {
+   "id": "DrmnPCkjiHY",
+   "titulo": "Leilão Especial Gado de Corte - 21º ExpoVale",
+   "cidade": "Ivaiporã",
+   "data": "2025-11-15",
+   "thumb": "https://i.ytimg.com/vi/DrmnPCkjiHY/maxresdefault.jpg"
+  },
+  {
+   "id": "GOGEtvc026Y",
+   "titulo": "6º Leilão das Águas - Gado de Corte",
+   "cidade": "Laranjeiras do Sul",
+   "data": "2025-10-05",
+   "thumb": "https://i.ytimg.com/vi/GOGEtvc026Y/maxresdefault.jpg"
+  },
+  {
+   "id": "0AdwnDiCc0g",
+   "titulo": "6º Leilão Força do Campo - Gado de Corte",
    "cidade": "Guaraniaçu",
-   "data": "2021-04-25"
+   "data": "2025-05-25",
+   "thumb": "https://i.ytimg.com/vi/0AdwnDiCc0g/maxresdefault.jpg"
   },
   {
    "id": "xctKLAwi7IQ",
-   "titulo": "Leilão Gado de Corte – Toledo/PR",
+   "titulo": "Leilão Gado de Corte",
    "cidade": "Toledo",
-   "data": null
+   "data": "2025-05-21",
+   "thumb": "https://i.ytimg.com/vi/xctKLAwi7IQ/maxresdefault.jpg"
   },
   {
-   "id": "lPdoFvIcodQ",
-   "titulo": "Leiloingá – Leilão de Gado ao vivo – Toledo/PR",
+   "id": "4J86pAXOAX0",
+   "titulo": "1º Leilão Só Qualidade Gado de Corte",
+   "cidade": "Cantagalo",
+   "data": "2025-05-18",
+   "thumb": "https://i.ytimg.com/vi/4J86pAXOAX0/maxresdefault.jpg"
+  },
+  {
+   "id": "cmMrMYMRGEQ",
+   "titulo": "Leilão Especial Gado de Corte",
+   "cidade": "Marquinho",
+   "data": "2025-05-07",
+   "thumb": "https://i.ytimg.com/vi/cmMrMYMRGEQ/maxresdefault.jpg"
+  },
+  {
+   "id": "PJliwTQNmnA",
+   "titulo": "12º Leilão Marca 10 - Gado de Corte",
+   "cidade": "Guaraniaçu",
+   "data": "2025-04-27",
+   "thumb": "https://i.ytimg.com/vi/PJliwTQNmnA/maxresdefault.jpg"
+  },
+  {
+   "id": "-sIkIrwMpY8",
+   "titulo": "2º Leilão Extra Gado de Corte",
+   "cidade": "Cantagalo",
+   "data": "2025-04-16",
+   "thumb": "https://i.ytimg.com/vi/-sIkIrwMpY8/maxresdefault.jpg"
+  },
+  {
+   "id": "9Drr70X1B9k",
+   "titulo": "6º Leilão Top da Pecuária",
+   "cidade": "Laranjeiras do Sul",
+   "data": "2025-04-13",
+   "thumb": "https://i.ytimg.com/vi/9Drr70X1B9k/maxresdefault.jpg"
+  },
+  {
+   "id": "VvhdwqO1azU",
+   "titulo": "2º Feira de Bezerros e Bezerras",
+   "cidade": "Marquinho",
+   "data": "2025-04-06",
+   "thumb": "https://i.ytimg.com/vi/VvhdwqO1azU/maxresdefault.jpg"
+  },
+  {
+   "id": "lO4ul2kwgaY",
+   "titulo": "Leilão Gado de Corte",
    "cidade": "Toledo",
-   "data": "2021-05-16"
+   "data": "2025-04-02",
+   "thumb": "https://i.ytimg.com/vi/lO4ul2kwgaY/maxresdefault.jpg"
+  },
+  {
+   "id": "c3Mn4jQYkgs",
+   "titulo": "Feira de Bezerros e Bezerras - ExpoAgro 2025",
+   "cidade": "Laranjeiras do Sul",
+   "data": "2025-03-30",
+   "thumb": "https://i.ytimg.com/vi/c3Mn4jQYkgs/maxresdefault.jpg"
+  },
+  {
+   "id": "Ck5IH7aVu5w",
+   "titulo": "3º Feira de Bezerros e Bezerras",
+   "cidade": "Cantagalo",
+   "data": "2025-03-23",
+   "thumb": "https://i.ytimg.com/vi/Ck5IH7aVu5w/maxresdefault.jpg"
+  },
+  {
+   "id": "uTSFDjQQElk",
+   "titulo": "Leilão de Gado de Corte",
+   "cidade": "Palmital",
+   "data": "2025-03-02",
+   "thumb": "https://i.ytimg.com/vi/uTSFDjQQElk/maxresdefault.jpg"
+  },
+  {
+   "id": "gdCxumOqTGw",
+   "titulo": "Leilão Especial Gado de Corte",
+   "cidade": "Ivaiporã",
+   "data": "2025-02-26",
+   "thumb": "https://i.ytimg.com/vi/gdCxumOqTGw/maxresdefault.jpg"
+  },
+  {
+   "id": "hnGmTn4TAIs",
+   "titulo": "4º Leilão Porteira Aberta - Gado de Corte",
+   "cidade": "Guaraniaçu",
+   "data": "2025-02-23",
+   "thumb": "https://i.ytimg.com/vi/hnGmTn4TAIs/maxresdefault.jpg"
+  },
+  {
+   "id": "Lls_STD0xMs",
+   "titulo": "Leilão Gado de Corte",
+   "cidade": "Toledo",
+   "data": "2025-02-19",
+   "thumb": "https://i.ytimg.com/vi/Lls_STD0xMs/maxresdefault.jpg"
+  },
+  {
+   "id": "aC1xNIVmgFU",
+   "titulo": "Leilão Especial Gado de Corte",
+   "cidade": "Marquinho",
+   "data": "2025-02-09",
+   "thumb": "https://i.ytimg.com/vi/aC1xNIVmgFU/maxresdefault.jpg"
+  },
+  {
+   "id": "ezkpR-I-NnM",
+   "titulo": "Leilão de Gado de Corte",
+   "cidade": "Palmital",
+   "data": "2025-02-02",
+   "thumb": "https://i.ytimg.com/vi/ezkpR-I-NnM/maxresdefault.jpg"
+  },
+  {
+   "id": "adUWUS_Qb9c",
+   "titulo": "Leilão Especial Gado de Corte",
+   "cidade": "Cantagalo",
+   "data": "2025-01-26",
+   "thumb": "https://i.ytimg.com/vi/adUWUS_Qb9c/maxresdefault.jpg"
+  },
+  {
+   "id": "EDJDz0hAzh8",
+   "titulo": "Leilão de Aniversário - Gado de Corte",
+   "cidade": "Marquinho",
+   "data": "2024-12-17",
+   "thumb": "https://i.ytimg.com/vi/EDJDz0hAzh8/maxresdefault.jpg"
+  },
+  {
+   "id": "YZszhXDBFdY",
+   "titulo": "Leilão Especial Fim de Ano",
+   "cidade": "Toledo",
+   "data": "2024-12-17",
+   "thumb": "https://i.ytimg.com/vi/YZszhXDBFdY/maxresdefault.jpg"
+  },
+  {
+   "id": "xIUkKAE8svE",
+   "titulo": "Leilão Especial Fim de Ano - Gado de Corte",
+   "cidade": "Laranjeiras do Sul",
+   "data": "2024-12-07",
+   "thumb": "https://i.ytimg.com/vi/xIUkKAE8svE/maxresdefault.jpg"
+  },
+  {
+   "id": "W5zrbcZVSNs",
+   "titulo": "Leilão Especial Final de Ano - Gado de Corte",
+   "cidade": "Cantagalo",
+   "data": "2024-12-01",
+   "thumb": "https://i.ytimg.com/vi/W5zrbcZVSNs/maxresdefault.jpg"
+  },
+  {
+   "id": "5HeHvxekOhI",
+   "titulo": "Leilão de Gado de Corte",
+   "cidade": "Palmital",
+   "data": "2024-11-27",
+   "thumb": "https://i.ytimg.com/vi/5HeHvxekOhI/maxresdefault.jpg"
+  },
+  {
+   "id": "nb4Kk-h87lk",
+   "titulo": "4º Leilão Amigos da Pecuária - Gado de Corte",
+   "cidade": "Guaraniaçu",
+   "data": "2024-11-24",
+   "thumb": "https://i.ytimg.com/vi/nb4Kk-h87lk/maxresdefault.jpg"
+  },
+  {
+   "id": "7T1bfrg93uE",
+   "titulo": "Leilão Especial Gado de Corte - 20º ExpoVale",
+   "cidade": "Ivaiporã",
+   "data": "2024-11-20",
+   "thumb": "https://i.ytimg.com/vi/7T1bfrg93uE/maxresdefault.jpg"
+  },
+  {
+   "id": "jXw8OVy4pzE",
+   "titulo": "Leilão Especial Gado de Corte - 20º ExpoVale",
+   "cidade": "Ivaiporã",
+   "data": "2024-11-16",
+   "thumb": "https://i.ytimg.com/vi/jXw8OVy4pzE/maxresdefault.jpg"
+  },
+  {
+   "id": "BpRHUJ9afbs",
+   "titulo": "Leilão Gado de Corte",
+   "cidade": "Toledo",
+   "data": "2024-11-13",
+   "thumb": "https://i.ytimg.com/vi/BpRHUJ9afbs/maxresdefault.jpg"
+  },
+  {
+   "id": "D-41enXgJv4",
+   "titulo": "Leilão Especial Gado de Corte",
+   "cidade": "Marquinho",
+   "data": "2024-11-10",
+   "thumb": "https://i.ytimg.com/vi/D-41enXgJv4/maxresdefault.jpg"
   }
  ]
 }
