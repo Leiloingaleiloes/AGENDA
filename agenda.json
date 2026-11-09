@@ -1,6 +1,6 @@
 {
  "atualizadoEm": "2026-11-09T12:00:00-03:00",
- "observacao": "Clima renovado até 23/11. Guaraniaçu 22/11: alerta atenuado (73%, 1,4 mm). Ivaiporã 20/11: sem alerta (sem chuva). Panorama: site 404, mantida agenda anterior. Agrolink não consultado.",
+ "observacao": "Clima renovado até 23/11 (Climatempo; Agrolink conferido, só traz % de chuva, sem mm). Guaraniaçu 22/11 e Ivaiporã 20/11: alerta por divergência/chuva no Agrolink. Panorama: site 404, mantida agenda anterior.",
  "leiloes": [
   {
    "id": "pr-2026-11-07-smoeste",
@@ -515,7 +515,7 @@
    "chuvaMm": 0.0,
    "rajada": 26,
    "resumo": "Nublado em períodos",
-   "alerta": null,
+   "alerta": "Fontes discordam: Climatempo não prevê chuva em 19 e 20/11, mas o Agrolink indica 100% de chuva nos dois dias. Atenção ao embarque.",
    "fonte": "Climatempo",
    "atualizado": "2026-11-09T12:00:00-03:00"
   },
@@ -528,7 +528,7 @@
    "chuvaMm": 1.4,
    "rajada": 39,
    "resumo": "Nublado, pancadas à tarde",
-   "alerta": "Chuva: 73% e pancadas à tarde/noite, rajadas até 39 km/h; dia seguinte (23/11) 81%, ~14 mm e rajadas de 46 km/h.",
+   "alerta": "Chuva: Climatempo 73% (pancadas à tarde/noite, rajadas até 39 km/h) e Agrolink 100%. Dia seguinte (23/11): 81%, ~14 mm, rajadas de 46 km/h.",
    "fonte": "Climatempo",
    "atualizado": "2026-11-09T12:00:00-03:00"
   },
