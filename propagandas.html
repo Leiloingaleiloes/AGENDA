@@ -81,6 +81,7 @@ h1 span { color: var(--accent); }
 .act.zap { border-color: #1FA855; color: #1FA855; }
 .act:hover { filter: brightness(.95); }
 .arte-img { display: block; width: 100%; height: auto; background: var(--surface-2); }
+.arte-falta { display: flex; align-items: center; justify-content: center; aspect-ratio: 4/5; background: var(--surface-2); color: var(--muted); font-size: .9rem; }
 .fonte { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 7px; border-radius: 4px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
 .sub { font: 700 .95rem var(--f-display); text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 18px 0 10px; }
 .videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 12px; }
@@ -100,9 +101,10 @@ h1 span { color: var(--accent); }
 <div class="wrap">
   <div class="intro">
     <p id="resumo">Carregando…</p>
-    <input class="busca" id="busca" type="search" placeholder="Buscar por leilão, cidade ou mês" aria-label="Buscar">
+    <input class="busca" id="busca" type="search" placeholder="Buscar por leilão, cidade, mês ou palavra da legenda" aria-label="Buscar">
   </div>
   <div class="cidades" id="cidades" role="group" aria-label="Filtrar por cidade"></div>
+  <div class="cidades" id="anos" role="group" aria-label="Filtrar por ano"></div>
   <div class="aviso" id="aviso" hidden></div>
   <div id="lista"></div>
 </div>
@@ -122,12 +124,14 @@ h1 span { color: var(--accent); }
   function sem(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
 
   var cidadeSel = "";
+  var anoSel = "";
   var videos = [];
+  var porCodigo = {};
 
   function card(p, hoje) {
     var futuro = d(p.data_leilao) >= hoje;
     var head = '<article class="post"><div class="post-t"><strong>' + esc(p.leilao) + '</strong>' +
-      '<span>' + longa(p.data_leilao) + ' · ' + esc(p.hora) + '<span class="passou' + (futuro ? ' vem' : '') + '">' + (futuro ? 'Vem aí' : 'Realizado') + '</span></span></div>';
+      '<span>' + (p.data_incerta ? 'postado em ' + curta(p.data_leilao) : longa(p.data_leilao)) + (p.hora ? ' · ' + esc(p.hora) : '') + '<span class="passou' + (futuro ? ' vem' : '') + '">' + (futuro ? 'Vem aí' : 'Realizado') + '</span></span></div>';
     if (p.fonte === "site") {
       var nome = p.cidade + " - " + p.leilao + " - " + curta(p.data_leilao).replace(/\//g, "-");
       return head + '<div class="post-h"><span class="chamada">' + esc(p.chamada) + '</span><span class="fonte">Site</span></div>' +
@@ -136,13 +140,12 @@ h1 span { color: var(--accent); }
         '<a class="act" href="' + esc(p.imagem) + '" download="' + esc(nome) + '">Baixar</a>' +
         '<button class="act" type="button" data-copiar="' + esc(p.imagem) + '">Copiar link</button></div></article>';
     }
-    var u = link(p.codigo);
-    var zap = "https://wa.me/?text=" + encodeURIComponent(p.leilao + " · " + curta(p.data_leilao) + " · " + p.hora + " · " + p.local + "\n" + u);
+    var nomeArq = p.cidade + " - " + p.leilao + " - " + curta(p.data_leilao).replace(/\//g, "-") + ".jpg";
     return head + '<div class="post-h"><span class="chamada">' + esc(p.chamada) + '</span><span class="fonte">Instagram · ' + curta(p.publicado) + '</span></div>' +
-      '<div class="embed"><iframe src="' + u + 'embed/" loading="lazy" title="Post do Instagram: ' + esc(p.leilao) + '" scrolling="no" allowtransparency="true"></iframe></div>' +
-      '<div class="acts"><a class="act" href="' + u + '" target="_blank" rel="noopener">Abrir</a>' +
-      '<button class="act" type="button" data-copiar="' + u + '">Copiar link</button>' +
-      '<a class="act zap" href="' + zap + '" target="_blank" rel="noopener">WhatsApp</a></div></article>';
+      '<img class="arte-img" src="' + esc(p.imagem) + '" alt="' + esc(p.leilao + " – " + p.cidade) + '" loading="lazy" onerror="this.outerHTML=\'<div class=arte-falta>Imagem em breve</div>\'">' +
+      '<div class="acts"><a class="act" href="' + esc(p.imagem) + '" target="_blank" rel="noopener">Abrir</a>' +
+      '<a class="act" href="' + esc(p.imagem) + '" download="' + esc(nomeArq) + '">Baixar</a>' +
+      '<button class="act" type="button" data-copiar-legenda="' + esc(p.codigo) + '">Legenda</button></div></article>';
   }
 
   function vcard(v) {
@@ -158,12 +161,14 @@ h1 span { color: var(--accent); }
     function g(c) { return grupos[c] || (grupos[c] = { artes: [], videos: [] }); }
     dados.forEach(function (p) {
       if (cidadeSel && p.cidade !== cidadeSel) return;
-      var texto = sem([p.leilao, p.local, p.cidade, p.chamada, MESES_LONGO[d(p.data_leilao).getMonth()], curta(p.data_leilao)].join(" "));
+      if (anoSel && p.data_leilao.slice(0, 4) !== anoSel) return;
+      var texto = sem([p.leilao, p.local, p.cidade, p.chamada, p.legenda || "", MESES_LONGO[d(p.data_leilao).getMonth()], curta(p.data_leilao)].join(" "));
       if (f && texto.indexOf(f) < 0) return;
       g(p.cidade).artes.push(p);
     });
     videos.forEach(function (v) {
       if (cidadeSel && v.cidade !== cidadeSel) return;
+      if (anoSel && (v.data || "").slice(0, 4) !== anoSel) return;
       var texto = sem([v.titulo, v.cidade, v.data ? curta(v.data) : ""].join(" "));
       if (f && texto.indexOf(f) < 0) return;
       g(v.cidade).videos.push(v);
@@ -185,6 +190,21 @@ h1 span { color: var(--accent); }
 
     document.getElementById("lista").innerHTML = html || '<p class="vazio">Nada encontrado.</p>';
     ajusta();
+  }
+
+  function anos() {
+    var cont = {};
+    dados.forEach(function (p) { var a = p.data_leilao.slice(0, 4); cont[a] = (cont[a] || 0) + 1; });
+    var as = Object.keys(cont).sort().reverse();
+    var el = document.getElementById("anos");
+    el.innerHTML = '<button type="button" class="chip" data-ano="" aria-pressed="true">Todos os anos</button>' +
+      as.map(function (a) { return '<button type="button" class="chip" data-ano="' + a + '" aria-pressed="false">' + a + ' <b>' + cont[a] + '</b></button>'; }).join("");
+    el.addEventListener("click", function (e) {
+      var b = e.target.closest(".chip"); if (!b) return;
+      anoSel = b.getAttribute("data-ano");
+      el.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      render(document.getElementById("busca").value);
+    });
   }
 
   function chips() {
@@ -212,6 +232,13 @@ h1 span { color: var(--accent); }
   var rz; window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(ajusta, 150); });
 
   document.addEventListener("click", function (e) {
+    var lb = e.target.closest("[data-copiar-legenda]");
+    if (lb) {
+      var leg = (porCodigo[lb.getAttribute("data-copiar-legenda")] || {}).legenda || "";
+      var okl = function () { var t = lb.textContent; lb.textContent = "Copiada!"; setTimeout(function () { lb.textContent = t; }, 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(leg).then(okl, function () { prompt("Copie a legenda:", leg); }); else prompt("Copie a legenda:", leg);
+      return;
+    }
     var b = e.target.closest("[data-copiar]"); if (!b) return;
     var u = b.getAttribute("data-copiar");
     var ok = function () { var t = b.textContent; b.textContent = "Copiado!"; setTimeout(function () { b.textContent = t; }, 1500); };
@@ -229,7 +256,9 @@ h1 span { color: var(--accent); }
     var cid = {}; dados.concat(videos).forEach(function (p) { cid[p.cidade] = 1; });
     document.getElementById("resumo").textContent = dados.length + " artes e " + videos.length + " vídeos de " + Object.keys(cid).length + " cidades · atualizado em " + curta(j.atualizado);
     if (j.observacao) { var a = document.getElementById("aviso"); a.textContent = j.observacao; a.hidden = false; }
+    dados.forEach(function (p) { if (p.codigo) porCodigo[p.codigo] = p; });
     chips();
+    anos();
     render("");
   }).catch(function () {
     document.getElementById("resumo").textContent = "Não foi possível carregar a lista.";
