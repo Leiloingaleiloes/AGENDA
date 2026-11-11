@@ -502,6 +502,16 @@ async function biblioteca(){
   return pdfjsLib;
 }
 
+/* junta os pedaços da linha; pedaços grudados (sem espaço entre eles, ex.: "1" e "2" que formam o 12 da coluna Ord.) viram um só */
+function juntaLinha(g){
+  var its=g.its.slice().sort(function(a,b){return a.x-b.x;}),s="",ant=null;
+  its.forEach(function(i){
+    if(ant&&(i.x-ant.r)<Math.min(ant.cw,i.cw)*0.3&&(i.x-ant.r)>-Math.min(ant.cw,i.cw)*0.5)s+=i.s;
+    else s+=(s?" ":"")+i.s;
+    ant=i;
+  });
+  return s.replace(/\s+/g," ").trim();
+}
 var ULT_GRUPOS=[];
 /* junta os pedaços de texto em linhas da folha (tolerando colunas um pouco acima ou abaixo) */
 function linhasDaPagina(items){
@@ -554,7 +564,7 @@ function linhasDaPagina(items){
     });
     grupos=grupos.filter(function(g){return g.its.length;}).concat(outros).sort(function(p,q){return q.y-p.y;});
     ULT_GRUPOS=grupos;
-    return grupos.map(function(g){return g.its.sort(function(a,b){return a.x-b.x;}).map(function(i){return i.s;}).join(" ").replace(/\s+/g," ").trim();});
+    return grupos.map(juntaLinha);
   }
   its.forEach(function(i){
     var g=grupos.length?grupos[grupos.length-1]:null;
@@ -562,15 +572,17 @@ function linhasDaPagina(items){
     else grupos.push({y:i.y,its:[i]});
   });
   ULT_GRUPOS=grupos;
-  return grupos.map(function(g){return g.its.sort(function(a,b){return a.x-b.x;}).map(function(i){return i.s;}).join(" ").replace(/\s+/g," ").trim();});
+  return grupos.map(juntaLinha);
 }
-var RE_LINHA=/^(\d{1,3})\s+(\d{1,4})\s+(\d{1,4})\s*([MF])\s+(.+?)\s+((?:\d{1,2}\s*A\s*\d{1,2}|\d{1,2}\s*\/\s*\d{1,2})\s*M\w*|\+\s*\d{1,2}\s*M\w*)\s+(.+?)\s+(\d{2,4})(?:[.,]\d+)?(?:\s.*)?$/i;
+var RE_LINHA=/^(\d{1,4})\s+(\d{1,4})\s+(\d{1,4})\s*([MF])\s+(.+?)\s+((?:\d{1,2}\s*A\s*\d{1,2}|\d{1,2}\s*\/\s*\d{1,2})\s*M\w*|\+\s*\d{1,2}\s*M\w*)\s+(.+?)\s+(\d{2,4})(?:[.,]\d+)?(?:\s.*)?$/i;
 var RE_CATALOGO=/^(\d{1,3})\s*º\s+(\d{1,4})\s+(.+?)\s+(\+?\d{1,2}(?:\s*\/\s*\d{1,2})?\s*M)\s+(Macho|F[êe]mea)\s+(\d{1,4})\s+(\d{2,4})\s*kg/i;
-var RE_COMECO=/^(\d{1,3})\s+(\d{2,4})\s+\d/;
+var RE_COMECO=/^(\d{1,4})\s+(\d{2,4})\s+\d/;
 function interpretar(linhas){
   var out={leilao:"",data:"",totais:null,lotes:[],naoEntendi:[]};
   linhas.forEach(function(t){
     var m;
+    /* Ord. partido em dois pedaços ("1 2 002 5 M ..." ou "1 152 152 2 M ..."): junta antes de ler */
+    t=t.replace(/^(\d{1,3})\s+(\d{1,3})(?=\s+\d{2,4}\s+\d{1,4}\s*[MF]\b)/i,"$1$2");
     if(!out.leilao&&/LEIL[AÃ]O/i.test(t)&&!/ORDEM DE ENTRADA/i.test(t))out.leilao=t;
     if(!out.data&&(m=t.match(/\b(\d{2}\/\d{2}\/\d{4})\b/))&&!/\d{2}:\d{2}/.test(t))out.data=m[1];
     if((m=t.match(/Total de Animais:?\s*(\d+)/i))){
