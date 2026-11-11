@@ -523,10 +523,17 @@ function linhasDaPagina(items){
   if(nums.length){
     /* a coluna Ord. pode vir alinhada à direita: 1 a 9 ficam mais para dentro que 10 ou 100.
        Vale como âncora quem começa na borda esquerda OU termina na mesma borda direita dela. */
-    var minX=Math.min.apply(null,nums.map(function(i){return i.x;}));
-    var col=nums.filter(function(i){return i.x<=minX+8;});
+    /* acha a coluna Ord. pelo alinhamento (muitos números um embaixo do outro), não pelo número
+       mais à esquerda: na 1ª folha um número solto do cabeçalho (página, data) ficava mais à
+       esquerda e fazia sumir os primeiros lotes */
+    function alinhados(a){return nums.filter(function(b){return Math.abs(b.x-a.x)<=4||Math.abs(b.r-a.r)<=4;}).length;}
+    var cont=nums.map(alinhados),maxC=Math.max.apply(null,cont);
+    var cand=nums.filter(function(i,k){return cont[k]>=Math.max(2,maxC*0.6);});
+    if(!cand.length)cand=nums;
+    var minX=Math.min.apply(null,cand.map(function(i){return i.x;}));
+    var col=cand.filter(function(i){return i.x<=minX+8;});
     var rs=col.map(function(i){return i.r;}).sort(function(a,b){return a-b;}),rMed=rs[Math.floor(rs.length/2)];
-    var anc=nums.filter(function(i){return i.x<=minX+8||(Math.abs(i.r-rMed)<=4&&i.x<minX+40);}).map(function(i){return i.y;});
+    var anc=nums.filter(function(i){return (i.x>=minX-4&&i.x<=minX+8)||(Math.abs(i.r-rMed)<=4&&i.x>=minX-4&&i.x<minX+40);}).map(function(i){return i.y;});
     var ga=[];for(var a=1;a<anc.length;a++){var dd=Math.abs(anc[a-1]-anc[a]);if(dd>3)ga.push(dd);}
     ga.sort(function(p,q){return p-q;});
     var passoL=ga.length?ga[Math.floor(ga.length/2)]:Math.max(passo,12);
