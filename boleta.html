@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Conferência Boleta · Leiloingá</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{--bg:#f3f4ef;--card:#fff;--fg:#17201a;--mut:#5f6b62;--line:#d9ddd4;--v:#1f7a3a;--vs:#dcf0e1;--r:#c2501f;--rs:#fbe4d9;--a:#17201a}
+@media (prefers-color-scheme:dark){:root{--bg:#111512;--card:#1a201c;--fg:#e8ece9;--mut:#9aa69d;--line:#2f3832;--v:#4fbf6e;--vs:#1c3a25;--r:#ff8a5c;--rs:#3d2318;--a:#e8ece9}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.35 system-ui,-apple-system,sans-serif;padding-bottom:70px}
+button,input,select{font:inherit;color:inherit}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.top a{color:var(--mut);text-decoration:none;font-size:.85rem}
+.top b{font-size:1rem;letter-spacing:.02em}.top span{color:var(--mut);font-size:.85rem}
+.sel{display:flex;gap:6px;padding:8px 12px 0}
+.sel select{flex:1;min-width:0;padding:9px 8px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
+.sel button,.bt{padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-weight:700;white-space:nowrap}
+.bts{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px 12px 0}
+.bts .bt{min-height:46px}.bt.pri{background:var(--v);border-color:var(--v);color:#fff}
+.msg{margin:8px 12px 0;padding:8px 10px;border-radius:10px;background:var(--card);border:1px solid var(--line);font-size:.85rem;color:var(--mut)}.msg:empty{display:none}
+.msg.err{border-color:var(--r);color:var(--r)}.msg.bom{border-color:var(--v);color:var(--v)}
+.painel{margin:8px 12px 0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.painel h3{margin:0 0 8px;font-size:1rem}.painel p{margin:0 0 8px;color:var(--mut);font-size:.85rem}
+.painel label{display:block;font-size:.75rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin:8px 0 3px}
+.painel input{width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--bg)}
+.painel .row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}.painel .row .bt{min-height:46px}
+.painel ul{padding:0}.painel li button{white-space:nowrap}
+.tot{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 12px}
+.tot div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:.75rem;color:var(--mut)}
+.tot b{display:block;font-size:1.15rem;color:var(--fg)}.tot .tv b{color:var(--v)}.tot .tr b{color:var(--r)}
+.lote{margin:6px 12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.lote.V{border:3px solid var(--v);background:var(--vs)}.lote.R{border:3px solid var(--r);background:var(--rs)}
+.lh{display:flex;justify-content:space-between;align-items:baseline}
+.ln{font-size:2.2rem;font-weight:800}.lo{color:var(--mut);font-weight:700}
+.ld{font-size:1.05rem;margin-top:2px}.lv{color:var(--mut);font-size:.9rem;margin-top:2px}
+.bid{margin-top:14px;text-align:center}
+.bid label{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:700}
+.bid input{width:100%;text-align:center;font-size:3rem;font-weight:800;border:0;border-bottom:2px solid var(--line);background:transparent;padding:4px 0;font-variant-numeric:tabular-nums}
+.x3{margin-top:8px;font-size:1.4rem}.x3 b{font-size:1.7rem}
+.kg{display:inline-block;margin-left:8px;padding:3px 9px;border-radius:99px;font-size:.95rem;font-weight:800;vertical-align:middle;background:var(--line);color:var(--fg)}.kg.g{background:#1f7a3a;color:#fff}.kg.y{background:#e8b100;color:#1a1400}.kg.o{background:#e0661c;color:#fff}li .kg{margin:3px 0 0;font-size:.8rem}
+.vlote{margin-top:12px;padding:10px;border-radius:10px;background:var(--v);color:#fff;font-weight:700;font-size:1rem}.vlote b{display:block;font-size:2rem}
+.inc{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.inc button{min-height:54px;border-radius:10px;border:2px solid var(--line);background:var(--bg);font-weight:800;font-size:1.15rem}
+.inc .mais{border-color:var(--a)}
+.acao{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.acao button{min-height:60px;border-radius:12px;border:3px solid;background:transparent;font-weight:800;font-size:1.15rem}
+.bv{border-color:var(--v);color:var(--v)}.br{border-color:var(--r);color:var(--r)}
+.bv[aria-pressed=true]{background:var(--v);color:#fff}.br[aria-pressed=true]{background:var(--r);color:#fff}
+.quem{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.quem button{min-height:46px;border-radius:10px;border:2px solid var(--line);background:var(--bg);font-weight:700}.quem button[aria-pressed=true]{background:var(--a);color:var(--bg);border-color:var(--a)}
+.porq{grid-column:span 2;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.porq div{background:var(--bg);border-radius:8px;padding:6px;font-size:.7rem}.porq b{font-size:.95rem}
+.ok{display:block;width:100%;margin-top:10px;min-height:62px;border-radius:12px;border:0;background:var(--a);color:var(--bg);font-weight:800;font-size:1.25rem}
+.ok[disabled]{opacity:.3}
+.nav{display:flex;justify-content:space-between;margin-top:10px}.nav button{border:0;background:none;color:var(--mut);text-decoration:underline;padding:6px}
+.fim{text-align:center;padding:40px 16px;color:var(--mut)}.fim b{display:block;font-size:1.4rem;color:var(--fg)}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border-top:1px solid var(--line)}
+.tabs button{border:0;background:none;padding:14px 4px;font-weight:700;color:var(--mut)}.tabs button[aria-pressed=true]{color:var(--fg);box-shadow:inset 0 3px 0 var(--fg)}
+ul{list-style:none;margin:0;padding:8px 12px}
+li{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:6px;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+li .d{color:var(--mut);font-size:.82rem}li .val{text-align:right;font-size:.85rem;color:var(--mut)}li .val b{display:block;color:var(--fg);font-size:1.05rem}
+li button{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px 10px;font-size:.8rem}
+.fat{margin:8px 12px 0;background:var(--card);border:2px solid var(--v);border-radius:12px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.fat div{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);font-weight:700}.fat b{display:block;font-size:1.3rem;color:var(--fg);letter-spacing:0;text-transform:none}.fat .cm b{color:var(--v)}.fat small{grid-column:span 2;color:var(--mut);font-size:.75rem}
+.vazio{text-align:center;color:var(--mut);padding:30px}
+.limpa{display:block;margin:10px auto 20px;border:0;background:none;color:var(--mut);text-decoration:underline}
+</style></head><body>
+<div class="top"><a href="./">◀ Painel</a><b>CONFERÊNCIA BOLETA</b><span id="pos"></span></div>
+<div class="sel"><select id="leilao" aria-label="Leilão"></select><button id="bNovo" type="button">+ Novo</button></div>
+<div class="bts"><button class="bt" id="bPdf" type="button">Exportar PDF</button><button class="bt pri" id="bGh" type="button">Salvar no GitHub</button></div>
+<div class="msg" id="msg"></div>
+<div id="extra"></div>
+<div class="tot"><div class="tv">Vendidos<b id="nv">0</b><span id="cv"></span></div><div class="tr">Retorno<b id="nr">0</b><span id="cr"></span></div><div>Faltam<b id="nf">0</b><span id="cf"></span></div></div>
+<main id="main"></main>
+<nav class="tabs"><button data-t="pista" aria-pressed="true">Pista</button><button data-t="V" aria-pressed="false">Vendidos</button><button data-t="R" aria-pressed="false">Retorno</button></nav>
+<input type="file" id="arq" accept=".json,.txt,.csv,application/json,text/plain" hidden>
+<script src="vendor/jspdf/jspdf.umd.min.js"></script>
+<script src="vendor/jspdf/jspdf.plugin.autotable.min.js"></script>
+<script>
+/* Conferência Boleta: marca na pista vendido/retorno, lance e corretor de cada lote.
+   Cada leilão fica salvo neste aparelho; "Salvar no GitHub" grava boletas/<id>.json e boletas/<id>.pdf
+   no repositório PRIVADO do ADM (o mesmo token do Lotes · ADM). Os valores nunca vão para repositório público. */
+var DONO="Leiloingaleiloes",PUB="LOTES",QUEM_PADRAO=["Piquiri","Carlos","Cezeta"],COMISSAO=0.0015;
+var GH={token:"",repo:"ADM"};
+try{var gx=JSON.parse(localStorage.getItem("leiloinga-adm-gh")||"null");if(gx&&gx.token){GH.token=gx.token;GH.repo=gx.repo||"ADM";}}catch(e){}
+var KB="leiloinga-boleta-v1",DB={atual:null,sess:{}};
+try{var y=JSON.parse(localStorage.getItem(KB)||"null");if(y&&y.sess)DB=y;}catch(e){}
+var S=null,L=[],tab="pista",arm=false,pend=null;
+
+function $(i){return document.getElementById(i)}
+function salva(){if(S){S.alterado=new Date().toISOString();}try{localStorage.setItem(KB,JSON.stringify(DB))}catch(e){}}
+function msg(t,c){var m=$("msg");m.textContent=t||"";m.className="msg"+(c?" "+c:"")}
+function z(n){return n<10?"0"+n:""+n}
+function brl(n){return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+function fmt(n){return n.toLocaleString("pt-BR",{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})}
+function f2(n){return n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function lnum(s){s=String(s==null?"":s).trim();if(!s)return null;if(s.indexOf(",")>=0)s=s.replace(/\./g,"").replace(",",".");var n=parseFloat(s);return isNaN(n)?null:n}
+function slug(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
+function dataBR(d){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d||"");return m?m[3]+"/"+m[2]+"/"+m[1]:(d||"")}
+function titulo(s){return (s.nome||"Leilão")+(s.data?" · "+dataBR(s.data):"")}
+function quem(){return (S&&S.quem&&S.quem.length)?S.quem:QUEM_PADRAO}
+function cap(s){return String(s||"").toLowerCase().replace(/(^|[\s.(])([a-zà-ú])/g,function(a,b,c){return b+c.toUpperCase()})}
+
+/* ---------- leilões salvos ---------- */
+function novaSessao(nome,data,lotes,quemL){
+  var id=(data||new Date().toISOString().slice(0,10))+"-"+slug(nome||"leilao");
+  var s={id:id,nome:nome||"Leilão",data:data||"",quem:quemL||QUEM_PADRAO.slice(),L:lotes,st:{},la:{},qm:{},cur:0};
+  return s;
+}
+function abrir(id){S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;tab="pista";marcaTab();salva();montaSel();render()}
+function montaSel(){
+  var el=$("leilao"),ids=Object.keys(DB.sess).sort(function(a,b){return (DB.sess[b].data||"").localeCompare(DB.sess[a].data||"")});
+  el.innerHTML=ids.length?ids.map(function(i){return '<option value="'+i+'"'+(S&&S.id===i?" selected":"")+'>'+esc(titulo(DB.sess[i]))+'</option>'}).join(""):'<option value="">Nenhum leilão ainda</option>';
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+$("leilao").onchange=function(){if(this.value)abrir(this.value)};
+
+/* ---------- GitHub (repositório privado do ADM) ---------- */
+function api(path,opt){opt=opt||{};var h={"Accept":"application/vnd.github+json","Authorization":"Bearer "+GH.token,"X-GitHub-Api-Version":"2022-11-28"};
+  if(opt.headers)for(var k in opt.headers)h[k]=opt.headers[k];
+  return fetch("https://api.github.com"+path,{method:opt.method||"GET",headers:h,body:opt.body,cache:"no-store"})}
+function caminho(p){return "/repos/"+DONO+"/"+GH.repo+"/contents/"+p.split("/").map(encodeURIComponent).join("/")}
+function b64enc(str){var b=new TextEncoder().encode(str),s="";for(var i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s)}
+function b64dec(b){var s=atob(String(b).replace(/\s/g,"")),u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return new TextDecoder().decode(u)}
+async function ler(p){var r=await api(caminho(p));if(r.status===404)return null;if(!r.ok)throw new Error("GitHub "+r.status);return r.json()}
+async function gravar(p,b64,m){var at=await ler(p);var body={message:m,content:b64};if(at&&at.sha)body.sha=at.sha;
+  var r=await api(caminho(p),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok)throw new Error("GitHub "+r.status)}
+function precisaToken(){if(GH.token)return false;telaToken();return true}
+function telaToken(){
+  $("extra").innerHTML='<div class="painel"><h3>Conectar ao GitHub</h3><p>Use o mesmo token do Lotes · ADM. Se você já conectou o ADM neste aparelho, ele é usado sozinho.</p>'+
+  '<label for="tk">Token</label><input id="tk" type="password" autocomplete="off"><label for="rp">Repositório privado</label><input id="rp" value="'+esc(GH.repo)+'">'+
+  '<div class="row"><button class="bt" id="tkX" type="button">Cancelar</button><button class="bt pri" id="tkOk" type="button">Conectar</button></div></div>';
+  $("tkX").onclick=function(){$("extra").innerHTML=""};
+  $("tkOk").onclick=function(){var t=$("tk").value.trim();if(!t)return;GH.token=t;GH.repo=$("rp").value.trim()||"ADM";
+    try{localStorage.setItem("leiloinga-adm-gh",JSON.stringify({token:GH.token,repo:GH.repo}))}catch(e){}$("extra").innerHTML="";msg("GitHub conectado.","bom")};
+}
+
+/* ---------- novo leilão ---------- */
+$("bNovo").onclick=function(){
+  if($("extra").innerHTML){$("extra").innerHTML="";return}
+  $("extra").innerHTML='<div class="painel"><h3>Novo leilão</h3>'+
+  '<label for="nNome">Nome</label><input id="nNome" placeholder="Ex.: Guaraniaçu"><label for="nData">Data</label><input id="nData" type="date">'+
+  '<label for="nQuem">Corretores (separados por vírgula)</label><input id="nQuem" value="'+QUEM_PADRAO.join(", ")+'">'+
+  '<p style="margin-top:10px">De onde vêm os lotes?</p>'+
+  '<div class="row"><button class="bt pri" id="nAdm" type="button">Do Lotes · ADM</button><button class="bt" id="nSite" type="button">Do site dos lotes</button></div>'+
+  '<div class="row"><button class="bt" id="nArq" type="button">Abrir arquivo</button><button class="bt" id="nGh" type="button">Abrir do GitHub</button></div>'+
+  '<p style="margin-top:8px">“Do Lotes · ADM” traz o nome do vendedor. “Do site” não tem vendedor. “Abrir arquivo” aceita o .json salvo ou o texto copiado da boleta antiga.</p></div>';
+  var hoje=new Date();$("nData").value=hoje.toISOString().slice(0,10);
+  function quemL(){return $("nQuem").value.split(",").map(function(x){return x.trim()}).filter(Boolean)}
+  function cria(lotes){if(!lotes.length){msg("Não achei lotes.","err");return}
+    var s=novaSessao($("nNome").value.trim()||"Leilão",$("nData").value,lotes,quemL());
+    if(DB.sess[s.id]){s.id+="-"+Date.now().toString(36).slice(-4)}DB.sess[s.id]=s;$("extra").innerHTML="";abrir(s.id);msg(lotes.length+" lotes carregados.","bom")}
+  $("nAdm").onclick=async function(){if(precisaToken())return;msg("Buscando lotes do ADM…");
+    try{var j=await ler("fichas.json");if(!j)throw new Error("fichas.json não encontrado");var d=JSON.parse(b64dec(j.content));
+      if(!$("nNome").value&&d.leilao)$("nNome").value=d.leilao;if(d.data&&/^\d{4}-\d{2}-\d{2}$/.test(d.data))$("nData").value=d.data;
+      var ordem=await ordemSite();cria(deLinhas((d.rows||[]).filter(function(r){return r.lote!=null}).map(function(r){return{l:r.lote,q:r.qtde,s:r.sexo,v:r.vendedor,r:r.raca,i:r.idade,p:r.peso,ord:r.ord}}),ordem))}
+    catch(e){msg("Não consegui ler o ADM ("+e.message+").","err")}};
+  $("nSite").onclick=async function(){msg("Buscando lotes do site…");
+    try{var raw="https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/";var t=await (await fetch(raw+"lotes.csv",{cache:"no-store"})).text();
+      var lin=t.trim().split(/\r?\n/).slice(1).map(function(x){var c=x.split(";");return{l:+c[0],r:c[1],i:c[2],s:/^f/i.test(c[3])?"F":"M",q:+c[4]||0,p:+c[5]||0,v:""}}).filter(function(x){return x.l>0});
+      cria(deLinhas(lin,await ordemSite()))}catch(e){msg("Não consegui ler o site ("+e.message+").","err")}};
+  $("nArq").onclick=function(){$("arq").click()};
+  $("nGh").onclick=listaGh;
+};
+async function ordemSite(){try{var t=await (await fetch("https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/ordem.txt",{cache:"no-store"})).text();
+  return t.split(/[\s,;]+/).map(function(x){return parseInt(x,10)}).filter(function(n){return n>0})}catch(e){return[]}}
+function deLinhas(lin,ordem){
+  var pos={};(ordem||[]).forEach(function(n,k){pos[n]=k});
+  lin.sort(function(a,b){var pa=pos[a.l]!=null?pos[a.l]:(a.ord!=null?1000+a.ord:5000+a.l),pb=pos[b.l]!=null?pos[b.l]:(b.ord!=null?1000+b.ord:5000+b.l);return pa-pb});
+  return lin.map(function(x,k){return{o:k+1,l:+x.l,q:+x.q||0,s:x.s==="F"?"F":"M",v:x.v||"",r:x.r||"",i:x.i||"",p:+x.p||0}});
+}
+async function listaGh(){if(precisaToken())return;msg("Buscando no GitHub…");
+  try{var r=await api(caminho("boletas"));if(r.status===404){msg("Ainda não há boletas salvas no GitHub.");return}var it=(await r.json()).filter(function(f){return /\.json$/.test(f.name)});
+    msg("");$("extra").innerHTML='<div class="painel"><h3>Boletas salvas no GitHub</h3><ul>'+it.map(function(f){return '<li><span>'+esc(f.name.replace(/\.json$/,""))+'</span><button type="button" data-p="'+esc(f.path)+'">Abrir</button></li>'}).join("")+'</ul></div>';
+    $("extra").querySelectorAll("button[data-p]").forEach(function(b){b.onclick=async function(){try{var j=await ler(b.dataset.p);importaJson(JSON.parse(b64dec(j.content)))}catch(e){msg("Erro ao abrir: "+e.message,"err")}}})}
+  catch(e){msg("Não consegui listar ("+e.message+").","err")}}
+function importaJson(s){if(!s||!s.L||!s.id)throw new Error("arquivo inválido");s.st=s.st||{};s.la=s.la||{};s.qm=s.qm||{};s.cur=s.cur||0;DB.sess[s.id]=s;$("extra").innerHTML="";abrir(s.id);msg("Aberto: "+titulo(s),"bom")}
+/* texto do botão "Copiar dados para o relatório" da boleta antiga */
+function importaTexto(t){var lin=t.trim().split(/\r?\n/),cab=lin.shift(),hd=lin.shift();var nome=(cab||"").replace(/^RELATORIO\s+/i,"").trim();
+  var lotes=[],st={},la={},qm={};lin.forEach(function(x){var c=x.split(";");if(c.length<9)return;var l=+c[1];
+    lotes.push({o:+c[0],l:l,q:+c[2],s:c[3]==="F"?"F":"M",r:c[4],i:c[5],p:+c[6],v:c[7]});
+    if(c[8]==="VENDIDO")st[l]="V";else if(c[8]==="RETORNO")st[l]="R";var n=lnum(c[9]);if(n!=null)la[l]=n;if(c[10])qm[l]=c[10].trim()});
+  if(!lotes.length)throw new Error("texto sem lotes");
+  var s=novaSessao(($("nNome")&&$("nNome").value.trim())||cap(nome)||"Leilão",$("nData")?$("nData").value:"",lotes,QUEM_PADRAO.slice());s.st=st;s.la=la;s.qm=qm;
+  DB.sess[s.id]=s;$("extra").innerHTML="";abrir(s.id);msg("Importado: "+lotes.length+" lotes.","bom")}
+$("arq").onchange=function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){try{var t=String(rd.result);if(/^\s*\{/.test(t))importaJson(JSON.parse(t));else importaTexto(t)}catch(er){msg("Não consegui abrir: "+er.message,"err")}};rd.readAsText(f);e.target.value=""};
+
+/* ---------- contas do relatório ---------- */
+function kgInfo(v,x){if(!v||!x.p)return null;var k=v*3/x.p;return {k:k,c:k>17?"g":k>=16?"y":"o"}}
+function kgHtml(v,x){var i=kgInfo(v,x);return i?'<span class="kg '+i.c+'">R$ '+f2(i.k)+'/kg</span>':""}
+function grupo(lst){var o={lotes:0,cab:0,fat:0,kg:0};lst.forEach(function(x){var v=S.la[x.l]||0;o.lotes++;o.cab+=x.q;o.fat+=v*3*x.q;if(v)o.kg+=x.q*x.p});o.mc=o.cab?o.fat/o.cab:0;o.mk=o.kg?o.fat/o.kg:0;return o}
+function contas(){
+  var V=L.filter(function(x){return S.st[x.l]==="V"}),R=L.filter(function(x){return S.st[x.l]==="R"});
+  var g=grupo(V),cabT=L.reduce(function(a,x){return a+x.q},0);
+  var porSexo={M:grupo(V.filter(function(x){return x.s==="M"})),F:grupo(V.filter(function(x){return x.s==="F"}))};
+  var rac={};V.forEach(function(x){(rac[x.r]=rac[x.r]||[]).push(x)});var porRaca=Object.keys(rac).map(function(k){var o=grupo(rac[k]);o.nome=k;return o}).sort(function(a,b){return b.mk-a.mk});
+  var porQuem=quem().map(function(n){var l=V.filter(function(x){return S.qm[x.l]===n});var o=grupo(l);o.nome=n;o.ls=l.map(function(x){return z(x.l)});return o});
+  var sem=V.filter(function(x){return !S.qm[x.l]});if(sem.length){var o=grupo(sem);o.nome="Sem nome";o.ls=[];porQuem.push(o)}
+  var faixa={g:0,y:0,o:0};V.forEach(function(x){var i=kgInfo(S.la[x.l],x);if(i)faixa[i.c]++});
+  var comKg=V.filter(function(x){return kgInfo(S.la[x.l],x)}).sort(function(a,b){return kgInfo(S.la[b.l],b).k-kgInfo(S.la[a.l],a).k});
+  var ret=grupo(R);
+  return {V:V,R:R,g:g,cabT:cabT,porSexo:porSexo,porRaca:porRaca,porQuem:porQuem,faixa:faixa,melhores:comKg.slice(0,5),piores:comKg.slice(-5),ret:ret,falta:L.length-V.length-R.length};
+}
+
+/* ---------- PDF ---------- */
+function gerarPdf(){
+  var J=window.jspdf.jsPDF,doc=new J({unit:"mm",format:"a4"}),c=contas(),W=210,y=16,VERDE=[13,92,35];
+  function h(t){if(y>255){doc.addPage();y=16}doc.setFont("helvetica","bold");doc.setFontSize(12.5);doc.setTextColor(13,92,35);doc.text(t,14,y);y+=2}
+  function p(t){doc.setFont("helvetica","normal");doc.setFontSize(9.5);doc.setTextColor(40);var ls=doc.splitTextToSize(t,W-28);doc.text(ls,14,y+4);y+=4+ls.length*4.2}
+  function tb(head,body,opt){doc.autoTable(Object.assign({startY:y+2,head:[head],body:body,theme:"grid",margin:{left:14,right:14},styles:{fontSize:8.5,cellPadding:1.6},headStyles:{fillColor:VERDE,textColor:255},alternateRowStyles:{fillColor:[240,244,238]}},opt||{}));y=doc.lastAutoTable.finalY+7}
+  doc.setFillColor(13,92,35);doc.rect(0,0,W,24,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("Conferência Boleta",14,11);
+  doc.setFontSize(10.5);doc.setFont("helvetica","normal");doc.text(titulo(S),14,18);doc.setFontSize(8);doc.text("Leiloingá Leilões · gerado em "+new Date().toLocaleString("pt-BR"),W-14,18,{align:"right"});y=32;
+  h("Resumo");
+  p("O leilão faturou "+brl(c.g.fat)+" com "+c.V.length+" dos "+L.length+" lotes vendidos ("+c.g.cab+" de "+c.cabT+" cabeças"+(c.cabT?", "+Math.round(c.g.cab/c.cabT*100)+"%":"")+"). A comissão de 0,15% sobre o valor bruto é "+brl(c.g.fat*COMISSAO)+"."+(c.falta?" Atenção: "+c.falta+" lote(s) ainda sem marcação.":""));
+  tb(["Item","Valor"],[["Faturamento bruto",brl(c.g.fat)],["Comissão (0,15%)",brl(c.g.fat*COMISSAO)],["Lotes vendidos",c.V.length+" de "+L.length],["Cabeças vendidas",c.g.cab+" de "+c.cabT],["Média por cabeça",brl(c.g.mc)],["Média por kg","R$ "+f2(c.g.mk)+"/kg"],["Retornos",c.R.length+" lotes, "+c.ret.cab+" cabeças"]],{columnStyles:{1:{halign:"right"}},tableWidth:110});
+  p("Valor de cada lote = lance × 3 × número de cabeças. R$/kg = (lance × 3) ÷ peso médio do lote.");
+  y+=3;h("Machos, fêmeas e raças");
+  function lg(n,o){return [n,o.lotes,o.cab,brl(o.fat),brl(o.mc),"R$ "+f2(o.mk)]}
+  var dir={1:{halign:"right"},2:{halign:"right"},3:{halign:"right"},4:{halign:"right"},5:{halign:"right"}};
+  tb(["Grupo","Lotes","Cabeças","Faturamento","Média/cabeça","Média R$/kg"],[lg("Machos",c.porSexo.M),lg("Fêmeas",c.porSexo.F)],{columnStyles:dir});
+  tb(["Raça","Lotes","Cabeças","Faturamento","Média/cabeça","Média R$/kg"],c.porRaca.map(function(o){return lg(cap(o.nome),o)}),{columnStyles:dir});
+  p("Pelas faixas da lista: "+c.faixa.g+" lotes acima de R$ 17/kg (verde), "+c.faixa.y+" entre R$ 16 e R$ 17 (amarelo) e "+c.faixa.o+" abaixo de R$ 16 (laranja).");
+  y+=3;h("Por corretor");
+  tb(["Corretor","Lotes vendidos","Cabeças","Faturamento"],c.porQuem.map(function(o){return [o.nome,o.lotes+(o.ls.length?" ("+o.ls.join(", ")+")":""),o.cab,brl(o.fat)]}),{columnStyles:{2:{halign:"right"},3:{halign:"right"}}});
+  if(c.melhores.length){h("Destaques");var dl=function(t,x){return [t,z(x.l),x.s,cap(x.r),x.p+" kg","R$ "+f2(kgInfo(S.la[x.l],x).k)]};
+    tb(["","Lote","Sexo","Raça","Peso médio","R$/kg"],c.melhores.map(function(x){return dl("Melhor",x)}).concat(c.piores.slice().reverse().filter(function(x){return c.melhores.indexOf(x)<0}).reverse().map(function(x){return dl("Pior",x)})),{columnStyles:{4:{halign:"right"},5:{halign:"right"}}});}
+  h("Retornos");
+  if(c.R.length){p(c.R.length+" lote(s) voltaram ("+c.ret.cab+" cabeças). Pelo último lance valeriam "+brl(c.ret.fat)+"; esse valor não entra no faturamento.");
+    tb(["Lote","Cabeças","Raça","Último lance","Valor pelo lance","R$/kg","Vendedor"],c.R.map(function(x){var v=S.la[x.l]||0,i=kgInfo(v,x);return [z(x.l),x.q+" "+x.s,cap(x.r),v?fmt(v):"—",brl(v*3*x.q),i?f2(i.k):"—",cap(x.v)]}))}
+  else p("Nenhum lote voltou.");
+  doc.addPage("a4","landscape");y=14;h("Tabela completa dos lotes");
+  tb(["Ordem","Lote","Qtde","Sexo","Raça","Idade","Peso","Vendedor","Situação","Lance","Valor/cab.","Valor do lote","R$/kg","Corretor"],
+    L.map(function(x){var v=S.la[x.l]||0,s=S.st[x.l],i=kgInfo(v,x);return [x.o+"º",z(x.l),x.q,x.s,x.r,x.i,x.p+" kg",cap(x.v),s==="V"?"Vendido":s==="R"?"Retorno":"—",v?f2(v):"—",v?brl(v*3):"—",s==="V"&&v?brl(v*3*x.q):"—",i?f2(i.k):"—",S.qm[x.l]||""]}),
+    {styles:{fontSize:7.5,cellPadding:1.2},didParseCell:function(d){if(d.section==="body"&&d.column.index===8){if(d.cell.raw==="Retorno")d.cell.styles.textColor=[194,80,31];else if(d.cell.raw==="Vendido")d.cell.styles.textColor=VERDE}}});
+  var n=doc.getNumberOfPages();for(var k=1;k<=n;k++){doc.setPage(k);doc.setFontSize(7.5);doc.setTextColor(120);var pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight();doc.text("Conferência Boleta · "+titulo(S)+" · página "+k+" de "+n,pw/2,ph-6,{align:"center"})}
+  return doc;
+}
+function nomeArq(){return "conferencia-boleta-"+S.id}
+$("bPdf").onclick=async function(){if(!S){msg("Escolha ou crie um leilão.","err");return}
+  try{var doc=gerarPdf(),blob=doc.output("blob"),nome=nomeArq()+".pdf",f=new File([blob],nome,{type:"application/pdf"});
+    if(navigator.canShare&&navigator.canShare({files:[f]})&&/Android|iPhone|iPad/i.test(navigator.userAgent)){try{await navigator.share({files:[f],title:titulo(S)});return}catch(e){if(e.name==="AbortError")return}}
+    var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nome;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000);msg("PDF gerado: "+nome,"bom")}
+  catch(e){msg("Erro ao gerar o PDF: "+e.message,"err")}};
+$("bGh").onclick=async function(){if(!S){msg("Escolha ou crie um leilão.","err");return}if(precisaToken())return;
+  var b=this;b.disabled=true;msg("Salvando no GitHub…");
+  try{var base="boletas/"+S.id,m="Conferência Boleta: "+titulo(S);
+    await gravar(base+".json",b64enc(JSON.stringify(S,null,1)+"\n"),m);
+    var pdf=gerarPdf().output("datauristring").split(",")[1];await gravar(base+".pdf",pdf,m+" (PDF)");
+    S.salvoGh=new Date().toISOString();salva();msg("Salvo no GitHub ("+GH.repo+"/"+base+".pdf).","bom")}
+  catch(e){msg("Não consegui salvar ("+e.message+"). Confira o token.","err")}
+  b.disabled=false};
+
+/* ---------- telas (iguais à boleta da pista) ---------- */
+function proximo(de){for(var i=de;i<L.length;i++)if(!S.st[L[i].l])return i;for(i=0;i<L.length;i++)if(!S.st[L[i].l])return i;return -1}
+function totais(){var c={V:[0,0],R:[0,0],F:[0,0]};L.forEach(function(x){var k=(S&&S.st[x.l])||"F";c[k][0]++;c[k][1]+=x.q});
+["V","R","F"].forEach(function(k){var id={V:"v",R:"r",F:"f"}[k];$("n"+id).textContent=c[k][0];$("c"+id).textContent=c[k][1]+" cab."})}
+function render(){totais();var m=$("main");m.textContent="";
+  if(!S){m.innerHTML='<div class="vazio">Toque em <b>+ Novo</b> para começar um leilão.</div>';$("pos").textContent="";return}
+  if(tab==="pista")pista(m);else lista(m,tab)}
+function pista(m){
+  if(S.cur<0||S.cur>=L.length||S.st[L[S.cur].l]&&!pend)S.cur=proximo(Math.max(0,S.cur));
+  if(S.cur<0){m.innerHTML='<div class="fim"><b>Todos os lotes marcados</b>Veja nas abas Vendidos e Retorno, ou exporte o PDF.</div>';$("pos").textContent="";return}
+  var x=L[S.cur],v=S.la[x.l];if(v==null)v=0;
+  $("pos").textContent=x.o+"º de "+L.length;
+  var d=document.createElement("div");d.className="lote "+(pend||"");
+  d.innerHTML='<div class="lh"><div class="ln">Lote '+z(x.l)+'</div><div class="lo">'+x.o+'º</div></div>'+
+   '<div class="ld"><b>'+x.q+' '+(x.s==="M"?"machos":"fêmeas")+'</b> · '+x.p+' kg · '+esc(x.i)+'</div><div class="lv">'+esc(x.r)+(x.v?' · '+esc(x.v):'')+'</div>'+
+   '<div class="bid"><label for="lance">Lance (R$)</label><input id="lance" inputmode="decimal" value="'+(v?fmt(v):"")+'" placeholder="0"><div class="x3">× 3 = <b id="res"></b><span id="kg"></span></div>'+(pend==="V"?'<div class="vlote">Valor do lote ('+x.q+' cab.)<b id="vl"></b></div>':"")+'</div>'+
+   '<div class="inc"><button data-d="-10">−10</button><button data-d="-5">−5</button><button class="mais" data-d="5">+5</button><button class="mais" data-d="10">+10</button></div>'+
+   '<div class="acao"><button class="bv" aria-pressed="'+(pend==="V")+'">VENDIDO</button><button class="br" aria-pressed="'+(pend==="R")+'">RETORNO</button></div>'+
+   '<div class="quem">'+quem().map(function(n){return '<button data-q="'+esc(n)+'" aria-pressed="'+(S.qm[x.l]===n)+'">'+esc(n)+'</button>'}).join("")+'</div>'+
+   '<button class="ok"'+(pend?"":" disabled")+'>OK · próximo lote</button>'+
+   '<div class="nav"><button id="ant">◀ lote anterior</button><button id="pula">pular ▶</button></div>';
+  m.appendChild(d);
+  var inp=d.querySelector("#lance"),res=d.querySelector("#res");
+  function mostra(){var n=S.la[x.l]||0;res.textContent=brl(n*3);d.querySelector("#kg").innerHTML=kgHtml(n,x);var vl=d.querySelector("#vl");if(vl)vl.textContent=brl(n*3*x.q)}
+  mostra();
+  inp.oninput=function(){var n=lnum(inp.value);if(n==null)delete S.la[x.l];else S.la[x.l]=n;salva();mostra()};
+  d.querySelectorAll(".inc button").forEach(function(b){b.onclick=function(){var n=(S.la[x.l]||0)+Number(b.dataset.d);if(n<0)n=0;S.la[x.l]=Math.round(n*100)/100;inp.value=fmt(S.la[x.l]);salva();mostra()}});
+  d.querySelectorAll(".quem button").forEach(function(b){b.onclick=function(){if(S.qm[x.l]===b.dataset.q)delete S.qm[x.l];else S.qm[x.l]=b.dataset.q;salva();d.querySelectorAll(".quem button").forEach(function(o){o.setAttribute("aria-pressed",S.qm[x.l]===o.dataset.q)})}});
+  d.querySelector(".bv").onclick=function(){pend=pend==="V"?null:"V";render()};
+  d.querySelector(".br").onclick=function(){pend=pend==="R"?null:"R";render()};
+  d.querySelector(".ok").onclick=function(){if(!pend)return;S.st[x.l]=pend;pend=null;S.cur=proximo(S.cur+1);salva();render();window.scrollTo(0,0)};
+  d.querySelector("#ant").onclick=function(){pend=null;for(var i=S.cur-1;i>=0;i--){if(!S.st[L[i].l]){S.cur=i;break}}salva();render()};
+  d.querySelector("#pula").onclick=function(){pend=null;for(var i=S.cur+1;i<L.length;i++){if(!S.st[L[i].l]){S.cur=i;break}}salva();render()};
+}
+function lista(m,k){
+  $("pos").textContent="";
+  var it=L.filter(function(x){return S.st[x.l]===k}),ul=document.createElement("ul");
+  if(!it.length){m.innerHTML='<div class="vazio">Nenhum lote '+(k==="V"?"vendido":"em retorno")+' ainda.</div>';return}
+  var soma=0,cab=0,sem=0,pq={};
+  it.forEach(function(x){var v=S.la[x.l]||0;soma+=v*3*x.q;if(S.qm[x.l])pq[S.qm[x.l]]=(pq[S.qm[x.l]]||0)+v*3*x.q;cab+=x.q;if(!v)sem++;var li=document.createElement("li");
+    li.innerHTML='<div><b>Lote '+z(x.l)+'</b> · '+x.q+' '+x.s+' · '+x.p+' kg<div class="d">'+x.o+'º · '+esc(x.r)+(x.v?' · '+esc(x.v):'')+(S.qm[x.l]?' · <b>'+esc(S.qm[x.l])+'</b>':'')+'</div></div><div class="val">'+(v?"R$ "+fmt(v)+" × 3 = "+brl(v*3)+"/cab.<b>"+brl(v*3*x.q)+"</b>":"sem lance")+kgHtml(v,x)+'</div>';
+    var b=document.createElement("button");b.textContent="Voltar p/ pista";b.onclick=function(){delete S.st[x.l];S.cur=L.indexOf(x);pend=null;tab="pista";marcaTab();salva();render()};
+    li.appendChild(b);ul.appendChild(li)});
+  if(k==="V"){var f=document.createElement("div");f.className="fat";f.innerHTML='<div>Faturamento total<b>'+brl(soma)+'</b></div><div class="cm">Minha comissão (0,15%)<b>'+brl(soma*COMISSAO)+'</b></div><small>'+it.length+' lotes · '+cab+' cabeças · lance × 3 × nº de cabeças'+(sem?' · '+sem+' lote(s) sem lance não entram na soma':'')+'</small><div class="porq">'+quem().map(function(n){return '<div>'+esc(n)+'<b>'+brl(pq[n]||0)+'</b></div>'}).join('')+'</div>';m.appendChild(f)}
+  m.appendChild(ul);
+  var lb=document.createElement("button");lb.className="limpa";lb.textContent="Limpar marcações e lances deste leilão";
+  lb.onclick=function(){if(!arm){arm=true;lb.textContent="Toque de novo para limpar tudo";setTimeout(function(){arm=false;render()},4000);return}S.st={};S.la={};S.qm={};S.cur=0;arm=false;salva();tab="pista";marcaTab();render()};
+  m.appendChild(lb);
+}
+function marcaTab(){document.querySelectorAll(".tabs button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===tab)})}
+document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){tab=b.dataset.t;pend=null;marcaTab();render();window.scrollTo(0,0)}});
+montaSel();if(DB.atual&&DB.sess[DB.atual])abrir(DB.atual);else{var ks=Object.keys(DB.sess);if(ks.length)abrir(ks[0]);else render()}
+</script></body></html>
