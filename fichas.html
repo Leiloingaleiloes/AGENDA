@@ -469,18 +469,30 @@ td input:focus{border-color:var(--destaque)}
 
 <div class="modal" id="conexao" hidden role="dialog" aria-modal="true" aria-labelledby="t-con">
   <div class="caixa">
-    <h2 id="t-con" style="color:var(--accent)">Salvar na nuvem (GitHub)</h2>
-    <p class="note" style="margin:0 0 12px">Com a chave, os lotes ficam iguais no computador e no celular, e a câmera envia fotos e vídeos para o site dos produtores. A chave fica guardada só neste aparelho. Faça isso uma vez em cada aparelho.</p>
-    <div class="ff" style="grid-template-columns:minmax(0,1fr)">
+    <h2 id="t-con" style="color:var(--accent)">Conectar este aparelho</h2>
+    <div id="c-entrar">
+      <p class="note" style="margin:0 0 12px">Digite a <b>senha do ADM</b>. Os lotes ficam iguais em todos os aparelhos e a câmera envia fotos e vídeos para o site dos produtores.</p>
+      <div class="ff" style="grid-template-columns:minmax(0,1fr)"><label>Senha do ADM<input id="c-senha" type="password" autocomplete="current-password" spellcheck="false" style="text-transform:none"></label></div>
+      <div class="row" style="margin-top:10px"><button class="btn pri" type="button" id="c-entrar-ok" style="flex:1">Entrar</button></div>
+    </div>
+    <div id="c-conectado" hidden>
+      <p class="note" style="margin:0 0 8px">✓ Este aparelho está conectado.</p>
+      <p class="note" style="margin:0 0 8px"><b>Senha para os outros aparelhos:</b> crie (ou troque) uma senha aqui. Nos outros celulares e computadores, basta digitar essa senha, sem a chave do GitHub. Use pelo menos 10 letras/números, por exemplo uma frase.</p>
+      <div class="ff" style="grid-template-columns:minmax(0,1fr)"><label>Nova senha do ADM<input id="c-nova" type="password" autocomplete="new-password" spellcheck="false" style="text-transform:none"></label></div>
+      <div class="row" style="margin-top:10px"><button class="btn pri" type="button" id="c-nova-ok" style="flex:1">Salvar senha</button></div>
+    </div>
+    <details id="c-avancado" style="margin-top:14px"><summary class="note" style="cursor:pointer">Usar a chave do GitHub</summary>
+    <div class="ff" style="grid-template-columns:minmax(0,1fr);margin-top:8px">
       <label>Chave do GitHub<input id="c-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" style="text-transform:none"></label>
       <label>Repositório privado dos dados<input id="c-repo" autocomplete="off" spellcheck="false" value="ADM" style="text-transform:none"></label>
     </div>
+    <div class="row" style="margin-top:10px"><button class="btn" type="button" id="c-ok">Conectar com a chave</button></div>
+    </details>
     <div class="alerta" id="c-erro" hidden></div>
     <div class="row" style="margin-top:14px;justify-content:space-between">
       <button class="btn danger" type="button" id="c-sair" hidden>Desconectar este aparelho</button>
       <span style="flex:1"></span>
       <button class="btn" type="button" id="c-fechar">Fechar</button>
-      <button class="btn pri" type="button" id="c-ok">Conectar</button>
     </div>
   </div>
 </div>
@@ -1226,8 +1238,46 @@ async function iniciarNuvem(){
 function abrirConexao(){
   $("c-token").value=GH.token?"••••••••••••":"";$("c-repo").value=GH.repo||"ADM";
   $("c-erro").hidden=true;$("c-sair").hidden=!GH.token;$("conexao").hidden=false;
-  setTimeout(function(){$("c-token").focus();},50);
+  $("c-entrar").hidden=!!GH.token;$("c-conectado").hidden=!GH.token;$("c-avancado").open=false;
+  $("c-senha").value="";$("c-nova").value="";
+  setTimeout(function(){(GH.token?$("c-nova"):$("c-senha")).focus();},50);
 }
+/* ---------- senha do ADM: a chave do GitHub vai cifrada (AES-GCM, PBKDF2) no repositório LOTES;
+   cada aparelho novo só digita a senha. Sem a senha, o arquivo não serve para nada. ---------- */
+var CHAVE_ARQ="adm-chave.json",ITER=600000;
+function b64u(buf){var s="",b=new Uint8Array(buf);for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s);}
+function deb64(s){var r=atob(s),u=new Uint8Array(r.length);for(var i=0;i<r.length;i++)u[i]=r.charCodeAt(i);return u;}
+async function chaveDe(senha,sal,iter){var base=await crypto.subtle.importKey("raw",new TextEncoder().encode(senha),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt:sal,iterations:iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);}
+async function cifrar(senha,obj){var sal=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),k=await chaveDe(senha,sal,ITER);
+  var ct=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},k,new TextEncoder().encode(JSON.stringify(obj)));
+  return {v:1,iter:ITER,sal:b64u(sal),iv:b64u(iv),dados:b64u(ct)};}
+async function decifrar(senha,c){var k=await chaveDe(senha,deb64(c.sal),c.iter||ITER);
+  var pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:deb64(c.iv)},k,deb64(c.dados));return JSON.parse(new TextDecoder().decode(pt));}
+$("c-entrar-ok").addEventListener("click",async function(){
+  var senha=$("c-senha").value;if(!senha)return erroConexao("Digite a senha do ADM.");
+  var b=this;b.disabled=true;b.textContent="Conferindo…";$("c-erro").hidden=true;
+  try{
+    var r=await fetch("https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/"+CHAVE_ARQ+"?t="+Date.now(),{cache:"no-store"});
+    if(!r.ok)throw new Error("Ainda não existe senha do ADM. Num aparelho que já está conectado, toque na nuvem e crie a senha.");
+    var obj;try{obj=await decifrar(senha,await r.json());}catch(e){throw new Error("Senha errada. Confira e tente de novo.");}
+    GH.token=obj.token;GH.repo=obj.repo||"ADM";
+    try{localStorage.setItem("leiloinga-adm-gh",JSON.stringify({token:GH.token,repo:GH.repo}));}catch(e){}
+    $("conexao").hidden=true;await iniciarNuvem();
+    if($("nuvemBtn").classList.contains("ok"))toast("Conectado. Os lotes agora ficam iguais em todos os aparelhos.",6000);
+    else toast("A senha abriu, mas a chave guardada não funcionou (pode ter vencido). Num aparelho conectado, cole uma chave nova e salve a senha de novo.",9000);
+  }catch(e){erroConexao(e.message||"Não deu para conectar.");}
+  finally{b.disabled=false;b.textContent="Entrar";}
+});
+$("c-nova-ok").addEventListener("click",async function(){
+  var senha=$("c-nova").value;if(senha.length<10)return erroConexao("Use pelo menos 10 letras ou números (pode ser uma frase).");
+  var b=this;b.disabled=true;b.textContent="Salvando…";$("c-erro").hidden=true;
+  try{var c=await cifrar(senha,{token:GH.token,repo:GH.repo});
+    await gravarTexto(PUB,CHAVE_ARQ,JSON.stringify(c)+"\n","ADM: senha para conectar outros aparelhos");
+    $("conexao").hidden=true;toast("Senha salva. Nos outros aparelhos, toque na nuvem e digite essa senha.",8000);}
+  catch(e){erroConexao("Não deu para salvar a senha ("+(e.message||e)+").");}
+  finally{b.disabled=false;b.textContent="Salvar senha";}
+});
 function erroConexao(t){var a=$("c-erro");a.textContent=t;a.hidden=false;}
 $("nuvemBtn").addEventListener("click",abrirConexao);
 $("c-fechar").addEventListener("click",function(){$("conexao").hidden=true;});
@@ -1257,7 +1307,7 @@ $("c-ok").addEventListener("click",async function(){
     await iniciarNuvem();
     if($("nuvemBtn").classList.contains("ok"))toast("Conectado. Os lotes agora ficam iguais em todos os aparelhos conectados.",6000);
   }catch(e){GH.token=antes.token;GH.repo=antes.repo;erroConexao(e.message||"Não deu para conectar.");}
-  finally{b.disabled=false;b.textContent="Conectar";}
+  finally{b.disabled=false;b.textContent="Conectar com a chave";}
 });
 
 /* ---------- abas ---------- */

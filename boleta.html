@@ -153,12 +153,24 @@ async function gravar(p,b64,m){var at=await ler(p);var body={message:m,content:b
   var r=await api(caminho(p),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok)throw new Error("GitHub "+r.status)}
 function precisaToken(){if(GH.token)return false;telaToken();return true}
 function telaToken(){
-  $("extra").innerHTML='<div class="painel"><h3>Conectar ao GitHub</h3><p>Use o mesmo token do Lotes · ADM. Se você já conectou o ADM neste aparelho, ele é usado sozinho.</p>'+
-  '<label for="tk">Token</label><input id="tk" type="password" autocomplete="off"><label for="rp">Repositório privado</label><input id="rp" value="'+esc(GH.repo)+'">'+
-  '<div class="row"><button class="bt" id="tkX" type="button">Cancelar</button><button class="bt pri" id="tkOk" type="button">Conectar</button></div></div>';
+  $("extra").innerHTML='<div class="painel"><h3>Conectar este aparelho</h3><p>Digite a senha do ADM (a mesma do Lotes · ADM).</p>'+
+  '<label for="sn">Senha do ADM</label><input id="sn" type="password" autocomplete="current-password">'+
+  '<div class="row"><button class="bt" id="tkX" type="button">Cancelar</button><button class="bt pri" id="snOk" type="button">Entrar</button></div>'+
+  '<details style="margin-top:10px"><summary style="font-size:.85rem;color:var(--mut)">Usar a chave do GitHub</summary><label for="tk">Chave</label><input id="tk" type="password" autocomplete="off"><label for="rp">Repositório privado</label><input id="rp" value="'+esc(GH.repo)+'"><div class="row"><span></span><button class="bt" id="tkOk" type="button">Conectar com a chave</button></div></details></div>';
   $("tkX").onclick=function(){$("extra").innerHTML=""};
-  $("tkOk").onclick=function(){var t=$("tk").value.trim();if(!t)return;GH.token=t;GH.repo=$("rp").value.trim()||"ADM";
-    try{localStorage.setItem("leiloinga-adm-gh",JSON.stringify({token:GH.token,repo:GH.repo}))}catch(e){}$("extra").innerHTML="";msg("GitHub conectado.","bom")};
+  function guarda(){try{localStorage.setItem("leiloinga-adm-gh",JSON.stringify({token:GH.token,repo:GH.repo}))}catch(e){}$("extra").innerHTML="";msg("Aparelho conectado.","bom")}
+  $("snOk").onclick=async function(){var s=$("sn").value;if(!s)return;msg("Conferindo a senha…");
+    try{var r=await fetch("https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/adm-chave.json?t="+Date.now(),{cache:"no-store"});
+      if(!r.ok)throw new Error("A senha do ADM ainda não foi criada (crie no Lotes · ADM, no botão da nuvem).");
+      var c=await r.json(),o;try{o=await decifra(s,c)}catch(e){throw new Error("Senha errada.")}
+      GH.token=o.token;GH.repo=o.repo||"ADM";guarda()}catch(e){msg(e.message,"err")}};
+  $("tkOk").onclick=function(){var t=$("tk").value.trim();if(!t)return;GH.token=t;GH.repo=$("rp").value.trim()||"ADM";guarda()};
+}
+async function decifra(senha,c){
+  function d64(s){var r=atob(s),u=new Uint8Array(r.length);for(var i=0;i<r.length;i++)u[i]=r.charCodeAt(i);return u}
+  var base=await crypto.subtle.importKey("raw",new TextEncoder().encode(senha),"PBKDF2",false,["deriveKey"]);
+  var k=await crypto.subtle.deriveKey({name:"PBKDF2",salt:d64(c.sal),iterations:c.iter||600000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:d64(c.iv)},k,d64(c.dados))));
 }
 
 /* ---------- novo leilão ---------- */
