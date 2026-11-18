@@ -1,25 +1,25 @@
 {
  "name": "Propagandas Leiloingá",
  "short_name": "Propagandas",
- "start_url": "./propagandas.html",
- "scope": "./",
+ "start_url": "../propagandas.html",
+ "scope": "../",
  "display": "standalone",
  "background_color": "#F4F6F2",
  "theme_color": "#2E6A3E",
  "lang": "pt-BR",
  "icons": [
   {
-   "src": "icones/propagandas.svg",
+   "src": "propagandas.svg",
    "sizes": "any",
    "type": "image/svg+xml"
   },
   {
-   "src": "icones/propagandas-512.png",
+   "src": "propagandas-512.png",
    "sizes": "512x512",
    "type": "image/png"
   },
   {
-   "src": "icones/propagandas-1024.png",
+   "src": "propagandas-1024.png",
    "sizes": "1024x1024",
    "type": "image/png"
   }
