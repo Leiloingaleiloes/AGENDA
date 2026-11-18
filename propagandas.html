@@ -125,6 +125,7 @@ h1 span { color: var(--accent); }
   </div>
   <div class="cidades" id="cidades" role="group" aria-label="Cidade"></div>
   <div class="cidades anos" id="anos" role="group" aria-label="Ano"></div>
+  <div class="cidades anos" id="fmts" role="group" aria-label="Formato"></div>
   <div id="lista"></div>
 </div>
 <div id="vis"></div>
@@ -135,7 +136,8 @@ h1 span { color: var(--accent); }
   var MESL = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
   var SEM = ["dom","seg","ter","qua","qui","sex","sáb"];
   var REPET = { "É amanhã": 1, "É hoje": 1, "Contagem": 1 };   /* posts repetitivos: só aparecem se o leilão não tiver outro */
-  var LEI = [], porCid = {}, cidade = "", ano = "", lim = 24, VIS = null;
+  var LEI = [], porCid = {}, cidade = "", ano = "", fmt = "", lim = 24, VIS = null;
+  function tipo(l) { return l.mostrar.length && l.yt.length ? "ambos" : l.mostrar.length ? "ig" : "yt"; }
 
   function d(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
   function dias(a, b) { return Math.abs(d(a) - d(b)) / 864e5; }
@@ -168,7 +170,9 @@ h1 span { color: var(--accent); }
       var principais = l.artes.filter(function (a) { return !REPET[a.chamada]; });
       l.mostrar = (principais.length ? principais : l.artes).sort(function (a, b) {
         var pa = a.fonte === "site" ? 1 : 0, pb = b.fonte === "site" ? 1 : 0; return pa - pb || (a.publicado || "").localeCompare(b.publicado || ""); });
-      l.nome = nomeBom(l.yt.length ? l.yt[0].titulo : (principais[0] || l.artes[0] || {}).leilao);
+      l.yt.sort(function (a, b) { return (a.canal ? 1 : 0) - (b.canal ? 1 : 0); });
+      var ytBom = l.yt.filter(function (v) { return !v.canal; })[0], ig0 = principais[0] || l.artes[0];
+      l.nome = nomeBom(ytBom ? ytBom.titulo : ig0 ? ig0.leilao : "Leilão em " + l.cidade);
       l.busca = sem([l.nome, l.cidade, MESL[d(l.data).getMonth()], d(l.data).getFullYear(), curta(l.data)].concat(l.nomes).join(" "));
     });
     return out.sort(function (a, b) { return b.data.localeCompare(a.data); });
@@ -189,7 +193,7 @@ h1 span { color: var(--accent); }
   var VISTA = [];
   function render() {
     var f = sem(document.getElementById("busca").value.trim());
-    VISTA = LEI.filter(function (l) { return (!cidade || l.cidade === cidade) && (!ano || l.data.slice(0, 4) === ano) && (!f || f.split(/\s+/).every(function (w) { return l.busca.indexOf(w) >= 0; })); });
+    VISTA = LEI.filter(function (l) { return (!cidade || l.cidade === cidade) && (!ano || l.data.slice(0, 4) === ano) && (!fmt || tipo(l) === fmt) && (!f || f.split(/\s+/).every(function (w) { return l.busca.indexOf(w) >= 0; })); });
     var ambos = VISTA.filter(function (l) { return l.mostrar.length && l.yt.length; }).length;
     var h = '<div class="titcid"><h2>' + esc(cidade || "Todas as cidades") + (ano ? " · " + ano : "") + '</h2><span>' + VISTA.length + (VISTA.length === 1 ? " leilão" : " leilões") + ' · ' + ambos + ' com os dois formatos</span></div>';
     h += VISTA.length ? '<div class="leiloes">' + VISTA.slice(0, lim).map(cartao).join("") + '</div>' : '<p class="vazio">Nenhum leilão encontrado.</p>';
@@ -203,14 +207,22 @@ h1 span { color: var(--accent); }
     var el = document.getElementById("cidades");
     el.innerHTML = cs.map(function (c) { return '<button type="button" class="chip" data-c="' + esc(c) + '" aria-pressed="' + (c === cidade) + '">' + esc(c) + ' <b>' + porCid[c] + '</b></button>'; }).join("") +
       '<button type="button" class="chip" data-c="" aria-pressed="' + (!cidade) + '">Todas <b>' + LEI.length + '</b></button>';
-    el.onclick = function (e) { var b = e.target.closest(".chip"); if (!b) return; cidade = b.getAttribute("data-c"); ano = ""; lim = 24; chipsCidade(); chipsAno(); render(); };
+    el.onclick = function (e) { var b = e.target.closest(".chip"); if (!b) return; cidade = b.getAttribute("data-c"); ano = ""; lim = 24; chipsCidade(); chipsAno(); chipsFmt(); render(); };
   }
   function chipsAno() {
     var cont = {}; LEI.forEach(function (l) { if (!cidade || l.cidade === cidade) { var a = l.data.slice(0, 4); cont[a] = (cont[a] || 0) + 1; } });
     var as = Object.keys(cont).sort().reverse(), el = document.getElementById("anos");
     el.innerHTML = '<button type="button" class="chip" data-a="" aria-pressed="' + (!ano) + '">Todos os anos</button>' +
       as.map(function (a) { return '<button type="button" class="chip" data-a="' + a + '" aria-pressed="' + (a === ano) + '">' + a + ' <b>' + cont[a] + '</b></button>'; }).join("");
-    el.onclick = function (e) { var b = e.target.closest(".chip"); if (!b) return; ano = b.getAttribute("data-a"); lim = 24; chipsAno(); render(); };
+    el.onclick = function (e) { var b = e.target.closest(".chip"); if (!b) return; ano = b.getAttribute("data-a"); lim = 24; chipsAno(); chipsFmt(); render(); };
+  }
+
+  function chipsFmt() {
+    var cont = { "": 0, ig: 0, yt: 0, ambos: 0 };
+    LEI.forEach(function (l) { if ((!cidade || l.cidade === cidade) && (!ano || l.data.slice(0, 4) === ano)) { cont[""]++; cont[tipo(l)]++; } });
+    var op = [["", "Todos os formatos"], ["ambos", "Instagram + YouTube"], ["ig", "Só Instagram"], ["yt", "Só YouTube"]], el = document.getElementById("fmts");
+    el.innerHTML = op.map(function (o) { return '<button type="button" class="chip" data-m="' + o[0] + '" aria-pressed="' + (o[0] === fmt) + '">' + o[1] + ' <b>' + cont[o[0]] + '</b></button>'; }).join("");
+    el.onclick = function (e) { var b = e.target.closest(".chip"); if (!b) return; fmt = b.getAttribute("data-m"); lim = 24; chipsFmt(); render(); };
   }
 
   /* ---- visualizador: abre a arte grande, troca Instagram/YouTube, baixa ---- */
@@ -250,7 +262,7 @@ h1 span { color: var(--accent); }
     var ambos = LEI.filter(function (l) { return l.mostrar.length && l.yt.length; }).length;
     document.getElementById("resumo").textContent = LEI.length + " leilões em " + Object.keys(porCid).length + " cidades · " + ambos + " com post do Instagram e capa do YouTube · toque numa imagem para abrir";
     cidade = LEI[0] ? LEI[0].cidade : "";   /* começa pela cidade do leilão mais recente */
-    chipsCidade(); chipsAno(); render();
+    chipsCidade(); chipsAno(); chipsFmt(); render();
   }).catch(function () { document.getElementById("resumo").textContent = "Não foi possível carregar a lista."; });
 })();
 </script>
