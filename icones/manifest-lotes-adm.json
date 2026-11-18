@@ -1,0 +1,27 @@
+{
+ "name": "Lotes · ADM",
+ "short_name": "Lotes ADM",
+ "start_url": "./fichas.html",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#F4F6F2",
+ "theme_color": "#2E6A3E",
+ "lang": "pt-BR",
+ "icons": [
+  {
+   "src": "icones/lotes-adm.svg",
+   "sizes": "any",
+   "type": "image/svg+xml"
+  },
+  {
+   "src": "icones/lotes-adm-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icones/lotes-adm-1024.png",
+   "sizes": "1024x1024",
+   "type": "image/png"
+  }
+ ]
+}
