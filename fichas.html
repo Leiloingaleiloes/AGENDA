@@ -1341,6 +1341,13 @@ async function publicarDados(){
   if(ord.length)await gravarTexto(PUB,"ordem.txt",ord.map(function(r){return r.lote;}).join("\n")+"\n","Lotes: ordem de entrada");
   await gravarTexto(PUB,"leilao.json",JSON.stringify({nome:S.leilao||"",data:S.data||""})+"\n","Lotes: leilão atual");
 }
+/* "Começar leilão novo": deixa o site dos produtores vazio (não republica os lotes que ainda estão aqui no ADM) */
+async function limparSite(){
+  await gravarTexto(PUB,"lotes.csv","LOTE;RAÇA;IDADE;SEXO;QTDE;PESO MÉDIO;MANGUEIRA;OBSERVAÇÃO\n","Lotes: site limpo para o leilão novo");
+  await gravarTexto(PUB,"ordem.txt","","Lotes: ordem de entrada limpa");
+  await gravarTexto(PUB,"leilao.json",JSON.stringify({nome:"",data:""})+"\n","Lotes: sem leilão no site");
+  LEILAO_PUB={nome:"",data:""};
+}
 var LEILAO_PUB=null;
 async function lerLeilaoPub(){var rr=await lerArq(PUB,"leilao.json");var x={};try{x=JSON.parse(rr.texto||"{}");}catch(e){}LEILAO_PUB=x;return x;}
 /* antes de mandar fotos de um leilão novo, tira do site as do leilão anterior */
@@ -1505,7 +1512,7 @@ $("novoLeilao").addEventListener("click",async function(){
   if(!novoArm){novoArm=true;b.textContent="Toque de novo: tira todas as fotos e vídeos do site";setTimeout(function(){novoArm=false;b.textContent="Começar leilão novo no site";},5000);return;}
   novoArm=false;b.disabled=true;b.textContent="Limpando…";
   try{
-    await naFila(async function(){await mexerMidia(function(d){Object.keys(d).forEach(function(k){delete d[k];});},"Lotes: começa leilão novo");await publicarDados();LEILAO_PUB={nome:S.leilao||"",data:S.data||""};});
+    await naFila(async function(){await mexerMidia(function(d){Object.keys(d).forEach(function(k){delete d[k];});},"Lotes: começa leilão novo");await limparSite();});
     toast("Site dos produtores zerado para o leilão novo. As fotos que você enviar agora aparecem lá.",6000);renderCam();
   }catch(e){toast("Não deu para limpar o site agora. Tente de novo.",6000);}
   finally{b.disabled=false;b.textContent="Começar leilão novo no site";}
