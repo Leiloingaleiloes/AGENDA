@@ -88,6 +88,7 @@ li button{border:1px solid var(--line);background:var(--bg);border-radius:8px;pa
 .limpa{display:block;margin:10px auto 20px;border:0;background:none;color:var(--mut);text-decoration:underline}
 </style></head><body>
 <div class="top"><a href="./">◀ Painel</a><b>CONFERÊNCIA BOLETA</b><span id="pos"></span></div>
+<div id="nuvemSt" style="text-align:center;font-size:.75rem;color:var(--mut);padding:4px 0 0"></div>
 <div class="sel"><select id="leilao" aria-label="Leilão"></select><button id="bNovo" type="button">+ Novo</button></div>
 <div class="bts" id="bts" hidden><button class="bt can" id="bCancel" type="button">Cancelar leilão</button><button class="bt pri" id="bFim" type="button">Finalizar leilão</button></div>
 <div id="mod"></div>
@@ -113,7 +114,8 @@ var S=null,L=[],tab="pista",arm=false,pend=null,PROX=null;
 var SEM=["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
 
 function $(i){return document.getElementById(i)}
-function salva(){if(S){S.alterado=new Date().toISOString();}try{localStorage.setItem(KB,JSON.stringify(DB))}catch(e){}}
+function salvaLocal(){try{localStorage.setItem(KB,JSON.stringify(DB))}catch(e){}}
+function salva(){if(S){S.alterado=new Date().toISOString();}salvaLocal();if(S)agendaNuvem()}
 function msg(t,c){var m=$("msg");m.textContent=t||"";m.className="msg"+(c?" "+c:"")}
 function z(n){return n<10?"0"+n:""+n}
 function brl(n){return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
@@ -129,11 +131,11 @@ function cap(s){return String(s||"").toLowerCase().replace(/(^|[\s.(])([a-zà-ú
 /* ---------- leilões salvos ---------- */
 function novaSessao(nome,data,lotes,quemL){
   var id=(data||new Date().toISOString().slice(0,10))+"-"+slug(nome||"leilao");
-  var s={id:id,nome:nome||"Leilão",data:data||"",quem:quemL||QUEM_PADRAO.slice(),L:lotes,st:{},la:{},qm:{},cur:0};
+  var s={id:id,nome:nome||"Leilão",data:data||"",quem:quemL||QUEM_PADRAO.slice(),L:lotes,st:{},la:{},qm:{},cur:0,alterado:new Date().toISOString()};
   if(PROX&&data===PROX.data){s.yt=PROX.youtube?ytId(PROX.youtube):"";s.banner=PROX.banner||"";s.cidade=PROX.cidade;s.hora=PROX.hora;s.local=PROX.local||""}
   return s;
 }
-function abrir(id){S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;tab="pista";marcaTab();salva();montaSel();render()}
+function abrir(id){S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;tab="pista";marcaTab();salvaLocal();montaSel();render();puxaNuvem()}
 function montaSel(){
   var el=$("leilao"),ids=Object.keys(DB.sess).sort(function(a,b){return (DB.sess[b].data||"").localeCompare(DB.sess[a].data||"")});
   el.innerHTML=ids.length?ids.map(function(i){return '<option value="'+i+'"'+(S&&S.id===i?" selected":"")+'>'+esc(titulo(DB.sess[i]))+'</option>'}).join(""):'<option value="">Nenhum leilão ainda</option>';
@@ -237,7 +239,7 @@ async function listaGh(){if(precisaToken())return;msg("Buscando no GitHub…");
     msg("");$("extra").innerHTML='<div class="painel"><h3>Boletas salvas no GitHub</h3><ul>'+it.map(function(f){return '<li><span>'+esc(f.name.replace(/\.json$/,""))+'</span><button type="button" data-p="'+esc(f.path)+'">Abrir</button></li>'}).join("")+'</ul></div>';
     $("extra").querySelectorAll("button[data-p]").forEach(function(b){b.onclick=async function(){try{var j=await ler(b.dataset.p);importaJson(JSON.parse(b64dec(j.content)))}catch(e){msg("Erro ao abrir: "+e.message,"err")}}})}
   catch(e){msg("Não consegui listar ("+e.message+").","err")}}
-function importaJson(s){if(!s||!s.L||!s.id)throw new Error("arquivo inválido");s.st=s.st||{};s.la=s.la||{};s.qm=s.qm||{};s.cur=s.cur||0;DB.sess[s.id]=s;$("extra").innerHTML="";abrir(s.id);msg("Aberto: "+titulo(s),"bom")}
+function importaJson(s){if(!s||!s.L||!s.id)throw new Error("arquivo inválido");s.alterado=s.alterado||new Date().toISOString();s.st=s.st||{};s.la=s.la||{};s.qm=s.qm||{};s.cur=s.cur||0;DB.sess[s.id]=s;$("extra").innerHTML="";abrir(s.id);msg("Aberto: "+titulo(s),"bom")}
 /* texto do botão "Copiar dados para o relatório" da boleta antiga */
 function importaTexto(t){var lin=t.trim().split(/\r?\n/),cab=lin.shift(),hd=lin.shift();var nome=(cab||"").replace(/^RELATORIO\s+/i,"").trim();
   var lotes=[],st={},la={},qm={};lin.forEach(function(x){var c=x.split(";");if(c.length<9)return;var l=+c[1];
@@ -309,7 +311,7 @@ async function salvarGh(b){if(!S){msg("Escolha ou crie um leilão.","err");retur
   try{var base="boletas/"+S.id,m="Conferência Boleta: "+titulo(S);
     await gravar(base+".json",b64enc(JSON.stringify(S,null,1)+"\n"),m);
     var pdf=gerarPdf().output("datauristring").split(",")[1];await gravar(base+".pdf",pdf,m+" (PDF)");
-    S.salvoGh=new Date().toISOString();salva();msg("Salvo no GitHub ("+GH.repo+"/"+base+".pdf).","bom")}
+    NV.sha[S.id]=undefined;S.salvoGh=new Date().toISOString();salva();msg("Salvo no GitHub ("+GH.repo+"/"+base+".pdf).","bom")}
   catch(e){msg("Não consegui salvar ("+e.message+"). Confira o token.","err")}
   b.disabled=false}
 
@@ -328,7 +330,7 @@ $("bFim").onclick=function(){if(!S)return;var c=contas();
   $("mGh").onclick=async function(){var b=this;await salvarGh(b);if($("mMsg")){$("mMsg").textContent=$("msg").textContent;$("mMsg").className=$("msg").className}};
 };
 $("bCancel").onclick=function(){if(!S)return;
-  abreMod('<h3>Cancelar leilão?</h3><p>Isso apaga deste aparelho a boleta de <b>'+esc(titulo(S))+'</b>: todas as marcações, lances e corretores. Cópias já salvas no GitHub não são apagadas.</p>'+
+  abreMod('<h3>Cancelar leilão?</h3><p>Isso apaga a boleta de <b>'+esc(titulo(S))+'</b> em todos os aparelhos: marcações, lances e corretores. O PDF já salvo no GitHub não é apagado.</p>'+
    '<button class="mb perigo" id="c1" type="button">Sim, quero cancelar</button><button class="mb lev" id="cX" type="button">Não, voltar</button>');
   $("cX").onclick=fechaMod;
   $("c1").onclick=function(){
@@ -337,10 +339,47 @@ $("bCancel").onclick=function(){if(!S)return;
     var inp=$("cTx"),b2=$("c2");inp.focus();
     inp.oninput=function(){b2.disabled=inp.value.trim().toUpperCase()!=="CANCELAR"};
     $("cX2").onclick=fechaMod;
-    b2.onclick=function(){if(b2.disabled)return;var n=titulo(S);delete DB.sess[S.id];S=null;L=[];DB.atual=null;salva();fechaMod();
+    b2.onclick=async function(){if(b2.disabled)return;var n=titulo(S),id=S.id;clearTimeout(NV.timer);NV.pend=false;
+      if(GH.token){try{var at=await ler(caminhoB(id));if(at)await api(caminho(caminhoB(id)),{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Boleta cancelada: "+n,sha:at.sha})})}catch(e){}}
+      delete DB.sess[id];S=null;L=[];DB.atual=null;salvaLocal();fechaMod();
       montaSel();var el=$("leilao");if(PROX)el.insertAdjacentHTML("afterbegin",'<option value="" selected>Próximo leilão · '+esc(PROX.cidade)+'</option>');render();msg("Boleta cancelada: "+n+".","bom")};
   };
 };
+
+/* ---------- nuvem automática: quem marca salva a cada mudança; os outros aparelhos acompanham ---------- */
+var NV={sha:{},timer:null,enviando:false,pend:false};
+function nvTxt(s,c){var e=$("nuvemSt");if(e){e.textContent=s;e.style.color=c||""}}
+function caminhoB(id){return "boletas/"+id+".json"}
+function agendaNuvem(){if(!GH.token||!S)return;nvTxt("☁ Salvando…");clearTimeout(NV.timer);NV.pend=true;NV.timer=setTimeout(enviaNuvem,1500)}
+async function enviaNuvem(){
+  if(!GH.token||!S)return;if(NV.enviando){NV.timer=setTimeout(enviaNuvem,1000);return}
+  NV.enviando=true;NV.pend=false;var s=S;
+  try{var p=caminhoB(s.id),body={message:"Boleta: "+titulo(s),content:b64enc(JSON.stringify(s,null,1)+"\n")};
+    if(NV.sha[s.id]===undefined){var at=await ler(p);NV.sha[s.id]=at?at.sha:null}
+    if(NV.sha[s.id])body.sha=NV.sha[s.id];
+    var r=await api(caminho(p),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    if(r.status===409||r.status===422){var at2=await ler(p);NV.sha[s.id]=at2?at2.sha:null;NV.enviando=false;return enviaNuvem()}
+    if(!r.ok)throw new Error(r.status);NV.sha[s.id]=(await r.json()).content.sha;
+    nvTxt("☁ Salvo na nuvem · aparece nos outros aparelhos","var(--v)")}
+  catch(e){nvTxt("Sem internet · fica salvo aqui e envia quando voltar","var(--r)");NV.pend=true;setTimeout(function(){if(NV.pend)enviaNuvem()},8000)}
+  NV.enviando=false}
+/* traz da nuvem se lá estiver mais novo (outro aparelho marcou) */
+async function puxaNuvem(){
+  if(!GH.token){nvTxt(S?"Só neste aparelho · conecte com a senha do ADM para ver em todos":"");return}
+  if(!S||NV.pend||NV.enviando)return;
+  try{var at=await ler(caminhoB(S.id));if(!at){if(S.alterado)agendaNuvem();else nvTxt("☁ Conectado","var(--v)");return}
+    NV.sha[S.id]=at.sha;var r=JSON.parse(b64dec(at.content));
+    if((r.alterado||"")>(S.alterado||"")&&!NV.pend){var cur=S.cur;DB.sess[r.id]=r;S=r;L=r.L;if(tab==="pista"&&!pend)S.cur=r.cur;salvaLocal();montaSel();if(!document.activeElement||document.activeElement.id!=="lance")render()}
+    else if((S.alterado||"")>(r.alterado||""))agendaNuvem();
+    if(!NV.pend)nvTxt("☁ Salvo na nuvem · aparece nos outros aparelhos","var(--v)")}
+  catch(e){nvTxt("Sem internet agora","var(--r)")}}
+/* boleta do próximo leilão criada em outro aparelho */
+async function buscaProxNuvem(){
+  if(!GH.token||!PROX)return null;
+  try{var r=await api(caminho("boletas"));if(!r.ok)return null;var it=(await r.json()).filter(function(f){return f.name.indexOf(PROX.data+"-")===0&&/\.json$/.test(f.name)});
+    if(!it.length)return null;var at=await ler(it[0].path);var s=JSON.parse(b64dec(at.content));NV.sha[s.id]=at.sha;DB.sess[s.id]=s;salvaLocal();return s}catch(e){return null}}
+setInterval(function(){if(document.visibilityState==="visible")puxaNuvem()},10000);
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")puxaNuvem()});
 
 /* ---------- telas (iguais à boleta da pista) ---------- */
 function proximo(de){for(var i=de;i<L.length;i++)if(!S.st[L[i].l])return i;for(i=0;i<L.length;i++)if(!S.st[L[i].l])return i;return -1}
@@ -418,7 +457,7 @@ async function carregaProx(){
 function marcaTab(){document.querySelectorAll(".tabs button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===tab)})}
 document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){tab=b.dataset.t;pend=null;marcaTab();render();window.scrollTo(0,0)}});
 montaSel();render();
-carregaProx().then(function(){var sp=sessaoDoProx();
+carregaProx().then(async function(){var sp=sessaoDoProx()||await buscaProxNuvem();
   if(sp)abrir(sp.id);            /* referência: o leilão mais próximo da agenda */
   else{S=null;L=[];DB.atual=null;montaSel();var el=$("leilao");el.insertAdjacentHTML("afterbegin",'<option value="" selected>Próximo leilão'+(PROX?" · "+esc(PROX.cidade):"")+'</option>');render()}});
 </script>
