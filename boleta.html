@@ -421,4 +421,14 @@ montaSel();render();
 carregaProx().then(function(){var sp=sessaoDoProx();
   if(sp)abrir(sp.id);            /* referência: o leilão mais próximo da agenda */
   else{S=null;L=[];DB.atual=null;montaSel();var el=$("leilao");el.insertAdjacentHTML("afterbegin",'<option value="" selected>Próximo leilão'+(PROX?" · "+esc(PROX.cidade):"")+'</option>');render()}});
-</script></body></html>
+</script>
+<style>.olho-w{position:relative;display:block}.olho-w input{padding-right:52px!important;width:100%}.olho{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:38px;border:0;background:transparent;font-size:1.25rem;cursor:pointer;line-height:1}</style>
+<script>
+/* botão de olho: mostra/esconde o que foi digitado nos campos de senha e chave */
+(function(){function poe(i){if(i.dataset.olho)return;i.dataset.olho=1;var w=document.createElement("span");w.className="olho-w";i.parentNode.insertBefore(w,i);w.appendChild(i);
+  var b=document.createElement("button");b.type="button";b.className="olho";b.textContent="👁";b.setAttribute("aria-label","Mostrar senha");
+  b.onclick=function(){var v=i.type==="password";i.type=v?"text":"password";b.textContent=v?"🙈":"👁";b.setAttribute("aria-label",v?"Esconder senha":"Mostrar senha");i.focus()};w.appendChild(b)}
+ function tudo(){document.querySelectorAll('input[type=password]').forEach(poe)}
+ tudo();new MutationObserver(tudo).observe(document.body,{childList:true,subtree:true});})();
+</script>
+</body></html>
