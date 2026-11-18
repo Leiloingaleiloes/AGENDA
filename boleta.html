@@ -71,12 +71,24 @@ li button{border:1px solid var(--line);background:var(--bg);border-radius:8px;pa
 .faixa img{width:96px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;flex:none}
 .faixa .up{margin-left:auto;flex:none;border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:8px;padding:6px 8px;font-size:.75rem;font-weight:700}
 .faixa b{display:block;font-size:.9rem;line-height:1.2}.faixa span{font-size:.78rem;opacity:.85}
+.bt.can{color:var(--r);border-color:var(--r)}
+.mod{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+@media(min-width:600px){.mod{align-items:center}}
+.mod .cx{width:100%;max-width:440px;background:var(--card);color:var(--fg);border-radius:18px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.mod h3{margin:0 0 6px;font-size:1.2rem}.mod p{margin:0 0 10px;color:var(--mut);font-size:.92rem}
+.mod .rs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.mod .rs div{background:var(--bg);border-radius:10px;padding:8px;font-size:.75rem;color:var(--mut)}.mod .rs b{display:block;font-size:1.1rem;color:var(--fg)}
+.mod .mb{display:block;width:100%;min-height:54px;margin-top:8px;border-radius:12px;border:2px solid var(--line);background:var(--bg);font-weight:800;font-size:1.05rem}
+.mod .mb.pri{background:var(--v);border-color:var(--v);color:#fff}.mod .mb.perigo{background:var(--r);border-color:var(--r);color:#fff}
+.mod .mb.lev{border:0;background:none;color:var(--mut);text-decoration:underline;font-weight:600;min-height:44px}
+.mod input{width:100%;padding:12px;border-radius:10px;border:2px solid var(--line);background:var(--bg);font-size:1.1rem;text-align:center;letter-spacing:.1em;text-transform:uppercase}
+.mod .aviso{background:var(--rs);color:var(--r);border-radius:10px;padding:8px 10px;font-size:.85rem;font-weight:700}
 .vazio{text-align:center;color:var(--mut);padding:30px}
 .limpa{display:block;margin:10px auto 20px;border:0;background:none;color:var(--mut);text-decoration:underline}
 </style></head><body>
 <div class="top"><a href="./">◀ Painel</a><b>CONFERÊNCIA BOLETA</b><span id="pos"></span></div>
 <div class="sel"><select id="leilao" aria-label="Leilão"></select><button id="bNovo" type="button">+ Novo</button></div>
-<div class="bts"><button class="bt" id="bPdf" type="button">Exportar PDF</button><button class="bt pri" id="bGh" type="button">Salvar no GitHub</button></div>
+<div class="bts" id="bts" hidden><button class="bt can" id="bCancel" type="button">Cancelar leilão</button><button class="bt pri" id="bFim" type="button">Finalizar leilão</button></div>
+<div id="mod"></div>
 <div id="hero"></div>
 <div class="msg" id="msg"></div>
 <div id="extra"></div>
@@ -273,25 +285,54 @@ function gerarPdf(){
   return doc;
 }
 function nomeArq(){return "conferencia-boleta-"+S.id}
-$("bPdf").onclick=async function(){if(!S){msg("Escolha ou crie um leilão.","err");return}
+async function exportarPdf(){if(!S){msg("Escolha ou crie um leilão.","err");return}
   try{var doc=gerarPdf(),blob=doc.output("blob"),nome=nomeArq()+".pdf",f=new File([blob],nome,{type:"application/pdf"});
     if(navigator.canShare&&navigator.canShare({files:[f]})&&/Android|iPhone|iPad/i.test(navigator.userAgent)){try{await navigator.share({files:[f],title:titulo(S)});return}catch(e){if(e.name==="AbortError")return}}
     var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nome;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000);msg("PDF gerado: "+nome,"bom")}
-  catch(e){msg("Erro ao gerar o PDF: "+e.message,"err")}};
-$("bGh").onclick=async function(){if(!S){msg("Escolha ou crie um leilão.","err");return}if(precisaToken())return;
-  var b=this;b.disabled=true;msg("Salvando no GitHub…");
+  catch(e){msg("Erro ao gerar o PDF: "+e.message,"err")}}
+async function salvarGh(b){if(!S){msg("Escolha ou crie um leilão.","err");return}if(precisaToken()){fechaMod();return}
+  b=b||{};b.disabled=true;msg("Salvando no GitHub…");
   try{var base="boletas/"+S.id,m="Conferência Boleta: "+titulo(S);
     await gravar(base+".json",b64enc(JSON.stringify(S,null,1)+"\n"),m);
     var pdf=gerarPdf().output("datauristring").split(",")[1];await gravar(base+".pdf",pdf,m+" (PDF)");
     S.salvoGh=new Date().toISOString();salva();msg("Salvo no GitHub ("+GH.repo+"/"+base+".pdf).","bom")}
   catch(e){msg("Não consegui salvar ("+e.message+"). Confira o token.","err")}
-  b.disabled=false};
+  b.disabled=false}
+
+/* ---------- finalizar / cancelar (popups) ---------- */
+function fechaMod(){$("mod").innerHTML=""}
+function abreMod(html){$("mod").innerHTML='<div class="mod" id="modBg"><div class="cx" role="dialog" aria-modal="true">'+html+'</div></div>';$("modBg").onclick=function(e){if(e.target.id==="modBg")fechaMod()}}
+$("bFim").onclick=function(){if(!S)return;var c=contas();
+  abreMod('<h3>Finalizar leilão</h3><p>'+esc(titulo(S))+'</p>'+
+   (c.falta?'<div class="aviso">Ainda há '+c.falta+' lote(s) sem marcação. Eles saem como "—" no relatório.</div>':'')+
+   '<div class="rs"><div>Vendidos<b>'+c.V.length+' lotes · '+c.g.cab+' cab.</b></div><div>Retorno<b>'+c.R.length+' lotes · '+c.ret.cab+' cab.</b></div><div>Faturamento<b>'+brl(c.g.fat)+'</b></div><div>Comissão (0,15%)<b>'+brl(c.g.fat*COMISSAO)+'</b></div></div>'+
+   '<button class="mb" id="mPdf" type="button">Exportar PDF</button><button class="mb pri" id="mGh" type="button">Salvar no GitHub</button><div class="msg" id="mMsg"></div>'+
+   '<button class="mb lev" id="mX" type="button">Voltar para a pista</button>');
+  S.finalizado=new Date().toISOString();salva();
+  $("mX").onclick=fechaMod;
+  $("mPdf").onclick=async function(){await exportarPdf();$("mMsg").textContent=$("msg").textContent;$("mMsg").className=$("msg").className};
+  $("mGh").onclick=async function(){var b=this;await salvarGh(b);if($("mMsg")){$("mMsg").textContent=$("msg").textContent;$("mMsg").className=$("msg").className}};
+};
+$("bCancel").onclick=function(){if(!S)return;
+  abreMod('<h3>Cancelar leilão?</h3><p>Isso apaga deste aparelho a boleta de <b>'+esc(titulo(S))+'</b>: todas as marcações, lances e corretores. Cópias já salvas no GitHub não são apagadas.</p>'+
+   '<button class="mb perigo" id="c1" type="button">Sim, quero cancelar</button><button class="mb lev" id="cX" type="button">Não, voltar</button>');
+  $("cX").onclick=fechaMod;
+  $("c1").onclick=function(){
+    abreMod('<h3>Confirme o cancelamento</h3><p>Para ter certeza, digite <b>CANCELAR</b> abaixo.</p><input id="cTx" autocomplete="off" autocapitalize="characters" placeholder="CANCELAR">'+
+     '<button class="mb perigo" id="c2" type="button" disabled>Apagar esta boleta</button><button class="mb lev" id="cX2" type="button">Não, voltar</button>');
+    var inp=$("cTx"),b2=$("c2");inp.focus();
+    inp.oninput=function(){b2.disabled=inp.value.trim().toUpperCase()!=="CANCELAR"};
+    $("cX2").onclick=fechaMod;
+    b2.onclick=function(){if(b2.disabled)return;var n=titulo(S);delete DB.sess[S.id];S=null;L=[];DB.atual=null;salva();fechaMod();
+      montaSel();var el=$("leilao");if(PROX)el.insertAdjacentHTML("afterbegin",'<option value="" selected>Próximo leilão · '+esc(PROX.cidade)+'</option>');render();msg("Boleta cancelada: "+n+".","bom")};
+  };
+};
 
 /* ---------- telas (iguais à boleta da pista) ---------- */
 function proximo(de){for(var i=de;i<L.length;i++)if(!S.st[L[i].l])return i;for(i=0;i<L.length;i++)if(!S.st[L[i].l])return i;return -1}
 function totais(){var c={V:[0,0],R:[0,0],F:[0,0]};L.forEach(function(x){var k=(S&&S.st[x.l])||"F";c[k][0]++;c[k][1]+=x.q});
 ["V","R","F"].forEach(function(k){var id={V:"v",R:"r",F:"f"}[k];$("n"+id).textContent=c[k][0];$("c"+id).textContent=c[k][1]+" cab."})}
-function render(){heroi();totais();var m=$("main");m.textContent="";
+function render(){heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
   if(!S){m.innerHTML='<div class="vazio">Toque em <b>Começar a boleta</b> acima, ou escolha outro leilão na lista.</div>';$("pos").textContent="";return}
   if(tab==="pista")pista(m);else lista(m,tab)}
 function pista(m){
