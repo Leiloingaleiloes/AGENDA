@@ -1164,6 +1164,7 @@ function estadoNuvem(st){
   var b=$("nuvemBtn"),t=$("nuvemTxt");
   var txt={off:"Só neste aparelho · Conectar",carregando:"Carregando…",salvando:"Salvando…",ok:"Salvo na nuvem",erro:"Sem conexão · tentando"}[st]||st;
   b.className="nuvem "+(st==="ok"?"ok":st==="off"?"off":st==="erro"?"erro":"sync");t.textContent=txt;
+  if(st==="ok"){try{localStorage.setItem("fichas-ja-sincronizou","1");}catch(e){}}
 }
 
 window.__nuvemSalvar=function(){
@@ -1224,7 +1225,10 @@ async function iniciarNuvem(){
     else{
       var remoto={rows:[]};try{remoto=JSON.parse(rr.texto||"{}");}catch(e){}
       nuvem.sha=rr.sha;nuvem.etag=rr.etag;
-      if(local.rows.length&&!(remoto.rows||[]).length){nuvem.base=limpo(remoto);nuvem.sujo=true;await enviar();}
+      /* aparelho que já sincronizou antes segue a nuvem (se alguém tocou em "Limpar tudo", os lotes antigos daqui não voltam);
+         só manda os lotes daqui quando é a primeira vez que este aparelho se conecta */
+      var jaSinc=false;try{jaSinc=localStorage.getItem("fichas-ja-sincronizou")==="1";}catch(e){}
+      if(local.rows.length&&!(remoto.rows||[]).length&&!jaSinc){nuvem.base=limpo(remoto);nuvem.sujo=true;await enviar();}
       else{nuvem.base=limpo(remoto);aplicarEstado(remoto);estadoNuvem("ok");}
     }
   }catch(e){
