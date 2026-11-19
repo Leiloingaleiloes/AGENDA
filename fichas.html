@@ -1923,7 +1923,23 @@ carregarLocal();mostrar(VIEW);render();renderFiles();limparMan();iniciarNuvem();
 window.__fichas_estado=function(){return S;};
 </script>
 
-<style>.olho-w{position:relative;display:block}.olho-w input{padding-right:52px!important;width:100%}.olho{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:38px;border:0;background:transparent;font-size:1.25rem;cursor:pointer;line-height:1}</style>
+<style>.olho-w{position:relative;display:block}.olho-w input{padding-right:52px!important;width:100%}.olho{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:38px;border:0;background:transparent;font-size:1.25rem;cursor:pointer;line-height:1}
+/* PC: a tabela cabe na largura da tela e rola por dentro, com o cabeçalho fixo */
+@media (min-width:900px){
+  table{min-width:0;table-layout:fixed}
+  thead th:nth-child(1){width:40px}thead th:nth-child(2){width:92px}thead th:nth-child(3){width:64px}
+  thead th:nth-child(4){width:60px}thead th:nth-child(5){width:58px}thead th:nth-child(7){width:108px}
+  thead th:nth-child(8){width:15%}thead th:nth-child(9){width:84px}thead th:nth-child(10){width:104px}thead th:nth-child(11){width:40px}
+  .tablewrap{overflow:auto;max-height:calc(100vh - 150px);max-height:calc(100dvh - 150px);scrollbar-gutter:stable}
+  th{z-index:2;box-shadow:0 1px 0 var(--line)}
+  td{overflow:hidden}
+  td input{width:100%!important;max-width:100%;min-width:0!important;box-sizing:border-box}
+  .tag{max-width:100%}
+}
+.tablewrap::-webkit-scrollbar{width:12px;height:12px}
+.tablewrap::-webkit-scrollbar-thumb{background:#9DB3A3;border-radius:8px;border:3px solid var(--surface)}
+.tablewrap::-webkit-scrollbar-thumb:hover{background:#6F8A77}
+</style>
 <script>
 /* botão de olho: mostra/esconde o que foi digitado nos campos de senha e chave */
 (function(){function poe(i){if(i.dataset.olho)return;i.dataset.olho=1;var w=document.createElement("span");w.className="olho-w";i.parentNode.insertBefore(w,i);w.appendChild(i);
