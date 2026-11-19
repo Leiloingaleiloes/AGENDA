@@ -211,27 +211,28 @@ td .x:hover{background:var(--bad-soft);color:var(--bad)}
 .chip-chk input:focus-visible+span{outline:3px solid var(--destaque);outline-offset:2px}
 .avisocam{padding:12px 14px;border-radius:12px;background:var(--destaque-soft);border:2px solid var(--destaque);color:#6B3300;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .cams{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,310px),1fr));gap:12px}
-.lc{background:var(--surface);border:1px solid var(--line);border-radius:var(--raio);padding:14px;display:grid;gap:12px;align-content:start;min-width:0;box-shadow:var(--sombra)}
+.lc{background:var(--surface);border:1px solid var(--line);border-radius:var(--raio);padding:12px;display:grid;gap:8px;align-content:start;min-width:0;box-shadow:var(--sombra)}
 .lc.tem{border-color:#9FD0B0}
-.lc-h{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center}
-.lc-h .tag{font-size:1.6rem;padding:8px 12px 8px 10px}
-.lc-info{min-width:0;display:grid;gap:2px}
-.lc-info b{font-weight:700}
-.lc-info span{font-size:.86rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lc-info span:nth-child(3){white-space:normal}
-.lc-info .lc-sit{justify-self:start;font-size:.74rem;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted);margin-bottom:2px}
-.lc-info .lc-sit.ok{background:var(--good-soft);border-color:#9FD0B0;color:var(--good)}
-.lc-n{font-weight:600;font-size:.76rem;color:var(--muted);text-align:right;white-space:nowrap}
-.lc-n b{display:block;font-weight:800;font-size:1.35rem;line-height:1;color:var(--accent)}
+.lc-h{display:flex;align-items:center;gap:8px;min-width:0}
+.lc-h .tag{font-size:1.35rem;padding:5px 10px 5px 8px}
+.lc-sexo{font-weight:700;font-size:.8rem;padding:3px 10px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.lc-sexo.m{background:#E2ECFA;color:#1F4E8C}
+.lc-sexo.f{background:#FAE5EF;color:#8C1F57}
+.lc-sit{margin-left:auto;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.lc-sit.ok{background:var(--good-soft);border-color:#9FD0B0;color:var(--good)}
+.lc-info{display:grid;gap:1px;min-width:0}
+.lc-info b{font-weight:800;font-size:1.12rem;line-height:1.25}
+.lc-raca{font-weight:600;font-size:.94rem}
+.lc-vend{font-size:.82rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .thumbs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
-.th{position:relative;flex:none;width:78px;height:78px;border-radius:10px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line)}
+.th{position:relative;flex:none;width:64px;height:64px;border-radius:10px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line)}
 .th img{width:100%;height:100%;object-fit:cover;display:block}
 .th .tipo{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.65);color:#fff;font-size:.66rem;font-weight:700;padding:1px 5px;border-radius:4px}
 .th .rm{position:absolute;top:3px;right:3px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:.9rem;line-height:1;cursor:pointer}
 .th .rm.armado{background:var(--bad);width:auto;padding:0 7px;border-radius:12px;font-size:.7rem;font-weight:700}
 .lc-a{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:8px}
-.lc-a .btn{min-height:54px;font-size:1rem}
-.lc-a .cam{background:var(--destaque);border-color:var(--destaque);color:#fff;font-weight:800;font-size:1.08rem}
+.lc-a .btn{min-height:48px;font-size:.98rem}
+.lc-a .cam{background:var(--destaque);border-color:var(--destaque);color:#fff;font-weight:800;font-size:1.04rem}
 .arqcam{position:fixed;left:-200px;top:0;width:1px;height:1px;opacity:0}
 .lc-st{font-size:.86rem;font-weight:600;color:var(--accent)}
 .lc-st:empty{display:none}
@@ -322,14 +323,15 @@ body[data-modo=mang] .aviso-teste{font-size:.82rem}
 body[data-modo=mang] .busca{height:62px;font-size:1.4rem;max-width:none;border-width:3px;border-color:var(--fg)}
 body[data-modo=mang] .chips button{min-height:48px;font-size:1.05rem;padding:0 16px}
 body[data-modo=mang] .chip-chk span{min-height:56px;font-size:1.05rem}
-body[data-modo=mang] .lc{border:2px solid var(--fg);box-shadow:none;padding:16px}
+body[data-modo=mang] .lc{border:2px solid var(--fg);box-shadow:none;padding:12px}
 body[data-modo=mang] .lc.tem{border-color:var(--good)}
-body[data-modo=mang] .lc-h .tag{font-size:2.2rem;padding:10px 14px 10px 12px}
-body[data-modo=mang] .lc-info b{font-size:1.15rem}
-body[data-modo=mang] .lc-info span{font-size:1rem;color:var(--fg)}
-body[data-modo=mang] .lc-info .lc-sit{font-size:.9rem;padding:3px 10px}
-body[data-modo=mang] .lc-a .btn{min-height:68px;font-size:1.15rem}
-body[data-modo=mang] .lc-a .cam{font-size:1.3rem}
+body[data-modo=mang] .lc-h .tag{font-size:1.6rem;padding:6px 11px 6px 9px}
+body[data-modo=mang] .lc-sexo,body[data-modo=mang] .lc-sit{font-size:.86rem}
+body[data-modo=mang] .lc-info b{font-size:1.25rem}
+body[data-modo=mang] .lc-raca{font-size:1rem;color:var(--fg)}
+body[data-modo=mang] .lc-vend{font-size:.9rem}
+body[data-modo=mang] .lc-a .btn{min-height:54px;font-size:1.05rem}
+body[data-modo=mang] .lc-a .cam{font-size:1.15rem}
 body[data-modo=mang] .lc-st{font-size:1rem}
 body[data-modo=mang] .cams{grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr))}
 body[data-modo=mang] .abas.baixo button{font-size:.9rem}
