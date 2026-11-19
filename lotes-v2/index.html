@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0E5E57">
+<meta name="color-scheme" content="light only">
+<title>Lotes ADM · v2 (teste)</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body data-modo="esc">
+<div class="app">
+
+  <!-- ===== menu lateral (computador) ===== -->
+  <aside class="lado">
+    <div class="marca">
+      <img src="../logo-leiloinga.png" alt="Leiloingá" onerror="this.remove()">
+      <div><b>Lotes ADM</b><span class="selo">Teste · v2</span></div>
+    </div>
+    <nav class="abas lateral" aria-label="Telas">
+      <button type="button" data-v="fichas" class="so-esc" aria-pressed="true"><span class="ic" aria-hidden="true">📄</span>Fichas</button>
+      <button type="button" data-v="cam" aria-pressed="false"><span class="ic" aria-hidden="true">📷</span>Lotes e câmera</button>
+      <button type="button" data-v="ord" aria-pressed="false"><span class="ic" aria-hidden="true">↕️</span>Ordem de entrada</button>
+      <button type="button" data-v="rel" aria-pressed="false"><span class="ic" aria-hidden="true">📊</span>Relatório</button>
+    </nav>
+    <div class="lado-pe">
+      <a class="link-sec" href="../">&larr; Início do site</a>
+    </div>
+  </aside>
+
+  <div class="principal">
+    <!-- ===== barra do topo ===== -->
+    <header class="topo">
+      <div class="topo-esq">
+        <img class="logo-cel" src="../logo-leiloinga.png" alt="Leiloingá" onerror="this.remove()">
+        <h1 id="telaTitulo">Fichas</h1>
+      </div>
+      <div class="topo-dir">
+        <button class="nuvem" type="button" id="nuvemBtn"><i></i><span id="nuvemTxt">Só neste aparelho</span></button>
+        <button class="btn modo" type="button" id="modoBtn">🐂 Modo mangueira</button>
+      </div>
+    </header>
+
+    <div class="aviso-teste" role="note">
+      <b>Versão de teste.</b> <span class="lg">Usa só o <code>fichas-teste.json</code> e a pasta <code>teste-v2</code>. </span>Não muda a página atual nem o site dos produtores.
+    </div>
+
+    <main>
+      <!-- ===================== FICHAS ===================== -->
+      <div id="v-fichas" class="tela">
+        <div class="grade2">
+          <section class="cartao" aria-labelledby="t-env">
+            <h2 id="t-env"><span class="passo">1</span>Ler o PDF</h2>
+            <label class="drop" id="drop" for="arq">
+              <input id="arq" type="file" accept="application/pdf,.pdf,image/*" multiple>
+              <span class="drop-ic" aria-hidden="true">PDF</span>
+              <b>Escolher o PDF da ordem de entrada</b>
+              <span>Ou arraste o arquivo para cá.</span>
+            </label>
+            <ul class="files" id="files"></ul>
+            <div class="status" id="status" role="status" aria-live="polite"></div>
+            <p class="nota">O PDF é lido aqui mesmo e não vai para lugar nenhum. Lotes repetidos são atualizados; os novos entram marcados.</p>
+          </section>
+
+          <section class="cartao" aria-labelledby="t-res">
+            <h2 id="t-res"><span class="passo">2</span>Conferir</h2>
+            <div class="leilao">
+              <label for="nomeLeilao">Leilão</label>
+              <input id="nomeLeilao" type="text" maxlength="120" placeholder="O nome vem do PDF; dá para mudar aqui">
+            </div>
+            <div class="nums" id="nums"></div>
+            <ul class="checks" id="checks"></ul>
+          </section>
+        </div>
+
+        <section class="cartao" aria-labelledby="t-lotes">
+          <div class="cab-cartao">
+            <h2 id="t-lotes"><span class="passo">3</span>Lotes</h2>
+            <div class="linha">
+              <button class="btn link" type="button" id="selFaltam">Marcar só os sem ficha</button>
+              <button class="btn link" type="button" id="selTodos">Marcar todos</button>
+              <button class="btn link" type="button" id="selNenhum">Desmarcar</button>
+            </div>
+          </div>
+          <div class="tablewrap">
+            <table>
+              <thead><tr>
+                <th class="c"><span class="sr">Fazer ficha</span></th><th>Lote</th><th>Mang.</th><th>Qtde</th><th>Sexo</th><th>Vendedor</th><th>Idade</th><th>Raça</th><th>Peso (kg)</th><th>Situação</th><th></th>
+              </tr></thead>
+              <tbody id="tbody"></tbody>
+            </table>
+            <div class="empty" id="vazio"><b>Nenhum lote ainda</b>Leia o PDF no passo 1 ou digite um lote abaixo.</div>
+          </div>
+        </section>
+
+        <details class="cartao dobra" id="manDobra">
+          <summary><span class="passo claro">+</span>Digitar um lote à mão <small>(ou olhando a foto da lista)</small></summary>
+          <section class="man" id="man" aria-label="Digitar lote">
+            <div class="linha" style="justify-content:flex-end;margin-bottom:10px">
+              <label class="btn drop2" for="fotoArq"><input id="fotoArq" type="file" accept="image/*">📷 Abrir foto da lista</label>
+            </div>
+            <div class="cols">
+              <div class="foto" id="fotoBox">
+                <div class="vis" id="fotoVis"><img id="fotoImg" alt="Foto da lista de lotes"></div>
+                <div class="linha"><span class="nota" style="margin:0">Toque na foto para aumentar. Ela fica só aqui.</span><button class="btn link danger" type="button" id="fotoFechar">Fechar foto</button></div>
+              </div>
+              <div>
+                <div class="ff">
+                  <label>Lote<input id="m-lote" inputmode="numeric" autocomplete="off"></label>
+                  <label>Mangueira<input id="m-mang" inputmode="numeric" autocomplete="off" placeholder="= lote"></label>
+                  <label>Qtde<input id="m-qtde" inputmode="numeric" autocomplete="off"></label>
+                  <label>Sexo<div class="opc sx" id="o-sexo"><button type="button" data-v="M" aria-pressed="false">M</button><button type="button" data-v="F" aria-pressed="false">F</button></div></label>
+                  <label class="w2">Peso médio (kg)<input id="m-peso" inputmode="numeric" autocomplete="off"></label>
+                  <label class="w3">Vendedor<input id="m-vend" autocomplete="off"></label>
+                  <label class="w3">Idade<input id="m-idade" autocomplete="off" placeholder="toque abaixo ou digite">
+                    <div class="opc" id="o-idade"></div></label>
+                  <label class="w3">Raça<input id="m-raca" autocomplete="off" placeholder="toque abaixo ou digite">
+                    <div class="opc" id="o-raca"></div></label>
+                </div>
+                <div class="alerta" id="m-alerta" role="alert" hidden></div>
+                <div class="acoes">
+                  <button class="btn pri big" type="button" id="m-add">Adicionar lote</button>
+                  <button class="btn link" type="button" id="m-limpar">Limpar campos</button>
+                  <span class="status" id="m-status" style="margin:0"></span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </details>
+
+        <div class="bar">
+          <div class="sum" id="barSum"></div>
+          <div class="linha">
+            <button class="btn danger" type="button" id="limpar">Limpar tudo</button>
+            <button class="btn pri big" type="button" id="gerar" disabled>Gerar Word</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== LOTES E CÂMERA ===================== -->
+      <div id="v-cam" class="tela" hidden>
+        <div class="camtopo">
+          <p class="nota" id="camLeilao" style="margin:0"></p>
+          <div class="busca-linha">
+            <input class="busca" id="camBusca" type="search" inputmode="numeric" placeholder="🔍 Nº do lote" aria-label="Procurar lote pelo número">
+          </div>
+          <div class="filtros">
+            <div class="chips" id="camSexo" role="group" aria-label="Filtrar por sexo">
+              <button type="button" data-s="" aria-pressed="true">Todos</button>
+              <button type="button" data-s="M" aria-pressed="false">Machos</button>
+              <button type="button" data-s="F" aria-pressed="false">Fêmeas</button>
+            </div>
+            <label class="chip-chk"><input type="checkbox" id="camSo"><span>⚪ Só os que faltam foto</span></label>
+          </div>
+        </div>
+        <div class="avisocam" id="camAviso" hidden></div>
+        <div class="cams" id="cams"></div>
+        <div class="camrodape so-esc">
+          <button class="btn" type="button" id="pubDados">Atualizar dados no site (teste)</button>
+          <button class="btn danger" type="button" id="novoLeilao">Começar leilão novo no site</button>
+        </div>
+      </div>
+
+      <!-- ===================== ORDEM DE ENTRADA ===================== -->
+      <div id="v-ord" class="tela" hidden>
+        <section class="cartao ordtopo">
+          <p class="nota" style="margin:0" id="ordLeilao"></p>
+          <details class="regra">
+            <summary>Como a sugestão é montada</summary>
+            <p class="ordregra"><b>Machos antes das fêmeas</b>; depois o grupo de raça (<b>Nelore e ½ Tabapuã</b> → Anelorados → cruzas europeias → Cruz. Industrial → Canchim → <b>Cruzados</b>); dentro do grupo, <b>do mais leve pro mais pesado</b>. Lotes de 1 ou 2 cabeças e vacas (+36 M) vão pro fim de cada sexo.<br>Para mudar: digite o número da ordem, ou segure o botão <b>▲▼</b> e arraste o lote. Um toque na setinha de cima sobe uma posição; na de baixo, desce.</p>
+          </details>
+          <div class="ordexp ordacoes">
+            <div class="grupo">
+              <span class="rot">Mandar pelo WhatsApp</span>
+              <div class="linha">
+                <button class="btn zap" type="button" id="ordZapPdf">WhatsApp · PDF</button>
+                <button class="btn zap" type="button" id="ordZapDoc">WhatsApp · Word</button>
+              </div>
+            </div>
+            <div class="grupo">
+              <span class="rot">Site (pasta de teste) <em id="ordSiteSit"></em></span>
+              <div class="linha">
+                <button class="btn" type="button" id="ordSite">Mandar esta ordem pro site</button>
+              </div>
+            </div>
+            <div class="grupo">
+              <span class="rot">Outros</span>
+              <div class="linha">
+                <button class="btn" type="button" id="ordImprimir">Imprimir</button>
+                <button class="btn danger" type="button" id="ordRefazer">Refazer sugestão</button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div id="ordCorpo"></div>
+      </div>
+
+      <!-- ===================== RELATÓRIO ===================== -->
+      <div id="v-rel" class="tela" hidden>
+        <div class="reltopo">
+          <p class="nota" style="margin:0" id="relLeilao"></p>
+          <p class="nota" style="margin:0;max-width:52ch">Cada lote entra na faixa pelo seu peso médio. A média de cada faixa é ponderada pela quantidade de animais.</p>
+        </div>
+        <div id="relCorpo"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===== barra de baixo (celular) ===== -->
+  <nav class="abas baixo" aria-label="Telas">
+    <button type="button" data-v="fichas" class="so-esc" aria-pressed="true"><span class="ic" aria-hidden="true">📄</span>Fichas</button>
+    <button type="button" data-v="cam" aria-pressed="false"><span class="ic" aria-hidden="true">📷</span>Lotes</button>
+    <button type="button" data-v="ord" aria-pressed="false"><span class="ic" aria-hidden="true">↕️</span>Ordem</button>
+    <button type="button" data-v="rel" aria-pressed="false"><span class="ic" aria-hidden="true">📊</span>Relatório</button>
+  </nav>
+</div>
+
+<div class="modal" id="conexao" hidden role="dialog" aria-modal="true" aria-labelledby="t-con">
+  <div class="caixa">
+    <h2 id="t-con">Salvar na nuvem (GitHub)</h2>
+    <p class="nota" style="margin:0 0 12px">Com a chave, os lotes de teste ficam iguais no computador e no celular. Esta versão de teste usa a mesma chave da página atual, mas grava só no <code>fichas-teste.json</code>.</p>
+    <div class="ff" style="grid-template-columns:minmax(0,1fr)">
+      <label>Chave do GitHub<input id="c-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" style="text-transform:none"></label>
+      <label>Repositório privado dos dados<input id="c-repo" autocomplete="off" spellcheck="false" value="ADM" style="text-transform:none"></label>
+    </div>
+    <div class="alerta" id="c-erro" hidden></div>
+    <div class="linha" style="margin-top:14px;justify-content:space-between">
+      <button class="btn danger" type="button" id="c-sair" hidden>Desconectar este aparelho</button>
+      <span style="flex:1"></span>
+      <button class="btn" type="button" id="c-fechar">Fechar</button>
+      <button class="btn pri" type="button" id="c-ok">Conectar</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
