@@ -972,13 +972,16 @@ function renderCam(){
     if(CAM_SEXO&&r.sexo!==CAM_SEXO)return;
     mostrados++;
     var c=el("div","lc"+(tem?" tem":""));c.dataset.l=r.lote;
-    var h=el("div","lc-h"),tg=el("span","tag",dois(r.lote)),inf=el("div","lc-info");
-    inf.append(el("b",null,[r.qtde!=null?r.qtde+" cab.":"",r.sexo==="M"?"Machos":r.sexo==="F"?"Fêmeas":"",r.peso!=null?r.peso+" kg":""].filter(Boolean).join(" · ")||"Lote "+dois(r.lote)));
-    inf.append(el("span",null,[racaFicha(r.raca),idadeFicha(r.idade)].filter(Boolean).join(" · ")));
-    if(r.vendedor)inf.append(el("span",null,r.vendedor));
-    inf.prepend(el("span","lc-sit"+(tem?" ok":""),tem?"📷 Tem mídia":"⚪ Falta foto"));
-    var cn=el("div","lc-n");cn.append(el("b",null,String(videos.length+fotos.length)));cn.append(document.createTextNode(videos.length+" vídeo"+(videos.length===1?"":"s")+" · "+fotos.length+" foto"+(fotos.length===1?"":"s")));
-    h.append(tg,inf,cn);c.append(h);
+    /* linha 1: número do lote, sexo e se já tem foto · linha 2: cabeças e peso · linha 3: raça e idade · linha 4: vendedor */
+    var h=el("div","lc-h"),tg=el("span","tag",dois(r.lote));
+    var sx=el("span","lc-sexo"+(r.sexo==="M"?" m":r.sexo==="F"?" f":""),r.sexo==="M"?"Machos":r.sexo==="F"?"Fêmeas":"Sem sexo");
+    var qm=[fotos.length?fotos.length+(fotos.length>1?" fotos":" foto"):"",videos.length?videos.length+(videos.length>1?" vídeos":" vídeo"):""].filter(Boolean).join(" · ");
+    h.append(tg,sx,el("span","lc-sit"+(tem?" ok":""),tem?"📷 "+qm:"⚪ Falta foto"));c.append(h);
+    var inf=el("div","lc-info");
+    inf.append(el("b",null,[r.qtde!=null?r.qtde+" cab.":"",r.peso!=null?r.peso+" kg":""].filter(Boolean).join(" · ")||"Lote "+dois(r.lote)));
+    var rc=[racaFicha(r.raca),idadeFicha(r.idade)].filter(Boolean).join(" · ");if(rc)inf.append(el("span","lc-raca",rc));
+    if(r.vendedor)inf.append(el("span","lc-vend",r.vendedor));
+    c.append(inf);
     if(tem){
       var th=el("div","thumbs");
       videos.forEach(function(it,i){th.append(miniatura(r.lote,"videos",i,it.capa,"VÍDEO"));});
