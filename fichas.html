@@ -453,11 +453,18 @@ td input:focus{border-color:var(--destaque)}
         <p class="ordregra">Sugestão montada pela regra dos últimos leilões: <b>machos antes das fêmeas</b>; depois o grupo de raça (<b>Nelore e ½ Tabapuã</b> → Anelorados → cruzas europeias → Cruz. Industrial → Canchim → <b>Cruzados</b>); dentro do grupo, <b>do mais leve pro mais pesado</b>. Lotes de 1 ou 2 cabeças e vacas (+36 M) vão pro fim de cada sexo.<br>Para mudar: digite o número da ordem, ou segure o botão <b>▲▼</b> e arraste o lote. Um toque na setinha de cima sobe uma posição; na de baixo, desce.</p>
       </div>
       <div class="row ordacoes">
-        <button class="btn" type="button" id="ordImprimir">Imprimir</button>
+        <button class="btn" type="button" id="ordImprimir">🖨 Imprimir (preto e branco)</button>
         <button class="btn danger" type="button" id="ordRefazer">Refazer sugestão</button>
       </div>
     </div>
     <div class="ordexp ordacoes">
+      <div class="grupo">
+        <span class="rot">Ordem completa, com raça, idade e peso (modelo do site)</span>
+        <div class="row">
+          <button class="btn" type="button" id="ordPb">🖨 Imprimir preto e branco</button>
+          <button class="btn zap" type="button" id="ordCor">Enviar colorida</button>
+        </div>
+      </div>
       <div class="grupo">
         <span class="rot">Mandar os números dos lotes pelo WhatsApp</span>
         <div class="row">
@@ -528,6 +535,7 @@ td input:focus{border-color:var(--destaque)}
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+<script src="vendor/jspdf/jspdf.umd.min.js"></script>
 <script type="module">
 /* ---------- leitura do PDF (aqui mesmo, no navegador) ---------- */
 /* pdf.js 3 (versão "legacy", que funciona em iPhones e navegadores mais antigos);
@@ -1989,7 +1997,7 @@ $("ordRefazer").addEventListener("click",function(){
   S.rows.forEach(function(r){delete r.os;});
   renderOrd();toast("Ordem refeita pela regra.");
 });
-$("ordImprimir").addEventListener("click",function(){window.print();});
+$("ordImprimir").addEventListener("click",function(){ordImprimirPb();});
 
 /* ---------- ordem: mandar pro site dos produtores (só quando tocar no botão) ---------- */
 function situacaoSite(l){
@@ -2122,6 +2130,147 @@ $("ordZapPdf").addEventListener("click",function(){mandarZap("pdf");});
 $("ordZapDoc").addEventListener("click",function(){mandarZap("docx");});
 window.__ordPdf=function(){return ordPdf(ordLista());};
 window.__ordDocx=function(){return ordDocx(ordLista());};
+
+/* ---------- ordem completa no modelo do site (logo no topo, raça, idade, sexo, qtde e peso):
+   "Imprimir preto e branco" abre o PDF sem fundos coloridos; "Enviar colorida" compartilha o PDF verde ---------- */
+var AG_EV=null;
+async function eventoAgenda(){
+  if(AG_EV!==null)return AG_EV;
+  AG_EV=false;
+  try{
+    var j=await (await fetch("agenda.json?v="+Date.now(),{cache:"no-store"})).json();
+    var m=(S.data||"").match(/(\d{2})\/(\d{2})\/(\d{4})/),iso=m?m[3]+"-"+m[2]+"-"+m[1]:"";
+    AG_EV=(j.leiloes||[]).find(function(e){return /leiloing/i.test(e.leiloeira||"")&&e.data===iso;})||false;
+  }catch(e){}
+  return AG_EV;
+}
+var LOGO={};
+function logoData(pb){
+  var k=pb?1:0;if(LOGO[k])return Promise.resolve(LOGO[k]);
+  return new Promise(function(ok){
+    var im=new Image();
+    im.onload=function(){
+      var c=document.createElement("canvas");c.width=im.naturalWidth;c.height=im.naturalHeight;var g=c.getContext("2d");g.drawImage(im,0,0);
+      if(pb){var d=g.getImageData(0,0,c.width,c.height),px=d.data;for(var i=0;i<px.length;i+=4){var a=px[i+3]/255,y=(0.299*px[i]+0.587*px[i+1]+0.114*px[i+2])*a+255*(1-a);px[i]=px[i+1]=px[i+2]=y;px[i+3]=255;}g.putImageData(d,0,0);}
+      LOGO[k]={d:c.toDataURL("image/png"),w:c.width,h:c.height};ok(LOGO[k]);
+    };
+    im.onerror=function(){ok(null);};
+    im.src="logo-leiloinga.png";
+  });
+}
+var DIAS=["Domingo","Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado"];
+async function ordPdfCompleto(l,pb){
+  var J=window.jspdf&&window.jspdf.jsPDF;if(!J)throw new Error("jspdf");
+  var ev=await eventoAgenda(),logo=await logoData(pb);
+  var doc=new J({unit:"pt",format:"a4"}),W=595.28,H=841.89;
+  var C=pb?{verde:[0,0,0],esc:[0,0,0],vivo:[0,0,0],verm:[0,0,0],txt:[0,0,0],cinza:[68,68,68],listra:[237,237,237],linha:[154,154,154]}
+          :{verde:[13,93,35],esc:[8,63,24],vivo:[38,232,86],verm:[252,40,47],txt:[18,38,26],cinza:[74,95,80],listra:[238,243,236],linha:[211,221,207]};
+  var claro=pb?[0,0,0]:[255,255,255];
+  var evento=ev?(ev.nome+" – "+String(ev.cidade||"").replace(/\s*-\s*PR$/i,"")):(S.leilao||"Leilão");
+  var info=[];
+  if(ev){
+    var dt=new Date(ev.data+"T12:00:00");
+    if(ev.local)info.push(ev.local);
+    if(ev.cidade)info.push(String(ev.cidade).replace(/\s*-\s*/," - "));
+    info.push(DIAS[dt.getDay()]+", "+ev.data.slice(8,10)+"/"+ev.data.slice(5,7)+(ev.hora?" · "+ev.hora.replace(":","h"):""));
+  }else if(S.data)info.push(S.data);
+  var COLS=[["ORDEM",52,"c"],["LOTE",52,"c"],["RAÇA",150,"l"],["IDADE",70,"c"],["SEXO",64,"c"],["QTDE",50,"c"],["PESO MÉDIO",85,"c"]];
+  var larg=COLS.reduce(function(a,c){return a+c[1];},0),x0=(W-larg)/2;
+  var n=l.length,livre=H-110-14-22-48-46,UMA=n>0&&livre/n>=14;
+  var linH=UMA?Math.min(26,livre/n):22,cabH=UMA?22:26;
+  function cabe(p){if(UMA)return n+3;var topo=H-(p===1?156:76)-22-cabH;return Math.floor((topo-70)/linH);}
+  var pags=[],resto=l.slice(),pg=1;
+  while(resto.length||!pags.length){var k=cabe(pg);pags.push(resto.slice(0,k));resto=resto.slice(k);pg++;}
+  if(!UMA&&pags[pags.length-1].length>cabe(pags.length)-3)pags.push([]);
+  function cor(a){doc.setTextColor(a[0],a[1],a[2]);}
+  function fundo(a){doc.setFillColor(a[0],a[1],a[2]);}
+  function cabecalho(p,tot){
+    var alt=p===1?(UMA?104:150):70;
+    if(pb){fundo([0,0,0]);doc.rect(0,alt,W,3,"F");}
+    else{fundo(C.verde);doc.rect(0,0,W,alt,"F");fundo(C.vivo);doc.rect(0,alt,W,6,"F");}
+    var lw=p===1?(UMA?150:190):120,top=p===1?(UMA?20:30):18;
+    if(logo)doc.addImage(logo.d,"PNG",36,top,lw,lw*logo.h/logo.w);
+    doc.setFont("helvetica","bold");cor(claro);
+    if(p===1){
+      doc.setFontSize(UMA?21:23);doc.text("ORDEM DE ENTRADA",W-36,UMA?44:62,{align:"right"});
+      doc.setFontSize(UMA?13:15);doc.text(evento.toUpperCase(),36,UMA?76:106);
+      var x=36,yb=UMA?80:117;doc.setFontSize(10.5);
+      info.forEach(function(t,i){
+        var ult=i===info.length-1;doc.setFont("helvetica",ult||pb?"bold":"normal");
+        var w=doc.getTextWidth(t)+20;
+        if(pb){doc.setDrawColor(0,0,0);doc.setLineWidth(1);doc.roundedRect(x,yb,w,19,9.5,9.5,"S");cor([0,0,0]);}
+        else{fundo(ult?C.verm:C.esc);doc.roundedRect(x,yb,w,19,9.5,9.5,"F");cor([255,255,255]);}
+        doc.text(t,x+10,yb+13);x+=w+8;
+      });
+    }else{doc.setFontSize(16);doc.text("ORDEM DE ENTRADA",W-36,42,{align:"right"});}
+    doc.setFont("helvetica","normal");doc.setFontSize(9);cor(C.cinza);
+    doc.text("Leiloingá Leilões  ·  página "+p+" de "+tot,W/2,H-22,{align:"center"});
+    return alt+6;
+  }
+  var pos=0;
+  pags.forEach(function(grupo,i){
+    if(i)doc.addPage();
+    var y=cabecalho(i+1,pags.length)+(UMA?14:22);
+    if(grupo.length){
+      fundo(C.verde);doc.roundedRect(x0,y,larg,cabH,4,4,"F");
+      doc.setFont("helvetica","bold");doc.setFontSize(10.5);cor([255,255,255]);
+      var x=x0;COLS.forEach(function(c){if(c[2]==="c")doc.text(c[0],x+c[1]/2,y+cabH/2+3.5,{align:"center"});else doc.text(c[0],x+10,y+cabH/2+3.5);x+=c[1];});
+      y+=cabH;
+      var k=Math.pow(Math.min(1,linH/26),0.4);
+      grupo.forEach(function(r){
+        pos++;
+        if(pos%2===0){fundo(C.listra);doc.rect(x0,y,larg,linH,"F");}
+        doc.setDrawColor(C.linha[0],C.linha[1],C.linha[2]);doc.setLineWidth(0.6);doc.line(x0,y+linH,x0+larg,y+linH);
+        var vals=[(r.os||pos)+"º",dois(r.lote),racaFicha(r.raca),idadeFicha(r.idade),r.sexo==="M"?"Macho":r.sexo==="F"?"Fêmea":"",r.qtde==null?"":dois(r.qtde),r.peso==null?"":r.peso+" kg"];
+        var base=y+linH/2+4*k,xx=x0;
+        COLS.forEach(function(c,j){
+          if(j===1){cor(C.verde);doc.setFont("helvetica","bold");doc.setFontSize(13*k);}
+          else if(j===0){cor(C.cinza);doc.setFont("helvetica","bold");doc.setFontSize(10.5*k);}
+          else{cor(C.txt);doc.setFont("helvetica","normal");doc.setFontSize(11*k);}
+          if(c[2]==="c")doc.text(String(vals[j]),xx+c[1]/2,base,{align:"center"});else doc.text(String(vals[j]),xx+10,base);
+          xx+=c[1];
+        });
+        y+=linH;
+      });
+    }
+    if(i===pags.length-1){
+      var cab=0,mac=0,fem=0;l.forEach(function(r){var q=r.qtde||0;cab+=q;if(r.sexo==="M")mac+=q;else if(r.sexo==="F")fem+=q;});
+      doc.setDrawColor(C.verde[0],C.verde[1],C.verde[2]);doc.setLineWidth(1.2);doc.line(x0,y+8,x0+larg,y+8);
+      doc.setFont("helvetica","bold");doc.setFontSize(12);cor(C.verde);
+      doc.text("TOTAL: "+n+" LOTES  ·  "+cab+" CABEÇAS",x0,y+28);
+      cor(C.txt);doc.text("MACHOS: "+mac,x0,y+48);doc.text("FÊMEAS: "+fem,x0+150,y+48);
+    }
+  });
+  doc.setProperties({title:"Ordem de entrada · Leiloingá Leilões",author:"Leiloingá Leilões"});
+  return doc.output("blob");
+}
+function ordListaCompleta(){var l=ordLista();if(l.length)return l;return S.rows.filter(function(r){return r.lote!=null;}).slice().sort(function(a,b){return (a.ord||9999)-(b.ord||9999)||a.lote-b.lote;});}
+async function ordImprimirPb(){
+  var l=ordListaCompleta();if(!l.length){toast("Ainda não tem lotes na ordem.");return;}
+  var w=null;try{w=window.open("","_blank");}catch(e){}
+  try{
+    var blob=await ordPdfCompleto(l,true),url=URL.createObjectURL(blob);
+    if(w&&!w.closed){w.location.href=url;toast("PDF preto e branco aberto. Use o botão de imprimir dele (ou Ctrl+P).",7000);}
+    else{baixarBlob(blob,ordNomeArq("pdf").replace(".pdf","-pb.pdf"));toast("PDF preto e branco baixado. Abra e mande imprimir.",7000);}
+    setTimeout(function(){URL.revokeObjectURL(url);},120000);
+  }catch(e){if(w)try{w.close();}catch(_){}toast("Não deu para montar o PDF agora. Recarregue a página e tente de novo.",6000);}
+}
+async function ordEnviarCor(){
+  var l=ordListaCompleta();if(!l.length){toast("Ainda não tem lotes na ordem.");return;}
+  try{
+    var blob=await ordPdfCompleto(l,false),nome=ordNomeArq("pdf"),arq=null;
+    try{arq=new File([blob],nome,{type:"application/pdf"});}catch(e){}
+    if(arq&&navigator.canShare&&navigator.share){
+      var pode=false;try{pode=navigator.canShare({files:[arq]});}catch(e){}
+      if(pode){try{await navigator.share({files:[arq],title:"Ordem de entrada"});return;}catch(e){if(e&&e.name==="AbortError")return;}}
+    }
+    baixarBlob(blob,nome);
+    toast("PDF colorido "+nome+" baixado. No WhatsApp, toque no clipe (ou +) e anexe ele.",9000);
+  }catch(e){toast("Não deu para montar o PDF agora. Recarregue a página e tente de novo.",6000);}
+}
+$("ordPb").addEventListener("click",ordImprimirPb);
+$("ordCor").addEventListener("click",ordEnviarCor);
+window.__ordPdfCompleto=function(pb){return ordPdfCompleto(ordListaCompleta(),pb);};
 
 /* ---------- início ---------- */
 carregarLocal();mostrar(VIEW);render();renderFiles();limparMan();iniciarNuvem();
