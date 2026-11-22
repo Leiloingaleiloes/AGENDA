@@ -75,16 +75,22 @@ h2{font:700 1.05rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing
 .btn svg{width:18px;height:18px}
 
 /* filtros: uma faixa com os três grupos lado a lado */
-.filtros{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(0,1fr) minmax(0,1fr) auto;gap:14px 20px;align-items:end}
+.filtros{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1.15fr) minmax(0,1.05fr) auto;gap:14px 20px;align-items:end}
 @media (max-width:1000px){.filtros{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.filtros .grupo:first-child{grid-column:1/-1}.filtros .tudo{grid-column:1/-1}}
 @media (max-width:520px){.filtros{grid-template-columns:minmax(0,1fr)}}
-.grupo .gt{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
-.grupo .gt b{font:700 1.05rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.filtros .grupo{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px 12px;background:var(--surface-2);border-top-width:5px}
+.filtros .grupo.gp{border-top-color:#2E6A3E}
+.filtros .grupo.gr{border-top-color:#B07A3B}
+.filtros .grupo.gs{border-top-color:#3E6FA8}
+.filtros{align-items:stretch}
+.filtros .tudo{align-self:end}
+.grupo .gt{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.grupo .gt b{font:700 1.15rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.06em;color:var(--fg)}
 .todos{border:0;background:none;color:var(--accent);font-weight:700;font-size:.85rem;cursor:pointer;padding:4px 2px}
 .todos:hover{text-decoration:underline}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{flex:1 1 0;min-width:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:52px;padding:5px 8px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;text-align:center;transition:background .12s,border-color .12s}
-.chip .l{font:700 1.15rem/1.05 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
+.chip{flex:1 1 0;min-width:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:52px;padding:5px 8px;border-radius:9px;border:1.5px solid #C9D1CA;background:#fff;cursor:pointer;text-align:center;transition:background .12s,border-color .12s}
+.chip .l{white-space:nowrap;font:700 1.08rem/1.05 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
 .chip .s{font-size:.74rem;color:var(--muted);line-height:1.2}
 .chip:hover{border-color:var(--muted)}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -139,24 +145,26 @@ h2{font:700 1.05rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing
 .medlist li.semv .t{color:var(--muted)}
 @media (max-width:520px){.medlist li{grid-template-columns:minmax(0,1fr) auto}.medlist .verl{grid-column:1/-1;justify-self:start}}
 /* quadro de uma categoria */
-.modal.catm .cx.catcx{width:min(100%,780px);max-height:90vh;display:flex;flex-direction:column;padding:0}
+.modal.catm{padding:10px}
+.modal.catm .cx.catcx{width:min(100%,1320px);height:min(96vh,100%);max-height:96vh;display:flex;flex-direction:column;padding:0}
 .modal.catm label{display:inline-flex;margin:0;font:600 .9rem var(--f-body);text-transform:none;letter-spacing:0}
 .modal.catm input[type=checkbox]{width:18px;height:18px;padding:0;border:0}
 .cath{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
 .cath h3{margin:0 0 2px}
-.catlista{overflow:auto;padding:12px 18px 18px;display:grid;gap:8px}
-.clote{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:6px;background:#fff}
+.catlista{overflow:auto;padding:12px 16px 16px;display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));align-content:start;background:var(--surface-2)}
+.clote{border:1.5px solid #B4C6B9;border-radius:12px;padding:10px;display:grid;gap:6px;background:#fff;align-content:start}
 .clote.out{background:#F5F5F5;border-style:dashed}
 .clote.out .cn,.clote.out .cd{opacity:.55}
-.ct{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
-.cn{font:700 1.3rem var(--f-display)}
-.cin{display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:.9rem;cursor:pointer;padding:5px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.ct{display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:2px 8px}
+.cn{font:700 1.45rem/1 var(--f-display)}
+.cin{grid-column:1/-1;order:3;display:flex!important;justify-content:center;align-items:center;gap:7px;font-weight:700;font-size:.88rem;cursor:pointer;padding:6px 10px;border-radius:8px;background:var(--accent-soft);color:var(--accent);margin-top:4px!important}
 .clote.out .cin{background:#E8E8E8;color:var(--muted)}
 .cin input{width:18px;height:18px;accent-color:var(--accent)}
-.crk{margin-left:auto;font:700 1.15rem var(--f-display);color:var(--ouro)}
-.cd{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.9rem;color:var(--muted)}
-.cmv{display:flex;align-items:center;gap:8px;font-size:.86rem;color:var(--muted);flex-wrap:wrap}
-.cmv select{height:38px;border:1.5px solid var(--line);border-radius:8px;background:#fff;padding:0 8px;font-size:.9rem;max-width:100%}
+.crk{justify-self:end;font:700 1.1rem var(--f-display);color:var(--ouro);white-space:nowrap}
+.cd{display:grid;gap:1px;font-size:.84rem;color:var(--muted);line-height:1.35}
+.cd span:first-child{color:var(--fg);font-weight:600}
+.cmv{display:grid!important;gap:3px;font-size:.74rem!important;color:var(--muted);text-transform:uppercase!important;letter-spacing:.05em!important}
+.cmv select{width:100%;height:36px;border:1.5px solid var(--line);border-radius:8px;background:#fff;padding:0 6px;font-size:.84rem;text-transform:none}
 /* aba categorias */
 .cgh{font:700 1.3rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.03em;margin:16px 0 10px}
 .cgh:first-child{margin-top:0}
@@ -361,11 +369,10 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
     </div>
 
     <section class="card filtros" aria-label="O que somar">
-      <div class="grupo"><div class="gt"><b>Peso médio do lote</b><button class="todos" type="button" data-todos="peso">Todos</button></div><div class="chips" id="chPeso"></div></div>
-      <div class="grupo"><div class="gt"><b>Raça</b><button class="todos" type="button" data-todos="raca">Todos</button></div><div class="chips" id="chRaca"></div></div>
-      <div class="grupo"><div class="gt"><b>Sexo</b><button class="todos" type="button" data-todos="sexo">Todos</button></div><div class="chips" id="chSexo"></div></div>
+      <div class="grupo gp"><div class="gt"><b>Peso médio do lote</b><button class="todos" type="button" data-todos="peso">Todos</button></div><div class="chips" id="chPeso"></div></div>
+      <div class="grupo gr"><div class="gt"><b>Raça</b><button class="todos" type="button" data-todos="raca">Todos</button></div><div class="chips" id="chRaca"></div></div>
+      <div class="grupo gs"><div class="gt"><b>Sexo</b><button class="todos" type="button" data-todos="sexo">Todos</button></div><div class="chips" id="chSexo"></div></div>
       <button class="btn pri tudo" type="button" id="tudo">Somar tudo</button>
-      <div class="grupo gtipo" id="gTipo" hidden><div class="gt"><b>Tipo</b><button class="todos" type="button" data-todos="tipo">Todos</button></div><div class="chips" id="chTipo"></div></div>
     </section>
 
     <section class="soma" aria-live="polite" id="soma"></section>
@@ -855,10 +862,10 @@ function chip(rot,sub,on,vazio,fn){
   b.append(el("span","l",rot));if(sub)b.append(el("span","s",sub));
   b.addEventListener("click",fn);return b;
 }
-function alterna(g,k){var a=R.sel[g],i=a.indexOf(k);if(i>=0)a.splice(i,1);else a.push(k);mudou();}
+function alterna(g,k){var a=R.sel[g],i=a.indexOf(k);if(i>=0)a.splice(i,1);else a.push(k);R.sel.tipo=listas().tipo;mudou();}
 function mudou(){R.em=new Date().toISOString();salvaDB();render();}
 function listas(){return {peso:FAIXAS.map(function(f){return f.k;}),raca:["B","C"],sexo:["M","F"],tipo:["comum"].concat(ESPECIAIS.map(function(e){return e.k;}))};}
-document.querySelectorAll("[data-todos]").forEach(function(b){b.addEventListener("click",function(){var g=b.dataset.todos,L=listas()[g];R.sel[g]=R.sel[g].length>=L.length?[]:L.slice();mudou();});});
+document.querySelectorAll("[data-todos]").forEach(function(b){b.addEventListener("click",function(){var g=b.dataset.todos,L=listas()[g];R.sel[g]=R.sel[g].length>=L.length?[]:L.slice();R.sel.tipo=listas().tipo;mudou();});});
 function render(){
   var val=R.lotes.filter(conta);
   var cp=$("chPeso");cp.textContent="";
@@ -870,15 +877,6 @@ function render(){
   var cs=$("chSexo");cs.textContent="";
   SEXOS.forEach(function(s){var c=soma(val.filter(function(l){return l.sexo===s.k;})).c;
     cs.append(chip(s.t,c+" cab.",R.sel.sexo.indexOf(s.k)>=0,!c,function(){alterna("sexo",s.k);}));});
-  /* tipo: gado comum + as categorias especiais que foram marcadas neste leilão */
-  var ct=$("chTipo");ct.textContent="";var usados=especiaisVisiveis();
-  $("gTipo").hidden=false;
-  if(usados.length){
-    var cc=soma(val.filter(function(l){return !catDe(l);})).c;
-    ct.append(chip("Comum",cc+" cab.",R.sel.tipo.indexOf("comum")>=0,!cc,function(){alterna("tipo","comum");}));
-    usados.forEach(function(e){var c=soma(val.filter(function(l){return catDe(l)===e.k;})).c;
-      ct.append(chip(e.t,c+" cab.",R.sel.tipo.indexOf(e.k)>=0,!c,function(){alterna("tipo",e.k);}));});
-  }
   var L=listas();
   document.querySelectorAll("[data-todos]").forEach(function(b){var g=b.dataset.todos;b.textContent=R.sel[g].length>=L[g].length?"Limpar":"Todos";});
   var tudo=R.sel.peso.length===4&&R.sel.raca.length===2&&R.sel.sexo.length===2&&R.sel.tipo.length>=L.tipo.length;
@@ -1049,12 +1047,12 @@ function renderCategoria(){
     cb.addEventListener("change",function(){if(cb.checked)delete R.fora[l.lote];else R.fora[l.lote]=true;mudou();});
     lab.append(cb,document.createTextNode(out?"Fora da soma":"Na soma"));
     top.append(el("b","cn","Lote "+dois(l.lote)),lab);
-    var rk=el("span","crk",v&&l.peso&&s!=="R"?"R$ "+f2(v*3/l.peso)+"/kg":(s==="R"?"Retorno":"sem lance"));top.append(rk);
+    var rk=el("span","crk",v&&l.peso&&s!=="R"?"R$ "+f2(v*3/l.peso):(s==="R"?"Retorno":"–"));top.append(rk);
     c.append(top);
     var det=el("div","cd");
-    [[l.qtde+" "+(l.sexo==="M"?(l.qtde>1?"machos":"macho"):(l.qtde>1?"fêmeas":"fêmea"))],[kg(l.peso)+" kg"],[l.idade||""],[racaTxt(l.raca)+" · "+(g==="B"?"branco":"cruzado")],[v?"lance "+f2(v)+" · "+brl0(v*3)+"/cab.":""]].forEach(function(x){if(x[0])det.append(el("span",null,x[0]));});
+    [[l.qtde+" "+(l.sexo==="M"?(l.qtde>1?"machos":"macho"):(l.qtde>1?"fêmeas":"fêmea"))+" · "+kg(l.peso)+" kg"],[racaTxt(l.raca)+" · "+(g==="B"?"branco":"cruzado")],[l.idade||""],[v?"lance "+f2(v)+" · "+brl0(v*3)+"/cab.":"sem lance"]].forEach(function(x){if(x[0])det.append(el("span",null,x[0]));});
     c.append(det);
-    var mv=el("label","cmv");mv.append(document.createTextNode("Mover para "));
+    var mv=el("label","cmv");mv.append(document.createTextNode("Mover para"));
     var se=el("select");opcoesDestino(l).forEach(function(o){var op=el("option",null,o.t);op.value=o.d;if(o.d===destinoAtual(l))op.selected=true;se.append(op);});
     se.addEventListener("change",function(){moverLoteRel(l,se.value);toast("Lote "+dois(l.lote)+" → "+nomeDestino(se.value)+".");});
     mv.append(se);c.append(mv);
