@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2E6A3E">
+<meta name="color-scheme" content="light only">
+<title>Relatório dos Lotes · Leiloingá</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Relatório dos Lotes: lê o PDF da ordem de entrada do sistema e soma as categorias escolhidas
+   (idade, raça, sexo), com o peso médio por cabeça. Layout: filtros à esquerda, resultado à direita;
+   no celular, uma coluna com a soma presa embaixo da tela. */
+:root{
+  --bg:#EDEEF0; --surface:#FFFFFF; --surface-2:#F5F7F5; --line:#D9DED9; --fg:#1B211D; --muted:#5B655E;
+  --accent:#2E6A3E; --accent-2:#245632; --accent-ink:#FFFFFF; --accent-soft:#E1EDE3;
+  --branco:#EEF1EC; --branco-ink:#2F3A33; --cruz:#7A4E1F; --cruz-soft:#F6EBDD;
+  --warn:#8A5200; --warn-soft:#FBEFD9; --bad:#B42318; --bad-soft:#FDE7E4; --good:#25693A; --good-soft:#DCEFE0;
+  --f-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --f-body:"Barlow","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 15px/1.45 var(--f-body)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.topbar{background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1320px;margin:0 auto;padding:10px max(20px,env(safe-area-inset-right,0px)) 10px max(20px,env(safe-area-inset-left,0px));display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px}
+.brand{display:flex;align-items:center;gap:16px;min-width:0}
+.brand img{height:38px;width:auto;display:block}
+h1{font:700 1.9rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.01em;margin:0}
+h1 span{color:var(--accent)}
+.topacts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.homebtn{font:600 .86rem var(--f-body);text-decoration:none;padding:8px 12px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--fg);white-space:nowrap;cursor:pointer}
+.homebtn:hover{border-color:var(--muted)}
+.nuvem{display:inline-flex;align-items:center;gap:7px}
+.nuvem i{width:9px;height:9px;border-radius:50%;background:#B8C0BA}
+.nuvem.on i{background:var(--good)}
+
+.page{max-width:1320px;margin:0 auto;padding:20px max(20px,env(safe-area-inset-right,0px)) 120px max(20px,env(safe-area-inset-left,0px))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
+h2{font:700 1.05rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 12px}
+.muted{color:var(--muted)}
+.note{font-size:.86rem;color:var(--muted);margin:8px 0 0}
+
+/* faixa do leilão */
+.leilao{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin-bottom:18px}
+.leilao .nome{font:700 1.6rem/1.05 var(--f-display);text-transform:uppercase;letter-spacing:.02em;margin:0}
+.leilao .sub{color:var(--muted);margin:4px 0 0;font-size:.95rem}
+.leilao .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.leilao select{height:42px;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:0 10px;max-width:min(100%,340px)}
+
+/* envio do PDF */
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;border:2px dashed #B5C2B8;border-radius:14px;padding:44px 18px;background:var(--surface);cursor:pointer;position:relative}
+.drop.on{border-color:var(--accent);background:var(--accent-soft)}
+.drop svg{width:46px;height:46px;color:var(--accent)}
+.drop b{font:700 1.6rem/1.05 var(--f-display);text-transform:uppercase;letter-spacing:.03em}
+.drop span{color:var(--muted);max-width:52ch}
+.drop input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.status{margin:10px 0 0;font-size:.95rem;min-height:1.4em;color:var(--muted)}
+.status.err{color:var(--bad)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 16px;border-radius:8px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600;white-space:nowrap;text-decoration:none;color:var(--fg)}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{background:var(--accent-2)}
+.btn.zap{border-color:#1FA855;color:#16803F}
+.btn svg{width:18px;height:18px}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media (min-width:1000px){.grid{grid-template-columns:380px minmax(0,1fr)}.filtros{position:sticky;top:16px}}
+
+/* filtros */
+.filtros .topo{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.filtros .topo h2{margin:0}
+.grupo{border-top:1px solid var(--line);padding:14px 0 4px}
+.grupo:first-of-type{border-top:0}
+.grupo .gt{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+.grupo .gt b{font:700 1.15rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.04em}
+.chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.chips.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.chip{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-height:58px;padding:8px 12px 8px 38px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;text-align:left;position:relative;transition:background .12s,border-color .12s}
+.chip::before{content:"";position:absolute;left:12px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:5px;border:2px solid #9AA59D;background:var(--surface)}
+.chip .l{font:700 1.15rem/1.05 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
+.chip .s{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip:hover{border-color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.chip[aria-pressed="true"]::before{background:var(--accent);border-color:var(--accent);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-size:14px;background-position:center;background-repeat:no-repeat}
+.chip.vazio{opacity:.55}
+.chip.todos{grid-column:1/-1;min-height:44px;flex-direction:row;align-items:center;gap:8px}
+.chip.todos .l{font-size:1rem}
+.tudo{width:100%;margin-top:14px;min-height:50px;font:700 1.15rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.05em}
+
+/* resultado */
+.resultado{display:grid;gap:18px;min-width:0}
+.soma{background:var(--accent);color:var(--accent-ink);border-radius:14px;padding:18px 20px;display:grid;gap:14px}
+.soma .oque{font-size:1rem;opacity:.92;margin:0}
+.soma .oque b{font-weight:700}
+.kpis{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:1px;background:rgba(255,255,255,.22);border-radius:10px;overflow:hidden}
+.kpis div{background:var(--accent);padding:6px 14px;display:grid;gap:2px;min-width:0}
+.kpis .k{font:600 .74rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;opacity:.85}
+.kpis b{font:700 2.1rem/1 var(--f-display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpis .big b{font-size:3.4rem}
+.kpis b small{font-size:.5em;font-weight:600;margin-left:3px;opacity:.9}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.kpis .big{grid-column:1/-1}.kpis .big b{font-size:3rem}.kpis b{font-size:1.5rem}.kpis div{padding:6px 10px}}
+.soma .acts{display:flex;flex-wrap:wrap;gap:8px}
+.soma .btn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.45);color:#fff}
+.soma .btn:hover{background:rgba(255,255,255,.22)}
+.vaziosoma{font:600 1.05rem var(--f-body);margin:0}
+
+.aviso{padding:10px 14px;border-radius:10px;font-size:.93rem;display:flex;gap:10px;align-items:flex-start}
+.aviso::before{content:"";flex:none;width:10px;height:10px;border-radius:50%;margin-top:6px;background:currentColor}
+.aviso span{color:var(--fg)}
+.aviso.ok{background:var(--good-soft);color:var(--good)}
+.aviso.warn{background:var(--warn-soft);color:var(--warn)}
+.aviso.bad{background:var(--bad-soft);color:var(--bad)}
+.avisos{display:grid;gap:8px}
+
+/* quadro por categoria */
+.tw{overflow-x:auto;margin:0 -4px;padding:0 4px}
+table.quadro{width:100%;border-collapse:separate;border-spacing:0;min-width:640px;font-variant-numeric:tabular-nums}
+.quadro th{font:600 .74rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:center;padding:8px 6px;border-bottom:2px solid var(--fg);white-space:nowrap}
+.quadro th:first-child{text-align:left}
+.quadro th.b{color:var(--branco-ink)} .quadro th.c{color:var(--cruz)}
+.quadro td{padding:4px;border-bottom:1px solid var(--line);vertical-align:middle}
+.quadro td.cat{padding:8px 8px 8px 2px;white-space:nowrap}
+.quadro td.cat b{font:700 1.15rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.02em;display:block}
+.quadro td.cat small{color:var(--muted);font-size:.8rem}
+.quadro tr.sx td{background:var(--surface-2);font:700 .8rem var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--accent);padding:7px 8px;border-bottom:1px solid var(--line)}
+.quadro tr.sub td{border-bottom:2px solid #B9C4BC}
+.quadro tr.sub td.cat b{font-size:1rem;color:var(--muted)}
+.quadro tr.tot td{border-bottom:0;border-top:2px solid var(--fg)}
+.cel{width:100%;display:grid;gap:1px;justify-items:center;padding:8px 6px;border-radius:9px;border:1.5px solid transparent;background:transparent;cursor:pointer;min-height:56px;align-content:center}
+.cel:hover{border-color:var(--line);background:var(--surface-2)}
+.cel b{font:700 1.35rem/1 var(--f-display);white-space:nowrap}
+.cel b small{font-size:.62em;font-weight:600}
+.cel span{font-size:.8rem;color:var(--muted)}
+.cel.zero{cursor:default;color:#A7AFA9}
+.cel.zero:hover{border-color:transparent;background:transparent}
+.cel.in{background:var(--accent-soft);border-color:var(--accent)}
+.cel.in span{color:var(--accent-2)}
+td.tc .cel{background:var(--surface-2)}
+td.tc .cel.in{background:var(--accent-soft)}
+.dica{font-size:.84rem;color:var(--muted);margin:10px 0 0}
+@media (max-width:640px){
+  table.quadro{min-width:0;table-layout:fixed}
+  .quadro th:first-child{width:31%}
+  .quadro th{font-size:.66rem;letter-spacing:.04em;padding:6px 2px}
+  .quadro td{padding:3px 2px}
+  .quadro td.cat{padding:6px 4px 6px 0;white-space:normal}
+  .quadro td.cat b{font-size:1rem}
+  .quadro td.cat small{font-size:.72rem}
+  .cel{padding:6px 2px;min-height:48px;border-radius:7px}
+  .cel b{font-size:1.05rem}
+  .cel span{font-size:.7rem}
+  .cel span .lt2{display:none}
+  .raca{grid-template-columns:minmax(0,1fr)}
+  .seg{width:100%}
+}
+
+/* raças */
+.racas{display:grid;gap:8px}
+.raca{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.raca.nova{border-color:#E2B866;background:#FFFBF2}
+.raca .n{font:700 1.1rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
+.raca .q{font-size:.82rem;color:var(--muted)}
+.raca .tag{display:inline-block;font:700 .68rem/1 var(--f-body);text-transform:uppercase;letter-spacing:.06em;padding:3px 7px;border-radius:99px;background:#F3D48F;color:#5A3C00;margin-left:6px;vertical-align:2px}
+.seg{display:inline-grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:0 14px;min-height:40px;font-weight:700;cursor:pointer;color:var(--muted)}
+.seg button+button{border-left:1.5px solid var(--line)}
+.seg button[aria-pressed="true"].b{background:var(--branco);color:var(--branco-ink);box-shadow:inset 0 0 0 2px #8A968D}
+.seg button[aria-pressed="true"].c{background:var(--cruz-soft);color:var(--cruz);box-shadow:inset 0 0 0 2px #C99A62}
+.racacab{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;margin-bottom:10px}
+.racacab h2{margin:0}
+
+/* lotes */
+details.lotes summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+details.lotes summary::-webkit-details-marker{display:none}
+details.lotes summary h2{margin:0}
+details.lotes summary .ab{font-weight:600;color:var(--accent);font-size:.92rem;white-space:nowrap}
+details.lotes[open] summary .ab::after{content:" ▲"} details.lotes:not([open]) summary .ab::after{content:" ▼"}
+table.tl{width:100%;border-collapse:collapse;min-width:720px;font-variant-numeric:tabular-nums;margin-top:12px}
+.tl th{font:600 .72rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;padding:8px 6px;border-bottom:2px solid var(--fg);white-space:nowrap}
+.tl td{padding:7px 6px;border-bottom:1px solid var(--line)}
+.tl td.r,.tl th.r{text-align:right}
+.tl .lt{font:700 1.1rem var(--f-display)}
+.gb{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:99px}
+.gb.B{background:var(--branco);color:var(--branco-ink);box-shadow:inset 0 0 0 1px #A9B3AB}
+.gb.C{background:var(--cruz-soft);color:var(--cruz)}
+
+/* barra presa embaixo no celular */
+.barra{display:none}
+@media (max-width:999px){
+  .barra{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--accent);color:#fff;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));justify-content:space-between;align-items:center;gap:12px;box-shadow:0 -4px 14px rgba(0,0,0,.15)}
+  .barra .m b{font:700 1.9rem/1 var(--f-display)}
+  .barra .m small{font-size:.8rem;opacity:.85;margin-left:4px}
+  .barra{cursor:pointer}
+  .barra .a{font-size:.88rem;text-align:right;opacity:.95;line-height:1.3}
+  .barra .a b{font:700 1.2rem var(--f-display)}
+}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom,0px));max-width:min(92vw,520px);padding:12px 18px;border-radius:9px;background:var(--fg);color:#fff;font-weight:600;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+
+/* conectar */
+.modal{position:fixed;inset:0;z-index:30;background:rgba(10,20,14,.5);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal .cx{background:#fff;border-radius:16px;padding:20px;width:min(100%,440px)}
+.modal h3{font:700 1.4rem var(--f-display);text-transform:uppercase;margin:0 0 6px}
+.modal label{display:block;font:600 .78rem var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:12px 0 4px}
+.modal input{width:100%;height:46px;padding:0 12px;border:1.5px solid var(--line);border-radius:9px}
+.modal .row{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.modal .msg{min-height:1.3em;font-size:.9rem;margin-top:8px}
+.modal .msg.err{color:var(--bad)}
+
+/* impressão / PDF: só o resultado, sem botões */
+.soimp{display:none}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff;font-size:12px}
+  .topbar,.filtros,.barra,.toast,.drop,.status,.leilao .acts,.soma .acts,.dica,.cardracas,.noimp,.modal{display:none!important}
+  .soimp{display:block}
+  .page{padding:0;max-width:none}
+  .grid{display:block}
+  .card,.soma{break-inside:avoid;border-color:#999}
+  .soma{background:#fff!important;color:#000;border:2px solid #000}
+  .kpis{background:#999}.kpis div{background:#fff!important}
+  .soma .btn{display:none}
+  details.lotes>*{display:block!important}
+  details.lotes summary .ab{display:none}
+  .cel{min-height:0;padding:4px}
+  .cel.in{background:#EEE;border-color:#000}
+  .resultado{gap:10px}
+  table.quadro,table.tl{min-width:0}
+}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-in">
+  <div class="brand"><img src="logo-leiloinga.png" alt="Leiloingá" onerror="this.remove()"><h1>Relatório <span>dos Lotes</span></h1></div>
+  <div class="topacts">
+    <button class="homebtn nuvem" type="button" id="nuvem"><i></i><span id="nuvemTxt">Raças só neste aparelho</span></button>
+    <a class="homebtn" href="./">&larr; Início</a>
+  </div>
+</div></div>
+
+<div class="page">
+  <div class="soimp"><p style="font:700 .9rem var(--f-body);text-transform:uppercase;letter-spacing:.1em;color:#555;margin:0 0 4px">Leiloingá · Relatório dos lotes</p></div>
+
+  <section id="semPdf">
+    <label class="drop" id="drop" for="arq">
+      <input id="arq" type="file" accept="application/pdf,.pdf">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 3v5h5M12 11v6M9.5 14.5 12 17l2.5-2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>Escolher o PDF do sistema</b>
+      <span>A ordem de entrada que o sistema gera, com Lote, Qtde, Sexo, Idade, Raça e Peso. Também dá para arrastar o arquivo aqui. A leitura é feita aqui mesmo, sem mandar o PDF para lugar nenhum.</span>
+    </label>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="comPdf" hidden>
+    <div class="leilao">
+      <div>
+        <p class="nome" id="lNome"></p>
+        <p class="sub" id="lSub"></p>
+      </div>
+      <div class="acts">
+        <select id="anteriores" aria-label="Relatórios guardados neste aparelho" hidden></select>
+        <button class="btn" type="button" id="trocar">Outro PDF</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <aside class="card filtros" aria-label="O que somar">
+        <div class="topo"><h2>O que somar</h2></div>
+        <div class="grupo" data-g="idade">
+          <div class="gt"><b>Idade</b><span class="muted" style="font-size:.85rem">categoria</span></div>
+          <div class="chips" id="chIdade"></div>
+        </div>
+        <div class="grupo" data-g="raca">
+          <div class="gt"><b>Raça</b></div>
+          <div class="chips" id="chRaca"></div>
+        </div>
+        <div class="grupo" data-g="sexo">
+          <div class="gt"><b>Sexo</b></div>
+          <div class="chips" id="chSexo"></div>
+        </div>
+        <button class="btn pri tudo" type="button" id="tudo">Somar tudo</button>
+      </aside>
+
+      <div class="resultado">
+        <section class="soma" aria-live="polite" id="soma"></section>
+        <div class="avisos" id="avisos"></div>
+
+        <section class="card">
+          <h2>Quadro por categoria</h2>
+          <div class="tw"><table class="quadro" id="quadro"></table></div>
+          <p class="dica">Cabeças e peso médio de cada categoria. O que está em verde entra na soma. Toque num número para somar só aquela categoria.</p>
+        </section>
+
+        <section class="card cardracas">
+          <div class="racacab"><h2>Brancos e cruzados</h2><span class="muted" style="font-size:.86rem" id="racaInfo"></span></div>
+          <div class="racas" id="racas"></div>
+          <p class="note">Nelore e ½ Tabapuã são brancos. Raça nova aparece em amarelo: confira se está no grupo certo. O que você escolher fica guardado para os próximos leilões.</p>
+        </section>
+
+        <section class="card">
+          <details class="lotes" id="detLotes">
+            <summary><h2 id="tLotes">Lotes da soma</h2><span class="ab">Ver lotes</span></summary>
+            <div class="tw"><table class="tl" id="tabLotes"></table></div>
+          </details>
+        </section>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="barra" id="barra" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mT">
+  <div class="cx">
+    <h3 id="mT">Guardar as raças na nuvem</h3>
+    <p class="muted" style="margin:0">Com a senha do ADM (a mesma do Lotes · ADM), a escolha de brancos e cruzados fica igual em todos os aparelhos.</p>
+    <label for="mSenha">Senha do ADM</label>
+    <input id="mSenha" type="password" autocomplete="current-password">
+    <div class="msg" id="mMsg"></div>
+    <div class="row"><button class="btn" type="button" id="mX">Agora não</button><button class="btn pri" type="button" id="mOk">Entrar</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+<script type="module">
+/* ---------- leitura do PDF: a mesma do Lotes · ADM (fichas.html) ---------- */
+var CDN3="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/";
+var pdfjsLib=null;
+async function biblioteca(){
+  if(pdfjsLib)return pdfjsLib;
+  if(window.pdfjsLib&&window.pdfjsLib.getDocument){
+    pdfjsLib=window.pdfjsLib;pdfjsLib.GlobalWorkerOptions.workerSrc=CDN3+"pdf.worker.min.js";
+  }else{
+    pdfjsLib=await import("./vendor/pdfjs/pdf.min.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc=new URL("./vendor/pdfjs/pdf.worker.min.mjs",import.meta.url).href;
+  }
+  return pdfjsLib;
+}
+
+/* junta os pedaços da linha; pedaços grudados (sem espaço entre eles, ex.: "1" e "2" que formam o 12 da coluna Ord.) viram um só */
+function juntaLinha(g){
+  var its=g.its.slice().sort(function(a,b){return a.x-b.x;}),s="",ant=null;
+  its.forEach(function(i){
+    if(ant&&(i.x-ant.r)<Math.min(ant.cw,i.cw)*0.3&&(i.x-ant.r)>-Math.min(ant.cw,i.cw)*0.5)s+=i.s;
+    else s+=(s?" ":"")+i.s;
+    ant=i;
+  });
+  return s.replace(/\s+/g," ").trim();
+}
+var ULT_GRUPOS=[];
+/* junta os pedaços de texto em linhas da folha (tolerando colunas um pouco acima ou abaixo) */
+function linhasDaPagina(items){
+  var its=items.filter(function(i){return i.str&&i.str.trim();}).map(function(i){
+    var lead=i.str.length-i.str.replace(/^\s+/,"").length,cw=(i.width&&i.str.length)?i.width/i.str.length:5;
+    var s=i.str.trim(),x=i.transform[4]+lead*cw;
+    return {s:s,x:x,r:x+s.length*cw,y:i.transform[5],cw:cw};});
+  ULT_GRUPOS=[];
+  if(!its.length)return [];
+  var ys=its.map(function(i){return i.y;}).sort(function(a,b){return b-a;});
+  var dif=[];for(var k=1;k<ys.length;k++){var d=ys[k-1]-ys[k];if(d>1.5)dif.push(d);}
+  dif.sort(function(a,b){return a-b;});
+  var passo=dif.length?dif[Math.floor(dif.length/2)]:12, tol=Math.max(2,passo*0.42);
+  its.sort(function(a,b){return b.y-a.y;});
+  var grupos=[];
+  /* âncoras: os números da coluna "Ord." (a mais à esquerda). Cada pedaço de texto vai para a
+     linha do lote mais próxima, mesmo que Idade/Raça/Peso estejam bem mais acima ou abaixo */
+  var nums=its.filter(function(i){return /^\d{1,3}º?$/.test(i.s);});
+  if(nums.length){
+    /* a coluna Ord. pode vir alinhada à direita: 1 a 9 ficam mais para dentro que 10 ou 100.
+       Vale como âncora quem começa na borda esquerda OU termina na mesma borda direita dela. */
+    /* acha a coluna Ord. pelo alinhamento (muitos números um embaixo do outro), não pelo número
+       mais à esquerda: na 1ª folha um número solto do cabeçalho (página, data) ficava mais à
+       esquerda e fazia sumir os primeiros lotes */
+    function alinhados(a){return nums.filter(function(b){return Math.abs(b.x-a.x)<=4||Math.abs(b.r-a.r)<=4;}).length;}
+    var cont=nums.map(alinhados),maxC=Math.max.apply(null,cont);
+    var cand=nums.filter(function(i,k){return cont[k]>=Math.max(2,maxC*0.6);});
+    if(!cand.length)cand=nums;
+    var minX=Math.min.apply(null,cand.map(function(i){return i.x;}));
+    var col=cand.filter(function(i){return i.x<=minX+8;});
+    var rs=col.map(function(i){return i.r;}).sort(function(a,b){return a-b;}),rMed=rs[Math.floor(rs.length/2)];
+    var anc=nums.filter(function(i){return (i.x>=minX-4&&i.x<=minX+8)||(Math.abs(i.r-rMed)<=4&&i.x>=minX-4&&i.x<minX+40);}).map(function(i){return i.y;});
+    var ga=[];for(var a=1;a<anc.length;a++){var dd=Math.abs(anc[a-1]-anc[a]);if(dd>3)ga.push(dd);}
+    ga.sort(function(p,q){return p-q;});
+    var passoL=ga.length?ga[Math.floor(ga.length/2)]:Math.max(passo,12);
+    var lim=passoL*0.5;
+    anc.forEach(function(y){grupos.push({y:y,its:[],anc:true});});
+    var resto=[];
+    its.forEach(function(i){
+      var best=null,bd=1e9;
+      grupos.forEach(function(g){var d=Math.abs(g.y-i.y);if(d<bd){bd=d;best=g;}});
+      /* fora das linhas de lote (título, cabeçalho, totais) ou abaixo do lote do lado esquerdo */
+      if(best&&bd<lim&&!/Total|Ord\.|Vendedor|Peso\(|Idade|Ra[çc]a/i.test(i.s))best.its.push(i);else resto.push(i);
+    });
+    var outros=[];
+    resto.forEach(function(i){
+      var g=outros.length?outros[outros.length-1]:null;
+      if(g&&Math.abs(g.y-i.y)<=tol){g.its.push(i);g.y=(g.y*(g.its.length-1)+i.y)/g.its.length;}
+      else outros.push({y:i.y,its:[i]});
+    });
+    grupos=grupos.filter(function(g){return g.its.length;}).concat(outros).sort(function(p,q){return q.y-p.y;});
+    ULT_GRUPOS=grupos;
+    return grupos.map(juntaLinha);
+  }
+  its.forEach(function(i){
+    var g=grupos.length?grupos[grupos.length-1]:null;
+    if(g&&Math.abs(g.y-i.y)<=tol){g.its.push(i);g.y=(g.y*(g.its.length-1)+i.y)/g.its.length;}
+    else grupos.push({y:i.y,its:[i]});
+  });
+  ULT_GRUPOS=grupos;
+  return grupos.map(juntaLinha);
+}
+var RE_LINHA=/^(\d{1,4})\s+(\d{1,4})\s+(\d{1,4})\s*([MF])\s+(.+?)\s+((?:\d{1,2}\s*A\s*\d{1,2}|\d{1,2}\s*\/\s*\d{1,2})\s*M\w*|\+\s*\d{1,2}\s*M\w*)\s+(.+?)\s+(\d{2,4})(?:[.,]\d+)?(?:\s.*)?$/i;
+var RE_CATALOGO=/^(\d{1,3})\s*º\s+(\d{1,4})\s+(.+?)\s+(\+?\d{1,2}(?:\s*\/\s*\d{1,2})?\s*M)\s+(Macho|F[êe]mea)\s+(\d{1,4})\s+(\d{2,4})\s*kg/i;
+var RE_COMECO=/^(\d{1,4})\s+(\d{2,4})\s+\d/;
+function interpretar(linhas){
+  var out={leilao:"",data:"",totais:null,lotes:[],naoEntendi:[]};
+  linhas.forEach(function(t){
+    var m;
+    /* Ord. partido em dois pedaços ("1 2 002 5 M ..." ou "1 152 152 2 M ..."): junta antes de ler */
+    t=t.replace(/^(\d{1,3})\s+(\d{1,3})(?=\s+\d{2,4}\s+\d{1,4}\s*[MF]\b)/i,"$1$2");
+    if(!out.leilao&&/LEIL[AÃ]O/i.test(t)&&!/ORDEM DE ENTRADA/i.test(t))out.leilao=t;
+    if(!out.data&&(m=t.match(/\b(\d{2}\/\d{2}\/\d{4})\b/))&&!/\d{2}:\d{2}/.test(t))out.data=m[1];
+    if((m=t.match(/Total de Animais:?\s*(\d+)/i))){
+      out.totais=out.totais||{};out.totais.animais=+m[1];
+      var mm=t.match(/Machos:?\s*(\d+)/i),ff=t.match(/F[êe]meas:?\s*(\d+)/i);
+      if(mm)out.totais.machos=+mm[1];if(ff)out.totais.femeas=+ff[1];
+      return;
+    }
+    if((m=t.match(RE_LINHA))){
+      out.lotes.push({ord:+m[1],lote:m[2],qtde:+m[3],sexo:m[4].toUpperCase(),vendedor:m[5],idade:m[6],raca:m[7],peso:+m[8]});
+    }else if((m=t.match(RE_CATALOGO))){
+      out.catalogo=true;
+      out.lotes.push({ord:+m[1],lote:m[2],qtde:+m[6],sexo:m[5].charAt(0).toUpperCase(),vendedor:"",idade:m[4],raca:m[3],peso:+m[7]});
+    }else if((m=t.match(RE_COMECO))&&!/Ord\.|Lote/i.test(t)){
+      out.naoEntendi.push(t);
+      out.lotes.push({ord:+m[1],lote:m[2],qtde:null,sexo:"",vendedor:"",idade:"",raca:"",peso:null,duvida:true,bruto:t});
+    }
+  });
+  return out;
+}
+var semWorker=false;
+async function abrirDoc(bytes){
+  var lib=await biblioteca();
+  try{return await lib.getDocument({data:bytes.slice(0),isEvalSupported:false}).promise;}
+  catch(e){
+    if(semWorker||(e&&/password|Invalid PDF|corrupt/i.test(e.message||"")))throw e;
+    /* alguns navegadores não abrem o leitor em segundo plano: tenta de novo na própria página */
+    semWorker=true;
+    try{lib.GlobalWorkerOptions.workerPort=null;}catch(_){}
+    return await lib.getDocument({data:bytes.slice(0),isEvalSupported:false,disableWorker:true}).promise;
+  }
+}
+/* leitura pela posição das colunas do cabeçalho (Ord. Lote Qtde Sx Vendedor Idade Raça Peso) */
+var ROTULOS=[["ord",/^Ord/i],["lote",/^Lote/i],["qtde",/^Qtd/i],["sexo",/^(Sx|Sexo)$/i],["vendedor",/^Vend/i],["idade",/^Idade/i],["raca",/^Ra[çc]a/i],["peso",/^Peso/i],["nome",/^Nome/i]];
+function palavras(g){
+  var w=[];
+  g.its.forEach(function(i){var re=/\S+/g,m;while((m=re.exec(i.s)))w.push({s:m[0],x:i.x+m.index*i.cw});});
+  return w.sort(function(a,b){return a.x-b.x;});
+}
+function porColunas(grupos){
+  var cols=null,lotes=[];
+  grupos.forEach(function(g){
+    var w=palavras(g);
+    if(!cols){
+      var c=[];w.forEach(function(p){ROTULOS.forEach(function(r){if(r[1].test(p.s)&&!c.some(function(x){return x.k===r[0];}))c.push({k:r[0],x:p.x});});});
+      if(c.length>=5&&c.some(function(x){return x.k==="lote";})){cols=c.sort(function(a,b){return a.x-b.x;});}
+      return;
+    }
+    if(!w.length||!/^\d{1,3}º?$/.test(w[0].s))return;
+    var v={};
+    w.forEach(function(p){
+      var k=null;cols.forEach(function(c){if(c.x<=p.x+4)k=c.k;});
+      if(!k)k=cols[0].k;
+      v[k]=(v[k]?v[k]+" ":"")+p.s;
+    });
+    /* número de qtde e sexo às vezes vêm grudados ("7M") ou na coluna vizinha */
+    var qs=((v.qtde||"")+" "+(v.sexo||"")).trim(),m=qs.match(/(\d{1,4})\s*([MF])\b/i);
+    var lote=(v.lote||"").match(/\d{1,4}/);
+    if(!lote||!m)return;
+    lotes.push({ord:+((v.ord||"").match(/\d+/)||[0])[0]||null,lote:lote[0],qtde:+m[1],sexo:m[2].toUpperCase(),
+      vendedor:(v.vendedor||"").trim(),idade:(v.idade||"").trim(),raca:(v.raca||"").trim(),peso:+(((v.peso||"").match(/\d{2,4}/)||[""])[0])||null});
+  });
+  return lotes;
+}
+async function lerPdf(file){
+  var buf=new Uint8Array(await file.arrayBuffer());
+  var doc=await abrirDoc(buf);
+  var linhas=[],grupos=[];
+  for(var p=1;p<=doc.numPages;p++){
+    var page=await doc.getPage(p);
+    var tc=await page.getTextContent();
+    linhas=linhas.concat(linhasDaPagina(tc.items));
+    grupos=grupos.concat(ULT_GRUPOS);
+  }
+  var info=interpretar(linhas);
+  if(info.lotes.some(function(l){return l.duvida;})){
+    var pc=porColunas(grupos);
+    info.lotes=info.lotes.map(function(l){
+      if(!l.duvida)return l;
+      var a=pc.find(function(x){return loteN(x.lote)===loteN(l.lote);});
+      return a||l;
+    });
+    info.naoEntendi=info.lotes.filter(function(l){return l.duvida;}).map(function(l){return l.bruto;});
+  }
+  return {linhas:linhas,info:info};
+}
+
+
+/* ---------- utilidades ---------- */
+var $=function(id){return document.getElementById(id);};
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+function num(v){if(v==null)return null;var m=String(v).replace(",",".").match(/\d+(\.\d+)?/);return m?Number(m[0]):null;}
+function loteN(v){var n=num(v);return n==null?null:Math.round(n);}
+function dois(n){return n==null||isNaN(n)?"":(n<10?"0"+n:String(n));}
+function up(s){return String(s==null?"":s).trim().replace(/\s+/g," ").toUpperCase();}
+function semAc(s){return up(s).normalize("NFD").replace(/[̀-ͯ]/g,"");}
+function kg(n){return Math.round(n).toLocaleString("pt-BR");}
+function racaTxt(s){return up(s).replace(/^1\/2\s*/,"½ ");}
+var toastT=null;
+function toast(t,ms){var e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){e.hidden=true;},ms||3500);}
+
+/* ---------- categorias ---------- */
+var FAIXAS=[
+  {k:"6/12",M:"Bezerro",F:"Bezerra",Mp:"bezerros",Fp:"bezerras"},
+  {k:"12/18",M:"Garrote",F:"Garrota",Mp:"garrotes",Fp:"garrotas"},
+  {k:"18/24",M:"Boi",F:"Vaca",Mp:"bois",Fp:"vacas"},
+  {k:"+24",M:"Boi",F:"Vaca",Mp:"bois",Fp:"vacas"}
+];
+var SEXOS=[{k:"M",t:"Machos"},{k:"F",t:"Fêmeas"}];
+var GRUPOS=[{k:"B",t:"Brancos"},{k:"C",t:"Cruzados"}];
+/* idade da lista ("06 A 12 M", "15/18 M", "+36 M") → faixa pelo limite de cima: até 12, até 18, até 24, acima */
+function faixaDe(idade){
+  var s=up(idade),m,ate=null;
+  if((m=s.match(/^\+\s*(\d+)/)))ate=+m[1]+1;
+  else if((m=s.match(/(\d+)\s*(?:A|\/|-|À|ATE|ATÉ)\s*(\d+)/)))ate=Math.max(+m[1],+m[2]);
+  else if((m=s.match(/(\d+)/)))ate=+m[1];
+  if(ate==null)return null;
+  if(/ANO/.test(s))ate*=12;
+  return ate<=12?"6/12":ate<=18?"12/18":ate<=24?"18/24":"+24";
+}
+function nomeCat(sx,fx){var f=FAIXAS.find(function(x){return x.k===fx;});return f?f[sx]:"";}
+
+/* ---------- brancos × cruzados ---------- */
+/* padrão: Nelore e Tabapuã (e ½ Tabapuã) são brancos; as cruzas conhecidas são cruzados.
+   Raça que não está aqui entra como "nova" até ser confirmada na tela (fica guardada). */
+var RACA_PADRAO=[
+  [/^NELORE\b/,"B"],[/^(1\/2\s*|½\s*)?TABAPUA\b/,"B"],
+  [/CRUZAD|INDUSTRIAL|CRUZ\.?\s*IND/,"C"],[/ANGUS|BRANGUS|BRAFORD|HEREFORD|CARACU|CHAROL|SIMENTAL|LIMOUSIN|SENEPOL|WAGYU|DEVON|CANCHIM|GIROLANDO|HOLAND|JERSEY/,"C"]
+];
+/* para raça nova, um palpite (zebuínos parecem brancos); continua marcada até confirmar */
+function palpite(k){return /ANELORAD|BRAHMAN|GIR\b|GUZERA|SINDI|ZEBU/.test(k)&&!/1\/2|½|MEIO/.test(k)?"B":"C";}
+function chaveRaca(r){return semAc(r).replace(/^½\s*/,"1/2 ").replace(/\s+/g," ");}
+var RACAS={};   /* escolhas feitas na tela: {CHAVE:"B"|"C"} */
+var KR="leiloinga-relatorio-racas";
+try{RACAS=JSON.parse(localStorage.getItem(KR)||"{}")||{};}catch(e){RACAS={};}
+function padraoDe(k){for(var i=0;i<RACA_PADRAO.length;i++){if(RACA_PADRAO[i][0].test(k))return RACA_PADRAO[i][1];}return null;}
+function grupoDe(raca){var k=chaveRaca(raca);return RACAS[k]||padraoDe(k)||palpite(k);}
+function ehNova(raca){var k=chaveRaca(raca);return !RACAS[k]&&!padraoDe(k);}
+
+/* ---------- relatórios guardados neste aparelho ---------- */
+var KB="leiloinga-relatorio-v1";
+var DB={atual:null,rel:{}};
+try{var x=JSON.parse(localStorage.getItem(KB)||"null");if(x&&x.rel)DB=x;}catch(e){}
+function salvaDB(){
+  try{
+    var ids=Object.keys(DB.rel).sort(function(a,b){return (DB.rel[b].em||"").localeCompare(DB.rel[a].em||"");});
+    ids.slice(12).forEach(function(i){delete DB.rel[i];});   /* guarda os 12 últimos */
+    localStorage.setItem(KB,JSON.stringify(DB));
+  }catch(e){}
+}
+var R=null;   /* relatório aberto: {id,leilao,data,totais,lotes:[],sel:{idade:[],raca:[],sexo:[]},em} */
+function selTudo(){return {idade:FAIXAS.map(function(f){return f.k;}),raca:["B","C"],sexo:["M","F"]};}
+
+/* ---------- ler o PDF ---------- */
+async function abrirArquivo(f){
+  var st=$("status");st.className="status";st.textContent="Lendo o PDF…";
+  if(!(f.type==="application/pdf"||/\.pdf$/i.test(f.name))){st.className="status err";st.textContent="Esse arquivo não é PDF. Escolha o PDF que o sistema gera.";return;}
+  try{
+    var r=await lerPdf(f),info=r.info;
+    var lotes=info.lotes.filter(function(l){return !l.duvida&&loteN(l.lote)!=null;}).map(function(l){
+      return {ord:l.ord||null,lote:loteN(l.lote),qtde:l.qtde||null,sexo:(l.sexo||"").toUpperCase().charAt(0),vendedor:l.vendedor||"",idade:up(l.idade),raca:up(l.raca),peso:l.peso||null};
+    });
+    if(!lotes.length){st.className="status err";st.textContent="Não achei lotes nesse PDF. Confira se é a ordem de entrada do sistema (com as colunas Lote, Qtde, Sx, Idade, Raça e Peso).";return;}
+    var id=(info.data||"")+"|"+semAc(info.leilao||f.name);
+    var antigo=DB.rel[id];
+    R={id:id,leilao:up(info.leilao||"").replace(/\s*-\s*ORDEM DE ENTRADA\s*$/,""),data:info.data||"",totais:info.totais||null,
+       lotes:lotes,naoLidos:(info.naoEntendi||[]).length,arquivo:f.name,sel:antigo?antigo.sel:selTudo(),em:new Date().toISOString()};
+    DB.rel[id]=R;DB.atual=id;salvaDB();
+    st.textContent="";
+    mostrar();
+    toast(lotes.length+" lotes lidos do PDF.");
+    var novas=unicasRacas().filter(function(x){return x.nova;});
+    if(novas.length)setTimeout(function(){toast(novas.length+(novas.length>1?" raças novas":" raça nova")+" no PDF. Confira em Brancos e cruzados.",6000);},3600);
+  }catch(e){
+    console.error(e);
+    st.className="status err";
+    st.textContent=/password/i.test(e&&e.message||"")?"Esse PDF tem senha. Gere de novo no sistema sem senha.":"Não consegui abrir esse PDF. Tente gerar de novo no sistema ou abrir em outro navegador.";
+  }
+}
+var drop=$("drop");
+$("arq").addEventListener("change",function(e){var f=e.target.files[0];e.target.value="";if(f)abrirArquivo(f);});
+["dragenter","dragover"].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.add("on");});});
+["dragleave","drop"].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.remove("on");});});
+drop.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.files[0];if(f)abrirArquivo(f);});
+document.addEventListener("dragover",function(e){e.preventDefault();});
+document.addEventListener("drop",function(e){e.preventDefault();var f=e.dataTransfer&&e.dataTransfer.files[0];if(f&&!e.target.closest("#drop"))abrirArquivo(f);});
+$("trocar").addEventListener("click",function(){$("arq").click();});
+$("anteriores").addEventListener("change",function(){var r=DB.rel[this.value];if(r){R=r;DB.atual=r.id;salvaDB();mostrar();}});
+
+/* ---------- contas ---------- */
+function valido(l){return l.qtde>0&&l.peso>0&&(l.sexo==="M"||l.sexo==="F")&&faixaDe(l.idade);}
+function entra(l){
+  if(!valido(l))return false;
+  return R.sel.idade.indexOf(faixaDe(l.idade))>=0&&R.sel.raca.indexOf(grupoDe(l.raca))>=0&&R.sel.sexo.indexOf(l.sexo)>=0;
+}
+function soma(ls){var c=0,p=0;ls.forEach(function(l){c+=l.qtde;p+=l.qtde*l.peso;});return {c:c,p:p,m:c?p/c:0,n:ls.length};}
+function unicasRacas(){
+  var m={};
+  R.lotes.forEach(function(l){var k=chaveRaca(l.raca);if(!k)return;if(!m[k])m[k]={k:k,t:racaTxt(l.raca),c:0,n:0,nova:ehNova(l.raca)};m[k].c+=l.qtde||0;m[k].n++;});
+  return Object.keys(m).map(function(k){return m[k];}).sort(function(a,b){return (b.nova-a.nova)||(b.c-a.c);});
+}
+/* frase do que está sendo somado: "Bezerros e garrotes · brancos" */
+function frase(){
+  var s=R.sel;if(!s.idade.length||!s.raca.length||!s.sexo.length)return "";
+  var nomes=[];
+  s.sexo.forEach(function(sx){FAIXAS.forEach(function(f){if(s.idade.indexOf(f.k)>=0){var n=f[sx+"p"];if(nomes.indexOf(n)<0)nomes.push(n);}});});
+  var tudoIdade=s.idade.length===FAIXAS.length,tudoSexo=s.sexo.length===2,tudoRaca=s.raca.length===2;
+  var cat;
+  if(tudoIdade&&tudoSexo)cat="Todos os animais";
+  else if(tudoIdade)cat="Todos os "+(s.sexo[0]==="M"?"machos":"fêmeas").replace("os fêmeas","as fêmeas");
+  else cat=nomes.length>1?nomes.slice(0,-1).join(", ")+" e "+nomes[nomes.length-1]:nomes[0];
+  cat=cat.charAt(0).toUpperCase()+cat.slice(1);
+  var fx=FAIXAS.filter(function(f){return s.idade.indexOf(f.k)>=0;}).map(function(f){return f.k;}).join(", ");
+  var rc=tudoRaca?"brancos e cruzados":(s.raca[0]==="B"?"só brancos":"só cruzados");
+  return cat+(tudoIdade?"":" ("+fx+")")+" · "+rc;
+}
+
+/* ---------- tela ---------- */
+function mostrar(){
+  $("semPdf").hidden=!!R;$("comPdf").hidden=!R;$("barra").hidden=!R;
+  if(!R)return;
+  $("lNome").textContent=R.leilao||"Leilão";
+  var tot=soma(R.lotes.filter(valido));
+  $("lSub").textContent=[R.data,R.lotes.length+" lotes",tot.c+" animais",R.arquivo].filter(Boolean).join(" · ");
+  var ids=Object.keys(DB.rel).sort(function(a,b){return (DB.rel[b].data||"").split("/").reverse().join("").localeCompare((DB.rel[a].data||"").split("/").reverse().join(""));});
+  var sel=$("anteriores");sel.hidden=ids.length<2;sel.textContent="";
+  ids.forEach(function(i){var r=DB.rel[i],o=el("option",null,(r.data?r.data+" · ":"")+(r.leilao||r.arquivo||"Leilão").slice(0,60));o.value=i;if(i===R.id)o.selected=true;sel.append(o);});
+  render();
+}
+function chip(rot,sub,on,vazio,fn){
+  var b=el("button","chip"+(vazio?" vazio":""));b.type="button";b.setAttribute("aria-pressed",on?"true":"false");
+  b.append(el("span","l",rot));if(sub)b.append(el("span","s",sub));
+  b.addEventListener("click",fn);return b;
+}
+function chipTodos(g,lista){
+  var on=R.sel[g].length===lista.length;
+  var b=el("button","chip todos");b.type="button";b.setAttribute("aria-pressed",on?"true":"false");b.append(el("span","l","Todos"));
+  b.addEventListener("click",function(){R.sel[g]=on?[]:lista.slice();mudou();});
+  return b;
+}
+function alterna(g,k){var a=R.sel[g],i=a.indexOf(k);if(i>=0)a.splice(i,1);else a.push(k);mudou();}
+function mudou(){R.em=new Date().toISOString();salvaDB();render();}
+function render(){
+  var val=R.lotes.filter(valido);
+  /* idade */
+  var ci=$("chIdade");ci.textContent="";
+  FAIXAS.forEach(function(f){
+    var c=soma(val.filter(function(l){return faixaDe(l.idade)===f.k;})).c;
+    var b=chip(f.k+" m",f.M+" · "+f.F,R.sel.idade.indexOf(f.k)>=0,!c,function(){alterna("idade",f.k);});
+    b.append(el("span","s",c+" cab."));ci.append(b);
+  });
+  ci.append(chipTodos("idade",FAIXAS.map(function(f){return f.k;})));
+  var cr=$("chRaca");cr.textContent="";
+  GRUPOS.forEach(function(g){
+    var c=soma(val.filter(function(l){return grupoDe(l.raca)===g.k;})).c;
+    cr.append(chip(g.t,c+" cab.",R.sel.raca.indexOf(g.k)>=0,!c,function(){alterna("raca",g.k);}));
+  });
+  cr.append(chipTodos("raca",["B","C"]));
+  var cs=$("chSexo");cs.textContent="";
+  SEXOS.forEach(function(s){
+    var c=soma(val.filter(function(l){return l.sexo===s.k;})).c;
+    cs.append(chip(s.t,c+" cab.",R.sel.sexo.indexOf(s.k)>=0,!c,function(){alterna("sexo",s.k);}));
+  });
+  cs.append(chipTodos("sexo",["M","F"]));
+  var tudo=R.sel.idade.length===4&&R.sel.raca.length===2&&R.sel.sexo.length===2;
+  $("tudo").textContent=tudo?"Somando tudo ✓":"Somar tudo";
+  renderSoma();renderAvisos();renderQuadro();renderRacas();renderLotes();
+}
+function renderSoma(){
+  var box=$("soma");box.textContent="";
+  var ls=R.lotes.filter(entra),s=soma(ls),fr=frase();
+  if(!fr){
+    var falta=[!R.sel.idade.length&&"uma idade",!R.sel.raca.length&&"brancos ou cruzados",!R.sel.sexo.length&&"um sexo"].filter(Boolean);
+    box.append(el("p","vaziosoma","Escolha pelo menos "+falta.join(", ")+" para somar."));
+    $("barra").innerHTML='<span class="a">Escolha o que somar</span>';
+    return;
+  }
+  var p=el("p","oque");p.append(document.createTextNode("Somando: "),el("b",null,fr));box.append(p);
+  var k=el("div","kpis");
+  function kp(rot,val,un,cls){var d=el("div",cls||"");d.append(el("span","k",rot));var b=el("b",null,val);if(un)b.append(el("small",null,un));d.append(b);k.append(d);}
+  kp("Peso médio",s.c?kg(s.m):"–",s.c?"kg":"","big");
+  kp("Animais",String(s.c));
+  kp("Lotes",String(s.n));
+  kp("Peso total",s.c?kg(s.p):"–",s.c?"kg":"");
+  box.append(k);
+  var a=el("div","acts");
+  var bi=el("button","btn",null);bi.type="button";bi.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Imprimir ou salvar PDF';
+  bi.addEventListener("click",function(){$("detLotes").open=true;window.print();});
+  var bc=el("button","btn");bc.type="button";bc.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>Copiar resumo';
+  bc.addEventListener("click",function(){copiar(textoResumo());});
+  var bz=el("a","btn zap");bz.href="https://wa.me/?text="+encodeURIComponent(textoResumo());bz.target="_blank";bz.rel="noopener";
+  bz.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Mandar no WhatsApp';
+  a.append(bi,bc,bz);box.append(a);
+  $("barra").innerHTML="";
+  var m=el("span","m");m.append(el("b",null,s.c?kg(s.m):"–"));m.append(el("small",null,"kg de média"));
+  var r=el("span","a");r.append(el("b",null,s.c+" cab."),el("br"),document.createTextNode(s.n+(s.n>1?" lotes":" lote")+" · toque para ver"));
+  $("barra").onclick=function(){$("soma").scrollIntoView({behavior:"smooth",block:"start"});};
+  $("barra").append(m,r);
+}
+function renderAvisos(){
+  var box=$("avisos");box.textContent="";
+  function av(cls,t){var d=el("div","aviso "+cls);d.append(el("span",null,t));box.append(d);}
+  var tot=soma(R.lotes.filter(function(l){return l.qtde>0;}));
+  var m=0,f=0;R.lotes.forEach(function(l){if(l.sexo==="M")m+=l.qtde||0;else if(l.sexo==="F")f+=l.qtde||0;});
+  var T=R.totais;
+  if(T&&T.animais){
+    if(T.animais===tot.c&&(T.machos==null||T.machos===m)&&(T.femeas==null||T.femeas===f))av("ok","Conferido com o total do PDF: "+tot.c+" animais ("+m+" machos e "+f+" fêmeas).");
+    else av("bad","O total do PDF é "+T.animais+" animais"+(T.machos!=null?" ("+T.machos+" M, "+T.femeas+" F)":"")+", mas os lotes lidos somam "+tot.c+" ("+m+" M, "+f+" F). Algum lote pode não ter sido lido: confira na lista de lotes.");
+  }
+  var fora=R.lotes.filter(function(l){return !valido(l);});
+  if(fora.length)av("warn",(fora.length>1?fora.length+" lotes ficaram":"1 lote ficou")+" fora das contas por falta de idade, peso, sexo ou quantidade: "+fora.map(function(l){return dois(l.lote)+(l.idade&&!faixaDe(l.idade)?" (idade \""+l.idade+"\")":"");}).join(", ")+".");
+  if(R.naoLidos)av("warn",R.naoLidos+(R.naoLidos>1?" linhas do PDF não foram entendidas":" linha do PDF não foi entendida")+". Se faltar lote, gere o PDF de novo no sistema.");
+  var novas=unicasRacas().filter(function(x){return x.nova;});
+  if(novas.length)av("warn",(novas.length>1?"Raças novas":"Raça nova")+" neste leilão: "+novas.map(function(x){return x.t+" (entrou como "+(grupoDe(x.t)==="B"?"branco":"cruzado")+")";}).join(", ")+". Confira em Brancos e cruzados, mais embaixo.");
+}
+function renderQuadro(){
+  var t=$("quadro");t.textContent="";
+  var val=R.lotes.filter(valido);
+  var th=el("tr");
+  [["Categoria",""],["Brancos","b"],["Cruzados","c"],["Total",""]].forEach(function(x){th.append(el("th",x[1],x[0]));});
+  var thead=el("thead");thead.append(th);t.append(thead);
+  var tb=el("tbody");t.append(tb);
+  function cel(ls,alvo,dentro){
+    var s=soma(ls),b=el("button","cel"+(s.c?"":" zero")+(s.c&&dentro?" in":""));b.type="button";
+    if(s.c){var sp=el("span",null,s.c+" cab.");sp.append(el("span","lt2"," · "+s.n+(s.n>1?" lotes":" lote")));var bb=el("b",null,kg(s.m));bb.append(el("small",null," kg"));b.append(bb,sp);
+      b.setAttribute("aria-label",s.c+" cabeças, média "+kg(s.m)+" quilos. Somar só esta categoria.");
+      b.addEventListener("click",function(){R.sel={idade:alvo.idade.slice(),raca:alvo.raca.slice(),sexo:alvo.sexo.slice()};mudou();toast("Somando só esta categoria. Toque em Somar tudo para voltar.");});}
+    else{b.append(el("b",null,"–"));b.disabled=true;}
+    var td=el("td");td.append(b);return td;
+  }
+  var sl=R.sel;
+  function dentro(sx,fxs,gs){return sl.sexo.indexOf(sx)>=0&&gs.every(function(g){return sl.raca.indexOf(g)>=0;})&&fxs.every(function(f){return sl.idade.indexOf(f)>=0;});}
+  var todasF=FAIXAS.map(function(f){return f.k;});
+  SEXOS.forEach(function(sx){
+    var tr0=el("tr","sx"),td0=el("td",null,sx.t);td0.colSpan=4;tr0.append(td0);tb.append(tr0);
+    FAIXAS.forEach(function(f){
+      var tr=el("tr"),tc=el("td","cat");tc.append(el("b",null,f[sx.k]),el("small",null,f.k+" meses"));tr.append(tc);
+      var base=val.filter(function(l){return l.sexo===sx.k&&faixaDe(l.idade)===f.k;});
+      GRUPOS.forEach(function(g){tr.append(cel(base.filter(function(l){return grupoDe(l.raca)===g.k;}),{idade:[f.k],raca:[g.k],sexo:[sx.k]},dentro(sx.k,[f.k],[g.k])));});
+      var ct=cel(base,{idade:[f.k],raca:["B","C"],sexo:[sx.k]},dentro(sx.k,[f.k],["B","C"]));ct.className="tc";tr.append(ct);
+      tb.append(tr);
+    });
+    var trs=el("tr","sub"),tcs=el("td","cat");tcs.append(el("b",null,"Total "+sx.t.toLowerCase()));trs.append(tcs);
+    var bs=val.filter(function(l){return l.sexo===sx.k;});
+    GRUPOS.forEach(function(g){trs.append(cel(bs.filter(function(l){return grupoDe(l.raca)===g.k;}),{idade:todasF,raca:[g.k],sexo:[sx.k]},dentro(sx.k,todasF,[g.k])));});
+    var cts=cel(bs,{idade:todasF,raca:["B","C"],sexo:[sx.k]},dentro(sx.k,todasF,["B","C"]));cts.className="tc";trs.append(cts);
+    tb.append(trs);
+  });
+  var trt=el("tr","tot"),tct=el("td","cat");tct.append(el("b",null,"Total geral"));trt.append(tct);
+  var tudoS=function(gs){return sl.sexo.length===2&&dentro("M",todasF,gs);};
+  GRUPOS.forEach(function(g){trt.append(cel(val.filter(function(l){return grupoDe(l.raca)===g.k;}),{idade:todasF,raca:[g.k],sexo:["M","F"]},tudoS([g.k])));});
+  var ctt=cel(val,{idade:todasF,raca:["B","C"],sexo:["M","F"]},tudoS(["B","C"]));ctt.className="tc";trt.append(ctt);
+  tb.append(trt);
+}
+function renderRacas(){
+  var box=$("racas");box.textContent="";
+  var us=unicasRacas(),nb=0,nc=0;
+  us.forEach(function(x){if(grupoDe(x.t)==="B")nb+=x.c;else nc+=x.c;});
+  $("racaInfo").textContent=us.length+(us.length>1?" raças":" raça")+" · "+nb+" brancos · "+nc+" cruzados";
+  us.forEach(function(x){
+    var d=el("div","raca"+(x.nova?" nova":"")),inf=el("div"),n=el("span","n",x.t);
+    if(x.nova)n.append(el("span","tag","nova · confira"));
+    inf.append(n,el("div","q",x.c+" cab. em "+x.n+(x.n>1?" lotes":" lote")));
+    var g=grupoDe(x.t),seg=el("div","seg");seg.setAttribute("role","group");seg.setAttribute("aria-label","Grupo da raça "+x.t);
+    [["B","Branco"],["C","Cruzado"]].forEach(function(o){
+      var b=el("button",o[0].toLowerCase(),o[1]);b.type="button";b.setAttribute("aria-pressed",g===o[0]?"true":"false");
+      b.addEventListener("click",function(){RACAS[x.k]=o[0];guardaRacas();render();toast(x.t+" agora conta como "+(o[0]==="B"?"branco":"cruzado")+".");});
+      seg.append(b);
+    });
+    d.append(inf,seg);box.append(d);
+  });
+}
+function renderLotes(){
+  var ls=R.lotes.filter(entra).sort(function(a,b){return a.lote-b.lote;});
+  $("tLotes").textContent="Lotes da soma ("+ls.length+")";
+  var t=$("tabLotes");t.textContent="";
+  var th=el("tr");
+  [["Lote",""],["Qtde","r"],["Sexo",""],["Idade",""],["Categoria",""],["Raça",""],["Grupo",""],["Peso médio","r"],["Peso total","r"]].forEach(function(x){th.append(el("th",x[1],x[0]));});
+  var thead=el("thead");thead.append(th);t.append(thead);
+  var tb=el("tbody");
+  if(!ls.length){var tr=el("tr"),td=el("td","muted","Nenhum lote nesta soma.");td.colSpan=9;tr.append(td);tb.append(tr);}
+  ls.forEach(function(l){
+    var tr=el("tr"),g=grupoDe(l.raca);
+    tr.append(el("td","lt",dois(l.lote)),el("td","r",String(l.qtde)),el("td",null,l.sexo==="M"?"Macho":"Fêmea"),el("td",null,l.idade),el("td",null,nomeCat(l.sexo,faixaDe(l.idade))+" "+faixaDe(l.idade)),el("td",null,racaTxt(l.raca)));
+    var tg=el("td");tg.append(el("span","gb "+g,g==="B"?"Branco":"Cruzado"));tr.append(tg);
+    tr.append(el("td","r",kg(l.peso)+" kg"),el("td","r",kg(l.peso*l.qtde)+" kg"));
+    tb.append(tr);
+  });
+  t.append(tb);
+}
+$("tudo").addEventListener("click",function(){R.sel=selTudo();mudou();});
+
+/* ---------- resumo para copiar / WhatsApp ---------- */
+function textoResumo(){
+  var ls=R.lotes.filter(entra),s=soma(ls),L=[];
+  L.push("*"+(R.leilao||"Leilão")+"*"+(R.data?" · "+R.data:""));
+  L.push("Somando: "+frase());
+  L.push("• "+s.c+" animais em "+s.n+(s.n>1?" lotes":" lote"));
+  L.push("• Peso médio: *"+(s.c?kg(s.m):"–")+" kg*");
+  L.push("• Peso total: "+(s.c?kg(s.p):"–")+" kg");
+  var linhas=[];
+  SEXOS.forEach(function(sx){if(R.sel.sexo.indexOf(sx.k)<0)return;
+    FAIXAS.forEach(function(f){if(R.sel.idade.indexOf(f.k)<0)return;
+      GRUPOS.forEach(function(g){if(R.sel.raca.indexOf(g.k)<0)return;
+        var q=soma(ls.filter(function(l){return l.sexo===sx.k&&faixaDe(l.idade)===f.k&&grupoDe(l.raca)===g.k;}));
+        if(q.c)linhas.push(f[sx.k]+" "+f.k+" "+(g.k==="B"?"brancos":"cruzados")+": "+q.c+" cab. · "+kg(q.m)+" kg");
+      });});});
+  if(linhas.length>1){L.push("");L.push("Por categoria:");linhas.forEach(function(x){L.push(x);});}
+  return L.join("\n");
+}
+function copiar(t){
+  function ok(){toast("Resumo copiado. É só colar no WhatsApp.");}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,function(){prompt("Copie o resumo:",t);});
+  else prompt("Copie o resumo:",t);
+}
+
+/* ---------- raças na nuvem (repositório privado do ADM, mesma senha do Lotes · ADM) ---------- */
+var DONO="Leiloingaleiloes",PUB="LOTES",ARQ_R="racas.json";
+var GH={token:"",repo:"ADM"},SHA_R=null;
+try{var gx=JSON.parse(localStorage.getItem("leiloinga-adm-gh")||"null");if(gx&&gx.token){GH.token=gx.token;GH.repo=gx.repo||"ADM";}}catch(e){}
+function api(path,opt){opt=opt||{};var h={"Accept":"application/vnd.github+json","Authorization":"Bearer "+GH.token,"X-GitHub-Api-Version":"2022-11-28"};
+  if(opt.headers)for(var k in opt.headers)h[k]=opt.headers[k];
+  return fetch("https://api.github.com"+path,{method:opt.method||"GET",headers:h,body:opt.body,cache:"no-store"});}
+function caminho(p){return "/repos/"+DONO+"/"+GH.repo+"/contents/"+encodeURIComponent(p);}
+function b64enc(str){var b=new TextEncoder().encode(str),s="";for(var i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s);}
+function b64dec(b){var s=atob(String(b).replace(/\s/g,"")),u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return new TextDecoder().decode(u);}
+function estadoNuvem(t,on){$("nuvemTxt").textContent=t;$("nuvem").classList.toggle("on",!!on);}
+async function puxaRacas(){
+  if(!GH.token){estadoNuvem("Raças só neste aparelho · Conectar",false);return;}
+  try{
+    var r=await api(caminho(ARQ_R));
+    if(r.status===404){SHA_R=null;estadoNuvem("Raças na nuvem",true);if(Object.keys(RACAS).length)empurraRacas();return;}
+    if(!r.ok)throw new Error(r.status);
+    var j=await r.json();SHA_R=j.sha;
+    var nuv={};try{nuv=JSON.parse(b64dec(j.content)).racas||{};}catch(e){}
+    var mudou=false;Object.keys(RACAS).forEach(function(k){if(!(k in nuv)){nuv[k]=RACAS[k];mudou=true;}});
+    RACAS=nuv;try{localStorage.setItem(KR,JSON.stringify(RACAS));}catch(e){}
+    estadoNuvem("Raças na nuvem",true);
+    if(mudou)empurraRacas();
+    if(R)render();
+  }catch(e){estadoNuvem(e&&/40[13]/.test(e.message)?"Conectar de novo":"Sem internet · raças neste aparelho",false);}
+}
+var tEmp=null;
+function guardaRacas(){try{localStorage.setItem(KR,JSON.stringify(RACAS));}catch(e){}if(GH.token){clearTimeout(tEmp);tEmp=setTimeout(empurraRacas,800);}}
+async function empurraRacas(){
+  try{
+    var body={message:"Relatório: brancos e cruzados",content:b64enc(JSON.stringify({racas:RACAS},null,1)+"\n")};if(SHA_R)body.sha=SHA_R;
+    var r=await api(caminho(ARQ_R),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    if(r.status===409||r.status===422){SHA_R=null;var a=await api(caminho(ARQ_R));if(a.ok){SHA_R=(await a.json()).sha;return empurraRacas();}}
+    if(!r.ok)throw new Error(r.status);
+    SHA_R=(await r.json()).content.sha;estadoNuvem("Raças na nuvem",true);
+  }catch(e){estadoNuvem("Não salvou na nuvem · tente de novo",false);}
+}
+async function decifra(senha,c){
+  function d64(s){var r=atob(s),u=new Uint8Array(r.length);for(var i=0;i<r.length;i++)u[i]=r.charCodeAt(i);return u;}
+  var base=await crypto.subtle.importKey("raw",new TextEncoder().encode(senha),"PBKDF2",false,["deriveKey"]);
+  var k=await crypto.subtle.deriveKey({name:"PBKDF2",salt:d64(c.sal),iterations:c.iter||600000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:d64(c.iv)},k,d64(c.dados))));
+}
+$("nuvem").addEventListener("click",function(){if(GH.token){puxaRacas();toast("Raças atualizadas da nuvem.");return;}$("modal").hidden=false;$("mMsg").textContent="";$("mSenha").value="";setTimeout(function(){$("mSenha").focus();},50);});
+$("mX").addEventListener("click",function(){$("modal").hidden=true;});
+$("mSenha").addEventListener("keydown",function(e){if(e.key==="Enter")$("mOk").click();});
+$("mOk").addEventListener("click",async function(){
+  var s=$("mSenha").value,m=$("mMsg");if(!s)return;m.className="msg";m.textContent="Conferindo a senha…";
+  try{
+    var r=await fetch("https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/adm-chave.json?t="+Date.now(),{cache:"no-store"});
+    if(!r.ok)throw new Error("A senha do ADM ainda não foi criada (crie no Lotes · ADM, no botão da nuvem).");
+    var c=await r.json(),o;try{o=await decifra(s,c);}catch(e){throw new Error("Senha errada.");}
+    GH.token=o.token;GH.repo=o.repo||"ADM";
+    try{localStorage.setItem("leiloinga-adm-gh",JSON.stringify({token:GH.token,repo:GH.repo}));}catch(e){}
+    $("modal").hidden=true;toast("Aparelho conectado.");puxaRacas();
+  }catch(e){m.className="msg err";m.textContent=e.message||"Não deu para conectar.";}
+});
+
+/* ---------- início ---------- */
+if(DB.atual&&DB.rel[DB.atual])R=DB.rel[DB.atual];
+mostrar();
+puxaRacas();
+window.__rel={abrirArquivo:abrirArquivo,faixaDe:faixaDe,grupoDe:grupoDe};
+</script>
+</body>
+</html>
