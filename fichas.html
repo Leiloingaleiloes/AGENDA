@@ -242,6 +242,23 @@ td input:focus{border-color:var(--destaque)}
 .reltotal .k{font:600 .72rem var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
 .reltotal b{font:700 1.8rem/1 var(--f-display);color:var(--accent);font-variant-numeric:tabular-nums}
 @media (max-width:520px){.reltotal{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.relidade{margin:6px 0 26px}
+.relidade>h3{font:700 1.5rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.03em;margin:0 0 6px}
+.relidade .note{margin:0 0 10px}
+.grafbox{background:var(--surface);border:1.5px solid #B4C6B9;border-radius:14px;padding:12px 12px 6px;margin-bottom:14px;overflow-x:auto}
+.grafbox svg{display:block;width:100%;min-width:640px;height:auto}
+.grafbox h4{font:700 1.05rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:0 0 4px}
+.legenda{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.85rem;color:var(--muted);margin:2px 0 6px}
+.legenda i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.tabidade{width:100%;border-collapse:collapse;min-width:640px;font-variant-numeric:tabular-nums}
+.tabidade th{font:600 .74rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--accent);text-align:right;padding:8px;border-bottom:2px solid var(--accent);white-space:nowrap}
+.tabidade th:first-child,.tabidade td:first-child{text-align:left}
+.tabidade td{padding:8px;border-bottom:1px solid var(--line);text-align:right}
+.tabidade td:first-child{font:700 1.1rem var(--f-display)}
+.tabidade td b{font:700 1.15rem var(--f-display)}
+.tabidade th,.tabidade td{width:auto!important;min-width:0!important;max-width:none!important;white-space:nowrap;position:static}
+.tabidade{table-layout:auto!important}
+.tabidade tr.tot td{border-top:2px solid var(--fg);border-bottom:0;font-weight:700}
 .relaviso{padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:.92rem;margin-bottom:14px}
 
 /* ===== sugestão de ordem de entrada ===== */
@@ -408,7 +425,7 @@ td input:focus{border-color:var(--destaque)}
   <div id="v-rel" hidden>
     <div class="reltopo">
       <div>
-        <h2 style="margin:0;color:var(--accent)">Relatório por peso</h2>
+        <h2 style="margin:0;color:var(--accent)">Relatório por peso e idade</h2>
         <p class="note" style="margin:4px 0 0" id="relLeilao"></p>
       </div>
       <p class="note" style="margin:0;max-width:44ch">Cada lote entra na faixa pelo seu peso médio. A média de cada faixa é ponderada pela quantidade de animais de cada lote.</p>
@@ -1613,6 +1630,100 @@ function renderRel(){
     });
     sec.append(g);box.append(sec);
   });
+  renderIdade(box,validos);
+}
+/* ---------- relatório: peso por idade (tabela + gráficos de distribuição) ---------- */
+var COR_M="#1F6FB2",COR_F="#E8730C";
+function idadeChave(s){
+  s=up(s);var m;
+  if((m=s.match(/^\+\s*(\d+)/)))return {a:+m[1],b:+m[1]+12,lab:"+"+m[1]+" M"};
+  if((m=s.match(/(\d+)\s*(?:A|\/|-|ATE|À)\s*(\d+)/)))return {a:+m[1],b:+m[2],lab:m[1]+"/"+m[2]+" M"};
+  if((m=s.match(/(\d+)/)))return {a:+m[1],b:+m[1],lab:m[1]+" M"};
+  return null;
+}
+function svgEl(t,a,txt){var e=document.createElementNS("http://www.w3.org/2000/svg",t);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;}
+function renderIdade(box,validos){
+  if(!validos.length)return;
+  var grupos={},ordem=[];
+  validos.forEach(function(r){
+    var k=idadeChave(r.idade)||{a:999,b:999,lab:"Sem idade"};
+    if(!grupos[k.lab]){grupos[k.lab]={lab:k.lab,a:k.a,b:k.b,M:[],F:[]};ordem.push(grupos[k.lab]);}
+    grupos[k.lab][r.sexo].push(r);
+  });
+  ordem.sort(function(x,y){return x.a-y.a||x.b-y.b;});
+  function conta(ls){var c=0,p=0,mn=null,mx=null;ls.forEach(function(r){c+=r.qtde;p+=r.qtde*r.peso;if(mn==null||r.peso<mn)mn=r.peso;if(mx==null||r.peso>mx)mx=r.peso;});return {c:c,m:c?p/c:null,mn:mn,mx:mx,n:ls.length};}
+  var sec=el("section","relidade");
+  sec.append(el("h3",null,"Peso por idade"));
+  sec.append(el("p","note","Cada bolinha é um lote: a altura é o peso médio do lote e o tamanho é a quantidade de animais. O traço grosso é a média da idade (ponderada pelos animais) e a linha liga as médias, para ver o peso subir com a idade."));
+
+  /* gráfico 1: dispersão peso × idade */
+  var W=900,H=400,L=58,R=16,T=16,B=48;
+  var pesos=validos.map(function(r){return r.peso;});
+  var y0=Math.floor(Math.min.apply(null,pesos)/50)*50,y1=Math.ceil(Math.max.apply(null,pesos)/50)*50;if(y1===y0)y1=y0+50;
+  var Y=function(p){return T+(H-T-B)*(1-(p-y0)/(y1-y0));};
+  var passo=(W-L-R)/ordem.length,X=function(i){return L+passo*(i+0.5);};
+  var g1=el("div","grafbox");g1.append(el("h4",null,"Distribuição do peso por idade"));
+  var lg=el("div","legenda");[["Machos",COR_M],["Fêmeas",COR_F]].forEach(function(x){var s1=el("span");var i1=el("i");i1.style.background=x[1];s1.append(i1,document.createTextNode(x[0]));lg.append(s1);});g1.append(lg);
+  var sv=svgEl("svg",{viewBox:"0 0 "+W+" "+H,role:"img","aria-label":"Gráfico de peso médio dos lotes por idade, machos e fêmeas"});
+  for(var v=y0;v<=y1;v+=50){sv.append(svgEl("line",{x1:L,x2:W-R,y1:Y(v),y2:Y(v),stroke:"#D3E3D7","stroke-width":1}));sv.append(svgEl("text",{x:L-8,y:Y(v)+4,"text-anchor":"end","font-size":12,fill:"#56655A"},v+" kg"));}
+  ordem.forEach(function(gp,i){sv.append(svgEl("text",{x:X(i),y:H-B+20,"text-anchor":"middle","font-size":13,"font-weight":700,fill:"#18201B"},gp.lab));});
+  sv.append(svgEl("text",{x:(L+W-R)/2,y:H-6,"text-anchor":"middle","font-size":12,fill:"#56655A"},"Idade (meses)"));
+  [["M",COR_M,-1],["F",COR_F,1]].forEach(function(sx){
+    var meio=[],off=sx[2]*Math.min(passo*0.2,26);
+    ordem.forEach(function(gp,i){
+      var ls=gp[sx[0]];if(!ls.length)return;
+      ls.forEach(function(r,j){
+        var jit=ls.length>1?((j%5)-2)*Math.min(passo*0.04,5):0;
+        var c=svgEl("circle",{cx:X(i)+off+jit,cy:Y(r.peso),r:Math.min(16,4+Math.sqrt(r.qtde)*2.2),fill:sx[1],"fill-opacity":.45,stroke:sx[1],"stroke-width":1.2});
+        c.append(svgEl("title",{},"Lote "+dois(r.lote)+" · "+(sx[0]==="M"?"machos":"fêmeas")+" · "+r.qtde+" animais · "+gp.lab+" · "+r.peso+" kg"));
+        sv.append(c);
+      });
+      var k=conta(ls);meio.push([X(i)+off,Y(k.m)]);
+      sv.append(svgEl("line",{x1:X(i)+off-14,x2:X(i)+off+14,y1:Y(k.m),y2:Y(k.m),stroke:sx[1],"stroke-width":5,"stroke-linecap":"round"}));
+    });
+    if(meio.length>1)sv.insertBefore(svgEl("polyline",{points:meio.map(function(p){return p.join(",");}).join(" "),fill:"none",stroke:sx[1],"stroke-width":2,"stroke-dasharray":"6 5","stroke-opacity":.8}),sv.firstChild.nextSibling);
+  });
+  g1.append(sv);sec.append(g1);
+
+  /* tabela por idade */
+  var tw=el("div","grafbox"),tb=el("table","tabidade"),th=el("tr");
+  ["Idade","Machos","Média M","Fêmeas","Média F","Média geral","Lote mais leve – mais pesado"].forEach(function(t){th.append(el("th",null,t));});
+  var thead=el("thead");thead.append(th);tb.append(thead);var tbody=el("tbody");
+  function linha(lab,M,F,cls){
+    var tr=el("tr",cls||""),a=conta(M),b=conta(F),t=conta(M.concat(F));
+    tr.append(el("td",null,lab));
+    var td=function(x,bold){var c=el("td");if(bold)c.append(el("b",null,x));else c.textContent=x;tr.append(c);};
+    td(a.c?a.c+" anim. · "+a.n+" lt":"–");td(a.c?fmtKg(a.m)+" kg":"–",1);
+    td(b.c?b.c+" anim. · "+b.n+" lt":"–");td(b.c?fmtKg(b.m)+" kg":"–",1);
+    td(t.c?fmtKg(t.m)+" kg":"–",1);td(t.n?t.mn+" – "+t.mx+" kg":"–");
+    tbody.append(tr);
+  }
+  ordem.forEach(function(gp){linha(gp.lab,gp.M,gp.F);});
+  var tM=[],tF=[];ordem.forEach(function(gp){tM=tM.concat(gp.M);tF=tF.concat(gp.F);});
+  linha("Total",tM,tF,"tot");
+  tb.append(tbody);tw.append(tb);sec.append(tw);
+
+  /* gráfico 2: quantos animais em cada faixa de 25 kg */
+  var BIN=25,b0=Math.floor(Math.min.apply(null,pesos)/BIN)*BIN,b1=Math.floor(Math.max.apply(null,pesos)/BIN)*BIN,bins=[];
+  for(var x=b0;x<=b1;x+=BIN)bins.push({de:x,M:0,F:0});
+  validos.forEach(function(r){var i=Math.floor((r.peso-b0)/BIN);if(bins[i])bins[i][r.sexo]+=r.qtde;});
+  var mx=1;bins.forEach(function(b){mx=Math.max(mx,b.M+b.F);});
+  var H2=300,B2=52,g2=el("div","grafbox");g2.append(el("h4",null,"Quantos animais em cada faixa de peso"));
+  var lg2=lg.cloneNode(true);g2.append(lg2);
+  var s2=svgEl("svg",{viewBox:"0 0 "+W+" "+H2,role:"img","aria-label":"Gráfico de barras com o número de animais por faixa de 25 kg"});
+  var pb=(W-L-R)/bins.length,Y2=function(n){return T+(H2-T-B2)*(1-n/mx);};
+  var st=Math.max(1,Math.ceil(mx/5/5)*5);
+  for(var n=0;n<=mx;n+=st){s2.append(svgEl("line",{x1:L,x2:W-R,y1:Y2(n),y2:Y2(n),stroke:"#D3E3D7"}));s2.append(svgEl("text",{x:L-8,y:Y2(n)+4,"text-anchor":"end","font-size":12,fill:"#56655A"},String(n)));}
+  bins.forEach(function(b,i){
+    var x=L+pb*i+pb*0.12,w=pb*0.76,yM=Y2(b.M),yT=Y2(b.M+b.F);
+    if(b.M){var rm=svgEl("rect",{x:x,y:yM,width:w,height:Y2(0)-yM,fill:COR_M,rx:2});rm.append(svgEl("title",{},b.de+"–"+(b.de+BIN-1)+" kg: "+b.M+" machos"));s2.append(rm);}
+    if(b.F){var rf=svgEl("rect",{x:x,y:yT,width:w,height:yM-yT,fill:COR_F,rx:2});rf.append(svgEl("title",{},b.de+"–"+(b.de+BIN-1)+" kg: "+b.F+" fêmeas"));s2.append(rf);}
+    if(b.M+b.F)s2.append(svgEl("text",{x:x+w/2,y:yT-5,"text-anchor":"middle","font-size":12,"font-weight":700,fill:"#18201B"},String(b.M+b.F)));
+    s2.append(svgEl("text",{x:x+w/2,y:H2-B2+18,"text-anchor":"middle","font-size":11,fill:"#56655A"},String(b.de)));
+  });
+  s2.append(svgEl("text",{x:(L+W-R)/2,y:H2-8,"text-anchor":"middle","font-size":12,fill:"#56655A"},"Peso médio do lote (kg, faixas de 25 kg)"));
+  g2.append(s2);sec.append(g2);
+  box.append(sec);
 }
 /* ---------- sugestão de ordem de entrada (editável: número, arrastar ou setinhas) ---------- */
 /* a posição fica em cada lote (campo "os"), então sincroniza na nuvem junto com as fichas */
