@@ -226,8 +226,25 @@ td input:focus{border-color:var(--destaque)}
 .relsexo{margin-bottom:22px}
 .relsexo>h3{font:700 1.5rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.03em;margin:0 0 10px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .relsexo>h3 small{font:600 .9rem var(--f-body);text-transform:none;letter-spacing:0;color:var(--muted)}
-.relgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-@media (max-width:760px){.relgrid{grid-template-columns:minmax(0,1fr)}}
+.relgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:1000px){.relgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.relgrid{grid-template-columns:minmax(0,1fr)}}
+.faixa.sobre{border-color:var(--destaque,#E8730C);box-shadow:0 0 0 3px rgba(232,115,12,.25);background:#FFF8EF}
+.faixa.esp{border-style:solid;border-color:#D9B65E;background:#FFFCF3}
+.faixa.tir{border-style:dashed;background:#F7F7F7}
+.lchips{display:flex;flex-wrap:wrap;gap:6px}
+.lchip{display:inline-flex;align-items:baseline;gap:4px;padding:5px 9px;border-radius:7px;border:1.5px solid #B4C6B9;background:#fff;cursor:grab;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;touch-action:manipulation}
+.lchip b{font:700 1.02rem var(--f-display);color:var(--fg)}
+.lchip:hover{border-color:var(--accent);background:var(--accent-soft)}
+.lchip.mao{border-style:dashed;border-color:var(--destaque,#E8730C)}
+.lchip.arr{opacity:.4}
+.solte{font-size:.82rem;color:var(--muted);font-style:italic}
+.dicarel{font-size:.88rem;color:var(--muted);margin:-4px 0 14px;max-width:90ch}
+.menulote{position:fixed;z-index:40;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:8px;display:grid;gap:3px;max-height:70vh;overflow:auto}
+.menulote p{margin:2px 6px 6px;font-size:.82rem;color:var(--muted)}
+.menulote button{text-align:left;border:0;background:none;padding:9px 10px;border-radius:8px;font-weight:600;cursor:pointer}
+.menulote button:hover{background:var(--accent-soft)}
+.menulote button.at{color:var(--accent)}
 .faixa{background:var(--surface);border:1.5px solid #B4C6B9;border-radius:14px;padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
 .faixa .ft{font:700 1.05rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
 .faixa .media{display:flex;align-items:baseline;gap:6px}
@@ -270,6 +287,19 @@ td input:focus{border-color:var(--destaque)}
 .leitura li.al::marker{color:#B42318}
 .leitura li.ok::marker{color:#1E8A43}
 .leitura .rod{font-size:.82rem;color:var(--muted);margin:12px 0 0}
+.pedbox{max-width:760px}
+.rotped{display:block;font:600 .78rem var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:12px 0 4px}
+.pedbox select,.pedbox textarea{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;font:inherit;background:#fff}
+.pedbox select{height:46px;padding:0 10px}
+.pedh{font:700 1.1rem var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:24px 0 8px}
+.pedlista{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.pedlista li{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+.pedlista li.feito{background:var(--good-soft)}
+.pedlista .pc{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.82rem;color:var(--muted)}
+.pedlista .pc b{color:var(--fg)}
+.pedlista .st{margin-left:auto;font-weight:700}
+.pedlista li.feito .st{color:var(--good)}
+.pedlista p{margin:6px 0 0;white-space:pre-wrap}
 .relaviso{padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:.92rem;margin-bottom:14px}
 
 /* ===== sugestão de ordem de entrada ===== */
@@ -319,7 +349,7 @@ td input:focus{border-color:var(--destaque)}
 }
 @media print{
   body{padding:0}
-  header.top,.abas,#v-fichas,#v-cam,#v-rel,.ordacoes,.ordregra,.toast,.modal{display:none!important}
+  header.top,.abas,#v-fichas,#v-cam,#v-rel,#v-ped,.ordacoes,.ordregra,.toast,.modal{display:none!important}
   #v-ord{display:block!important}
   .mexe{display:none}
   .ocab,.orow{grid-template-columns:4em 4.4em 4.2em minmax(8em,1.4fr) 6em 3.6em 4.6em minmax(8em,1.6fr)}
@@ -345,6 +375,7 @@ td input:focus{border-color:var(--destaque)}
     <button type="button" data-v="cam" aria-pressed="false">📷 Câmera</button>
     <button type="button" data-v="rel" aria-pressed="false">Relatório</button>
     <button type="button" data-v="ord" aria-pressed="false">Ordem de entrada</button>
+    <button type="button" data-v="ped" aria-pressed="false">✍ Pedidos</button>
   </nav>
 
   <div id="v-fichas">
@@ -443,6 +474,20 @@ td input:focus{border-color:var(--destaque)}
       <p class="note" style="margin:0;max-width:44ch">Cada lote entra na faixa pelo seu peso médio. A média de cada faixa é ponderada pela quantidade de animais de cada lote.</p>
     </div>
     <div id="relCorpo"></div>
+  </div>
+
+  <div id="v-ped" hidden>
+    <div class="pedbox">
+      <h2 style="margin:0;color:var(--accent)">Pedidos de mudança</h2>
+      <p class="note" style="margin:4px 0 12px">Escreva aqui o que quer mudar no Lotes ADM, no Relatório dos lotes ou em qualquer página do painel. Fica guardado no GitHub do ADM. Na próxima conversa é só dizer ao Claude: <b>"faz os pedidos do painel"</b>.</p>
+      <label class="rotped" for="pedPag">Onde</label>
+      <select id="pedPag"><option>Lotes ADM</option><option>Relatório dos lotes</option><option>Conferência Boleta</option><option>Site dos produtores</option><option>Painel / outra página</option></select>
+      <label class="rotped" for="pedTxt">O que mudar</label>
+      <textarea id="pedTxt" rows="5" placeholder="Ex.: no relatório, juntar as faixas 250/300 e +300 nas fêmeas."></textarea>
+      <div class="row" style="margin-top:10px"><button class="btn pri" type="button" id="pedEnviar">Guardar pedido</button><span class="note" id="pedMsg" style="margin:0"></span></div>
+      <h3 class="pedh">Pedidos guardados</h3>
+      <ul class="pedlista" id="pedLista"></ul>
+    </div>
   </div>
 
   <div id="v-ord" hidden>
@@ -1354,8 +1399,10 @@ $("c-ok").addEventListener("click",async function(){
 /* ---------- abas ---------- */
 var VIEW="fichas";
 try{VIEW=localStorage.getItem("leiloinga-adm-view")||(window.innerWidth<700?"cam":"fichas");}catch(e){}
+if(location.hash==="#pedidos")VIEW="ped";
 function mostrar(v){
-  VIEW=v;$("v-fichas").hidden=v!=="fichas";$("v-cam").hidden=v!=="cam";$("v-rel").hidden=v!=="rel";$("v-ord").hidden=v!=="ord";
+  VIEW=v;$("v-fichas").hidden=v!=="fichas";$("v-cam").hidden=v!=="cam";$("v-rel").hidden=v!=="rel";$("v-ord").hidden=v!=="ord";$("v-ped").hidden=v!=="ped";
+  if(v==="ped")carregarPedidos();
   document.querySelectorAll(".abas button").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.v===v));});
   try{localStorage.setItem("leiloinga-adm-view",v);}catch(e){}
   if(v==="cam")renderCam();
@@ -1627,44 +1674,103 @@ $("novoLeilao").addEventListener("click",async function(){
 });
 
 
-/* ---------- relatório: machos e fêmeas por faixa de peso ---------- */
-var FAIXAS=[{t:"Até 200 kg",f:function(p){return p<=200;}},{t:"De 201 a 300 kg",f:function(p){return p>200&&p<=300;}},{t:"Acima de 300 kg",f:function(p){return p>300;}}];
+/* ---------- relatório: machos e fêmeas por faixa de peso (as mesmas do Relatório dos lotes) e categorias especiais.
+   Cada lote é um botão: arraste para outro quadro (no computador) ou toque e escolha para onde vai.
+   r.cat = categoria especial (prenha, engorda…); r.fxm = faixa escolhida à mão; r.fora = tirado do relatório ---------- */
+var FAIXAS=[
+  {k:"200",t:"Até 200 kg",f:function(p){return p<=200;}},
+  {k:"250",t:"200/250 kg",f:function(p){return p>200&&p<=250;}},
+  {k:"300",t:"250/300 kg",f:function(p){return p>250&&p<=300;}},
+  {k:"+300",t:"+300 kg",f:function(p){return p>300;}}
+];
+var ESPECIAIS=[{k:"prenha",t:"Novilhas prenhas"},{k:"engorda",t:"Vacas p/ engorda"},{k:"cria",t:"Vacas com cria"},{k:"touro",t:"Touros"},{k:"outro",t:"Outros"}];
 function fmtKg(n){return Math.round(n).toLocaleString("pt-BR");}
+function faixaPeso(p){for(var i=0;i<FAIXAS.length;i++){if(FAIXAS[i].f(p))return FAIXAS[i].k;}return null;}
+function faixaLote(r){return r.fxm||faixaPeso(r.peso);}
+/* destino: "fx:M:250", "esp:prenha" ou "fora" */
+function moverLote(r,dest){
+  if(dest==="fora"){r.fora=true;}
+  else if(dest.indexOf("esp:")===0){r.cat=dest.slice(4);delete r.fora;delete r.fxm;}
+  else if(dest.indexOf("fx:")===0){var k=dest.split(":")[2];delete r.cat;delete r.fora;if(k===faixaPeso(r.peso))delete r.fxm;else r.fxm=k;}
+  salvar();renderRel();
+}
+var MENU_LOTE=null;
+function fecharMenuLote(){if(MENU_LOTE){MENU_LOTE.remove();MENU_LOTE=null;}}
+document.addEventListener("click",function(e){if(MENU_LOTE&&!e.target.closest(".menulote")&&!e.target.closest(".lchip"))fecharMenuLote();});
+function abrirMenuLote(r,btn){
+  fecharMenuLote();
+  var m=el("div","menulote");m.setAttribute("role","menu");
+  m.append(el("p",null,"Lote "+dois(r.lote)+" · "+r.qtde+" "+(r.sexo==="M"?"M":"F")+" · "+r.peso+" kg — mover para:"));
+  function op(t,dest,atual){var b=el("button",atual?"at":"",t+(atual?" ✓":""));b.type="button";b.addEventListener("click",function(){fecharMenuLote();moverLote(r,dest);toast("Lote "+dois(r.lote)+" → "+t+".");});m.append(b);}
+  FAIXAS.forEach(function(f){op((r.sexo==="M"?"Machos ":"Fêmeas ")+f.t+(f.k===faixaPeso(r.peso)?" (pelo peso)":""),"fx:"+r.sexo+":"+f.k,!r.cat&&!r.fora&&faixaLote(r)===f.k);});
+  ESPECIAIS.forEach(function(e){op(e.t,"esp:"+e.k,!r.fora&&r.cat===e.k);});
+  op("Tirar do relatório","fora",!!r.fora);
+  document.body.append(m);
+  var bx=btn.getBoundingClientRect(),w=Math.min(300,window.innerWidth-16);
+  m.style.width=w+"px";m.style.left=Math.max(8,Math.min(window.innerWidth-w-8,bx.left))+"px";
+  var top=bx.bottom+6;if(top+m.offsetHeight>window.innerHeight-8)top=Math.max(8,bx.top-m.offsetHeight-6);
+  m.style.top=top+"px";MENU_LOTE=m;
+}
+function chipLote(r){
+  var b=el("button","lchip"+(r.fxm?" mao":""));b.type="button";b.draggable=true;
+  b.append(el("b",null,dois(r.lote)),document.createTextNode(" "+r.qtde+"×"+r.peso));
+  b.title="Lote "+dois(r.lote)+": arraste para outro quadro ou toque para mover"+(r.fxm?" (faixa escolhida à mão)":"");
+  b.addEventListener("click",function(e){e.stopPropagation();abrirMenuLote(r,b);});
+  b.addEventListener("dragstart",function(e){e.dataTransfer.setData("text/plain",String(r.id));e.dataTransfer.effectAllowed="move";b.classList.add("arr");});
+  b.addEventListener("dragend",function(){b.classList.remove("arr");});
+  return b;
+}
+function alvoDrop(card,dest){
+  card.dataset.dest=dest;
+  card.addEventListener("dragover",function(e){e.preventDefault();card.classList.add("sobre");});
+  card.addEventListener("dragleave",function(){card.classList.remove("sobre");});
+  card.addEventListener("drop",function(e){e.preventDefault();card.classList.remove("sobre");var id=+e.dataTransfer.getData("text/plain"),r=S.rows.find(function(x){return x.id===id;});if(r){moverLote(r,dest);toast("Lote "+dois(r.lote)+" movido.");}});
+}
+function cardFaixa(titulo,ls,dest,cls){
+  var c=0,p=0;ls.forEach(function(r){c+=r.qtde;p+=r.qtde*r.peso;});
+  var card=el("div","faixa"+(ls.length?"":" vazia")+(cls?" "+cls:""));
+  card.append(el("div","ft",titulo));
+  var md=el("div","media");md.append(el("b",null,c?fmtKg(p/c):"–"),el("span",null,c?"kg de média":"sem lotes"));card.append(md);
+  var mi=el("div","mini");[["Animais",String(c)],["Lotes",String(ls.length)]].forEach(function(x){var d=el("div");d.append(el("span","k",x[0]),el("b",null,x[1]));mi.append(d);});card.append(mi);
+  var lt=el("div","lchips");ls.slice().sort(function(a,b){return a.lote-b.lote;}).forEach(function(r){lt.append(chipLote(r));});
+  if(!ls.length)lt.append(el("span","solte","Solte um lote aqui"));
+  card.append(lt);alvoDrop(card,dest);return card;
+}
 window.__renderRel=renderRel;
 function renderRel(){
   var box=$("relCorpo");if(!box||$("v-rel").hidden)return;
+  fecharMenuLote();
   box.textContent="";
   $("relLeilao").textContent=S.leilao?(S.leilao+(S.data?" · "+S.data:"")):"";
   var rows=S.rows.filter(function(r){return r.lote!=null;});
   if(!rows.length){var v=el("div","vazio2");v.append(el("b",null,"Nenhum lote ainda"),document.createTextNode("O relatório aparece quando os lotes entram nas fichas."));box.append(v);return;}
-  var validos=rows.filter(function(r){return (r.sexo==="M"||r.sexo==="F")&&r.peso!=null&&r.qtde>0;});
-  var fora=rows.filter(function(r){return validos.indexOf(r)<0;});
+  var todos=rows.filter(function(r){return (r.sexo==="M"||r.sexo==="F")&&r.peso!=null&&r.qtde>0;});
+  var validos=todos.filter(function(r){return !r.fora;});
+  var fora=rows.filter(function(r){return todos.indexOf(r)<0;});
   var cab=0,soma=0;validos.forEach(function(r){cab+=r.qtde;soma+=r.qtde*r.peso;});
   var tot=el("div","reltotal");
   [["Lotes",String(validos.length)],["Animais",String(cab)],["Peso médio geral",cab?fmtKg(soma/cab)+" kg":"–"],["Peso total",cab?fmtKg(soma)+" kg":"–"]].forEach(function(x){var d=el("div");d.append(el("span","k",x[0]),el("b",null,x[1]));tot.append(d);});
   box.append(tot);
   if(fora.length){box.append(el("div","relaviso","Ficaram de fora "+fora.length+(fora.length>1?" lotes":" lote")+" sem sexo, peso ou quantidade: "+fora.map(function(r){return dois(r.lote);}).join(", ")+". Complete na aba Fichas."));}
+  box.append(el("p","dicarel","Cada lote é um botão (número · quantidade × peso). Arraste para outro quadro, ou toque nele e escolha para onde vai: outra faixa, Novilhas prenhas, Vacas p/ engorda… Lote com borda tracejada foi mudado de faixa à mão."));
+  var comuns=validos.filter(function(r){return !r.cat;});
   [["M","Machos"],["F","Fêmeas"]].forEach(function(sx){
-    var dosexo=validos.filter(function(r){return r.sexo===sx[0];});
+    var dosexo=comuns.filter(function(r){return r.sexo===sx[0];});
     var cs=0,ps=0;dosexo.forEach(function(r){cs+=r.qtde;ps+=r.qtde*r.peso;});
     var sec=el("section","relsexo"),h=el("h3",null,sx[1]);
     h.append(el("small",null,dosexo.length+" lotes · "+cs+" animais"+(cs?" · média "+fmtKg(ps/cs)+" kg":"")));
     sec.append(h);
     var g=el("div","relgrid");
-    FAIXAS.forEach(function(fx){
-      var ls=dosexo.filter(function(r){return fx.f(r.peso);}).sort(function(a,b){return a.lote-b.lote;});
-      var c=0,p=0;ls.forEach(function(r){c+=r.qtde;p+=r.qtde*r.peso;});
-      var card=el("div","faixa"+(ls.length?"":" vazia"));
-      card.append(el("div","ft",sx[1]+" · "+fx.t));
-      var md=el("div","media");md.append(el("b",null,c?fmtKg(p/c):"–"),el("span",null,c?"kg de média":"sem lotes"));card.append(md);
-      var mi=el("div","mini");
-      [["Animais",String(c)],["Lotes",String(ls.length)]].forEach(function(x){var d=el("div");d.append(el("span","k",x[0]),el("b",null,x[1]));mi.append(d);});
-      card.append(mi);
-      if(ls.length){var lt=el("div","lotes");lt.append(el("b",null,"Lotes: "),document.createTextNode(ls.map(function(r){return dois(r.lote)+" ("+r.qtde+" × "+r.peso+")";}).join(", ")));card.append(lt);}
-      g.append(card);
-    });
+    FAIXAS.forEach(function(fx){g.append(cardFaixa(sx[1]+" · "+fx.t,dosexo.filter(function(r){return faixaLote(r)===fx.k;}),"fx:"+sx[0]+":"+fx.k));});
     sec.append(g);box.append(sec);
   });
+  /* categorias especiais: sempre aparecem as duas principais, as outras só quando têm lote */
+  var sec2=el("section","relsexo"),h2=el("h3",null,"Categorias especiais");h2.append(el("small",null,"lotes que não entram nas faixas de peso"));sec2.append(h2);
+  var g2=el("div","relgrid");
+  ESPECIAIS.forEach(function(e){var ls=validos.filter(function(r){return r.cat===e.k;});if(ls.length||e.k==="prenha"||e.k==="engorda")g2.append(cardFaixa(e.t,ls,"esp:"+e.k,"esp"));});
+  var tir=todos.filter(function(r){return r.fora;});
+  g2.append(cardFaixa("Tirados do relatório",tir,"fora","tir"));
+  sec2.append(g2);box.append(sec2);
   renderIdade(box,validos);
 }
 /* ---------- leitura técnica automática: compara as faixas de idade dentro de cada sexo e machos × fêmeas ---------- */
@@ -1689,7 +1795,7 @@ function leituraTecnica(ordem,validos){
       var mz=mediaDe(z),mc=mediaDe(c),txt=b.g.lab+": "+b.md.c+(b.md.c>1?" animais":" animal")+" em "+b.md.n+(b.md.n>1?" lotes":" lote")+", média "+fmtKg(b.md.m)+" kg";
       if(mz&&mc)txt+=" (zebuínos "+fmtKg(mz.m)+" kg, cruzas "+fmtKg(mc.m)+" kg)";
       if(b.md.n<=2)txt+=". Pouca amostra: só "+b.md.n+(b.md.n>1?" lotes":" lote")+", vale como indicação";
-      if(b.g.b-b.g.a>=6&&b.md.c>totC*0.5)txt+=". Faixa larga ("+(b.g.b-b.g.a)+" meses) com mais da metade dos "+nomeSx(sx[0],1)+": dentro dela é normal ter muita diferença de peso";
+      if(b.g.b-b.g.a>=6&&b.md.c>totC*0.5)txt+=". Faixa larga ("+(b.g.b-b.g.a)+" meses) com mais da metade "+(sx[0]==="M"?"dos machos":"das fêmeas")+": dentro dela é normal ter muita diferença de peso";
       itens.push(["",txt+"."]);
       var prox=bandas[i+1],ant=bandas[i-1];
       if(ant&&b.md.m<ant.md.m){subiu=false;itens.push(["al","A média de "+b.g.lab+" ("+fmtKg(b.md.m)+" kg) ficou abaixo da de "+ant.g.lab+" ("+fmtKg(ant.md.m)+" kg): o mais velho está pesando menos ("+(b.ls.length>1?"lotes ":"lote ")+b.ls.map(function(r){return dois(r.lote)+" "+racaFicha(r.raca);}).join(", ")+"). Pode ser recria fraca do mais velho ou idade errada em algum lote."]);}
@@ -2271,6 +2377,39 @@ async function ordEnviarCor(){
 $("ordPb").addEventListener("click",ordImprimirPb);
 $("ordCor").addEventListener("click",ordEnviarCor);
 window.__ordPdfCompleto=function(pb){return ordPdfCompleto(ordListaCompleta(),pb);};
+
+/* ---------- pedidos de mudança: guardados em pedidos.json no repositório privado do ADM ---------- */
+var PED_ARQ="pedidos.json";
+function renderPedidos(lst){
+  var ul=$("pedLista");ul.textContent="";
+  if(!lst.length){ul.append(el("li","muted","Nenhum pedido ainda."));return;}
+  lst.slice().reverse().forEach(function(p){
+    var li=el("li",p.feito?"feito":"");
+    var cab=el("div","pc");cab.append(el("b",null,p.pagina||""),el("span",null,(p.em||"").slice(8,10)+"/"+(p.em||"").slice(5,7)+" "+(p.em||"").slice(11,16)),el("span","st",p.feito?"✓ feito"+(p.resposta?": "+p.resposta:""):"aguardando"));
+    li.append(cab,el("p",null,p.texto));ul.append(li);
+  });
+}
+async function carregarPedidos(){
+  if(!GH.token){$("pedLista").textContent="";$("pedLista").append(el("li","muted","Conecte este aparelho (botão da nuvem) para ver e guardar pedidos."));return;}
+  try{var rr=await lerArq(GH.repo,PED_ARQ);var l=[];try{l=JSON.parse(rr.texto||"[]");}catch(e){}renderPedidos(Array.isArray(l)?l:[]);}
+  catch(e){$("pedMsg").textContent="Não deu para ler os pedidos agora.";}
+}
+$("pedEnviar").addEventListener("click",async function(){
+  var t=$("pedTxt").value.trim();if(!t){$("pedTxt").focus();return;}
+  if(!GH.token){abrirConexao();return;}
+  var b=this;b.disabled=true;$("pedMsg").textContent="Guardando…";
+  try{
+    var lst=[];
+    for(var k=0;k<4;k++){
+      var rr=await lerArq(GH.repo,PED_ARQ);lst=[];try{lst=JSON.parse(rr.texto||"[]");}catch(e){}if(!Array.isArray(lst))lst=[];
+      lst.push({id:Date.now().toString(36),pagina:$("pedPag").value,texto:t,em:new Date().toISOString(),feito:false});
+      try{await gravarArq(GH.repo,PED_ARQ,b64enc(JSON.stringify(lst,null,1)+"\n"),rr.sha||null,"Pedido: "+t.slice(0,60));break;}
+      catch(e){if(!e.conflito||k===3)throw e;}
+    }
+    $("pedTxt").value="";$("pedMsg").textContent="Pedido guardado ✓";renderPedidos(lst);
+  }catch(e){$("pedMsg").textContent="Não deu para guardar. Confira a internet e tente de novo.";}
+  finally{b.disabled=false;}
+});
 
 /* ---------- início ---------- */
 carregarLocal();mostrar(VIEW);render();renderFiles();limparMan();iniciarNuvem();
