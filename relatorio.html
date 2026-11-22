@@ -257,6 +257,7 @@ table.tl{width:100%;border-collapse:collapse;min-width:720px;font-variant-numeri
       <span>A ordem de entrada que o sistema gera, com Lote, Qtde, Sexo, Idade, Raça e Peso. Também dá para arrastar o arquivo aqui. A leitura é feita aqui mesmo, sem mandar o PDF para lugar nenhum.</span>
     </label>
     <p class="status" id="status" role="status" aria-live="polite"></p>
+    <p style="text-align:center;margin:14px 0 0"><button class="btn" type="button" id="exemplo">Testar com o leilão do Marquinho (11/11)</button></p>
   </section>
 
   <section id="comPdf" hidden>
@@ -267,6 +268,7 @@ table.tl{width:100%;border-collapse:collapse;min-width:720px;font-variant-numeri
       </div>
       <div class="acts">
         <select id="anteriores" aria-label="Relatórios guardados neste aparelho" hidden></select>
+        <button class="btn" type="button" id="exemplo2">Exemplo: Marquinho</button>
         <button class="btn" type="button" id="trocar">Outro PDF</button>
       </div>
     </div>
@@ -553,7 +555,7 @@ function nomeCat(sx,fx){var f=FAIXAS.find(function(x){return x.k===fx;});return 
    Raça que não está aqui entra como "nova" até ser confirmada na tela (fica guardada). */
 var RACA_PADRAO=[
   [/^NELORE\b/,"B"],[/^(1\/2\s*|½\s*)?TABAPUA\b/,"B"],
-  [/CRUZAD|INDUSTRIAL|CRUZ\.?\s*IND/,"C"],[/ANGUS|BRANGUS|BRAFORD|HEREFORD|CARACU|CHAROL|SIMENTAL|LIMOUSIN|SENEPOL|WAGYU|DEVON|CANCHIM|GIROLANDO|HOLAND|JERSEY/,"C"]
+  [/CRUZAD|INDUSTRIAL|CRUZ\.?\s*IND/,"C"],[/ANGUS|BRANGUS|BRAFORD|HEREFORD|CARACU|CHAROL|SIMENTAL|LIMOUSIN|SENEPOL|WAGYU|DEVON|CANCHI|GIROLANDO|HOLAND|JERSEY/,"C"]
 ];
 /* para raça nova, um palpite (zebuínos parecem brancos); continua marcada até confirmar */
 function palpite(k){return /ANELORAD|BRAHMAN|GIR\b|GUZERA|SINDI|ZEBU/.test(k)&&!/1\/2|½|MEIO/.test(k)?"B":"C";}
@@ -613,6 +615,16 @@ drop.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.fi
 document.addEventListener("dragover",function(e){e.preventDefault();});
 document.addEventListener("drop",function(e){e.preventDefault();var f=e.dataTransfer&&e.dataTransfer.files[0];if(f&&!e.target.closest("#drop"))abrirArquivo(f);});
 $("trocar").addEventListener("click",function(){$("arq").click();});
+/* exemplo para testar: PDF no formato do sistema do leilão de Marquinho (11/11), com os vendedores trocados por "PRODUTOR 01, 02…" */
+async function carregarExemplo(){
+  var st=$("status");st.className="status";st.textContent="Abrindo o exemplo…";
+  try{
+    var r=await fetch("exemplos/ordem-marquinho-11-11.pdf?v=1",{cache:"no-store"});if(!r.ok)throw new Error(r.status);
+    var b=await r.blob();await abrirArquivo(new File([b],"exemplo-marquinho-11-11.pdf",{type:"application/pdf"}));
+  }catch(e){st.className="status err";st.textContent="Não deu para abrir o exemplo agora. Confira a internet.";}
+}
+$("exemplo").addEventListener("click",carregarExemplo);
+$("exemplo2").addEventListener("click",carregarExemplo);
 $("anteriores").addEventListener("change",function(){var r=DB.rel[this.value];if(r){R=r;DB.atual=r.id;salvaDB();mostrar();}});
 
 /* ---------- contas ---------- */
