@@ -398,14 +398,14 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
 
     <section class="card" id="p-cats" role="tabpanel" hidden>
       <h2>Categorias</h2>
-      <p class="dica" style="margin:-4px 0 12px">Cada lote é um botão (número · quantidade × peso · R$/kg). Arraste para outro quadro, ou toque nele e escolha para onde vai. Lote tirado da soma vai para "Tirados da soma". Borda tracejada = mudado de faixa à mão.</p>
+      <p class="dica" style="margin:-4px 0 12px">Só os lotes da seleção de cima. Cada lote é um botão (número · quantidade × peso · R$/kg). Arraste para outro quadro, ou toque nele e escolha para onde vai. Lote tirado da soma vai para "Tirados da soma". Borda tracejada = mudado de faixa à mão.</p>
       <div id="cats"></div>
     </section>
 
     <section class="card" id="p-quadro" role="tabpanel" hidden>
       <h2>Quadro por categoria</h2>
       <div class="tw"><table class="quadro" id="quadro"></table></div>
-      <p class="dica">Em cada categoria: R$/kg (quando tem lance), peso médio e cabeças. O que está em verde entra na soma. Toque num número para somar só aquela categoria.</p>
+      <p class="dica">Só as categorias da seleção de cima. Em cada uma: R$/kg (quando tem lance), peso médio e cabeças. Toque num número para ver os lotes.</p>
     </section>
 
     <section class="card" id="p-lotes" role="tabpanel" hidden>
@@ -807,7 +807,7 @@ function passaFiltros(l){
   if(!valido(l))return false;
   if(R.sel.raca.indexOf(grupoDe(l.raca))<0||R.sel.sexo.indexOf(l.sexo)<0)return false;
   var c=catDe(l);
-  return c?R.sel.tipo.indexOf(c)>=0:(R.sel.tipo.indexOf("comum")>=0&&R.sel.peso.indexOf(faixaDe(l))>=0);
+  return c?(R.sel.tipo.indexOf(c)>=0&&R.sel.peso.indexOf(faixaPeso(l))>=0):(R.sel.tipo.indexOf("comum")>=0&&R.sel.peso.indexOf(faixaDe(l))>=0);
 }
 function entra(l){return passaFiltros(l)&&!tirado(l);}
 function conta(l){return valido(l)&&!tirado(l);}
@@ -958,16 +958,15 @@ function cidadeDoLeilao(){
 }
 function mediasLinhas(todas){
   /* todas=true: inclui as linhas sem venda (para a tela); o texto copiado só leva as que têm R$/kg */
-  var okR=function(l){return valido(l)&&R.sel.raca.indexOf(grupoDe(l.raca))>=0;};
-  var base=R.lotes.filter(okR),L=[],sep=!!R.medSep;
+  var base=R.lotes.filter(passaFiltros),L=[],sep=!!R.medSep;
   function linha(rot,ls,dest,sempre){
     var grupos=sep?GRUPOS.map(function(g){return {t:rot+" "+g.t.toLowerCase(),ls:ls.filter(function(l){return grupoDe(l.raca)===g.k;})};}):[{t:rot,ls:ls}];
     grupos.forEach(function(g){var q=soma(g.ls.filter(function(l){return !tirado(l);}));if(q.rk!=null||(todas&&(g.ls.length||sempre)))L.push({t:g.t,q:q,lots:g.ls,dest:dest});});
   }
-  SEXOS.forEach(function(sx){
-    FAIXAS.forEach(function(f){linha(sx.t+" "+f.txt,base.filter(function(l){return l.sexo===sx.k&&!catDe(l)&&faixaDe(l)===f.k;}),"fx:"+sx.k+":"+f.k,false);});
+  SEXOS.forEach(function(sx){if(R.sel.sexo.indexOf(sx.k)<0)return;
+    FAIXAS.forEach(function(f){if(R.sel.peso.indexOf(f.k)<0)return;linha(sx.t+" "+f.txt,base.filter(function(l){return l.sexo===sx.k&&!catDe(l)&&faixaDe(l)===f.k;}),"fx:"+sx.k+":"+f.k,false);});
   });
-  especiaisVisiveis().forEach(function(e){linha(e.t,base.filter(function(l){return catDe(l)===e.k;}),"esp:"+e.k,true);});
+  especiaisVisiveis().forEach(function(e){linha(e.t,base.filter(function(l){return catDe(l)===e.k;}),"esp:"+e.k,false);});
   return L;
 }
 function especiaisVisiveis(){var u=especiaisUsados().map(function(e){return e.k;});return ESPECIAIS.filter(function(e){return e.k==="prenha"||e.k==="engorda"||u.indexOf(e.k)>=0;});}
@@ -1004,10 +1003,10 @@ function renderMedias(){
 
 /* ---------- quadro de uma categoria: todos os lotes dela, com tudo embaixo, para pôr ou tirar da soma e mudar de categoria ---------- */
 var CAT_ABERTA=null;
-function lotesDoDestino(dest){
-  var okR=function(l){return valido(l)&&R.sel.raca.indexOf(grupoDe(l.raca))>=0;};
+function lotesDoDestino(dest,raca){
   return R.lotes.filter(function(l){
-    if(!okR(l))return false;
+    if(!passaFiltros(l))return false;
+    if(raca&&grupoDe(l.raca)!==raca)return false;
     if(dest==="fora")return tirado(l);
     if(dest.indexOf("esp:")===0)return catDe(l)===dest.slice(4);
     var p=dest.split(":");return l.sexo===p[1]&&!catDe(l)&&faixaDe(l)===p[2];
@@ -1030,11 +1029,11 @@ function opcoesDestino(l){
   return o;
 }
 function destinoAtual(l){var c=catDe(l);return c?"esp:"+c:"fx:"+l.sexo+":"+faixaDe(l);}
-function abrirCategoria(titulo,dest){CAT_ABERTA={t:titulo,dest:dest};renderCategoria();$("catModal").hidden=false;}
+function abrirCategoria(titulo,dest,raca){CAT_ABERTA={t:titulo,dest:dest,raca:raca||""};renderCategoria();$("catModal").hidden=false;}
 function fecharCategoria(){CAT_ABERTA=null;$("catModal").hidden=true;}
 function renderCategoria(){
   if(!CAT_ABERTA)return;
-  var ls=lotesDoDestino(CAT_ABERTA.dest),q=soma(ls.filter(function(l){return !tirado(l);}));
+  var ls=lotesDoDestino(CAT_ABERTA.dest,CAT_ABERTA.raca),q=soma(ls.filter(function(l){return !tirado(l);}));
   $("catT").textContent=CAT_ABERTA.t;
   $("catR").textContent=(q.rk!=null?"R$ "+f2(q.rk)+"/kg · ":"")+(q.c?kg(q.m)+" kg de média · ":"")+q.c+" cab. em "+q.n+(q.n===1?" lote":" lotes")+" na soma"+(ls.length>q.n?" · "+(ls.length-q.n)+" fora":"");
   var box=$("catLista");box.textContent="";
@@ -1109,9 +1108,10 @@ function cardCat(titulo,dest,cls){
 function renderCategorias(){
   fecharMenuL();
   var box=$("cats");box.textContent="";
-  SEXOS.forEach(function(sx){
+  SEXOS.forEach(function(sx){if(R.sel.sexo.indexOf(sx.k)<0)return;
+    var fs=FAIXAS.filter(function(f){return R.sel.peso.indexOf(f.k)>=0;});if(!fs.length)return;
     box.append(el("h3","cgh",sx.t));
-    var g=el("div","cgrid");FAIXAS.forEach(function(f){g.append(cardCat(f.t+" kg","fx:"+sx.k+":"+f.k));});box.append(g);
+    var g=el("div","cgrid");fs.forEach(function(f){g.append(cardCat(f.t+" kg","fx:"+sx.k+":"+f.k));});box.append(g);
   });
   box.append(el("h3","cgh","Categorias especiais"));
   var g2=el("div","cgrid");
@@ -1126,42 +1126,41 @@ $("medZap").addEventListener("click",function(){window.open("https://wa.me/?text
 
 function renderQuadro(){
   var t=$("quadro");t.textContent="";
-  var val=R.lotes.filter(conta);
-  var th=el("tr");[["Categoria",""],["Brancos",""],["Cruzados","c"],["Total",""]].forEach(function(x){th.append(el("th",x[1],x[0]));});
+  var val=R.lotes.filter(entra),sl=R.sel;
+  var GR=GRUPOS.filter(function(g){return sl.raca.indexOf(g.k)>=0;}),dois_=GR.length>1;
+  var th=el("tr");th.append(el("th",null,"Categoria"));GR.forEach(function(g){th.append(el("th",g.k==="C"?"c":"",g.t));});if(dois_)th.append(el("th",null,"Total"));
   var thead=el("thead");thead.append(th);t.append(thead);
   var tb=el("tbody");t.append(tb);
-  var sl=R.sel,todasF=listas().peso;
-  function cel(ls,alvo,dentro){
-    var s=soma(ls),b=el("button","cel"+(s.c?"":" zero")+(s.c&&dentro?" in":""));b.type="button";
+  var ncol=1+GR.length+(dois_?1:0);
+  function cel(ls,titulo,dest,raca){
+    var s=soma(ls),b=el("button","cel"+(s.c?" in":" zero"));b.type="button";
     if(s.c){
       if(s.rk!=null)b.append(el("span","rs","R$ "+f2(s.rk)));
       var bb=el("b",null,kg(s.m));bb.append(el("small",null," kg"));b.append(bb);
       b.append(el("span",null,s.c+" cab."));
-      b.setAttribute("aria-label",s.c+" cabeças, média "+kg(s.m)+" quilos"+(s.rk!=null?", "+f2(s.rk)+" reais por quilo":"")+". Somar só esta categoria.");
-      b.addEventListener("click",function(){R.sel={peso:alvo.peso.slice(),raca:alvo.raca.slice(),sexo:alvo.sexo.slice(),tipo:alvo.tipo.slice()};mudou();$("soma").scrollIntoView({behavior:"smooth",block:"start"});toast("Somando só esta categoria. Toque em Somar tudo para voltar.");});
+      if(dest){b.setAttribute("aria-label",titulo+": ver os lotes");b.addEventListener("click",function(){abrirCategoria(titulo,dest,raca);});}
+      else b.style.cursor="default";
     }else{b.append(el("b",null,"–"));b.disabled=true;}
     var td=el("td");td.append(b);return td;
   }
-  function dentro(sxs,fxs,gs,tps){return sxs.every(function(x){return sl.sexo.indexOf(x)>=0;})&&gs.every(function(g){return sl.raca.indexOf(g)>=0;})&&fxs.every(function(f){return sl.peso.indexOf(f)>=0;})&&tps.every(function(x){return sl.tipo.indexOf(x)>=0;});}
-  function linha(rot,sub,ls,alvoBase,cls){
+  function linha(rot,sub,ls,dest,cls){
     var tr=el("tr",cls||""),tc=el("td","cat");tc.append(el("b",null,rot));if(sub)tc.append(el("small",null,sub));tr.append(tc);
-    GRUPOS.forEach(function(g){var a=Object.assign({},alvoBase,{raca:[g.k]});tr.append(cel(ls.filter(function(l){return grupoDe(l.raca)===g.k;}),a,dentro(a.sexo,a.peso,a.raca,a.tipo)));});
-    var at=Object.assign({},alvoBase,{raca:["B","C"]}),ct=cel(ls,at,dentro(at.sexo,at.peso,at.raca,at.tipo));ct.className="tc";tr.append(ct);
+    GR.forEach(function(g){tr.append(cel(ls.filter(function(l){return grupoDe(l.raca)===g.k;}),rot+" · "+g.t.toLowerCase(),dest,g.k));});
+    if(dois_){var ct=cel(ls,rot,dest,"");ct.className="tc";tr.append(ct);}
     tb.append(tr);
   }
-  SEXOS.forEach(function(sx){
-    var tr0=el("tr","sx"),td0=el("td",null,sx.t);td0.colSpan=4;tr0.append(td0);tb.append(tr0);
-    FAIXAS.forEach(function(f){
-      linha(f.t+" kg",null,val.filter(function(l){return l.sexo===sx.k&&!catDe(l)&&faixaDe(l)===f.k;}),{peso:[f.k],sexo:[sx.k],tipo:["comum"]});
-    });
-    linha("Total "+sx.t.toLowerCase(),"sem os especiais",val.filter(function(l){return l.sexo===sx.k&&!catDe(l);}),{peso:todasF,sexo:[sx.k],tipo:["comum"]},"sub");
+  SEXOS.forEach(function(sx){if(sl.sexo.indexOf(sx.k)<0)return;
+    var fs=FAIXAS.filter(function(f){return sl.peso.indexOf(f.k)>=0;});if(!fs.length)return;
+    var tr0=el("tr","sx"),td0=el("td",null,sx.t);td0.colSpan=ncol;tr0.append(td0);tb.append(tr0);
+    fs.forEach(function(f){linha(f.t+" kg",null,val.filter(function(l){return l.sexo===sx.k&&!catDe(l)&&faixaDe(l)===f.k;}),"fx:"+sx.k+":"+f.k);});
+    if(fs.length>1)linha("Total "+sx.t.toLowerCase(),"sem os especiais",val.filter(function(l){return l.sexo===sx.k&&!catDe(l);}),null,"sub");
   });
-  var usados=especiaisVisiveis();
+  var usados=especiaisVisiveis().filter(function(e){return val.some(function(l){return catDe(l)===e.k;});});
   if(usados.length){
-    var tr1=el("tr","sx"),td1=el("td",null,"Categorias especiais");td1.colSpan=4;tr1.append(td1);tb.append(tr1);
-    usados.forEach(function(e){linha(e.t,null,val.filter(function(l){return catDe(l)===e.k;}),{peso:todasF,sexo:["M","F"],tipo:[e.k]});});
+    var tr1=el("tr","sx"),td1=el("td",null,"Categorias especiais");td1.colSpan=ncol;tr1.append(td1);tb.append(tr1);
+    usados.forEach(function(e){linha(e.t,null,val.filter(function(l){return catDe(l)===e.k;}),"esp:"+e.k);});
   }
-  linha("Total geral",null,val,{peso:todasF,sexo:["M","F"],tipo:listas().tipo},"tot");
+  linha("Total da seleção",null,val,null,"tot");
 }
 function renderFonte(){
   var f=$("fonte");f.textContent="";var p=el("p");
