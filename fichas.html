@@ -34,6 +34,9 @@ header.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-
 .marca img{height:38px;width:auto;display:block}
 .home{font:600 .86rem var(--f-body);text-decoration:none;padding:8px 12px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--fg);white-space:nowrap}
 .home:hover{border-color:var(--muted)}
+.pubtop{cursor:pointer;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.pubtop:hover{filter:brightness(1.07)}
+.pubtop[disabled]{opacity:.6;cursor:wait}
 .lead2{margin:0 0 4px;color:var(--muted);max-width:70ch}
 h1{font:700 2rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.02em;margin:0;text-wrap:balance}
 h1 span{color:var(--accent)}
@@ -332,6 +335,7 @@ td input:focus{border-color:var(--destaque)}
     <div class="marca"><img src="logo-leiloinga.png" alt="Leiloingá" onerror="this.remove()"><h1>Lotes <span>ADM</span></h1></div>
     <div class="row">
       <button class="nuvem" type="button" id="nuvemBtn"><i></i><span id="nuvemTxt">Só neste aparelho</span></button>
+      <button class="home pubtop" type="button" id="pubTopo">⬆ Mandar lotes pro site</button>
       <a class="home" href="https://leiloingaleiloes.github.io/LOTES/" target="_blank" rel="noopener">Site dos produtores ↗</a>
       <a class="home" href="./">&larr; Início</a>
     </div>
@@ -1585,6 +1589,21 @@ $("pubDados").addEventListener("click",async function(){
   try{await naFila(publicarDados);toast("Dados dos lotes atualizados no site dos produtores (sem o nome do vendedor).");}
   catch(e){toast("Não deu para atualizar o site agora. Tente de novo.",6000);}
   finally{b.disabled=false;b.textContent="Atualizar dados no site";}
+});
+/* botão do topo: manda os dados dos lotes pro site dos produtores sem precisar abrir a aba Câmera */
+$("pubTopo").addEventListener("click",async function(){
+  if(!GH.token){abrirConexao();return;}
+  if(!S.rows.some(function(r){return r.lote!=null;})){toast("Ainda não tem lotes nas fichas para mandar.");return;}
+  var b=this,txt=b.textContent;b.disabled=true;b.textContent="Mandando…";
+  try{
+    var foi=true;
+    await naFila(async function(){if(!(await conferirLeilaoNovo())){foi=false;return;}await publicarDados();LEILAO_PUB={nome:S.leilao||"",data:S.data||""};});
+    if(foi){
+      var comMidia=S.rows.filter(function(r){var m=MID.dados&&MID.dados[String(r.lote)];return m&&((m.fotos||[]).length||(m.videos||[]).length);}).length;
+      toast("Lotes mandados pro site (sem o nome do vendedor). Aparecem em 1 a 2 minutos. "+(comMidia?comMidia+(comMidia>1?" lotes têm":" lote tem")+" foto ou vídeo e já aparecem.":"Lembre: no site só aparecem os lotes com foto ou vídeo (aba Câmera)."),8000);
+    }
+  }catch(e){toast(e&&(e.status===401||e.status===403)?"A chave do GitHub não deixou mandar. Toque no botão da nuvem.":"Não deu para mandar pro site agora. Confira a internet e tente de novo.",7000);}
+  finally{b.disabled=false;b.textContent=txt;}
 });
 var novoArm=false;
 $("novoLeilao").addEventListener("click",async function(){
