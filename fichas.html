@@ -2318,8 +2318,9 @@ async function ordPdfCompleto(l,pb){
     if(i)doc.addPage();
     var y=cabecalho(i+1,pags.length)+(UMA?14:22);
     if(grupo.length){
-      fundo(C.verde);doc.roundedRect(x0,y,larg,cabH,4,4,"F");
-      doc.setFont("helvetica","bold");doc.setFontSize(10.5);cor([255,255,255]);
+      if(pb){doc.setDrawColor(0,0,0);doc.setLineWidth(1);doc.roundedRect(x0,y,larg,cabH,4,4,"S");cor([0,0,0]);} /* impressão: só o contorno, sem faixa preta */
+      else{fundo(C.verde);doc.roundedRect(x0,y,larg,cabH,4,4,"F");cor([255,255,255]);}
+      doc.setFont("helvetica","bold");doc.setFontSize(10.5);
       var x=x0;COLS.forEach(function(c){if(c[2]==="c")doc.text(c[0],x+c[1]/2,y+cabH/2+3.5,{align:"center"});else doc.text(c[0],x+10,y+cabH/2+3.5);x+=c[1];});
       y+=cabH;
       var k=Math.pow(Math.min(1,linH/26),0.4);
