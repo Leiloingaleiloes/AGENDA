@@ -259,6 +259,14 @@ td input:focus{border-color:var(--destaque)}
 .tabidade th,.tabidade td{width:auto!important;min-width:0!important;max-width:none!important;white-space:nowrap;position:static}
 .tabidade{table-layout:auto!important}
 .tabidade tr.tot td{border-top:2px solid var(--fg);border-bottom:0;font-weight:700}
+.leitura{background:var(--surface);border:1.5px solid #B4C6B9;border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.leitura h4{font:700 1.05rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:14px 0 6px}
+.leitura h4:first-child,.leitura h4:first-child+h4{margin-top:0}
+.leitura ul{margin:0;padding-left:20px;display:grid;gap:5px}
+.leitura li{line-height:1.45}
+.leitura li.al::marker{color:#B42318}
+.leitura li.ok::marker{color:#1E8A43}
+.leitura .rod{font-size:.82rem;color:var(--muted);margin:12px 0 0}
 .relaviso{padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:.92rem;margin-bottom:14px}
 
 /* ===== sugestão de ordem de entrada ===== */
@@ -1632,6 +1640,72 @@ function renderRel(){
   });
   renderIdade(box,validos);
 }
+/* ---------- leitura técnica automática: compara as faixas de idade dentro de cada sexo e machos × fêmeas ---------- */
+function ehZebu(r){var s=semAcento(r.raca);return /NELORE|ANELORAD|TABAPUA|BRAHMAN|GIR\b|GUZERA/.test(s)&&!/ANGUS|BRANGUS|BRAFORD|CARACU|INDUSTRIAL|CRUZAD/.test(s);}
+function leituraTecnica(ordem,validos){
+  var box=el("div","leitura");
+  var tt=el("h4",null,"Leitura técnica · por sexo e idade");tt.style.cssText="color:var(--fg);font-size:1.2rem;margin:0 0 10px";box.append(tt);
+  function mediaDe(ls){var c=0,p=0;ls.forEach(function(r){c+=r.qtde;p+=r.qtde*r.peso;});return c?{c:c,m:p/c,n:ls.length}:null;}
+  function nomeSx(sx,pl){return sx==="M"?(pl?"machos":"macho"):(pl?"fêmeas":"fêmea");}
+  function lt(r){return "lote "+dois(r.lote)+" ("+r.qtde+" "+nomeSx(r.sexo,r.qtde>1)+" "+racaFicha(r.raca)+", "+r.peso+" kg)";}
+  function lista(titulo,itens){if(!itens.length)return;box.append(el("h4",null,titulo));var ul=el("ul");itens.forEach(function(it){ul.append(el("li",it[0],it[1]));});box.append(ul);}
+  function gmd(r,meses){return (r.peso-35)/(meses*30.4);}
+  var conferir=[];
+  [["M","Machos"],["F","Fêmeas"]].forEach(function(sx){
+    var bandas=ordem.filter(function(g){return g.a<999&&g[sx[0]].length;}).map(function(g){return {g:g,ls:g[sx[0]],md:mediaDe(g[sx[0]])};});
+    if(!bandas.length)return;
+    var itens=[],totC=0;bandas.forEach(function(b){totC+=b.md.c;});
+    itens.push(["",bandas.map(function(b){return b.g.lab+" → "+fmtKg(b.md.m)+" kg";}).join(" · ")]);
+    var subiu=true;
+    bandas.forEach(function(b,i){
+      var z=b.ls.filter(ehZebu),c=b.ls.filter(function(r){return !ehZebu(r);});
+      var mz=mediaDe(z),mc=mediaDe(c),txt=b.g.lab+": "+b.md.c+(b.md.c>1?" animais":" animal")+" em "+b.md.n+(b.md.n>1?" lotes":" lote")+", média "+fmtKg(b.md.m)+" kg";
+      if(mz&&mc)txt+=" (zebuínos "+fmtKg(mz.m)+" kg, cruzas "+fmtKg(mc.m)+" kg)";
+      if(b.md.n<=2)txt+=". Pouca amostra: só "+b.md.n+(b.md.n>1?" lotes":" lote")+", vale como indicação";
+      if(b.g.b-b.g.a>=6&&b.md.c>totC*0.5)txt+=". Faixa larga ("+(b.g.b-b.g.a)+" meses) com mais da metade dos "+nomeSx(sx[0],1)+": dentro dela é normal ter muita diferença de peso";
+      itens.push(["",txt+"."]);
+      var prox=bandas[i+1],ant=bandas[i-1];
+      if(ant&&b.md.m<ant.md.m){subiu=false;itens.push(["al","A média de "+b.g.lab+" ("+fmtKg(b.md.m)+" kg) ficou abaixo da de "+ant.g.lab+" ("+fmtKg(ant.md.m)+" kg): o mais velho está pesando menos ("+(b.ls.length>1?"lotes ":"lote ")+b.ls.map(function(r){return dois(r.lote)+" "+racaFicha(r.raca);}).join(", ")+"). Pode ser recria fraca do mais velho ou idade errada em algum lote."]);}
+      b.ls.forEach(function(r){
+        var zr=ehZebu(r),mesmo=function(bd){var x=mediaDe(bd.ls.filter(function(y){return ehZebu(y)===zr;}));return x?x.m:null;};
+        var pxm=prox?mesmo(prox):null,anm=ant?mesmo(ant):null;
+        if(prox&&prox.md.m>b.md.m&&r.peso>prox.md.m&&(pxm==null||r.peso>pxm))conferir.push(["al",lt(r)+": declarado "+b.g.lab+", mas pesa mais que a média de "+prox.g.lab+" ("+fmtKg(prox.md.m)+" kg). Ganho de "+gmd(r,b.g.b).toFixed(2).replace(".",",")+" kg/dia desde o nascimento, mesmo contando a idade máxima. Conferir se a idade não é maior."]);
+        else if(gmd(r,b.g.b)>(sx[0]==="M"?0.85:0.75))conferir.push(["al",lt(r)+": para "+b.g.lab+" daria "+gmd(r,b.g.b).toFixed(2).replace(".",",")+" kg/dia desde o nascimento, muito alto para gado a pasto. Conferir a idade."]);
+        if(ant&&ant.md.m<b.md.m&&r.peso<ant.md.m&&(anm==null||r.peso<anm))conferir.push(["al",lt(r)+": declarado "+b.g.lab+", mas pesa menos que a média de "+ant.g.lab+" ("+fmtKg(ant.md.m)+" kg). Recria fraca ou animal atrasado: o comprador vai ver como gado passado."]);
+      });
+    });
+    if(subiu&&bandas.length>1)itens.push(["ok","O peso sobe com a idade em todas as faixas, como esperado."]);
+    lista(sx[1],itens);
+  });
+  /* machos × fêmeas na mesma idade (o normal é o macho pesar uns 5 a 10% a mais) */
+  var mf=[];
+  ordem.forEach(function(g){
+    if(g.a>=999)return;var m=mediaDe(g.M),f=mediaDe(g.F);if(!m||!f)return;
+    var dif=(m.m-f.m)/f.m*100,t=g.lab+": machos "+fmtKg(m.m)+" kg, fêmeas "+fmtKg(f.m)+" kg";
+    if(dif<0){
+      var zm=g.M.filter(ehZebu),zf=g.F.filter(ehZebu),pm=mediaDe(zm),pf=mediaDe(zf);
+      var cm=m.c?Math.round((pm?pm.c:0)/m.c*100):0,cf=f.c?Math.round((pf?pf.c:0)/f.c*100):0;
+      t+=". As fêmeas estão "+fmtKg(-dif)+"% mais pesadas, o contrário do normal (o macho costuma pesar 5 a 10% a mais)";
+      if(cm>cf+15)t+=". Explica em parte a raça: "+cm+"% dos machos são zebuínos contra "+cf+"% das fêmeas";
+      t+=". Pode ser também que as fêmeas estejam no fim da faixa de idade e os machos no começo.";
+      mf.push(["al",t]);
+    }else if(dif>15)mf.push(["al",t+". Machos "+fmtKg(dif)+"% mais pesados, mais do que o normal (5 a 10%, até uns 15%). Ver se as fêmeas não são mais novas ou de raça mais leve."]);
+    else mf.push(["ok",t+". Diferença de "+fmtKg(dif)+"%, dentro do normal."]);
+  });
+  /* fêmea mais velha mais leve que macho mais novo */
+  /* fêmea mais velha mais leve que a média dos machos de uma faixa mais nova */
+  validos.forEach(function(f){
+    if(f.sexo!=="F")return;var kf=idadeChave(f.idade);if(!kf)return;
+    var mais=ordem.filter(function(g){var m=mediaDe(g.M);return g.a<999&&g.b<=kf.a&&m&&m.m>f.peso;});
+    if(mais.length)mf.push(["al",lt(f)+", com "+kf.lab+", pesa menos que a média dos machos mais novos de "+mais.map(function(g){return g.lab+" ("+fmtKg(mediaDe(g.M).m)+" kg)";}).join(", ")+"."]);
+  });
+  if(!mf.some(function(x){return /mais novos/.test(x[1]);})&&validos.some(function(r){return r.sexo==="F";}))mf.push(["ok","Nenhuma fêmea mais velha está mais leve que um macho mais novo."]);
+  lista("Machos × fêmeas",mf);
+  if(conferir.length)lista("Lotes para conferir",conferir);
+  else lista("Lotes para conferir",[["ok","Nenhum lote com peso fora do esperado para a idade declarada."]]);
+  box.append(el("p","rod","Leitura automática feita com a idade declarada na lista e o peso médio de cada lote. Considera uns 35 kg ao nascer. Abaixo de uns 20–24 meses a dentição não confirma a idade: confira com o vendedor ou a GTA (faixas 0–12, 13–24, 25–36 e +36 meses)."));
+  return box;
+}
 /* ---------- relatório: peso por idade (tabela + gráficos de distribuição) ---------- */
 var COR_M="#1F6FB2",COR_F="#E8730C";
 function idadeChave(s){
@@ -1656,6 +1730,7 @@ function renderIdade(box,validos){
   sec.append(el("h3",null,"Peso por idade"));
   sec.append(el("p","note","Cada bolinha é um lote: a altura é o peso médio do lote e o tamanho é a quantidade de animais. O traço grosso é a média da idade (ponderada pelos animais) e a linha liga as médias, para ver o peso subir com a idade."));
 
+  sec.append(leituraTecnica(ordem,validos));
   /* gráfico 1: dispersão peso × idade */
   var W=900,H=400,L=58,R=16,T=16,B=48;
   var pesos=validos.map(function(r){return r.peso;});
