@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2E6A3E">
+<meta name="color-scheme" content="light only">
+<title>Relatório dos Lotes · Leiloingá</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Relatório dos Lotes: lê o PDF da ordem de entrada do sistema, puxa os lances da Conferência Boleta
+   e soma as categorias escolhidas (idade, raça, sexo) com peso médio e R$/kg.
+   Layout: faixa do leilão; filtros numa faixa; a soma em destaque; abas com Quadro, Lotes e valores, Raças e Conferência. */
+:root{
+  --bg:#EDEEF0; --surface:#FFFFFF; --surface-2:#F5F7F5; --line:#D9DED9; --fg:#1B211D; --muted:#5B655E;
+  --accent:#2E6A3E; --accent-2:#245632; --accent-ink:#FFFFFF; --accent-soft:#E1EDE3;
+  --branco:#EEF1EC; --branco-ink:#2F3A33; --cruz:#7A4E1F; --cruz-soft:#F6EBDD;
+  --ouro:#9A6A00; --ouro-soft:#FFF4D6;
+  --warn:#8A5200; --warn-soft:#FBEFD9; --bad:#B42318; --bad-soft:#FDE7E4; --good:#25693A; --good-soft:#DCEFE0;
+  --f-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --f-body:"Barlow","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 15px/1.45 var(--f-body)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.topbar{background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1240px;margin:0 auto;padding:10px max(20px,env(safe-area-inset-right,0px)) 10px max(20px,env(safe-area-inset-left,0px));display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px}
+.brand{display:flex;align-items:center;gap:16px;min-width:0}
+.brand img{height:38px;width:auto;display:block}
+h1{font:700 1.9rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.01em;margin:0}
+h1 span{color:var(--accent)}
+.topacts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.homebtn{font:600 .86rem var(--f-body);text-decoration:none;padding:8px 12px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--fg);white-space:nowrap;cursor:pointer}
+.homebtn:hover{border-color:var(--muted)}
+.nuvem{display:inline-flex;align-items:center;gap:7px}
+.nuvem i{width:9px;height:9px;border-radius:50%;background:#B8C0BA}
+.nuvem.on i{background:var(--good)}
+
+.page{max-width:1240px;margin:0 auto;padding:18px max(20px,env(safe-area-inset-right,0px)) 110px max(20px,env(safe-area-inset-left,0px))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;min-width:0}
+h2{font:700 1.05rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 12px}
+.muted{color:var(--muted)}
+.note{font-size:.86rem;color:var(--muted);margin:10px 0 0}
+
+/* faixa do leilão */
+.leilao{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin-bottom:14px}
+.leilao .nome{font:700 1.55rem/1.05 var(--f-display);text-transform:uppercase;letter-spacing:.02em;margin:0}
+.leilao .sub{color:var(--muted);margin:4px 0 0;font-size:.95rem}
+.leilao .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.leilao select{height:42px;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:0 10px;max-width:min(100%,320px)}
+
+/* envio do PDF */
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;border:2px dashed #B5C2B8;border-radius:14px;padding:44px 18px;background:var(--surface);cursor:pointer;position:relative}
+.drop.on{border-color:var(--accent);background:var(--accent-soft)}
+.drop svg{width:46px;height:46px;color:var(--accent)}
+.drop b{font:700 1.6rem/1.05 var(--f-display);text-transform:uppercase;letter-spacing:.03em}
+.drop span{color:var(--muted);max-width:52ch}
+.drop input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.status{margin:10px 0 0;font-size:.95rem;min-height:1.4em;color:var(--muted);text-align:center}
+.status.err{color:var(--bad)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 16px;border-radius:8px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600;white-space:nowrap;text-decoration:none;color:var(--fg)}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{background:var(--accent-2)}
+.btn.zap{border-color:#1FA855;color:#16803F}
+.btn.peq{min-height:34px;padding:0 12px;font-size:.88rem}
+.btn svg{width:18px;height:18px}
+
+/* filtros: uma faixa com os três grupos lado a lado */
+.filtros{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1.15fr) minmax(0,1.05fr) auto;gap:14px 20px;align-items:end}
+@media (max-width:1000px){.filtros{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.filtros .grupo:first-child{grid-column:1/-1}.filtros .tudo{grid-column:1/-1}}
+@media (max-width:520px){.filtros{grid-template-columns:minmax(0,1fr)}}
+.filtros .grupo{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px 12px;background:var(--surface-2);border-top-width:5px}
+.filtros .grupo.gp{border-top-color:#2E6A3E}
+.filtros .grupo.gr{border-top-color:#B07A3B}
+.filtros .grupo.gs{border-top-color:#3E6FA8}
+.filtros{align-items:stretch}
+.filtros .tudo{align-self:end}
+.grupo .gt{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.grupo .gt b{font:700 1.15rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.06em;color:var(--fg)}
+.todos{border:0;background:none;color:var(--accent);font-weight:700;font-size:.85rem;cursor:pointer;padding:4px 2px}
+.todos:hover{text-decoration:underline}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{flex:1 1 0;min-width:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:52px;padding:5px 8px;border-radius:9px;border:1.5px solid #C9D1CA;background:#fff;cursor:pointer;text-align:center;transition:background .12s,border-color .12s}
+.chip .l{white-space:nowrap;font:700 1.08rem/1.05 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
+.chip .s{font-size:.74rem;color:var(--muted);line-height:1.2}
+.chip:hover{border-color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip[aria-pressed="true"] .s{color:rgba(255,255,255,.85)}
+.chip.vazio{opacity:.5}
+.tudo{min-height:52px;font:700 1.05rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.05em}
+
+/* soma */
+.soma{background:var(--accent);color:var(--accent-ink);border-radius:14px;padding:16px 20px;display:grid;gap:12px;margin:14px 0}
+.soma .oque{font-size:1rem;opacity:.95;margin:0}
+.soma .oque b{font-weight:700}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:rgba(255,255,255,.22);border-radius:10px;overflow:hidden}
+.kpis div{background:var(--accent);padding:6px 14px 8px;display:grid;gap:2px;min-width:0;align-content:start}
+.kpis .k{font:600 .72rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;opacity:.85}
+.kpis b{font:700 2rem/1 var(--f-display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpis .big b{font-size:3.1rem}
+.kpis b small{font-size:.5em;font-weight:600;margin-left:3px;opacity:.9}
+.kpis .x{font-size:.82rem;opacity:.85}
+.kpis .ouro b{color:#FFE08A}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis .big b{font-size:2.1rem}.kpis b{font-size:1.6rem}.kpis div{padding:6px 10px 8px}}
+.soma .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.soma .btn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.45);color:#fff}
+.soma .btn:hover{background:rgba(255,255,255,.22)}
+.soma .ok{font-size:.86rem;opacity:.9;margin-left:auto}
+.vaziosoma{font:600 1.05rem var(--f-body);margin:0}
+
+/* médias do leilão */
+.medtopo{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.medtopo input[type=text]{flex:1 1 320px;height:46px;border:1.5px solid var(--line);border-radius:9px;padding:0 12px;font:700 1.25rem var(--f-display);text-transform:none}
+.chk{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:.92rem;cursor:pointer}
+.chk input,.row2 input{width:18px;height:18px;accent-color:var(--accent)}
+.medlist{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.medlist li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:4px 16px;align-items:center;padding:11px 16px;border-bottom:1px solid var(--line)}
+.medlist li:nth-child(even){background:var(--surface-2)}
+.medlist li:last-child{border-bottom:0}
+.medlist .t{font:700 1.2rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
+.medlist .c{font-size:.82rem;color:var(--muted);white-space:nowrap}
+.medlist b{font:700 1.6rem/1 var(--f-display);color:var(--ouro);font-variant-numeric:tabular-nums;min-width:4.2em;text-align:right}
+@media (max-width:520px){.medlist li{grid-template-columns:minmax(0,1fr) auto}.medlist .c{grid-column:1;grid-row:2}.medlist b{grid-row:1/3;grid-column:2}}
+.medacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.gtipo{grid-column:1/-1}
+.tirados{border:0;background:none;color:#FFE08A;font-weight:700;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit}
+.row2{display:inline-flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row2 label{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:.92rem;cursor:pointer}
+.tl tr.tirado td{opacity:.42;text-decoration:line-through}
+.tl tr.tirado td:first-child{opacity:1;text-decoration:none}
+.tl input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}
+
+/* médias: botão de ver lotes */
+.medlist li{grid-template-columns:minmax(0,1fr) auto auto auto}
+.medlist li.semv b{color:#B7BDB8}
+.medlist li.semv .t{color:var(--muted)}
+@media (max-width:520px){.medlist li{grid-template-columns:minmax(0,1fr) auto}.medlist .verl{grid-column:1/-1;justify-self:start}}
+/* quadro de uma categoria */
+.modal.catm{padding:10px}
+.modal.catm .cx.catcx{width:min(100%,1320px);height:min(96vh,100%);max-height:96vh;display:flex;flex-direction:column;padding:0}
+.modal.catm label{display:inline-flex;margin:0;font:600 .9rem var(--f-body);text-transform:none;letter-spacing:0}
+.modal.catm input[type=checkbox]{width:18px;height:18px;padding:0;border:0}
+.cath{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.cath h3{margin:0 0 2px}
+.catlista{overflow:auto;padding:12px 16px 16px;display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));align-content:start;background:var(--surface-2)}
+.clote{border:1.5px solid #B4C6B9;border-radius:12px;padding:10px;display:grid;gap:6px;background:#fff;align-content:start}
+.clote.out{background:#F5F5F5;border-style:dashed}
+.clote.out .cn,.clote.out .cd{opacity:.55}
+.ct{display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:2px 8px}
+.cn{font:700 1.45rem/1 var(--f-display)}
+.cin{grid-column:1/-1;order:3;display:flex!important;justify-content:center;align-items:center;gap:7px;font-weight:700;font-size:.88rem;cursor:pointer;padding:6px 10px;border-radius:8px;background:var(--accent-soft);color:var(--accent);margin-top:4px!important}
+.clote.out .cin{background:#E8E8E8;color:var(--muted)}
+.cin input{width:18px;height:18px;accent-color:var(--accent)}
+.crk{justify-self:end;font:700 1.1rem var(--f-display);color:var(--ouro);white-space:nowrap}
+.cd{display:grid;gap:1px;font-size:.84rem;color:var(--muted);line-height:1.35}
+.cd span:first-child{color:var(--fg);font-weight:600}
+.cmv{display:grid!important;gap:3px;font-size:.74rem!important;color:var(--muted);text-transform:uppercase!important;letter-spacing:.05em!important}
+.cmv select{width:100%;height:36px;border:1.5px solid var(--line);border-radius:8px;background:#fff;padding:0 6px;font-size:.84rem;text-transform:none}
+/* aba categorias */
+.cgh{font:700 1.3rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.03em;margin:16px 0 10px}
+.cgh:first-child{margin-top:0}
+.cgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:1000px){.cgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.cgrid{grid-template-columns:minmax(0,1fr)}}
+.ccard{border:1.5px solid #B4C6B9;border-radius:14px;padding:12px;display:grid;gap:8px;align-content:start;background:#fff;min-height:150px}
+.ccard.vz{background:var(--surface-2)}
+.ccard.esp{border-color:#D9B65E;background:#FFFCF3}
+.ccard.tir{border-style:dashed;background:#F7F7F7}
+.ccard.sobre{border-color:#E8730C;box-shadow:0 0 0 3px rgba(232,115,12,.25);background:#FFF8EF}
+.cch{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ctt{font:700 1.08rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.ccn{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.ccn .rk{font:700 1.7rem/1 var(--f-display);color:var(--ouro)}
+.ccn span{font-size:.85rem;color:var(--muted)}
+.lchips{display:flex;flex-wrap:wrap;gap:6px}
+.lchip{display:inline-flex;align-items:baseline;gap:4px;padding:6px 9px;border-radius:8px;border:1.5px solid #B4C6B9;background:#fff;cursor:grab;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.lchip b{font:700 1.02rem var(--f-display);color:var(--fg)}
+.lchip i{font-style:normal;font-weight:700;color:var(--ouro);margin-left:2px}
+.lchip.sv{background:#FAFAFA}
+.lchip:hover{border-color:var(--accent);background:var(--accent-soft)}
+.lchip.mao{border-style:dashed;border-color:#E8730C}
+.lchip.arr{opacity:.4}
+.solte{font-size:.82rem;color:var(--muted);font-style:italic}
+.menulote{position:fixed;z-index:40;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:8px;display:grid;gap:3px;max-height:70vh;overflow:auto}
+.menulote p{margin:2px 6px 6px;font-size:.82rem;color:var(--muted)}
+.menulote button{text-align:left;border:0;background:none;padding:9px 10px;border-radius:8px;font-weight:600;cursor:pointer}
+.menulote button:hover{background:var(--accent-soft)}
+.menulote button.at{color:var(--accent)}
+
+/* abas */
+.abas{display:flex;gap:4px;border-bottom:2px solid var(--line);margin:0 0 14px;overflow-x:auto;scrollbar-width:none}
+.abas::-webkit-scrollbar{display:none}
+.abas button{border:0;background:none;padding:10px 16px 11px;font:700 1.05rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.abas button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.abas .bd{display:inline-block;min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:#E2B866;color:#4A3300;font:700 .75rem/20px var(--f-body);text-align:center}
+.abas .bd.r{background:var(--bad);color:#fff}
+
+.aviso{padding:10px 14px;border-radius:10px;font-size:.93rem;display:flex;gap:10px;align-items:flex-start}
+.aviso::before{content:"";flex:none;width:10px;height:10px;border-radius:50%;margin-top:6px;background:currentColor}
+.aviso span{color:var(--fg)}
+.aviso.ok{background:var(--good-soft);color:var(--good)}
+.aviso.warn{background:var(--warn-soft);color:var(--warn)}
+.aviso.bad{background:var(--bad-soft);color:var(--bad)}
+.avisos{display:grid;gap:8px}
+
+/* quadro por categoria */
+.tw{overflow-x:auto;margin:0 -4px;padding:0 4px}
+table.quadro{width:100%;border-collapse:separate;border-spacing:0;min-width:640px;font-variant-numeric:tabular-nums}
+.quadro th{font:600 .74rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:center;padding:8px 6px;border-bottom:2px solid var(--fg);white-space:nowrap}
+.quadro th:first-child{text-align:left}
+.quadro th.c{color:var(--cruz)}
+.quadro td{padding:4px;border-bottom:1px solid var(--line);vertical-align:middle}
+.quadro td.cat{padding:8px 8px 8px 2px;white-space:nowrap}
+.quadro td.cat b{font:700 1.15rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.02em;display:block}
+.quadro td.cat small{color:var(--muted);font-size:.8rem}
+.quadro tr.sx td{background:var(--surface-2);font:700 .8rem var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--accent);padding:7px 8px}
+.quadro tr.sub td{border-bottom:2px solid #B9C4BC}
+.quadro tr.sub td.cat b{font-size:1rem;color:var(--muted)}
+.quadro tr.tot td{border-bottom:0;border-top:2px solid var(--fg)}
+.cel{width:100%;display:grid;gap:2px;justify-items:center;padding:7px 6px;border-radius:9px;border:1.5px solid transparent;background:transparent;cursor:pointer;min-height:60px;align-content:center}
+.cel:hover{border-color:var(--line);background:var(--surface-2)}
+.cel b{font:700 1.3rem/1 var(--f-display);white-space:nowrap}
+.cel b small{font-size:.62em;font-weight:600}
+.cel .rs{font:700 .92rem/1 var(--f-display);color:var(--ouro);white-space:nowrap}
+.cel span{font-size:.76rem;color:var(--muted)}
+.cel.zero{cursor:default;color:#A7AFA9}
+.cel.zero:hover{border-color:transparent;background:transparent}
+.cel.in{background:var(--accent-soft);border-color:var(--accent)}
+td.tc .cel{background:var(--surface-2)}
+td.tc .cel.in{background:var(--accent-soft)}
+.dica{font-size:.84rem;color:var(--muted);margin:10px 0 0}
+@media (max-width:640px){
+  table.quadro{min-width:0;table-layout:fixed}
+  .quadro th:first-child{width:29%}
+  .quadro th{font-size:.64rem;letter-spacing:.03em;padding:6px 2px}
+  .quadro td{padding:3px 2px}
+  .quadro td.cat{padding:6px 4px 6px 0;white-space:normal}
+  .quadro td.cat b{font-size:.98rem}
+  .quadro td.cat small{font-size:.7rem}
+  .cel{padding:6px 2px;min-height:54px;border-radius:7px}
+  .cel b{font-size:1.02rem}
+  .cel .rs{font-size:.78rem}
+  .cel span{font-size:.68rem}
+}
+
+/* raças */
+.racas{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr))}
+.raca{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.raca.nova{border-color:#E2B866;background:#FFFBF2}
+.raca .n{font:700 1.1rem/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
+.raca .q{font-size:.82rem;color:var(--muted)}
+.raca .tag{display:inline-block;font:700 .68rem/1 var(--f-body);text-transform:uppercase;letter-spacing:.06em;padding:3px 7px;border-radius:99px;background:#F3D48F;color:#5A3C00;margin-left:6px;vertical-align:2px}
+.seg{display:inline-grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:0 14px;min-height:40px;font-weight:700;cursor:pointer;color:var(--muted)}
+.seg button+button{border-left:1.5px solid var(--line)}
+.seg button[aria-pressed="true"].b{background:var(--branco);color:var(--branco-ink);box-shadow:inset 0 0 0 2px #8A968D}
+.seg button[aria-pressed="true"].c{background:var(--cruz-soft);color:var(--cruz);box-shadow:inset 0 0 0 2px #C99A62}
+
+/* lotes e valores */
+.fonte{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:12px 14px;border-radius:10px;background:var(--ouro-soft);border:1px solid #EBCB7A;margin-bottom:12px}
+.fonte p{margin:0;font-size:.93rem}
+.fonte p b{font-weight:700}
+.fonte.sem{background:var(--surface-2);border-color:var(--line)}
+.lotesbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.lotesbar label{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:.92rem;cursor:pointer}
+.lotesbar input{width:18px;height:18px;accent-color:var(--accent)}
+table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeric:tabular-nums}
+.tl th{font:600 .72rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;padding:8px 6px;border-bottom:2px solid var(--fg);white-space:nowrap}
+.tl td{padding:5px 6px;border-bottom:1px solid var(--line)}
+.tl td.r,.tl th.r{text-align:right}
+.tl .lt{font:700 1.1rem var(--f-display)}
+.tl tr.fora td{opacity:.45}
+.tl tr.ret td{background:#FBF3EF}
+.tl input.la{width:96px;height:36px;border:1.5px solid var(--line);border-radius:7px;padding:0 8px;text-align:right;font-weight:700;background:#fff}
+.tl input.la:focus{border-color:var(--accent);outline:0}
+.tl select{height:36px;border:1.5px solid var(--line);border-radius:7px;background:#fff;padding:0 6px;font-size:.88rem}
+.tl .rk{font:700 1.02rem var(--f-display);color:var(--ouro);white-space:nowrap}
+.gb{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:99px}
+.gb.B{background:var(--branco);color:var(--branco-ink);box-shadow:inset 0 0 0 1px #A9B3AB}
+.gb.C{background:var(--cruz-soft);color:var(--cruz)}
+
+/* barra presa embaixo no celular */
+.barra{display:none}
+@media (max-width:999px){
+  .barra{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--accent);color:#fff;padding:9px max(16px,env(safe-area-inset-right,0px)) calc(9px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));justify-content:space-between;align-items:center;gap:12px;box-shadow:0 -4px 14px rgba(0,0,0,.15);cursor:pointer}
+  .barra .m{display:flex;gap:16px;align-items:baseline}
+  .barra .m b{font:700 1.75rem/1 var(--f-display)}
+  .barra .m small{font-size:.76rem;opacity:.85;margin-left:3px}
+  .barra .m .o b{color:#FFE08A}
+  .barra .a{font-size:.86rem;text-align:right;opacity:.95;line-height:1.3}
+  .barra .a b{font:700 1.15rem var(--f-display)}
+}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));max-width:min(92vw,520px);padding:12px 18px;border-radius:9px;background:var(--fg);color:#fff;font-weight:600;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+
+/* conectar */
+.modal{position:fixed;inset:0;z-index:30;background:rgba(10,20,14,.5);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal .cx{background:#fff;border-radius:16px;padding:20px;width:min(100%,440px)}
+.modal h3{font:700 1.4rem var(--f-display);text-transform:uppercase;margin:0 0 6px}
+.modal label{display:block;font:600 .78rem var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:12px 0 4px}
+.modal input{width:100%;height:46px;padding:0 12px;border:1.5px solid var(--line);border-radius:9px}
+.modal .row{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.modal .msg{min-height:1.3em;font-size:.9rem;margin-top:8px}
+.modal .msg.err{color:var(--bad)}
+
+/* impressão / PDF: soma, quadro e lotes, sem botões */
+.soimp{display:none}
+@media print{
+  @page{size:A4;margin:11mm}
+  body{background:#fff;font-size:11.5px}
+  .topbar,.barra,.toast,#semPdf,.leilao .acts,.soma .acts,.dica,.abas,.filtros,.fonte .btn,.lotesbar,.modal,#p-racas,#p-conf{display:none!important}
+  .soimp{display:block}
+  .page{padding:0;max-width:none}
+  .card,.soma{break-inside:avoid;border-color:#999}
+  .soma{background:#fff!important;color:#000;border:2px solid #000}
+  .kpis{background:#999}.kpis div{background:#fff!important}.kpis .ouro b{color:#000}
+  #p-quadro,#p-lotes{display:block!important;margin-bottom:10px}
+  .cel{min-height:0;padding:3px}
+  .cel.in{background:#EEE;border-color:#000}
+  table.quadro,table.tl{min-width:0}
+  .tl input.la{border:0;width:auto;height:auto;padding:0}
+  .tl select{border:0;-webkit-appearance:none;appearance:none;padding:0}
+}
+
+.doBol{display:grid;gap:4px;max-width:560px;margin:16px auto 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface,#fff);text-align:left}
+.doBol span{font-size:.88rem;color:var(--muted)}
+.doBol select,.bolSel2{width:100%;margin-top:6px;padding:10px;border-radius:8px;border:1px solid var(--line);font:inherit;font-weight:600;background:#fff}
+.bolSel2{width:auto;max-width:280px;margin:0}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-in">
+  <div class="brand"><img src="logo-leiloinga.png" alt="Leiloingá" onerror="this.remove()"><h1>Relatório <span>dos Lotes</span></h1></div>
+  <div class="topacts">
+    <button class="homebtn nuvem" type="button" id="nuvem"><i></i><span id="nuvemTxt">Só neste aparelho · Conectar</span></button>
+    <a class="homebtn" href="fichas.html#pedidos" title="Escrever o que quer mudar nesta página">✍ Pedir mudança</a>
+    <a class="homebtn" href="./">&larr; Início</a>
+  </div>
+</div></div>
+
+<div class="page">
+  <div class="soimp"><p style="font:700 .9rem var(--f-body);text-transform:uppercase;letter-spacing:.1em;color:#555;margin:0 0 4px">Leiloingá · Relatório dos lotes</p></div>
+
+  <section id="semPdf">
+    <label class="drop" id="drop" for="arq">
+      <input id="arq" type="file" accept="application/pdf,.pdf">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 3v5h5M12 11v6M9.5 14.5 12 17l2.5-2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>Escolher o PDF do sistema</b>
+      <span>A ordem de entrada que o sistema gera, com Lote, Qtde, Sexo, Idade, Raça e Peso. Também dá para arrastar o arquivo aqui. Os lances vêm da Conferência Boleta do mesmo leilão.</span>
+    </label>
+    <div class="doBol"><b>Ou escolha um leilão da Boleta</b><span>Usa os lotes e os lances já registrados na Boleta, sem precisar de PDF.</span><select id="bolSel" aria-label="Leilão da Boleta"><option value="">Carregando leilões…</option></select></div>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <p style="text-align:center;margin:12px 0 0"><button class="btn" type="button" id="exemplo">Testar com o leilão do Marquinho (11/11)</button></p>
+  </section>
+
+  <section id="comPdf" hidden>
+    <div class="leilao">
+      <div>
+        <p class="nome" id="lNome"></p>
+        <p class="sub" id="lSub"></p>
+      </div>
+      <div class="acts">
+        <select id="bolSel2" aria-label="Escolher leilão da Boleta" class="bolSel2"><option value="">Escolher leilão…</option></select>
+        <select id="anteriores" aria-label="Relatórios guardados neste aparelho" hidden></select>
+        <button class="btn" type="button" id="exemplo2">Exemplo: Marquinho</button>
+        <button class="btn" type="button" id="trocar">Outro PDF</button>
+      </div>
+    </div>
+
+    <section class="card filtros" aria-label="O que somar">
+      <div class="grupo gp"><div class="gt"><b>Peso médio do lote</b><button class="todos" type="button" data-todos="peso">Todos</button></div><div class="chips" id="chPeso"></div></div>
+      <div class="grupo gr"><div class="gt"><b>Raça</b><button class="todos" type="button" data-todos="raca">Todos</button></div><div class="chips" id="chRaca"></div></div>
+      <div class="grupo gs"><div class="gt"><b>Sexo</b><button class="todos" type="button" data-todos="sexo">Todos</button></div><div class="chips" id="chSexo"></div></div>
+      <button class="btn pri tudo" type="button" id="tudo">Somar tudo</button>
+    </section>
+
+    <section class="soma" aria-live="polite" id="soma"></section>
+
+    <nav class="abas" role="tablist" aria-label="Detalhes">
+      <button role="tab" type="button" data-aba="medias" aria-selected="true">Médias</button>
+      <button role="tab" type="button" data-aba="cats" aria-selected="false">Categorias</button>
+      <button role="tab" type="button" data-aba="quadro" aria-selected="false">Quadro</button>
+      <button role="tab" type="button" data-aba="lotes" aria-selected="false">Lotes e valores</button>
+      <button role="tab" type="button" data-aba="racas" aria-selected="false">Brancos e cruzados <span class="bd" id="bdRacas" hidden></span></button>
+      <button role="tab" type="button" data-aba="conf" aria-selected="false">Conferência <span class="bd" id="bdConf" hidden></span></button>
+    </nav>
+
+    <section class="card" id="p-medias" role="tabpanel">
+      <div class="medtopo">
+        <input id="medTitulo" type="text" aria-label="Título das médias" maxlength="90">
+        <label class="chk"><input type="checkbox" id="medSep"> Separar brancos e cruzados</label>
+      </div>
+      <div id="medias"></div>
+      <div class="medacts"><button class="btn pri" type="button" id="medCopiar">Copiar médias</button><button class="btn zap" type="button" id="medZap">Mandar no WhatsApp</button></div>
+      <p class="note">R$/kg médio de cada categoria, só com os lotes vendidos. Lotes marcados como Novilha prenha, Vaca p/ engorda etc. (na aba Lotes e valores) saem das faixas de peso e viram linha própria. Os lotes tirados da soma não entram.</p>
+    </section>
+
+    <section class="card" id="p-cats" role="tabpanel" hidden>
+      <h2>Categorias</h2>
+      <p class="dica" style="margin:-4px 0 12px">Só os lotes da seleção de cima. Cada lote é um botão (número · quantidade × peso · R$/kg). Arraste para outro quadro, ou toque nele e escolha para onde vai. Lote tirado da soma vai para "Tirados da soma". Borda tracejada = mudado de faixa à mão.</p>
+      <div id="cats"></div>
+    </section>
+
+    <section class="card" id="p-quadro" role="tabpanel" hidden>
+      <h2>Quadro por categoria</h2>
+      <div class="tw"><table class="quadro" id="quadro"></table></div>
+      <p class="dica">Só as categorias da seleção de cima. Em cada uma: R$/kg (quando tem lance), peso médio e cabeças. Toque num número para ver os lotes.</p>
+    </section>
+
+    <section class="card" id="p-lotes" role="tabpanel" hidden>
+      <div class="fonte" id="fonte"></div>
+      <div class="lotesbar">
+        <h2 style="margin:0" id="tLotes">Lotes</h2>
+        <span class="row2"><label><input type="checkbox" id="soSoma" checked> Só os lotes dos filtros</label><button class="btn peq" type="button" id="voltarTodos">Voltar todos para a soma</button></span>
+      </div>
+      <div class="tw"><table class="tl" id="tabLotes"></table></div>
+      <p class="note">Valor por cabeça = lance × 3. R$/kg = (lance × 3) ÷ peso médio do lote, a mesma conta da Conferência Boleta. Só os lotes vendidos entram no R$/kg; o retorno fica de fora. Dá para digitar ou corrigir o lance aqui. Desmarque <b>Soma</b> para tirar um lote ruim das contas, e use <b>Categoria</b> para marcar Novilha prenha, Vaca p/ engorda etc.</p>
+    </section>
+
+    <section class="card" id="p-racas" role="tabpanel" hidden>
+      <h2 id="racaInfo">Brancos e cruzados</h2>
+      <div class="racas" id="racas"></div>
+      <p class="note">Nelore e ½ Tabapuã são brancos. Raça nova aparece em amarelo: confira se está no grupo certo. A escolha fica guardada para os próximos leilões (e vale em todos os aparelhos conectados).</p>
+    </section>
+
+    <section class="card" id="p-conf" role="tabpanel" hidden>
+      <h2>Conferência</h2>
+      <div class="avisos" id="avisos"></div>
+    </section>
+  </section>
+</div>
+
+<div class="barra" id="barra" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="modal catm" id="catModal" hidden role="dialog" aria-modal="true" aria-labelledby="catT">
+  <div class="cx catcx">
+    <div class="cath"><div><h3 id="catT"></h3><p class="muted" id="catR" style="margin:0"></p></div><button class="btn peq" type="button" id="catX">Fechar ✕</button></div>
+    <div id="catLista" class="catlista"></div>
+  </div>
+</div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mT">
+  <div class="cx">
+    <h3 id="mT">Conectar este aparelho</h3>
+    <p class="muted" style="margin:0">Com a senha do ADM (a mesma do Lotes · ADM), a página puxa os lances da Conferência Boleta e guarda a escolha de brancos e cruzados para todos os aparelhos.</p>
+    <label for="mSenha">Senha do ADM</label>
+    <input id="mSenha" type="password" autocomplete="current-password">
+    <div class="msg" id="mMsg"></div>
+    <div class="row"><button class="btn" type="button" id="mX">Agora não</button><button class="btn pri" type="button" id="mOk">Entrar</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+<script type="module">
+/* ---------- leitura do PDF: a mesma do Lotes · ADM (fichas.html) ---------- */
+var CDN3="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/";
+var pdfjsLib=null;
+async function biblioteca(){
+  if(pdfjsLib)return pdfjsLib;
+  if(window.pdfjsLib&&window.pdfjsLib.getDocument){
+    pdfjsLib=window.pdfjsLib;pdfjsLib.GlobalWorkerOptions.workerSrc=CDN3+"pdf.worker.min.js";
+  }else{
+    pdfjsLib=await import("./vendor/pdfjs/pdf.min.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc=new URL("./vendor/pdfjs/pdf.worker.min.mjs",import.meta.url).href;
+  }
+  return pdfjsLib;
+}
+
+/* junta os pedaços da linha; pedaços grudados (sem espaço entre eles, ex.: "1" e "2" que formam o 12 da coluna Ord.) viram um só */
+function juntaLinha(g){
+  var its=g.its.slice().sort(function(a,b){return a.x-b.x;}),s="",ant=null;
+  its.forEach(function(i){
+    if(ant&&(i.x-ant.r)<Math.min(ant.cw,i.cw)*0.3&&(i.x-ant.r)>-Math.min(ant.cw,i.cw)*0.5)s+=i.s;
+    else s+=(s?" ":"")+i.s;
+    ant=i;
+  });
+  return s.replace(/\s+/g," ").trim();
+}
+var ULT_GRUPOS=[];
+/* junta os pedaços de texto em linhas da folha (tolerando colunas um pouco acima ou abaixo) */
+function linhasDaPagina(items){
+  var its=items.filter(function(i){return i.str&&i.str.trim();}).map(function(i){
+    var lead=i.str.length-i.str.replace(/^\s+/,"").length,cw=(i.width&&i.str.length)?i.width/i.str.length:5;
+    var s=i.str.trim(),x=i.transform[4]+lead*cw;
+    return {s:s,x:x,r:x+s.length*cw,y:i.transform[5],cw:cw};});
+  ULT_GRUPOS=[];
+  if(!its.length)return [];
+  var ys=its.map(function(i){return i.y;}).sort(function(a,b){return b-a;});
+  var dif=[];for(var k=1;k<ys.length;k++){var d=ys[k-1]-ys[k];if(d>1.5)dif.push(d);}
+  dif.sort(function(a,b){return a-b;});
+  var passo=dif.length?dif[Math.floor(dif.length/2)]:12, tol=Math.max(2,passo*0.42);
+  its.sort(function(a,b){return b.y-a.y;});
+  var grupos=[];
+  /* âncoras: os números da coluna "Ord." (a mais à esquerda). Cada pedaço de texto vai para a
+     linha do lote mais próxima, mesmo que Idade/Raça/Peso estejam bem mais acima ou abaixo */
+  var nums=its.filter(function(i){return /^\d{1,3}º?$/.test(i.s);});
+  if(nums.length){
+    /* a coluna Ord. pode vir alinhada à direita: 1 a 9 ficam mais para dentro que 10 ou 100.
+       Vale como âncora quem começa na borda esquerda OU termina na mesma borda direita dela. */
+    /* acha a coluna Ord. pelo alinhamento (muitos números um embaixo do outro), não pelo número
+       mais à esquerda: na 1ª folha um número solto do cabeçalho (página, data) ficava mais à
+       esquerda e fazia sumir os primeiros lotes */
+    function alinhados(a){return nums.filter(function(b){return Math.abs(b.x-a.x)<=4||Math.abs(b.r-a.r)<=4;}).length;}
+    var cont=nums.map(alinhados),maxC=Math.max.apply(null,cont);
+    var cand=nums.filter(function(i,k){return cont[k]>=Math.max(2,maxC*0.6);});
+    if(!cand.length)cand=nums;
+    var minX=Math.min.apply(null,cand.map(function(i){return i.x;}));
+    var col=cand.filter(function(i){return i.x<=minX+8;});
+    var rs=col.map(function(i){return i.r;}).sort(function(a,b){return a-b;}),rMed=rs[Math.floor(rs.length/2)];
+    var anc=nums.filter(function(i){return (i.x>=minX-4&&i.x<=minX+8)||(Math.abs(i.r-rMed)<=4&&i.x>=minX-4&&i.x<minX+40);}).map(function(i){return i.y;});
+    var ga=[];for(var a=1;a<anc.length;a++){var dd=Math.abs(anc[a-1]-anc[a]);if(dd>3)ga.push(dd);}
+    ga.sort(function(p,q){return p-q;});
+    var passoL=ga.length?ga[Math.floor(ga.length/2)]:Math.max(passo,12);
+    var lim=passoL*0.5;
+    anc.forEach(function(y){grupos.push({y:y,its:[],anc:true});});
+    var resto=[];
+    its.forEach(function(i){
+      var best=null,bd=1e9;
+      grupos.forEach(function(g){var d=Math.abs(g.y-i.y);if(d<bd){bd=d;best=g;}});
+      /* fora das linhas de lote (título, cabeçalho, totais) ou abaixo do lote do lado esquerdo */
+      if(best&&bd<lim&&!/Total|Ord\.|Vendedor|Peso\(|Idade|Ra[çc]a/i.test(i.s))best.its.push(i);else resto.push(i);
+    });
+    var outros=[];
+    resto.forEach(function(i){
+      var g=outros.length?outros[outros.length-1]:null;
+      if(g&&Math.abs(g.y-i.y)<=tol){g.its.push(i);g.y=(g.y*(g.its.length-1)+i.y)/g.its.length;}
+      else outros.push({y:i.y,its:[i]});
+    });
+    grupos=grupos.filter(function(g){return g.its.length;}).concat(outros).sort(function(p,q){return q.y-p.y;});
+    ULT_GRUPOS=grupos;
+    return grupos.map(juntaLinha);
+  }
+  its.forEach(function(i){
+    var g=grupos.length?grupos[grupos.length-1]:null;
+    if(g&&Math.abs(g.y-i.y)<=tol){g.its.push(i);g.y=(g.y*(g.its.length-1)+i.y)/g.its.length;}
+    else grupos.push({y:i.y,its:[i]});
+  });
+  ULT_GRUPOS=grupos;
+  return grupos.map(juntaLinha);
+}
+var RE_LINHA=/^(\d{1,4})\s+(\d{1,4})\s+(\d{1,4})\s*([MF])\s+(.+?)\s+((?:\d{1,2}\s*A\s*\d{1,2}|\d{1,2}\s*\/\s*\d{1,2})\s*M\w*|\+\s*\d{1,2}\s*M\w*)\s+(.+?)\s+(\d{2,4})(?:[.,]\d+)?(?:\s.*)?$/i;
+var RE_CATALOGO=/^(\d{1,3})\s*º\s+(\d{1,4})\s+(.+?)\s+(\+?\d{1,2}(?:\s*\/\s*\d{1,2})?\s*M)\s+(Macho|F[êe]mea)\s+(\d{1,4})\s+(\d{2,4})\s*kg/i;
+var RE_COMECO=/^(\d{1,4})\s+(\d{2,4})\s+\d/;
+function interpretar(linhas){
+  var out={leilao:"",data:"",totais:null,lotes:[],naoEntendi:[]};
+  linhas.forEach(function(t){
+    var m;
+    /* Ord. partido em dois pedaços ("1 2 002 5 M ..." ou "1 152 152 2 M ..."): junta antes de ler */
+    t=t.replace(/^(\d{1,3})\s+(\d{1,3})(?=\s+\d{2,4}\s+\d{1,4}\s*[MF]\b)/i,"$1$2");
+    if(!out.leilao&&/LEIL[AÃ]O/i.test(t)&&!/ORDEM DE ENTRADA/i.test(t))out.leilao=t;
+    if(!out.data&&(m=t.match(/\b(\d{2}\/\d{2}\/\d{4})\b/))&&!/\d{2}:\d{2}/.test(t))out.data=m[1];
+    if((m=t.match(/Total de Animais:?\s*(\d+)/i))){
+      out.totais=out.totais||{};out.totais.animais=+m[1];
+      var mm=t.match(/Machos:?\s*(\d+)/i),ff=t.match(/F[êe]meas:?\s*(\d+)/i);
+      if(mm)out.totais.machos=+mm[1];if(ff)out.totais.femeas=+ff[1];
+      return;
+    }
+    if((m=t.match(RE_LINHA))){
+      out.lotes.push({ord:+m[1],lote:m[2],qtde:+m[3],sexo:m[4].toUpperCase(),vendedor:m[5],idade:m[6],raca:m[7],peso:+m[8]});
+    }else if((m=t.match(RE_CATALOGO))){
+      out.catalogo=true;
+      out.lotes.push({ord:+m[1],lote:m[2],qtde:+m[6],sexo:m[5].charAt(0).toUpperCase(),vendedor:"",idade:m[4],raca:m[3],peso:+m[7]});
+    }else if((m=t.match(RE_COMECO))&&!/Ord\.|Lote/i.test(t)){
+      out.naoEntendi.push(t);
+      out.lotes.push({ord:+m[1],lote:m[2],qtde:null,sexo:"",vendedor:"",idade:"",raca:"",peso:null,duvida:true,bruto:t});
+    }
+  });
+  return out;
+}
+var semWorker=false;
+async function abrirDoc(bytes){
+  var lib=await biblioteca();
+  try{return await lib.getDocument({data:bytes.slice(0),isEvalSupported:false}).promise;}
+  catch(e){
+    if(semWorker||(e&&/password|Invalid PDF|corrupt/i.test(e.message||"")))throw e;
+    /* alguns navegadores não abrem o leitor em segundo plano: tenta de novo na própria página */
+    semWorker=true;
+    try{lib.GlobalWorkerOptions.workerPort=null;}catch(_){}
+    return await lib.getDocument({data:bytes.slice(0),isEvalSupported:false,disableWorker:true}).promise;
+  }
+}
+/* leitura pela posição das colunas do cabeçalho (Ord. Lote Qtde Sx Vendedor Idade Raça Peso) */
+var ROTULOS=[["ord",/^Ord/i],["lote",/^Lote/i],["qtde",/^Qtd/i],["sexo",/^(Sx|Sexo)$/i],["vendedor",/^Vend/i],["idade",/^Idade/i],["raca",/^Ra[çc]a/i],["peso",/^Peso/i],["nome",/^Nome/i]];
+function palavras(g){
+  var w=[];
+  g.its.forEach(function(i){var re=/\S+/g,m;while((m=re.exec(i.s)))w.push({s:m[0],x:i.x+m.index*i.cw});});
+  return w.sort(function(a,b){return a.x-b.x;});
+}
+function porColunas(grupos){
+  var cols=null,lotes=[];
+  grupos.forEach(function(g){
+    var w=palavras(g);
+    if(!cols){
+      var c=[];w.forEach(function(p){ROTULOS.forEach(function(r){if(r[1].test(p.s)&&!c.some(function(x){return x.k===r[0];}))c.push({k:r[0],x:p.x});});});
+      if(c.length>=5&&c.some(function(x){return x.k==="lote";})){cols=c.sort(function(a,b){return a.x-b.x;});}
+      return;
+    }
+    if(!w.length||!/^\d{1,3}º?$/.test(w[0].s))return;
+    var v={};
+    w.forEach(function(p){
+      var k=null;cols.forEach(function(c){if(c.x<=p.x+4)k=c.k;});
+      if(!k)k=cols[0].k;
+      v[k]=(v[k]?v[k]+" ":"")+p.s;
+    });
+    /* número de qtde e sexo às vezes vêm grudados ("7M") ou na coluna vizinha */
+    var qs=((v.qtde||"")+" "+(v.sexo||"")).trim(),m=qs.match(/(\d{1,4})\s*([MF])\b/i);
+    var lote=(v.lote||"").match(/\d{1,4}/);
+    if(!lote||!m)return;
+    lotes.push({ord:+((v.ord||"").match(/\d+/)||[0])[0]||null,lote:lote[0],qtde:+m[1],sexo:m[2].toUpperCase(),
+      vendedor:(v.vendedor||"").trim(),idade:(v.idade||"").trim(),raca:(v.raca||"").trim(),peso:+(((v.peso||"").match(/\d{2,4}/)||[""])[0])||null});
+  });
+  return lotes;
+}
+async function lerPdf(file){
+  var buf=new Uint8Array(await file.arrayBuffer());
+  var doc=await abrirDoc(buf);
+  var linhas=[],grupos=[];
+  for(var p=1;p<=doc.numPages;p++){
+    var page=await doc.getPage(p);
+    var tc=await page.getTextContent();
+    linhas=linhas.concat(linhasDaPagina(tc.items));
+    grupos=grupos.concat(ULT_GRUPOS);
+  }
+  var info=interpretar(linhas);
+  if(info.lotes.some(function(l){return l.duvida;})){
+    var pc=porColunas(grupos);
+    info.lotes=info.lotes.map(function(l){
+      if(!l.duvida)return l;
+      var a=pc.find(function(x){return loteN(x.lote)===loteN(l.lote);});
+      return a||l;
+    });
+    info.naoEntendi=info.lotes.filter(function(l){return l.duvida;}).map(function(l){return l.bruto;});
+  }
+  return {linhas:linhas,info:info};
+}
+
+
+/* ---------- utilidades ---------- */
+var $=function(id){return document.getElementById(id);};
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+function num(v){if(v==null)return null;var m=String(v).replace(",",".").match(/\d+(\.\d+)?/);return m?Number(m[0]):null;}
+function loteN(v){var n=num(v);return n==null?null:Math.round(n);}
+function dois(n){return n==null||isNaN(n)?"":(n<10?"0"+n:String(n));}
+function up(s){return String(s==null?"":s).trim().replace(/\s+/g," ").toUpperCase();}
+function semAc(s){return up(s).normalize("NFD").replace(/[̀-ͯ]/g,"");}
+function kg(n){return Math.round(n).toLocaleString("pt-BR");}
+function f2(n){return n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function brl(n){return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
+function brl0(n){return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});}
+function lnum(s){s=String(s==null?"":s).trim().replace(/^R\$\s*/,"");if(!s)return null;if(s.indexOf(",")>=0)s=s.replace(/\./g,"").replace(",",".");var n=parseFloat(s);return isNaN(n)?null:n;}
+function racaTxt(s){return up(s).replace(/^1\/2\s*/,"½ ");}
+var toastT=null;
+function toast(t,ms){var e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){e.hidden=true;},ms||3500);}
+
+/* ---------- categorias: faixas de peso (peso médio do lote) e tipos especiais marcados à mão ---------- */
+var FAIXAS=[
+  {k:"200",t:"Até 200",txt:"até 200 kg",f:function(p){return p<=200;}},
+  {k:"250",t:"200/250",txt:"200/250 kg",f:function(p){return p>200&&p<=250;}},
+  {k:"300",t:"250/300",txt:"250/300 kg",f:function(p){return p>250&&p<=300;}},
+  {k:"+300",t:"+300",txt:"+300 kg",f:function(p){return p>300;}}
+];
+var SEXOS=[{k:"M",t:"Machos"},{k:"F",t:"Fêmeas"}];
+var GRUPOS=[{k:"B",t:"Brancos"},{k:"C",t:"Cruzados"}];
+/* lotes marcados à mão (aba Lotes e valores) saem das faixas de peso e viram uma categoria própria */
+var ESPECIAIS=[
+  {k:"prenha",t:"Novilhas prenhas"},
+  {k:"engorda",t:"Vacas p/ engorda"},
+  {k:"cria",t:"Vacas com cria"},
+  {k:"touro",t:"Touros"},
+  {k:"outro",t:"Outros"}
+];
+function faixaPeso(l){if(!(l.peso>0))return null;for(var i=0;i<FAIXAS.length;i++){if(FAIXAS[i].f(l.peso))return FAIXAS[i].k;}return null;}
+/* faixa do lote: a do peso, ou a escolhida à mão (R.fxm) */
+function faixaDe(l){return (R&&R.fxm&&R.fxm[l.lote])||faixaPeso(l);}
+function txtFaixa(k){var f=FAIXAS.find(function(x){return x.k===k;});return f?f.t:"";}
+function catDe(l){return R.cat&&R.cat[l.lote]||"";}
+function nomeEsp(k){var e=ESPECIAIS.find(function(x){return x.k===k;});return e?e.t:k;}
+
+/* ---------- brancos × cruzados ---------- */
+/* padrão: Nelore e Tabapuã (e ½ Tabapuã) são brancos; as cruzas conhecidas são cruzados.
+   Raça que não está aqui entra como "nova" até ser confirmada na tela (fica guardada). */
+var RACA_PADRAO=[
+  [/^NELORE\b/,"B"],[/^(1\/2\s*|½\s*)?TABAPUA\b/,"B"],
+  [/CRUZAD|INDUSTRIAL|CRUZ\.?\s*IND/,"C"],[/ANGUS|BRANGUS|BRAFORD|HEREFORD|CARACU|CHAROL|SIMENTAL|LIMOUSIN|SENEPOL|WAGYU|DEVON|CANCHI|GIROLANDO|HOLAND|JERSEY/,"C"]
+];
+function palpite(k){return /ANELORAD|BRAHMAN|GIR\b|GUZERA|SINDI|ZEBU/.test(k)&&!/1\/2|½|MEIO/.test(k)?"B":"C";}
+function chaveRaca(r){return semAc(r).replace(/^½\s*/,"1/2 ").replace(/\s+/g," ");}
+var RACAS={},KR="leiloinga-relatorio-racas";
+try{RACAS=JSON.parse(localStorage.getItem(KR)||"{}")||{};}catch(e){RACAS={};}
+function padraoDe(k){for(var i=0;i<RACA_PADRAO.length;i++){if(RACA_PADRAO[i][0].test(k))return RACA_PADRAO[i][1];}return null;}
+function grupoDe(raca){var k=chaveRaca(raca);return RACAS[k]||padraoDe(k)||palpite(k);}
+function ehNova(raca){var k=chaveRaca(raca);return !RACAS[k]&&!padraoDe(k);}
+
+/* ---------- relatórios guardados neste aparelho ---------- */
+var KB="leiloinga-relatorio-v1";
+var DB={atual:null,rel:{}};
+try{var x=JSON.parse(localStorage.getItem(KB)||"null");if(x&&x.rel)DB=x;}catch(e){}
+function salvaDB(){
+  try{
+    var ids=Object.keys(DB.rel).sort(function(a,b){return (DB.rel[b].em||"").localeCompare(DB.rel[a].em||"");});
+    ids.slice(12).forEach(function(i){delete DB.rel[i];});
+    localStorage.setItem(KB,JSON.stringify(DB));
+  }catch(e){}
+}
+var R=null;   /* relatório aberto: {id,leilao,data,totais,lotes,sel,la:{lote:lance},st:{lote:"V"|"R"},fonte,em} */
+var ABA="medias";
+function selTudo(){return {peso:FAIXAS.map(function(f){return f.k;}),raca:["B","C"],sexo:["M","F"],tipo:["comum"].concat(ESPECIAIS.map(function(e){return e.k;}))};}
+
+/* ---------- ler o PDF ---------- */
+async function abrirArquivo(f){
+  var st=$("status");st.className="status";st.textContent="Lendo o PDF…";
+  if(!(f.type==="application/pdf"||/\.pdf$/i.test(f.name))){st.className="status err";st.textContent="Esse arquivo não é PDF. Escolha o PDF que o sistema gera.";return;}
+  try{
+    var r=await lerPdf(f),info=r.info;
+    var lotes=info.lotes.filter(function(l){return !l.duvida&&loteN(l.lote)!=null;}).map(function(l){
+      return {ord:l.ord||null,lote:loteN(l.lote),qtde:l.qtde||null,sexo:(l.sexo||"").toUpperCase().charAt(0),idade:up(l.idade),raca:up(l.raca),peso:l.peso||null};
+    });
+    if(!lotes.length){st.className="status err";st.textContent="Não achei lotes nesse PDF. Confira se é a ordem de entrada do sistema (com as colunas Lote, Qtde, Sx, Idade, Raça e Peso).";return;}
+    var id=(info.data||"")+"|"+semAc(info.leilao||f.name);
+    var antigo=DB.rel[id];
+    R={id:id,leilao:up(info.leilao||"").replace(/\s*-\s*ORDEM DE ENTRADA\s*$/,""),data:info.data||"",totais:info.totais||null,
+       lotes:lotes,naoLidos:(info.naoEntendi||[]).length,arquivo:f.name,sel:antigo?antigo.sel:selTudo(),
+       la:antigo&&antigo.la||{},st:antigo&&antigo.st||{},fonte:antigo&&antigo.fonte||null,em:new Date().toISOString()};
+    DB.rel[id]=R;DB.atual=id;salvaDB();
+    st.textContent="";
+    mostrar();
+    toast(lotes.length+" lotes lidos do PDF.");
+    puxarBoleta(true);
+  }catch(e){
+    console.error(e);
+    st.className="status err";
+    st.textContent=/password/i.test(e&&e.message||"")?"Esse PDF tem senha. Gere de novo no sistema sem senha.":"Não consegui abrir esse PDF. Tente gerar de novo no sistema ou abrir em outro navegador.";
+  }
+}
+var drop=$("drop");
+$("arq").addEventListener("change",function(e){var f=e.target.files[0];e.target.value="";if(f)abrirArquivo(f);});
+["dragenter","dragover"].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.add("on");});});
+["dragleave","drop"].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.remove("on");});});
+drop.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.files[0];if(f)abrirArquivo(f);});
+document.addEventListener("dragover",function(e){e.preventDefault();});
+document.addEventListener("drop",function(e){e.preventDefault();var f=e.dataTransfer&&e.dataTransfer.files[0];if(f&&!e.target.closest("#drop"))abrirArquivo(f);});
+$("trocar").addEventListener("click",function(){$("arq").click();});
+$("anteriores").addEventListener("change",function(){var r=DB.rel[this.value];if(r){R=r;DB.atual=r.id;salvaDB();mostrar();}});
+async function carregarExemplo(){
+  var st=$("status");st.className="status";st.textContent="Abrindo o exemplo…";
+  try{
+    var r=await fetch("exemplos/ordem-marquinho-11-11.pdf?v=2",{cache:"no-store"});if(!r.ok)throw new Error(r.status);
+    var b=await r.blob();await abrirArquivo(new File([b],"exemplo-marquinho-11-11.pdf",{type:"application/pdf"}));
+  }catch(e){st.className="status err";st.textContent="Não deu para abrir o exemplo agora. Confira a internet.";}
+}
+$("exemplo").addEventListener("click",carregarExemplo);
+$("exemplo2").addEventListener("click",carregarExemplo);
+
+/* ---------- lances: Conferência Boleta (neste aparelho ou no GitHub do ADM) ---------- */
+function dataIso(br){var m=String(br||"").match(/(\d{2})\/(\d{2})\/(\d{4})/);return m?m[3]+"-"+m[2]+"-"+m[1]:"";}
+function dataBr(iso){var m=String(iso||"").match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[3]+"/"+m[2]:"";}
+/* escolhe a boleta do mesmo dia com mais lotes em comum */
+function melhorBoleta(cands){
+  var nums={};R.lotes.forEach(function(l){nums[l.lote]=1;});
+  var best=null,bc=0;
+  cands.forEach(function(s){if(!s||!Array.isArray(s.L))return;var c=s.L.filter(function(x){return nums[x.l];}).length;if(c>bc){bc=c;best=s;}});
+  return bc?best:null;
+}
+function aplicarBoleta(s,origem){
+  var la={},st={};
+  Object.keys(s.la||{}).forEach(function(k){var v=lnum(s.la[k]);if(v)la[+k]=v;});
+  Object.keys(s.st||{}).forEach(function(k){if(s.st[k]==="V"||s.st[k]==="R")st[+k]=s.st[k];});
+  R.la=la;R.st=st;
+  R.fonte={tipo:"boleta",origem:origem,nome:s.nome||"",data:s.data||"",em:new Date().toISOString(),alterado:s.alterado||""};
+  salvaDB();render();
+}
+async function puxarBoleta(auto){
+  if(!R)return;
+  var iso=dataIso(R.data),cands=[],origem="";
+  /* 1) a Conferência Boleta deste aparelho (mesmo site, mesmo navegador) */
+  try{var b=JSON.parse(localStorage.getItem("leiloinga-boleta-v1")||"null");if(b&&b.sess)Object.keys(b.sess).forEach(function(k){var s=b.sess[k];if(!iso||s.data===iso)cands.push(s);});}catch(e){}
+  var loc=melhorBoleta(cands);
+  /* 2) a cópia salva no GitHub do ADM (de qualquer aparelho) */
+  var nuv=null;
+  if(GH.token&&iso){
+    try{
+      var r=await api(caminho("boletas"));
+      if(r.ok){
+        var arqs=(await r.json()).filter(function(a){return a.name.indexOf(iso)===0&&/\.json$/.test(a.name);}),lst=[];
+        for(var i=0;i<arqs.length;i++){var a=await api(caminho("boletas/"+arqs[i].name));if(a.ok){try{lst.push(JSON.parse(b64dec((await a.json()).content)));}catch(e){}}}
+        nuv=melhorBoleta(lst);
+      }
+    }catch(e){}
+  }
+  var esc=loc,origem="este aparelho";
+  if(nuv&&(!loc||String(nuv.alterado||"")>String(loc.alterado||""))){esc=nuv;origem="GitHub";}
+  if(!esc){
+    if(!auto)toast(GH.token?"Não achei Conferência Boleta do dia "+(R.data||"")+". Dá para digitar os lances na aba Lotes e valores.":"Não achei a boleta neste aparelho. Conecte (botão no topo) para buscar no GitHub.",7000);
+    render();return;
+  }
+  if(auto&&R.fonte&&(R.fonte.tipo==="manual"||R.fonte.editado))return;
+  aplicarBoleta(esc,origem);
+  var nv=Object.keys(R.st).filter(function(k){return R.st[k]==="V";}).length;
+  toast("Lances da Conferência Boleta: "+Object.keys(R.la).length+" lotes ("+nv+" vendidos).",5000);
+}
+
+/* ---------- contas ---------- */
+function valido(l){return l.qtde>0&&l.peso>0&&(l.sexo==="M"||l.sexo==="F");}
+function tirado(l){return !!(R.fora&&R.fora[l.lote]);}
+/* entra na soma: passa nos filtros e não foi tirado à mão */
+function passaFiltros(l){
+  if(!valido(l))return false;
+  if(R.sel.raca.indexOf(grupoDe(l.raca))<0||R.sel.sexo.indexOf(l.sexo)<0)return false;
+  var c=catDe(l);
+  return c?(R.sel.tipo.indexOf(c)>=0&&R.sel.peso.indexOf(faixaPeso(l))>=0):(R.sel.tipo.indexOf("comum")>=0&&R.sel.peso.indexOf(faixaDe(l))>=0);
+}
+function entra(l){return passaFiltros(l)&&!tirado(l);}
+function conta(l){return valido(l)&&!tirado(l);}
+function lanceDe(l){return R.la&&R.la[l.lote]||null;}
+function vendido(l){var s=R.st&&R.st[l.lote];return lanceDe(l)&&(s==="V"||(!s&&!temStatus()));}
+function temStatus(){return R.st&&Object.keys(R.st).length>0;}
+function soma(ls){
+  var c=0,p=0,cv=0,kv=0,fat=0,nv=0;
+  ls.forEach(function(l){c+=l.qtde;p+=l.qtde*l.peso;if(vendido(l)){var v=lanceDe(l)*3*l.qtde;fat+=v;cv+=l.qtde;kv+=l.qtde*l.peso;nv++;}});
+  return {c:c,p:p,m:c?p/c:0,n:ls.length,fat:fat,cv:cv,nv:nv,rk:kv?fat/kv:null,rc:cv?fat/cv:null};
+}
+function temValores(){return R.la&&Object.keys(R.la).length>0;}
+function especiaisUsados(){var u={};R.lotes.forEach(function(l){var c=catDe(l);if(c)u[c]=1;});return ESPECIAIS.filter(function(e){return u[e.k];});}
+function unicasRacas(){
+  var m={};
+  R.lotes.forEach(function(l){var k=chaveRaca(l.raca);if(!k)return;if(!m[k])m[k]={k:k,t:racaTxt(l.raca),c:0,n:0,nova:ehNova(l.raca)};m[k].c+=l.qtde||0;m[k].n++;});
+  return Object.keys(m).map(function(k){return m[k];}).sort(function(a,b){return (b.nova-a.nova)||(b.c-a.c);});
+}
+function lista(a){return a.length>1?a.slice(0,-1).join(", ")+" e "+a[a.length-1]:(a[0]||"");}
+function frase(){
+  var s=R.sel;if(!s.raca.length||!s.sexo.length||!s.tipo.length)return "";
+  var comum=s.tipo.indexOf("comum")>=0,partes=[];
+  if(comum&&!s.peso.length&&s.tipo.length===1)return "";
+  var sx=s.sexo.length===2?"Machos e fêmeas":(s.sexo[0]==="M"?"Machos":"Fêmeas");
+  if(comum&&s.peso.length){
+    var pf=s.peso.length===FAIXAS.length?"todos os pesos":lista(FAIXAS.filter(function(f){return s.peso.indexOf(f.k)>=0;}).map(function(f){return f.txt;}));
+    partes.push(sx+" de "+pf);
+  }
+  var esp=especiaisUsados().filter(function(e){return s.tipo.indexOf(e.k)>=0;}).map(function(e){return e.t.toLowerCase();});
+  if(esp.length)partes.push((partes.length?"":"")+lista(esp));
+  var rc=s.raca.length===2?"brancos e cruzados":(s.raca[0]==="B"?"só brancos":"só cruzados");
+  var t=partes.join(" + ");t=t.charAt(0).toUpperCase()+t.slice(1);
+  return t+" · "+rc;
+}
+
+/* ---------- tela ---------- */
+function mostrar(){
+  $("semPdf").hidden=!!R;$("comPdf").hidden=!R;$("barra").hidden=!R;
+  if(!R)return;
+  if(!R.la)R.la={};if(!R.st)R.st={};if(!R.fora)R.fora={};if(!R.cat)R.cat={};if(!R.fxm)R.fxm={};
+  if(!R.sel||!R.sel.peso||!R.sel.tipo)R.sel=selTudo();
+  $("lNome").textContent=R.leilao||"Leilão";
+  var tot=soma(R.lotes.filter(valido));
+  $("lSub").textContent=[R.data,R.lotes.length+" lotes",tot.c+" animais",R.arquivo].filter(Boolean).join(" · ");
+  var ids=Object.keys(DB.rel).sort(function(a,b){return dataIso(DB.rel[b].data).localeCompare(dataIso(DB.rel[a].data));});
+  var sel=$("anteriores");sel.hidden=ids.length<2;sel.textContent="";
+  ids.forEach(function(i){var r=DB.rel[i],o=el("option",null,(r.data?r.data+" · ":"")+(r.leilao||r.arquivo||"Leilão").slice(0,56));o.value=i;if(i===R.id)o.selected=true;sel.append(o);});
+  render();
+}
+function chip(rot,sub,on,vazio,fn){
+  var b=el("button","chip"+(vazio?" vazio":""));b.type="button";b.setAttribute("aria-pressed",on?"true":"false");
+  b.append(el("span","l",rot));if(sub)b.append(el("span","s",sub));
+  b.addEventListener("click",fn);return b;
+}
+function alterna(g,k){var a=R.sel[g],i=a.indexOf(k);if(i>=0)a.splice(i,1);else a.push(k);R.sel.tipo=listas().tipo;mudou();}
+function mudou(){R.em=new Date().toISOString();salvaDB();render();}
+function listas(){return {peso:FAIXAS.map(function(f){return f.k;}),raca:["B","C"],sexo:["M","F"],tipo:["comum"].concat(ESPECIAIS.map(function(e){return e.k;}))};}
+document.querySelectorAll("[data-todos]").forEach(function(b){b.addEventListener("click",function(){var g=b.dataset.todos,L=listas()[g];R.sel[g]=R.sel[g].length>=L.length?[]:L.slice();R.sel.tipo=listas().tipo;mudou();});});
+function render(){
+  var val=R.lotes.filter(conta);
+  var cp=$("chPeso");cp.textContent="";
+  FAIXAS.forEach(function(f){var c=soma(val.filter(function(l){return !catDe(l)&&faixaDe(l)===f.k;})).c;
+    cp.append(chip(f.t,c+" cab.",R.sel.peso.indexOf(f.k)>=0,!c,function(){alterna("peso",f.k);}));});
+  var cr=$("chRaca");cr.textContent="";
+  GRUPOS.forEach(function(g){var c=soma(val.filter(function(l){return grupoDe(l.raca)===g.k;})).c;
+    cr.append(chip(g.t,c+" cab.",R.sel.raca.indexOf(g.k)>=0,!c,function(){alterna("raca",g.k);}));});
+  var cs=$("chSexo");cs.textContent="";
+  SEXOS.forEach(function(s){var c=soma(val.filter(function(l){return l.sexo===s.k;})).c;
+    cs.append(chip(s.t,c+" cab.",R.sel.sexo.indexOf(s.k)>=0,!c,function(){alterna("sexo",s.k);}));});
+  var L=listas();
+  document.querySelectorAll("[data-todos]").forEach(function(b){var g=b.dataset.todos;b.textContent=R.sel[g].length>=L[g].length?"Limpar":"Todos";});
+  var tudo=R.sel.peso.length===4&&R.sel.raca.length===2&&R.sel.sexo.length===2&&R.sel.tipo.length>=L.tipo.length;
+  $("tudo").textContent=tudo?"Somando tudo ✓":"Somar tudo";
+  renderSoma();renderMedias();renderCategorias();renderCategoria();renderQuadro();renderLotes();renderRacas();renderAvisos();mostrarAba();
+}
+function renderSoma(){
+  var box=$("soma");box.textContent="";
+  var ls=R.lotes.filter(entra),s=soma(ls),fr=frase();
+  var bar=$("barra");bar.textContent="";
+  var nfora=R.lotes.filter(function(l){return tirado(l)&&passaFiltros(l);}).length;
+  if(!fr){
+    box.append(el("p","vaziosoma","Escolha pelo menos um peso, brancos ou cruzados e um sexo para somar."));
+    bar.append(el("span","a","Escolha o que somar"));return;
+  }
+  var p=el("p","oque");p.append(document.createTextNode("Somando: "),el("b",null,fr));
+  if(nfora){var lk=el("button","tirados",nfora+(nfora>1?" lotes tirados":" lote tirado")+" da soma");lk.type="button";lk.addEventListener("click",function(){ABA="lotes";mostrarAba();$("p-lotes").scrollIntoView({behavior:"smooth",block:"start"});});p.append(document.createTextNode(" · "),lk);}
+  box.append(p);
+  var k=el("div","kpis");
+  function kp(rot,val,un,cls,extra){var d=el("div",cls||"");d.append(el("span","k",rot));var b=el("b",null,val);if(un)b.append(el("small",null,un));d.append(b);if(extra)d.append(el("span","x",extra));k.append(d);}
+  if(s.rk!=null)kp("Média R$/kg","R$ "+f2(s.rk),"","big ouro",s.nv+(s.nv>1?" lotes vendidos":" lote vendido")+(s.nv<s.n?" de "+s.n:""));
+  else kp("Média R$/kg","–","","big ouro",temValores()?"nenhum lote vendido na soma":"sem lances: veja Lotes e valores");
+  kp("Peso médio",s.c?kg(s.m):"–",s.c?"kg":"","big",s.c?"peso total "+kg(s.p)+" kg":"");
+  kp("Animais",String(s.c),"","",s.n+(s.n>1?" lotes":" lote"));
+  kp("Média por cabeça",s.rc!=null?brl0(s.rc):"–","","",s.fat?"faturamento "+brl0(s.fat):"");
+  box.append(k);
+  var a=el("div","acts");
+  var bi=el("button","btn");bi.type="button";bi.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Imprimir ou salvar PDF';
+  bi.addEventListener("click",function(){window.print();});
+  var bc=el("button","btn");bc.type="button";bc.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>Copiar esta soma';
+  bc.addEventListener("click",function(){copiar(textoResumo());});
+  var bz=el("a","btn zap");bz.href="https://wa.me/?text="+encodeURIComponent(textoResumo());bz.target="_blank";bz.rel="noopener";
+  bz.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Mandar no WhatsApp';
+  a.append(bi,bc,bz);
+  if(okTotais())a.append(el("span","ok","✓ Conferido com o PDF"));
+  box.append(a);
+  var m=el("span","m");
+  if(s.rk!=null){var m2=el("span","o");m2.append(el("b",null,"R$ "+f2(s.rk)),el("small",null,"/kg"));m.append(m2);}
+  var m1=el("span");m1.append(el("b",null,s.c?kg(s.m):"–"),el("small",null,"kg"));m.append(m1);
+  var r=el("span","a");r.append(el("b",null,s.c+" cab."),el("br"),document.createTextNode(s.n+(s.n>1?" lotes":" lote")+" · ver soma"));
+  bar.append(m,r);bar.onclick=function(){$("soma").scrollIntoView({behavior:"smooth",block:"start"});};
+}
+function okTotais(){
+  var T=R.totais;if(!T||!T.animais)return false;
+  var c=0,m=0,f=0;R.lotes.forEach(function(l){var q=l.qtde||0;c+=q;if(l.sexo==="M")m+=q;else if(l.sexo==="F")f+=q;});
+  return T.animais===c&&(T.machos==null||T.machos===m)&&(T.femeas==null||T.femeas===f);
+}
+function renderAvisos(){
+  var box=$("avisos");box.textContent="";var nb=0;
+  function av(cls,t){var d=el("div","aviso "+cls);d.append(el("span",null,t));box.append(d);if(cls!=="ok")nb++;}
+  var c=0,m=0,f=0;R.lotes.forEach(function(l){var q=l.qtde||0;c+=q;if(l.sexo==="M")m+=q;else if(l.sexo==="F")f+=q;});
+  var T=R.totais;
+  if(T&&T.animais){
+    if(okTotais())av("ok","Conferido com o total do PDF: "+c+" animais ("+m+" machos e "+f+" fêmeas).");
+    else av("bad","O total do PDF é "+T.animais+" animais"+(T.machos!=null?" ("+T.machos+" M, "+T.femeas+" F)":"")+", mas os lotes lidos somam "+c+" ("+m+" M, "+f+" F). Algum lote pode não ter sido lido.");
+  }else av("warn","O PDF não tinha a linha de totais para conferir a soma.");
+  var inval=R.lotes.filter(function(l){return !valido(l);});
+  if(inval.length)av("warn",(inval.length>1?inval.length+" lotes ficaram":"1 lote ficou")+" fora das contas por falta de peso, sexo ou quantidade: "+inval.map(function(l){return dois(l.lote);}).join(", ")+".");
+  var tir=R.lotes.filter(tirado);
+  if(tir.length)av("ok",(tir.length>1?tir.length+" lotes tirados":"1 lote tirado")+" à mão de todas as contas: "+tir.map(function(l){return dois(l.lote);}).join(", ")+". Para voltar, marque de novo na aba Lotes e valores.");
+  if(R.naoLidos)av("warn",R.naoLidos+(R.naoLidos>1?" linhas do PDF não foram entendidas":" linha do PDF não foi entendida")+". Se faltar lote, gere o PDF de novo no sistema.");
+  if(temValores()){
+    var semLance=R.lotes.filter(function(l){return !lanceDe(l)&&R.st[l.lote]!=="R";});
+    var ret=R.lotes.filter(function(l){return R.st[l.lote]==="R";});
+    var nv=R.lotes.filter(vendido).length;
+    av(semLance.length?"warn":"ok",nv+" lotes vendidos com lance"+(ret.length?", "+ret.length+" de retorno (fora do R$/kg)":"")+(semLance.length?". Sem lance: "+semLance.map(function(l){return dois(l.lote);}).join(", ")+".":"."));
+  }else av("warn","Ainda sem lances: o R$/kg aparece quando a Conferência Boleta do leilão tiver os lances (ou digitando na aba Lotes e valores).");
+  var novas=unicasRacas().filter(function(x){return x.nova;});
+  if(novas.length)av("warn",(novas.length>1?"Raças novas":"Raça nova")+": "+novas.map(function(x){return x.t+" (entrou como "+(grupoDe(x.t)==="B"?"branco":"cruzado")+")";}).join(", ")+". Confira na aba Brancos e cruzados.");
+  var bd=$("bdConf");bd.hidden=!nb;bd.textContent=nb;bd.className="bd"+(box.querySelector(".aviso.bad")?" r":"");
+  var br=$("bdRacas");br.hidden=!novas.length;br.textContent=novas.length;
+}
+
+/* ---------- médias do leilão: o texto de sempre ("Machos até 200 kg 19,30") ---------- */
+function cidadeDoLeilao(){
+  var m=String(R.leilao||"").match(/-\s*([^-]+?)\s*-\s*[A-Z]{2}\s*$/)||String(R.leilao||"").match(/\b(?:DE|EM)\s+([A-ZÀ-Ú ]+?)\s*(?:-\s*[A-Z]{2})?\s*$/);
+  if(!m)return "";
+  return m[1].toLowerCase().replace(/(^|\s)(\S)/g,function(a,b,c){return b+c.toUpperCase();}).replace(/\b(Do|Da|De|Dos|Das)\b/g,function(x){return x.toLowerCase();});
+}
+function mediasLinhas(todas){
+  /* todas=true: inclui as linhas sem venda (para a tela); o texto copiado só leva as que têm R$/kg */
+  var base=R.lotes.filter(passaFiltros),L=[],sep=!!R.medSep;
+  function linha(rot,ls,dest,sempre){
+    var grupos=sep?GRUPOS.map(function(g){return {t:rot+" "+g.t.toLowerCase(),ls:ls.filter(function(l){return grupoDe(l.raca)===g.k;})};}):[{t:rot,ls:ls}];
+    grupos.forEach(function(g){var q=soma(g.ls.filter(function(l){return !tirado(l);}));if(q.rk!=null||(todas&&(g.ls.length||sempre)))L.push({t:g.t,q:q,lots:g.ls,dest:dest});});
+  }
+  SEXOS.forEach(function(sx){if(R.sel.sexo.indexOf(sx.k)<0)return;
+    FAIXAS.forEach(function(f){if(R.sel.peso.indexOf(f.k)<0)return;linha(sx.t+" "+f.txt,base.filter(function(l){return l.sexo===sx.k&&!catDe(l)&&faixaDe(l)===f.k;}),"fx:"+sx.k+":"+f.k,false);});
+  });
+  especiaisVisiveis().forEach(function(e){linha(e.t,base.filter(function(l){return catDe(l)===e.k;}),"esp:"+e.k,false);});
+  return L;
+}
+function especiaisVisiveis(){var u=especiaisUsados().map(function(e){return e.k;});return ESPECIAIS.filter(function(e){return e.k==="prenha"||e.k==="engorda"||u.indexOf(e.k)>=0;});}
+function tituloMedias(){
+  if(R.medTitulo)return R.medTitulo;
+  var cid=cidadeDoLeilao(),d=(R.data||"").slice(0,5);
+  return "Médias do Leilão"+(cid?" de "+cid:"")+(d?" "+d:"");
+}
+function textoMedias(){
+  var L=mediasLinhas(false),out=[tituloMedias()];
+  if(R.sel.raca.length===1)out[0]+=" ("+(R.sel.raca[0]==="B"?"brancos":"cruzados")+")";
+  L.forEach(function(x){out.push(x.t+" "+f2(x.q.rk));});
+  return out.join("\n");
+}
+function renderMedias(){
+  var box=$("medias");box.textContent="";
+  var ti=$("medTitulo");if(document.activeElement!==ti)ti.value=tituloMedias();
+  $("medSep").checked=!!R.medSep;
+  var L=mediasLinhas(true);
+  if(!temValores())box.append(el("p","muted","As médias aparecem quando tiver os lances (Conferência Boleta ou aba Lotes e valores)."));
+  var ul=el("ul","medlist");
+  L.forEach(function(x){
+    var li=el("li"+"");if(x.q.rk==null)li.className="semv";
+    var nt=x.lots.filter(tirado).length;
+    li.append(el("span","t",x.t),el("span","c",x.lots.length?(x.q.cv+" cab. vendidas · "+(x.q.c?kg(x.q.m):"–")+" kg"+(nt?" · "+nt+" tirado"+(nt>1?"s":""):"")):"nenhum lote"),el("b",null,x.q.rk!=null?f2(x.q.rk):"–"));
+    var bt=el("button","btn peq verl","Lotes ("+x.lots.length+") ▸");bt.type="button";bt.addEventListener("click",function(){abrirCategoria(x.t,x.dest);});
+    li.append(bt);ul.append(li);
+  });
+  box.append(ul);
+  var tir=R.lotes.filter(tirado).length;
+  var nota=[];if(R.sel.raca.length===1)nota.push("só "+(R.sel.raca[0]==="B"?"brancos":"cruzados")+" (filtro de raça)");if(tir)nota.push(tir+(tir>1?" lotes tirados à mão não entram":" lote tirado à mão não entra"));
+  if(nota.length)box.append(el("p","note",nota.join(" · ")+"."));
+}
+
+/* ---------- quadro de uma categoria: todos os lotes dela, com tudo embaixo, para pôr ou tirar da soma e mudar de categoria ---------- */
+var CAT_ABERTA=null;
+function lotesDoDestino(dest,raca){
+  return R.lotes.filter(function(l){
+    if(!passaFiltros(l))return false;
+    if(raca&&grupoDe(l.raca)!==raca)return false;
+    if(dest==="fora")return tirado(l);
+    if(dest.indexOf("esp:")===0)return catDe(l)===dest.slice(4);
+    var p=dest.split(":");return l.sexo===p[1]&&!catDe(l)&&faixaDe(l)===p[2];
+  }).sort(function(a,b){return a.lote-b.lote;});
+}
+function nomeDestino(dest){
+  if(dest==="fora")return "Tirados da soma";
+  if(dest.indexOf("esp:")===0)return nomeEsp(dest.slice(4));
+  var p=dest.split(":");return (p[1]==="M"?"Machos ":"Fêmeas ")+FAIXAS.find(function(f){return f.k===p[2];}).txt;
+}
+function moverLoteRel(l,dest){
+  if(dest==="fora"){R.fora[l.lote]=true;}
+  else if(dest.indexOf("esp:")===0){var k=dest.slice(4);R.cat[l.lote]=k;delete R.fxm[l.lote];delete R.fora[l.lote];if(R.sel.tipo.indexOf(k)<0)R.sel.tipo.push(k);}
+  else{var p=dest.split(":");delete R.cat[l.lote];delete R.fora[l.lote];if(p[2]===faixaPeso(l))delete R.fxm[l.lote];else R.fxm[l.lote]=p[2];}
+  mudou();
+}
+function opcoesDestino(l){
+  var o=FAIXAS.map(function(f){return {d:"fx:"+l.sexo+":"+f.k,t:(l.sexo==="M"?"Machos ":"Fêmeas ")+f.txt+(f.k===faixaPeso(l)?" (pelo peso)":"")};});
+  ESPECIAIS.forEach(function(e){o.push({d:"esp:"+e.k,t:e.t});});
+  return o;
+}
+function destinoAtual(l){var c=catDe(l);return c?"esp:"+c:"fx:"+l.sexo+":"+faixaDe(l);}
+function abrirCategoria(titulo,dest,raca){CAT_ABERTA={t:titulo,dest:dest,raca:raca||""};renderCategoria();$("catModal").hidden=false;}
+function fecharCategoria(){CAT_ABERTA=null;$("catModal").hidden=true;}
+function renderCategoria(){
+  if(!CAT_ABERTA)return;
+  var ls=lotesDoDestino(CAT_ABERTA.dest,CAT_ABERTA.raca),q=soma(ls.filter(function(l){return !tirado(l);}));
+  $("catT").textContent=CAT_ABERTA.t;
+  $("catR").textContent=(q.rk!=null?"R$ "+f2(q.rk)+"/kg · ":"")+(q.c?kg(q.m)+" kg de média · ":"")+q.c+" cab. em "+q.n+(q.n===1?" lote":" lotes")+" na soma"+(ls.length>q.n?" · "+(ls.length-q.n)+" fora":"");
+  var box=$("catLista");box.textContent="";
+  if(!ls.length){box.append(el("p","muted","Nenhum lote aqui. Para trazer um lote, abra a categoria onde ele está e mude em \"Mover para\", ou arraste na aba Categorias."));return;}
+  ls.forEach(function(l){
+    var v=lanceDe(l),s=R.st[l.lote]||"",g=grupoDe(l.raca),out=tirado(l);
+    var c=el("div","clote"+(out?" out":""));
+    var top=el("div","ct");
+    var lab=el("label","cin"),cb=el("input");cb.type="checkbox";cb.checked=!out;
+    cb.addEventListener("change",function(){if(cb.checked)delete R.fora[l.lote];else R.fora[l.lote]=true;mudou();});
+    lab.append(cb,document.createTextNode(out?"Fora da soma":"Na soma"));
+    top.append(el("b","cn","Lote "+dois(l.lote)),lab);
+    var rk=el("span","crk",v&&l.peso&&s!=="R"?"R$ "+f2(v*3/l.peso):(s==="R"?"Retorno":"–"));top.append(rk);
+    c.append(top);
+    var det=el("div","cd");
+    [[l.qtde+" "+(l.sexo==="M"?(l.qtde>1?"machos":"macho"):(l.qtde>1?"fêmeas":"fêmea"))+" · "+kg(l.peso)+" kg"],[racaTxt(l.raca)+" · "+(g==="B"?"branco":"cruzado")],[l.idade||""],[v?"lance "+f2(v)+" · "+brl0(v*3)+"/cab.":"sem lance"]].forEach(function(x){if(x[0])det.append(el("span",null,x[0]));});
+    c.append(det);
+    var mv=el("label","cmv");mv.append(document.createTextNode("Mover para"));
+    var se=el("select");opcoesDestino(l).forEach(function(o){var op=el("option",null,o.t);op.value=o.d;if(o.d===destinoAtual(l))op.selected=true;se.append(op);});
+    se.addEventListener("change",function(){moverLoteRel(l,se.value);toast("Lote "+dois(l.lote)+" → "+nomeDestino(se.value)+".");});
+    mv.append(se);c.append(mv);
+    box.append(c);
+  });
+}
+$("catX").addEventListener("click",fecharCategoria);
+$("catModal").addEventListener("click",function(e){if(e.target.id==="catModal")fecharCategoria();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&CAT_ABERTA)fecharCategoria();});
+
+/* ---------- aba Categorias: quadros lado a lado, lotes como botões para arrastar (ou tocar e escolher) ---------- */
+var MENU_L=null;
+function fecharMenuL(){if(MENU_L){MENU_L.remove();MENU_L=null;}}
+document.addEventListener("click",function(e){if(MENU_L&&!e.target.closest(".menulote")&&!e.target.closest(".lchip"))fecharMenuL();});
+function menuLote(l,btn){
+  fecharMenuL();
+  var m=el("div","menulote");m.append(el("p",null,"Lote "+dois(l.lote)+" · "+l.qtde+" "+l.sexo+" · "+l.peso+" kg — mover para:"));
+  opcoesDestino(l).concat([{d:"fora",t:"Tirar da soma"}]).forEach(function(o){
+    var at=o.d==="fora"?tirado(l):(!tirado(l)&&o.d===destinoAtual(l));
+    var b=el("button",at?"at":"",o.t+(at?" ✓":""));b.type="button";b.addEventListener("click",function(){fecharMenuL();moverLoteRel(l,o.d);toast("Lote "+dois(l.lote)+" → "+nomeDestino(o.d)+".");});m.append(b);
+  });
+  document.body.append(m);
+  var bx=btn.getBoundingClientRect(),w=Math.min(300,window.innerWidth-16);
+  m.style.width=w+"px";m.style.left=Math.max(8,Math.min(window.innerWidth-w-8,bx.left))+"px";
+  var top=bx.bottom+6;if(top+m.offsetHeight>window.innerHeight-8)top=Math.max(8,bx.top-m.offsetHeight-6);
+  m.style.top=top+"px";MENU_L=m;
+}
+function chipL(l){
+  var b=el("button","lchip"+(R.fxm[l.lote]?" mao":"")+(vendido(l)?"":" sv"));b.type="button";b.draggable=true;
+  b.append(el("b",null,dois(l.lote)),document.createTextNode(" "+l.qtde+"×"+l.peso));
+  var v=lanceDe(l);if(v&&vendido(l))b.append(el("i",null,f2(v*3/l.peso)));
+  b.title="Lote "+dois(l.lote)+": arraste para outro quadro ou toque para mover";
+  b.addEventListener("click",function(e){e.stopPropagation();menuLote(l,b);});
+  b.addEventListener("dragstart",function(e){e.dataTransfer.setData("text/plain",String(l.lote));e.dataTransfer.effectAllowed="move";b.classList.add("arr");});
+  b.addEventListener("dragend",function(){b.classList.remove("arr");});
+  return b;
+}
+function cardCat(titulo,dest,cls){
+  var ls=lotesDoDestino(dest),dentro=dest==="fora"?ls:ls.filter(function(l){return !tirado(l);}),q=soma(dentro);
+  var c=el("div","ccard"+(cls?" "+cls:"")+(dentro.length?"":" vz"));c.dataset.dest=dest;
+  var h=el("div","cch");h.append(el("span","ctt",titulo));
+  var vb=el("button","btn peq","Ver lotes");vb.type="button";vb.addEventListener("click",function(){abrirCategoria(titulo,dest);});h.append(vb);c.append(h);
+  var n=el("div","ccn");
+  n.append(el("b","rk",q.rk!=null?"R$ "+f2(q.rk):"–"),el("span",null,(q.c?kg(q.m)+" kg":"–")+" · "+q.c+" cab."));c.append(n);
+  var cs=el("div","lchips");
+  if(dest==="fora")ls.forEach(function(l){cs.append(chipL(l));});else dentro.forEach(function(l){cs.append(chipL(l));});
+  if(!cs.childNodes.length)cs.append(el("span","solte","Solte um lote aqui"));
+  c.append(cs);
+  c.addEventListener("dragover",function(e){e.preventDefault();c.classList.add("sobre");});
+  c.addEventListener("dragleave",function(){c.classList.remove("sobre");});
+  c.addEventListener("drop",function(e){e.preventDefault();c.classList.remove("sobre");var n=+e.dataTransfer.getData("text/plain"),l=R.lotes.find(function(x){return x.lote===n;});if(l){moverLoteRel(l,dest);toast("Lote "+dois(l.lote)+" → "+nomeDestino(dest)+".");}});
+  return c;
+}
+function renderCategorias(){
+  fecharMenuL();
+  var box=$("cats");box.textContent="";
+  SEXOS.forEach(function(sx){if(R.sel.sexo.indexOf(sx.k)<0)return;
+    var fs=FAIXAS.filter(function(f){return R.sel.peso.indexOf(f.k)>=0;});if(!fs.length)return;
+    box.append(el("h3","cgh",sx.t));
+    var g=el("div","cgrid");fs.forEach(function(f){g.append(cardCat(f.t+" kg","fx:"+sx.k+":"+f.k));});box.append(g);
+  });
+  box.append(el("h3","cgh","Categorias especiais"));
+  var g2=el("div","cgrid");
+  especiaisVisiveis().forEach(function(e){g2.append(cardCat(e.t,"esp:"+e.k,"esp"));});
+  g2.append(cardCat("Tirados da soma","fora","tir"));
+  box.append(g2);
+}
+$("medTitulo").addEventListener("change",function(){var v=this.value.trim();R.medTitulo=v&&v!==tituloMedias()?v:"";if(!v)R.medTitulo="";mudou();});
+$("medSep").addEventListener("change",function(){R.medSep=this.checked;mudou();});
+$("medCopiar").addEventListener("click",function(){copiar(textoMedias());});
+$("medZap").addEventListener("click",function(){window.open("https://wa.me/?text="+encodeURIComponent(textoMedias()),"_blank","noopener");});
+
+function renderQuadro(){
+  var t=$("quadro");t.textContent="";
+  var val=R.lotes.filter(entra),sl=R.sel;
+  var GR=GRUPOS.filter(function(g){return sl.raca.indexOf(g.k)>=0;}),dois_=GR.length>1;
+  var th=el("tr");th.append(el("th",null,"Categoria"));GR.forEach(function(g){th.append(el("th",g.k==="C"?"c":"",g.t));});if(dois_)th.append(el("th",null,"Total"));
+  var thead=el("thead");thead.append(th);t.append(thead);
+  var tb=el("tbody");t.append(tb);
+  var ncol=1+GR.length+(dois_?1:0);
+  function cel(ls,titulo,dest,raca){
+    var s=soma(ls),b=el("button","cel"+(s.c?" in":" zero"));b.type="button";
+    if(s.c){
+      if(s.rk!=null)b.append(el("span","rs","R$ "+f2(s.rk)));
+      var bb=el("b",null,kg(s.m));bb.append(el("small",null," kg"));b.append(bb);
+      b.append(el("span",null,s.c+" cab."));
+      if(dest){b.setAttribute("aria-label",titulo+": ver os lotes");b.addEventListener("click",function(){abrirCategoria(titulo,dest,raca);});}
+      else b.style.cursor="default";
+    }else{b.append(el("b",null,"–"));b.disabled=true;}
+    var td=el("td");td.append(b);return td;
+  }
+  function linha(rot,sub,ls,dest,cls){
+    var tr=el("tr",cls||""),tc=el("td","cat");tc.append(el("b",null,rot));if(sub)tc.append(el("small",null,sub));tr.append(tc);
+    GR.forEach(function(g){tr.append(cel(ls.filter(function(l){return grupoDe(l.raca)===g.k;}),rot+" · "+g.t.toLowerCase(),dest,g.k));});
+    if(dois_){var ct=cel(ls,rot,dest,"");ct.className="tc";tr.append(ct);}
+    tb.append(tr);
+  }
+  SEXOS.forEach(function(sx){if(sl.sexo.indexOf(sx.k)<0)return;
+    var fs=FAIXAS.filter(function(f){return sl.peso.indexOf(f.k)>=0;});if(!fs.length)return;
+    var tr0=el("tr","sx"),td0=el("td",null,sx.t);td0.colSpan=ncol;tr0.append(td0);tb.append(tr0);
+    fs.forEach(function(f){linha(f.t+" kg",null,val.filter(function(l){return l.sexo===sx.k&&!catDe(l)&&faixaDe(l)===f.k;}),"fx:"+sx.k+":"+f.k);});
+    if(fs.length>1)linha("Total "+sx.t.toLowerCase(),"sem os especiais",val.filter(function(l){return l.sexo===sx.k&&!catDe(l);}),null,"sub");
+  });
+  var usados=especiaisVisiveis().filter(function(e){return val.some(function(l){return catDe(l)===e.k;});});
+  if(usados.length){
+    var tr1=el("tr","sx"),td1=el("td",null,"Categorias especiais");td1.colSpan=ncol;tr1.append(td1);tb.append(tr1);
+    usados.forEach(function(e){linha(e.t,null,val.filter(function(l){return catDe(l)===e.k;}),"esp:"+e.k);});
+  }
+  linha("Total da seleção",null,val,null,"tot");
+}
+function renderFonte(){
+  var f=$("fonte");f.textContent="";var p=el("p");
+  if(R.fonte&&R.fonte.tipo==="boleta"){
+    f.className="fonte";
+    p.append(document.createTextNode("Lances da "),el("b",null,"Conferência Boleta"),document.createTextNode(" "+(R.fonte.nome?"· "+R.fonte.nome+" ":"")+(R.fonte.data?"de "+dataBr(R.fonte.data)+" ":"")+"("+(R.fonte.origem||"")+")."+(R.fonte.editado?" Com correções feitas aqui.":"")));
+  }else if(temValores()){f.className="fonte";p.append(el("b",null,"Lances digitados aqui."));}
+  else{f.className="fonte sem";p.append(document.createTextNode("Ainda sem lances. Eles vêm da "),el("b",null,"Conferência Boleta"),document.createTextNode(" do mesmo leilão, ou dá para digitar na tabela abaixo."));}
+  var b=el("button","btn peq",temValores()?"Puxar de novo":"Puxar da Conferência Boleta");b.type="button";b.addEventListener("click",function(){puxarBoleta(false);});
+  f.append(p,b);
+}
+function renderLotes(){
+  renderFonte();
+  var so=$("soSoma").checked;
+  var ls=R.lotes.slice().filter(function(l){return !so||passaFiltros(l);}).sort(function(a,b){return (a.ord||9999)-(b.ord||9999)||a.lote-b.lote;});
+  var nt=ls.filter(tirado).length;
+  $("tLotes").textContent=(so?"Lotes dos filtros":"Todos os lotes")+" ("+ls.length+(nt?", "+nt+" tirados":"")+")";
+  var t=$("tabLotes");t.textContent="";
+  var th=el("tr");
+  [["Soma",""],["Ord.",""],["Lote",""],["Qtde","r"],["Sexo",""],["Idade",""],["Raça",""],["Peso","r"],["Categoria",""],["Situação",""],["Lance","r"],["R$/kg","r"]].forEach(function(x){th.append(el("th",x[1],x[0]));});
+  var thead=el("thead");thead.append(th);t.append(thead);
+  var tb=el("tbody");
+  if(!ls.length){var tr=el("tr"),td=el("td","muted","Nenhum lote nestes filtros.");td.colSpan=12;tr.append(td);tb.append(tr);}
+  ls.forEach(function(l){
+    var v=lanceDe(l),s=R.st[l.lote]||"",g=grupoDe(l.raca),fx=faixaDe(l),out=tirado(l);
+    var tr=el("tr",(out?"tirado ":"")+(!so&&!passaFiltros(l)?"fora ":"")+(s==="R"?"ret":""));
+    var tdc=el("td"),cb=el("input");cb.type="checkbox";cb.checked=!out;cb.setAttribute("aria-label","Lote "+dois(l.lote)+" entra na soma");
+    cb.addEventListener("change",function(){if(cb.checked)delete R.fora[l.lote];else R.fora[l.lote]=true;mudou();toast(cb.checked?"Lote "+dois(l.lote)+" voltou para a soma.":"Lote "+dois(l.lote)+" tirado da soma.");});
+    tdc.append(cb);tr.append(tdc);
+    tr.append(el("td","muted",l.ord?l.ord+"º":""),el("td","lt",dois(l.lote)),el("td","r",String(l.qtde||"")),el("td",null,l.sexo==="M"?"M":l.sexo==="F"?"F":"?"),el("td","muted",l.idade||""));
+    var tr5=el("td");tr5.append(document.createTextNode(racaTxt(l.raca)+" "),el("span","gb "+g,g==="B"?"Branco":"Cruzado"));tr.append(tr5);
+    tr.append(el("td","r",l.peso?kg(l.peso)+" kg":""));
+    var tdk=el("td"),sk=el("select");sk.setAttribute("aria-label","Categoria do lote "+dois(l.lote));
+    var o0=el("option",null,fx?txtFaixa(fx)+" kg":"—");o0.value="";sk.append(o0);
+    ESPECIAIS.forEach(function(e){var op=el("option",null,e.t);op.value=e.k;if(catDe(l)===e.k)op.selected=true;sk.append(op);});
+    sk.addEventListener("change",function(){if(sk.value){R.cat[l.lote]=sk.value;if(R.sel.tipo.indexOf(sk.value)<0)R.sel.tipo.push(sk.value);}else delete R.cat[l.lote];mudou();});
+    tdk.append(sk);tr.append(tdk);
+    var tds=el("td"),se=el("select");se.setAttribute("aria-label","Situação do lote "+dois(l.lote));
+    [["","—"],["V","Vendido"],["R","Retorno"]].forEach(function(o){var op=el("option",null,o[1]);op.value=o[0];if(o[0]===s)op.selected=true;se.append(op);});
+    se.addEventListener("change",function(){if(se.value)R.st[l.lote]=se.value;else delete R.st[l.lote];marcarEditado();});
+    tds.append(se);tr.append(tds);
+    var tdl=el("td","r"),inp=el("input","la");inp.inputMode="decimal";inp.value=v?f2(v):"";inp.placeholder="0,00";inp.setAttribute("aria-label","Lance do lote "+dois(l.lote));
+    inp.addEventListener("change",function(){var n=lnum(inp.value);if(n)R.la[l.lote]=n;else delete R.la[l.lote];if(n&&!R.st[l.lote]&&temStatus())R.st[l.lote]="V";marcarEditado();});
+    tdl.append(inp);tr.append(tdl);
+    tr.append(el("td","r rk",v&&l.peso?"R$ "+f2(v*3/l.peso):"—"));
+    tb.append(tr);
+  });
+  t.append(tb);
+}
+function marcarEditado(){if(R.fonte&&R.fonte.tipo==="boleta")R.fonte.editado=true;else R.fonte={tipo:"manual"};mudou();}
+$("soSoma").addEventListener("change",renderLotes);
+$("voltarTodos").addEventListener("click",function(){var n=Object.keys(R.fora).length;if(!n){toast("Nenhum lote foi tirado.");return;}R.fora={};mudou();toast(n+(n>1?" lotes voltaram":" lote voltou")+" para a soma.");});
+function renderRacas(){
+  var box=$("racas");box.textContent="";
+  var us=unicasRacas(),nb=0,nc=0;
+  us.forEach(function(x){if(grupoDe(x.t)==="B")nb+=x.c;else nc+=x.c;});
+  $("racaInfo").textContent="Brancos e cruzados · "+nb+" brancos · "+nc+" cruzados";
+  us.forEach(function(x){
+    var d=el("div","raca"+(x.nova?" nova":"")),inf=el("div"),n=el("span","n",x.t);
+    if(x.nova)n.append(el("span","tag","nova · confira"));
+    inf.append(n,el("div","q",x.c+" cab. em "+x.n+(x.n>1?" lotes":" lote")));
+    var g=grupoDe(x.t),seg=el("div","seg");seg.setAttribute("role","group");seg.setAttribute("aria-label","Grupo da raça "+x.t);
+    [["B","Branco"],["C","Cruzado"]].forEach(function(o){
+      var b=el("button",o[0].toLowerCase(),o[1]);b.type="button";b.setAttribute("aria-pressed",g===o[0]?"true":"false");
+      b.addEventListener("click",function(){RACAS[x.k]=o[0];guardaRacas();render();toast(x.t+" agora conta como "+(o[0]==="B"?"branco":"cruzado")+".");});
+      seg.append(b);
+    });
+    d.append(inf,seg);box.append(d);
+  });
+}
+/* abas */
+function mostrarAba(){
+  document.querySelectorAll(".abas [data-aba]").forEach(function(b){b.setAttribute("aria-selected",b.dataset.aba===ABA?"true":"false");});
+  ["medias","cats","quadro","lotes","racas","conf"].forEach(function(a){$("p-"+a).hidden=a!==ABA;});
+}
+document.querySelectorAll(".abas [data-aba]").forEach(function(b){b.addEventListener("click",function(){ABA=b.dataset.aba;mostrarAba();});});
+$("tudo").addEventListener("click",function(){R.sel=selTudo();mudou();});
+
+/* ---------- resumo da soma para copiar / WhatsApp ---------- */
+function textoResumo(){
+  var ls=R.lotes.filter(entra),s=soma(ls),L=[];
+  L.push("*"+(R.leilao||"Leilão")+"*"+(R.data?" · "+R.data:""));
+  L.push("Somando: "+frase());
+  var tir=R.lotes.filter(function(l){return tirado(l)&&passaFiltros(l);});
+  if(tir.length)L.push("(sem os lotes "+tir.map(function(l){return dois(l.lote);}).join(", ")+")");
+  L.push("• "+s.c+" animais em "+s.n+(s.n>1?" lotes":" lote"));
+  if(s.rk!=null)L.push("• Média: *R$ "+f2(s.rk)+"/kg* ("+s.nv+(s.nv>1?" lotes vendidos":" lote vendido")+")");
+  L.push("• Peso médio: "+(s.c?kg(s.m):"–")+" kg");
+  if(s.rc!=null)L.push("• Média por cabeça: "+brl0(s.rc));
+  return L.join("\n");
+}
+function copiar(t){
+  function ok(){toast("Resumo copiado. É só colar no WhatsApp.");}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,function(){prompt("Copie o resumo:",t);});
+  else prompt("Copie o resumo:",t);
+}
+
+/* ---------- nuvem: repositório privado do ADM (mesma senha do Lotes · ADM) ---------- */
+var DONO="Leiloingaleiloes",PUB="LOTES",ARQ_R="racas.json";
+var GH={token:"",repo:"ADM"},SHA_R=null;
+try{var gx=JSON.parse(localStorage.getItem("leiloinga-adm-gh")||"null");if(gx&&gx.token){GH.token=gx.token;GH.repo=gx.repo||"ADM";}}catch(e){}
+function api(path,opt){opt=opt||{};var h={"Accept":"application/vnd.github+json","Authorization":"Bearer "+GH.token,"X-GitHub-Api-Version":"2022-11-28"};
+  if(opt.headers)for(var k in opt.headers)h[k]=opt.headers[k];
+  return fetch("https://api.github.com"+path,{method:opt.method||"GET",headers:h,body:opt.body,cache:"no-store"});}
+function caminho(p){return "/repos/"+DONO+"/"+GH.repo+"/contents/"+p.split("/").map(encodeURIComponent).join("/");}
+function b64enc(str){var b=new TextEncoder().encode(str),s="";for(var i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s);}
+function b64dec(b){var s=atob(String(b).replace(/\s/g,"")),u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return new TextDecoder().decode(u);}
+function estadoNuvem(t,on){$("nuvemTxt").textContent=t;$("nuvem").classList.toggle("on",!!on);}
+async function puxaRacas(){
+  if(!GH.token){estadoNuvem("Só neste aparelho · Conectar",false);return;}
+  try{
+    var r=await api(caminho(ARQ_R));
+    if(r.status===404){SHA_R=null;estadoNuvem("Conectado",true);if(Object.keys(RACAS).length)empurraRacas();return;}
+    if(!r.ok)throw new Error(r.status);
+    var j=await r.json();SHA_R=j.sha;
+    var nuv={};try{nuv=JSON.parse(b64dec(j.content)).racas||{};}catch(e){}
+    var mudou=false;Object.keys(RACAS).forEach(function(k){if(!(k in nuv)){nuv[k]=RACAS[k];mudou=true;}});
+    RACAS=nuv;try{localStorage.setItem(KR,JSON.stringify(RACAS));}catch(e){}
+    estadoNuvem("Conectado",true);
+    if(mudou)empurraRacas();
+    if(R)render();
+  }catch(e){estadoNuvem(e&&/40[13]/.test(e.message)?"Conectar de novo":"Sem internet",false);}
+}
+var tEmp=null;
+function guardaRacas(){try{localStorage.setItem(KR,JSON.stringify(RACAS));}catch(e){}if(GH.token){clearTimeout(tEmp);tEmp=setTimeout(empurraRacas,800);}}
+async function empurraRacas(){
+  try{
+    var body={message:"Relatório: brancos e cruzados",content:b64enc(JSON.stringify({racas:RACAS},null,1)+"\n")};if(SHA_R)body.sha=SHA_R;
+    var r=await api(caminho(ARQ_R),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    if(r.status===409||r.status===422){SHA_R=null;var a=await api(caminho(ARQ_R));if(a.ok){SHA_R=(await a.json()).sha;return empurraRacas();}}
+    if(!r.ok)throw new Error(r.status);
+    SHA_R=(await r.json()).content.sha;estadoNuvem("Conectado",true);
+  }catch(e){estadoNuvem("Não salvou na nuvem · tente de novo",false);}
+}
+async function decifra(senha,c){
+  function d64(s){var r=atob(s),u=new Uint8Array(r.length);for(var i=0;i<r.length;i++)u[i]=r.charCodeAt(i);return u;}
+  var base=await crypto.subtle.importKey("raw",new TextEncoder().encode(senha),"PBKDF2",false,["deriveKey"]);
+  var k=await crypto.subtle.deriveKey({name:"PBKDF2",salt:d64(c.sal),iterations:c.iter||600000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:d64(c.iv)},k,d64(c.dados))));
+}
+$("nuvem").addEventListener("click",function(){if(GH.token){puxaRacas();if(R)puxarBoleta(false);return;}$("modal").hidden=false;$("mMsg").textContent="";$("mSenha").value="";setTimeout(function(){$("mSenha").focus();},50);});
+$("mX").addEventListener("click",function(){$("modal").hidden=true;});
+$("mSenha").addEventListener("keydown",function(e){if(e.key==="Enter")$("mOk").click();});
+$("mOk").addEventListener("click",async function(){
+  var s=$("mSenha").value,m=$("mMsg");if(!s)return;m.className="msg";m.textContent="Conferindo a senha…";
+  try{
+    var r=await fetch("https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/adm-chave.json?t="+Date.now(),{cache:"no-store"});
+    if(!r.ok)throw new Error("A senha do ADM ainda não foi criada (crie no Lotes · ADM, no botão da nuvem).");
+    var c=await r.json(),o;try{o=await decifra(s,c);}catch(e){throw new Error("Senha errada.");}
+    GH.token=o.token;GH.repo=o.repo||"ADM";
+    try{localStorage.setItem("leiloinga-adm-gh",JSON.stringify({token:GH.token,repo:GH.repo}));}catch(e){}
+    $("modal").hidden=true;toast("Aparelho conectado.");puxaRacas();listaBolNuvem();if(R)puxarBoleta(false);
+  }catch(e){m.className="msg err";m.textContent=e.message||"Não deu para conectar.";}
+});
+
+
+/* ---------- leilões da Boleta (sem PDF) ---------- */
+var BOLN={};
+function bolLocais(){try{var b=JSON.parse(localStorage.getItem("leiloinga-boleta-v1")||"null");return b&&b.sess?b.sess:{};}catch(e){return {};}}
+function nomeId(id){var m=/^(\d{4})-(\d{2})-(\d{2})-(.*)$/.exec(id)||[];return String(m[4]||id).replace(/-[a-z0-9]{4}$/,"").replace(/-/g," ").toUpperCase()+(m[1]?" · "+m[3]+"/"+m[2]+"/"+m[1]:"");}
+function dataBrIso(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||"");return m?m[3]+"/"+m[2]+"/"+m[1]:"";}
+function encheBol(){
+  var loc=bolLocais(),ids=Object.keys(loc).sort(function(a,b){return (loc[b].data||"").localeCompare(loc[a].data||"");});
+  var nv=Object.keys(BOLN).filter(function(i){return !loc[i];}).sort().reverse();
+  var html='<option value="">'+(ids.length||nv.length?"Escolha o leilão":"Nenhum leilão na Boleta ainda")+'</option>'+ids.map(function(i){var x=loc[i];return '<option value="l:'+i.replace(/"/g,"")+'">'+(dataBrIso(x.data)?dataBrIso(x.data)+" · ":"")+String(x.nome||"Leilão").replace(/</g,"")+'</option>';}).join("")+
+    (nv.length?'<optgroup label="Salvos na nuvem">'+nv.map(function(i){return '<option value="n:'+i.replace(/"/g,"")+'">☁ '+nomeId(i)+'</option>';}).join("")+'</optgroup>':"");
+  ["bolSel","bolSel2"].forEach(function(k){var e=$(k);if(e)e.innerHTML=html;});
+}
+async function listaBolNuvem(){if(!GH.token)return;try{var r=await api(caminho("boletas"));if(!r.ok)return;(await r.json()).forEach(function(f){if(/\.json$/.test(f.name))BOLN[f.name.replace(/\.json$/,"")]=f.path;});encheBol();}catch(e){}}
+function abrirDaBoleta(x,origem){
+  if(!x||!Array.isArray(x.L)||!x.L.length){toast("Esse leilão não tem lotes na Boleta.");return;}
+  var id="boleta|"+x.id,antigo=DB.rel[id];
+  R={id:id,leilao:up(x.nome||"Leilão"),data:dataBrIso(x.data),totais:null,
+     lotes:x.L.map(function(y){return {ord:y.o||null,lote:+y.l,qtde:+y.q||null,sexo:(y.s||"").toUpperCase().charAt(0),idade:up(y.i),raca:up(y.r),peso:+y.p||null};}),
+     naoLidos:0,arquivo:"da Boleta",sel:antigo?antigo.sel:selTudo(),la:{},st:{},fonte:null,em:new Date().toISOString(),
+     fora:antigo&&antigo.fora||{},cat:antigo&&antigo.cat||{},fxm:antigo&&antigo.fxm||{}};
+  DB.rel[id]=R;DB.atual=id;salvaDB();mostrar();aplicarBoleta(x,origem);
+  toast(R.lotes.length+" lotes do leilão "+(x.nome||"")+".");
+}
+async function escolheBol(v){
+  if(!v)return;
+  if(v.indexOf("l:")===0){abrirDaBoleta(bolLocais()[v.slice(2)],"Boleta deste aparelho");}
+  else if(v.indexOf("n:")===0){var id=v.slice(2);toast("Buscando na nuvem…");try{var a=await api(caminho(BOLN[id]));var j=await a.json();abrirDaBoleta(JSON.parse(b64dec(j.content)),"GitHub");}catch(e){toast("Não consegui abrir da nuvem.");}}
+  encheBol();
+}
+["bolSel","bolSel2"].forEach(function(k){var e=$(k);if(e)e.addEventListener("change",function(){escolheBol(this.value);});});
+encheBol();listaBolNuvem();
+
+/* ---------- início ---------- */
+if(DB.atual&&DB.rel[DB.atual])R=DB.rel[DB.atual];
+mostrar();
+puxaRacas();
+if(R)puxarBoleta(true);
+window.__rel={abrirArquivo:abrirArquivo,faixaDe:faixaDe,grupoDe:grupoDe,aplicarBoleta:aplicarBoleta,estado:function(){return R;}};
+</script>
+</body>
+</html>
