@@ -86,6 +86,60 @@ li button{border:1px solid var(--line);background:var(--bg);border-radius:8px;pa
 .mod .aviso{background:var(--rs);color:var(--r);border-radius:10px;padding:8px 10px;font-size:.85rem;font-weight:700}
 .vazio{text-align:center;color:var(--mut);padding:30px}
 .limpa{display:block;margin:10px auto 20px;border:0;background:none;color:var(--mut);text-decoration:underline}
+/* ---- 5 abas, doação, relatório pós-leilão (computador) e comissão ---- */
+.tabs{grid-template-columns:repeat(5,1fr)}.tabs button{font-size:.88rem;padding:14px 2px}
+:root{--d:#a87400;--ds:#fbefc9}
+@media (prefers-color-scheme:dark){:root{--d:#f2c94c;--ds:#3a3016}}
+.doab{display:block;width:100%;margin-top:8px;min-height:46px;border-radius:10px;border:2px dashed var(--d);background:transparent;color:var(--d);font-weight:800;font-size:1rem}
+.doab[aria-pressed=true]{background:var(--d);border-style:solid;color:#fff}
+.tg{display:inline-block;font-size:.7rem;font-weight:800;padding:1px 8px;border-radius:99px;background:var(--ds);color:var(--d);vertical-align:middle;margin-left:4px}
+.rel,.cmw{padding:4px 16px 24px}.cmw{max-width:1100px;margin:0 auto}
+.relh{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px;margin:8px 0 12px}
+.relh h2{margin:0;font-size:1.35rem}.relh p{margin:2px 0 0;color:var(--mut);font-size:.88rem}
+.relb{display:flex;gap:6px;flex-wrap:wrap}.relb .bt{min-height:40px}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+.kp>div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:.74rem;color:var(--mut);font-weight:700}
+.kp b{display:block;font-size:1.2rem;color:var(--fg);font-variant-numeric:tabular-nums;margin-top:2px;white-space:nowrap}
+.kp small{display:block;font-weight:500;font-size:.72rem;margin-top:1px}
+.kp .eu{border:2px solid var(--v)}.kp .eu b{color:var(--v)}.kp .neg b{color:var(--r)}
+.aviso2{margin:0 0 10px;padding:9px 12px;border-radius:10px;background:var(--ds);color:var(--d);font-weight:700;font-size:.9rem;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.aviso2 button{border:0;background:var(--d);color:#fff;border-radius:8px;padding:7px 12px;font-weight:800}
+.flt{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+.flt button{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:6px 12px;font-weight:700;font-size:.85rem}
+.flt button[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.flt input{margin-left:auto;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);min-width:220px}
+.tw{overflow:auto;max-height:calc(100vh - 150px);background:var(--card);border:1px solid var(--line);border-radius:12px}
+table.rt{border-collapse:separate;border-spacing:0;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+.rt th{position:sticky;top:0;background:var(--card);z-index:2;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);padding:9px 8px;border-bottom:2px solid var(--line);white-space:nowrap}
+.rt td{padding:4px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.rt .n{text-align:right}.rt th.n{text-align:right}.rt .c{text-align:center}
+.rt tbody tr:hover td{background:var(--bg)}
+.rt tr.V td:first-child{box-shadow:inset 4px 0 var(--v)}.rt tr.R td:first-child{box-shadow:inset 4px 0 var(--r)}.rt tr.D td:first-child{box-shadow:inset 4px 0 var(--d)}
+.rt tr.R td{color:var(--mut)}.rt tr.D td{background:var(--ds)}
+.rt b.lt{font-size:1rem}
+.rt select,.rt input.la{padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-size:.86rem}
+.rt input.la{width:84px;text-align:right}.rt input[type=checkbox]{width:18px;height:18px;accent-color:var(--d)}
+.rt tfoot td{position:sticky;bottom:0;background:var(--card);font-weight:800;border-top:2px solid var(--line);border-bottom:0;padding:9px 8px;z-index:1}
+.cmg{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;align-items:start}
+.cmc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.cmc h3{margin:0 0 4px;font-size:1.02rem}.cmc>p{margin:0 0 6px;color:var(--mut);font-size:.84rem}
+.cmc label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin:10px 0 3px}
+.cmc input,.cmc select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:1rem}
+.pct{position:relative;display:block}.pct input{padding-right:28px}.pct::after{content:"%";position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--mut);font-weight:700}
+.dois{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sv{margin-top:8px;font-size:.82rem;font-weight:700;color:var(--v)}.sv.no{color:var(--d)}
+.cad>div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.cad>div span{color:var(--mut)}.cad b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.cad .menos b{color:var(--r)}.cad .sub{font-weight:800}.cad .sub span{color:var(--fg)}.cad .eu b{color:var(--v);font-size:1.2rem}.cad .eu span{color:var(--fg);font-weight:800}
+.cid{width:100%;border-collapse:collapse;font-size:.88rem}.cid td,.cid th{padding:6px 4px;white-space:nowrap;border-bottom:1px solid var(--line);text-align:left}.cid th{font-size:.7rem;color:var(--mut);text-transform:uppercase}
+.cid button{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:4px 8px;font-size:.78rem}
+@media(min-width:900px){
+  body.cmlarg main{max-width:1100px!important}
+  body:not(.largo) :is(.sel,.bts,#hero,#extra,.tot,main,#nuvemSt){max-width:680px;margin-left:auto;margin-right:auto}
+  body:not(.largo) #msg{margin-left:max(12px,calc(50% - 328px));margin-right:max(12px,calc(50% - 328px))}
+  body.largo main{max-width:1560px;margin:0 auto}
+  .tabs{left:50%;right:auto;transform:translateX(-50%);width:min(680px,100%);border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0}
+}
 </style></head><body>
 <div class="top"><a href="./">◀ Painel</a><b>CONFERÊNCIA BOLETA</b><span id="pos"></span></div>
 <div id="nuvemSt" style="text-align:center;font-size:.75rem;color:var(--mut);padding:4px 0 0"></div>
@@ -97,7 +151,7 @@ li button{border:1px solid var(--line);background:var(--bg);border-radius:8px;pa
 <div id="extra"></div>
 <div class="tot"><div class="tv">Vendidos<b id="nv">0</b><span id="cv"></span></div><div class="tr">Retorno<b id="nr">0</b><span id="cr"></span></div><div>Faltam<b id="nf">0</b><span id="cf"></span></div></div>
 <main id="main"></main>
-<nav class="tabs"><button data-t="pista" aria-pressed="true">Pista</button><button data-t="V" aria-pressed="false">Vendidos</button><button data-t="R" aria-pressed="false">Retorno</button></nav>
+<nav class="tabs"><button data-t="pista" aria-pressed="true">Pista</button><button data-t="V" aria-pressed="false">Vendidos</button><button data-t="R" aria-pressed="false">Retorno</button><button data-t="rel" aria-pressed="false">Relatório</button><button data-t="com" aria-pressed="false">Comissão</button></nav>
 <input type="file" id="arq" accept=".json,.txt,.csv,application/json,text/plain" hidden>
 <script src="vendor/jspdf/jspdf.umd.min.js"></script>
 <script src="vendor/jspdf/jspdf.plugin.autotable.min.js"></script>
@@ -105,7 +159,12 @@ li button{border:1px solid var(--line);background:var(--bg);border-radius:8px;pa
 /* Conferência Boleta: marca na pista vendido/retorno, lance e corretor de cada lote.
    Cada leilão fica salvo neste aparelho; "Salvar no GitHub" grava boletas/<id>.json e boletas/<id>.pdf
    no repositório PRIVADO do ADM (o mesmo token do Lotes · ADM). Os valores nunca vão para repositório público. */
-var DONO="Leiloingaleiloes",PUB="LOTES",QUEM_PADRAO=["Piquiri","Carlos","Cezeta"],COMISSAO=0.0015;
+var DONO="Leiloingaleiloes",PUB="LOTES",QUEM_PADRAO=["Piquiri","Carlos","Cezeta"];
+/* comissão: % do comprador + % do vendedor da praça (salvo por cidade); o leiloeiro sai do bruto e é
+   descontado da comissão da leiloeira; do líquido, 10% é do Piquiri e, do que sobra, 7% é a minha. Doação não gera comissão. */
+var LEILOEIROS=[{n:"Max Teddy",p:0.5},{n:"Tadeu",p:0.4}],PIQ_PADRAO=10,EU_PADRAO=7;
+var KC="leiloinga-comissoes-v1",CM={};try{CM=JSON.parse(localStorage.getItem(KC)||"{}")||{}}catch(e){CM={}}
+var RF={f:"todos",q:""};
 var GH={token:"",repo:"ADM"};
 try{var gx=JSON.parse(localStorage.getItem("leiloinga-adm-gh")||"null");if(gx&&gx.token){GH.token=gx.token;GH.repo=gx.repo||"ADM";}}catch(e){}
 var KB="leiloinga-boleta-v1",DB={atual:null,sess:{}};
@@ -267,17 +326,153 @@ function contas(){
   return {V:V,R:R,g:g,cabT:cabT,porSexo:porSexo,porRaca:porRaca,porQuem:porQuem,faixa:faixa,melhores:comKg.slice(0,5),piores:comKg.slice(-5),ret:ret,falta:L.length-V.length-R.length};
 }
 
+
+/* ---------- comissão por cidade ---------- */
+function pc(n){return (n==null?0:n).toLocaleString("pt-BR",{maximumFractionDigits:3})+"%"}
+function salvaCM(){try{localStorage.setItem(KC,JSON.stringify(CM))}catch(e){}}
+function cidadeDe(s){if(s.cidade)return s.cidade.replace(/-[A-Z]{2}$/,"");var m=/\s[–-]\s*([^–-]+)$/.exec(s.nome||"");return m?m[1].trim():""}
+function com(){if(!S)return null;if(!S.doa)S.doa={};
+  if(!S.com){var c=cidadeDe(S),sv=CM[slug(c)]||null;
+    S.com={cidade:c,comp:sv?sv.comp:null,vend:sv?sv.vend:null,leil:sv&&sv.leil?sv.leil:LEILOEIROS[0].n,leilP:sv&&sv.leilP!=null?sv.leilP:LEILOEIROS[0].p,piq:PIQ_PADRAO,eu:EU_PADRAO,daCidade:!!sv}}
+  return S.com}
+function calc(){var c=com(),o={bruto:0,doa:0,nDoa:0,cab:0};
+  L.forEach(function(x){if(S.st[x.l]!=="V")return;var v=(S.la[x.l]||0)*3*x.q;o.bruto+=v;o.cab+=x.q;if(S.doa[x.l]){o.doa+=v;o.nDoa++}});
+  o.base=o.bruto-o.doa;o.pc=(c.comp||0)/100;o.pv=(c.vend||0)/100;o.cComp=o.base*o.pc;o.cVend=o.base*o.pv;o.cTot=o.cComp+o.cVend;
+  o.leil=o.base*(c.leilP||0)/100;o.liq=o.cTot-o.leil;o.piq=o.liq*(c.piq||0)/100;o.sobra=o.liq-o.piq;o.eu=o.sobra*(c.eu||0)/100;
+  o.efet=o.bruto?o.eu/o.bruto*100:0;o.semTaxa=c.comp==null&&c.vend==null;return o}
+/* linhas da conta, na ordem: [item, base, valor, classe] */
+function cascata(K,C){return [
+  ["Faturamento bruto","",brl(K.bruto),""],
+  ["Doações (sem comissão)",K.nDoa+" lote(s)",K.nDoa?"- "+brl(K.doa):brl(0),"menos"],
+  ["Base da comissão","",brl(K.base),"sub"],
+  ["Comissão do comprador",pc(C.comp),brl(K.cComp),""],
+  ["Comissão do vendedor",pc(C.vend),brl(K.cVend),""],
+  ["Comissão da leiloeira",pc((C.comp||0)+(C.vend||0)),brl(K.cTot),"sub"],
+  ["Leiloeiro · "+(C.leil||"—"),pc(C.leilP)+" da base","- "+brl(K.leil),"menos"],
+  ["Líquido da leiloeira","",brl(K.liq),"sub"],
+  ["Piquiri",pc(C.piq)+" do líquido","- "+brl(K.piq),"menos"],
+  ["Sobra","",brl(K.sobra),"sub"],
+  ["Minha comissão",pc(C.eu)+" da sobra",brl(K.eu),"eu"]]}
+function guardaCidade(){var c=S.com;if(!c.cidade||(c.comp==null&&c.vend==null))return;
+  CM[slug(c.cidade)]={cidade:c.cidade,comp:c.comp,vend:c.vend,leil:c.leil,leilP:c.leilP,at:new Date().toISOString(),leilao:titulo(S)};salvaCM();nuvemCM()}
+var NCM={t:null};
+function nuvemCM(){if(!GH.token)return;clearTimeout(NCM.t);NCM.t=setTimeout(async function(){try{await gravar("comissoes.json",b64enc(JSON.stringify(CM,null,1)+"\n"),"Comissões por cidade")}catch(e){}},2000)}
+async function puxaCM(){if(!GH.token)return;try{var j=await ler("comissoes.json");if(!j)return;var r=JSON.parse(b64dec(j.content)),mud=false;
+  Object.keys(r).forEach(function(k){if(!CM[k]||(r[k].at||"")>(CM[k].at||"")){CM[k]=r[k];mud=true}});if(mud){salvaCM();if(tab==="com"&&S&&document.activeElement.tagName!=="INPUT")render()}}catch(e){}}
+
+function comissao(m){$("pos").textContent="";var c=com(),K=calc(),cs=Object.keys(CM).map(function(k){return CM[k]}).sort(function(a,b){return a.cidade.localeCompare(b.cidade)});
+  var opts=LEILOEIROS.map(function(l){return '<option value="'+esc(l.n)+'"'+(c.leil===l.n?" selected":"")+'>'+esc(l.n)+' · '+pc(l.p)+'</option>'}).join("")+'<option value="Outro"'+(LEILOEIROS.some(function(l){return l.n===c.leil})?"":" selected")+'>Outro</option>';
+  var nv=function(v){return v==null?"":String(v).replace(".",",")};
+  m.innerHTML='<div class="cmw"><div class="relh"><div><h2>Comissão</h2><p>'+esc(titulo(S))+'</p></div></div><div class="cmg">'+
+   '<div class="cmc"><h3>Praça</h3><p>A comissão fica salva para a cidade. No próximo leilão na mesma cidade ela já vem preenchida.</p>'+
+    '<label for="cCid">Cidade</label><input id="cCid" value="'+esc(c.cidade)+'" placeholder="Ex.: Palmital" list="cidL"><datalist id="cidL">'+cs.map(function(x){return '<option value="'+esc(x.cidade)+'">'}).join("")+'</datalist>'+
+    '<div class="dois"><div><label for="cComp">Comprador</label><span class="pct"><input id="cComp" inputmode="decimal" value="'+nv(c.comp)+'" placeholder="0"></span></div>'+
+    '<div><label for="cVend">Vendedor</label><span class="pct"><input id="cVend" inputmode="decimal" value="'+nv(c.vend)+'" placeholder="0"></span></div></div>'+
+    '<div class="sv'+(c.comp==null&&c.vend==null?' no':'')+'" id="cSv">'+(c.comp==null&&c.vend==null?(c.cidade?'Primeiro leilão em '+esc(c.cidade)+': coloque a comissão desta praça.':'Coloque a cidade e a comissão.'):'✓ Salvo para '+esc(c.cidade||"esta praça"))+'</div></div>'+
+   '<div class="cmc"><h3>Leiloeiro e divisão</h3><p>O leiloeiro recebe sobre a base (bruto sem as doações) e sai da comissão da leiloeira.</p>'+
+    '<label for="cLeil">Leiloeiro</label><select id="cLeil">'+opts+'</select>'+
+    '<div class="dois"><div><label for="cLeilP">% do leiloeiro</label><span class="pct"><input id="cLeilP" inputmode="decimal" value="'+nv(c.leilP)+'"></span></div><div></div></div>'+
+    '<div class="dois"><div><label for="cPiq">Piquiri (do líquido)</label><span class="pct"><input id="cPiq" inputmode="decimal" value="'+nv(c.piq)+'"></span></div>'+
+    '<div><label for="cEu">Minha (da sobra)</label><span class="pct"><input id="cEu" inputmode="decimal" value="'+nv(c.eu)+'"></span></div></div></div>'+
+   '<div class="cmc"><h3>Conta deste leilão</h3><p id="cEf"></p><div class="cad" id="cCad"></div></div>'+
+   '<div class="cmc"><h3>Comissões salvas por cidade</h3><div id="cLst" style="overflow-x:auto">'+(cs.length?'<table class="cid"><thead><tr><th>Cidade</th><th>Comprador</th><th>Vendedor</th><th>Leiloeiro</th><th></th></tr></thead><tbody>'+cs.map(function(x){return '<tr><td><b>'+esc(x.cidade)+'</b></td><td>'+pc(x.comp)+'</td><td>'+pc(x.vend)+'</td><td>'+esc(x.leil||"")+'</td><td><button type="button" data-usa="'+esc(slug(x.cidade))+'">Usar</button></td></tr>'}).join("")+'</tbody></table>':'<p style="color:var(--mut);font-size:.88rem;margin:6px 0 0">Nenhuma ainda. A primeira fica salva quando você colocar a comissão de uma cidade.</p>')+'</div></div>'+
+  '</div></div>';
+  function conta(){var K=calc();$("cCad").innerHTML=cascata(K,S.com).map(function(r){return '<div class="'+r[3]+'"><span>'+esc(r[0])+(r[1]?' <small>('+esc(r[1])+')</small>':'')+'</span><b>'+r[2]+'</b></div>'}).join("");
+    $("cEf").textContent=K.semTaxa?"Falta a comissão da praça.":(K.bruto?"Minha comissão = "+pc(Math.round(K.efet*1000)/1000)+" do faturamento bruto.":"Ainda sem lotes vendidos com lance.")}
+  conta();
+  function listaCid(){var cs=Object.keys(CM).map(function(k){return CM[k]}).sort(function(a,b){return a.cidade.localeCompare(b.cidade)});if(!cs.length)return;
+    $("cLst").innerHTML='<table class="cid"><thead><tr><th>Cidade</th><th>Comprador</th><th>Vendedor</th><th>Leiloeiro</th><th></th></tr></thead><tbody>'+cs.map(function(x){return '<tr><td><b>'+esc(x.cidade)+'</b></td><td>'+pc(x.comp)+'</td><td>'+pc(x.vend)+'</td><td>'+esc(x.leil||"")+'</td><td><button type="button" data-usa="'+esc(slug(x.cidade))+'">Usar</button></td></tr>'}).join("")+'</tbody></table>'}
+  m.addEventListener("click",function(e){var b=e.target.closest("[data-usa]");if(!b)return;var sv=CM[b.dataset.usa];if(!sv)return;S.com.cidade=sv.cidade;S.com.comp=sv.comp;S.com.vend=sv.vend;if(sv.leil){S.com.leil=sv.leil;S.com.leilP=sv.leilP}salva();render();msg("Usando a comissão de "+sv.cidade+".","bom")});
+  function num(id){return lnum($(id).value)}
+  function muda(){var c=S.com;c.comp=num("cComp");c.vend=num("cVend");c.leilP=num("cLeilP");c.piq=num("cPiq");c.eu=num("cEu");
+    guardaCidade();salva();conta();totais();listaCid();var sv=$("cSv");if(c.comp==null&&c.vend==null){sv.className="sv no";sv.textContent="Coloque a comissão desta praça."}else{sv.className="sv";sv.textContent="✓ Salvo para "+(c.cidade||"esta praça")+" · vale para o próximo leilão lá"}}
+  ["cComp","cVend","cLeilP","cPiq","cEu"].forEach(function(id){$(id).oninput=muda});
+  $("cLeil").onchange=function(){var l=LEILOEIROS.filter(function(x){return x.n===$("cLeil").value})[0];S.com.leil=$("cLeil").value;if(l){S.com.leilP=l.p;$("cLeilP").value=nv(l.p)}muda()};
+  $("cCid").onchange=function(){var nome=$("cCid").value.trim(),sv=CM[slug(nome)];S.com.cidade=nome;
+    if(sv){S.com.comp=sv.comp;S.com.vend=sv.vend;if(sv.leil){S.com.leil=sv.leil;S.com.leilP=sv.leilP}salva();render();msg("Comissão de "+sv.cidade+" carregada.","bom")}else{guardaCidade();salva();render()}};
+}
+
+/* ---------- relatório pós-leilão (linhas horizontais, para o computador) ---------- */
+function situ(x){var s=S.st[x.l];return s==="V"?(S.doa[x.l]?"D":"V"):s==="R"?"R":"F"}
+function relatorio(m){$("pos").textContent="";var c=com(),K=calc(),pT=K.pc+K.pv,ct=contas();
+  var st0=RF.sc;
+  var cont={todos:L.length,V:0,D:0,R:0,F:0};L.forEach(function(x){cont[situ(x)]++});
+  var q=RF.q.trim().toLowerCase();
+  var ls=L.filter(function(x){var s=situ(x);if(RF.f==="V"&&s!=="V"&&s!=="D")return false;if(RF.f!=="todos"&&RF.f!=="V"&&s!==RF.f)return false;
+    if(q&&(z(x.l)+" "+x.l+" "+(x.v||"")+" "+(x.r||"")+" "+(S.qm[x.l]||"")).toLowerCase().indexOf(q)<0)return false;return true});
+  var tq=0,tv=0,tc=0,tcab=0;
+  var linhas=ls.map(function(x){var v=S.la[x.l]||0,s=situ(x),vend=s==="V"||s==="D",vl=vend?v*3*x.q:0,cm=s==="V"?vl*pT:0,i=kgInfo(v,x);tq+=x.q;if(vend){tv+=vl;tcab+=x.q}tc+=cm;
+    return '<tr class="'+s+'"><td class="n">'+x.o+'º</td><td><b class="lt">'+z(x.l)+'</b></td><td class="n">'+x.q+'</td><td>'+x.s+'</td><td>'+esc(cap(x.r))+'</td><td>'+esc(x.i)+'</td><td class="n">'+(x.p?x.p+' kg':'')+'</td><td>'+esc(cap(x.v))+'</td>'+
+     '<td><select data-st="'+x.l+'" aria-label="Situação do lote '+z(x.l)+'"><option value=""'+(s==="F"?" selected":"")+'>—</option><option value="V"'+(s==="V"||s==="D"?" selected":"")+'>Vendido</option><option value="R"'+(s==="R"?" selected":"")+'>Retorno</option></select></td>'+
+     '<td class="c"><input type="checkbox" data-doa="'+x.l+'"'+(s==="D"?" checked":"")+(vend?"":" disabled")+' aria-label="Lote '+z(x.l)+' é doação"></td>'+
+     '<td class="n"><input class="la" data-la="'+x.l+'" inputmode="decimal" value="'+(v?f2(v):"")+'" placeholder="0,00" aria-label="Lance do lote '+z(x.l)+'"></td>'+
+     '<td class="n">'+(v?brl(v*3):'—')+'</td><td class="n"><b>'+(vend&&v?brl(vl):'—')+'</b></td><td class="n">'+(i?'<span class="kg '+i.c+'" style="margin:0;font-size:.8rem">'+f2(i.k)+'</span>':'—')+'</td>'+
+     '<td class="n">'+(s==="D"?'<span class="tg">doação</span>':s==="V"&&v?(K.semTaxa?'—':brl(cm)):'—')+'</td>'+
+     '<td><select data-qm="'+x.l+'" aria-label="Corretor do lote '+z(x.l)+'"><option value="">—</option>'+quem().map(function(n){return '<option'+(S.qm[x.l]===n?" selected":"")+'>'+esc(n)+'</option>'}).join("")+'</select></td></tr>'});
+  var F=[["todos","Todos"],["V","Vendidos"],["D","Doação"],["R","Retorno"],["F","Sem marcação"]];
+  m.innerHTML='<div class="rel"><div class="relh"><div><h2>Relatório pós-leilão</h2><p>'+esc(titulo(S))+(c.cidade?' · '+esc(c.cidade):'')+' · '+L.length+' lotes</p></div>'+
+   '<div class="relb"><button class="bt" id="rCopy" type="button">Copiar resumo</button><button class="bt" id="rCsv" type="button">Planilha (CSV)</button><button class="bt" id="rPdf" type="button">Exportar PDF</button><button class="bt pri" id="rGh" type="button">Salvar no GitHub</button></div></div>'+
+   (K.semTaxa?'<div class="aviso2"><span>Falta a comissão da praça'+(c.cidade?' de '+esc(c.cidade):'')+'. Sem ela, as colunas de comissão ficam vazias.</span><button type="button" id="rCom">Colocar comissão</button></div>':'')+
+   '<div class="kp">'+
+    '<div>Faturamento bruto<b>'+brl(K.bruto)+'</b><small>'+ct.V.length+' de '+L.length+' lotes · '+K.cab+' cab.</small></div>'+
+    '<div>Média<b>R$ '+f2(ct.g.mk)+'/kg</b><small>'+brl(ct.g.mc)+' por cabeça</small></div>'+
+    '<div>Doações<b>'+brl(K.doa)+'</b><small>'+K.nDoa+' lote(s) sem comissão</small></div>'+
+    '<div>Comissão leiloeira<b>'+(K.semTaxa?'—':brl(K.cTot))+'</b><small>'+pc(c.comp)+' comprador + '+pc(c.vend)+' vendedor</small></div>'+
+    '<div class="neg">Leiloeiro<b>'+(K.semTaxa?'—':'− '+brl(K.leil))+'</b><small>'+esc(c.leil||"")+' · '+pc(c.leilP)+'</small></div>'+
+    '<div>Líquido leiloeira<b>'+(K.semTaxa?'—':brl(K.liq))+'</b><small>Piquiri '+(K.semTaxa?'—':brl(K.piq))+'</small></div>'+
+    '<div class="eu">Minha comissão<b>'+(K.semTaxa?'—':brl(K.eu))+'</b><small>'+(K.semTaxa||!K.bruto?'':pc(Math.round(K.efet*1000)/1000)+' do bruto')+'</small></div>'+
+   '</div>'+
+   '<div class="flt">'+F.map(function(f){return '<button type="button" data-f="'+f[0]+'" aria-pressed="'+(RF.f===f[0])+'">'+f[1]+' · '+(f[0]==="V"?cont.V+cont.D:cont[f[0]])+'</button>'}).join("")+'<input id="rQ" type="search" placeholder="Buscar lote, vendedor, raça…" value="'+esc(RF.q)+'"></div>'+
+   '<div class="tw"><table class="rt"><thead><tr><th class="n">Ord.</th><th>Lote</th><th class="n">Qtde</th><th>Sexo</th><th>Raça</th><th>Idade</th><th class="n">Peso</th><th>Vendedor</th><th>Situação</th><th>Doação</th><th class="n">Lance</th><th class="n">Valor/cab.</th><th class="n">Valor do lote</th><th class="n">R$/kg</th><th class="n">Comissão</th><th>Corretor</th></tr></thead>'+
+   '<tbody>'+(linhas.join("")||'<tr><td colspan="16" style="text-align:center;color:var(--mut);padding:20px">Nenhum lote neste filtro.</td></tr>')+'</tbody>'+
+   '<tfoot><tr><td colspan="2">'+ls.length+' lotes</td><td class="n">'+tq+'</td><td colspan="9">'+tcab+' cab. vendidas</td><td class="n">'+brl(tv)+'</td><td></td><td class="n">'+(K.semTaxa?'—':brl(tc))+'</td><td></td></tr></tfoot></table></div></div>';
+  if(st0){var sc2=m.querySelector(".tw");sc2.scrollTop=st0[0];sc2.scrollLeft=st0[1];window.scrollTo(0,st0[2])}
+  var tw=m.querySelector(".tw");
+  tw.addEventListener("change",function(e){var t=e.target,l;
+    if(t.dataset.st){l=+t.dataset.st;if(t.value)S.st[l]=t.value;else delete S.st[l];if(t.value!=="V")delete S.doa[l]}
+    else if(t.dataset.doa){l=+t.dataset.doa;if(t.checked)S.doa[l]=true;else delete S.doa[l]}
+    else if(t.dataset.la){l=+t.dataset.la;var n=lnum(t.value);if(n==null)delete S.la[l];else S.la[l]=n}
+    else if(t.dataset.qm){l=+t.dataset.qm;if(t.value)S.qm[l]=t.value;else delete S.qm[l]}
+    else return;salva();totais();render()});
+  tw.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.dataset.la){e.preventDefault();var all=[].slice.call(tw.querySelectorAll("input.la")),i=all.indexOf(e.target),nx=all[i+(e.shiftKey?-1:1)];var id=nx?nx.dataset.la:null;e.target.blur();if(id){var n=tw.querySelector('input.la[data-la="'+id+'"]');if(n){n.focus();n.select()}}}});
+  m.querySelectorAll(".flt [data-f]").forEach(function(b){b.onclick=function(){RF.f=b.dataset.f;render()}});
+  var qi=$("rQ");qi.oninput=function(){RF.q=qi.value;render();var n=$("rQ");n.focus();n.setSelectionRange(n.value.length,n.value.length)};
+  if($("rCom"))$("rCom").onclick=function(){tab="com";marcaTab();render()};
+  $("rPdf").onclick=exportarPdf;$("rGh").onclick=function(){salvarGh(this)};
+  $("rCopy").onclick=function(){copiaTxt(resumoTxt(),"Resumo copiado. Cole no WhatsApp.")};
+  $("rCsv").onclick=baixaCsv;
+}
+function resumoTxt(){var c=com(),K=calc(),ct=contas(),t=[];
+  t.push("*Pós-leilão · "+titulo(S)+"*");
+  t.push("Faturamento bruto: *"+brl(K.bruto)+"*");
+  t.push("Vendidos: "+ct.V.length+" de "+L.length+" lotes · "+K.cab+" de "+ct.cabT+" cab.");
+  if(ct.g.mk)t.push("Média: R$ "+f2(ct.g.mk)+"/kg · "+brl(ct.g.mc)+"/cab.");
+  if(ct.R.length)t.push("Retorno: "+ct.R.length+" lotes · "+ct.ret.cab+" cab.");
+  if(K.nDoa)t.push("Doações: "+K.nDoa+" lote(s) · "+brl(K.doa)+" (sem comissão)");
+  if(!K.semTaxa){t.push("");t.push("Comissão leiloeira ("+pc(c.comp)+" + "+pc(c.vend)+"): "+brl(K.cTot));t.push("Leiloeiro "+c.leil+" ("+pc(c.leilP)+"): − "+brl(K.leil));t.push("Líquido leiloeira: *"+brl(K.liq)+"*")}
+  return t.join("\n")}
+function copiaTxt(t,ok){function fb(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");msg(ok,"bom")}catch(e){msg("Não consegui copiar.","err")}a.remove()}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){msg(ok,"bom")},fb);else fb();window.scrollTo(0,0)}
+function baixaCsv(){var K=calc(),pT=K.pc+K.pv,q=function(v){v=String(v==null?"":v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v},n2=function(n){return n?n.toFixed(2).replace(".",","):""};
+  var lin=[["Ordem","Lote","Qtde","Sexo","Raça","Idade","Peso","Vendedor","Situação","Lance","Valor/cab","Valor do lote","R$/kg","Comissão","Corretor"].join(";")];
+  L.forEach(function(x){var v=S.la[x.l]||0,s=situ(x),vend=s==="V"||s==="D",vl=vend?v*3*x.q:0,i=kgInfo(v,x);
+    lin.push([x.o,z(x.l),x.q,x.s,x.r,x.i,x.p,x.v,{V:"Vendido",D:"Doação",R:"Retorno",F:""}[s],n2(v),n2(v*3),n2(vl),i?n2(i.k):"",s==="V"?n2(vl*pT):"",S.qm[x.l]||""].map(q).join(";"))});
+  var blob=new Blob(["﻿"+lin.join("\r\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nomeArq()+".csv";document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000);msg("Planilha gerada: "+a.download,"bom")}
+
 /* ---------- PDF ---------- */
 function gerarPdf(){
   var J=window.jspdf.jsPDF,doc=new J({unit:"mm",format:"a4"}),c=contas(),W=210,y=16,VERDE=[13,92,35];
   function h(t){if(y>255){doc.addPage();y=16}doc.setFont("helvetica","bold");doc.setFontSize(12.5);doc.setTextColor(13,92,35);doc.text(t,14,y);y+=2}
   function p(t){doc.setFont("helvetica","normal");doc.setFontSize(9.5);doc.setTextColor(40);var ls=doc.splitTextToSize(t,W-28);doc.text(ls,14,y+4);y+=4+ls.length*4.2}
   function tb(head,body,opt){doc.autoTable(Object.assign({startY:y+2,head:[head],body:body,theme:"grid",margin:{left:14,right:14},styles:{fontSize:8.5,cellPadding:1.6},headStyles:{fillColor:VERDE,textColor:255},alternateRowStyles:{fillColor:[240,244,238]}},opt||{}));y=doc.lastAutoTable.finalY+7}
-  doc.setFillColor(13,92,35);doc.rect(0,0,W,24,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("Conferência Boleta",14,11);
+  doc.setFillColor(13,92,35);doc.rect(0,0,W,24,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("Conferência Boleta · Relatório pós-leilão",14,11);
   doc.setFontSize(10.5);doc.setFont("helvetica","normal");doc.text(titulo(S),14,18);doc.setFontSize(8);doc.text("Leiloingá Leilões · gerado em "+new Date().toLocaleString("pt-BR"),W-14,18,{align:"right"});y=32;
   h("Resumo");
-  p("O leilão faturou "+brl(c.g.fat)+" com "+c.V.length+" dos "+L.length+" lotes vendidos ("+c.g.cab+" de "+c.cabT+" cabeças"+(c.cabT?", "+Math.round(c.g.cab/c.cabT*100)+"%":"")+"). A comissão de 0,15% sobre o valor bruto é "+brl(c.g.fat*COMISSAO)+"."+(c.falta?" Atenção: "+c.falta+" lote(s) ainda sem marcação.":""));
-  tb(["Item","Valor"],[["Faturamento bruto",brl(c.g.fat)],["Comissão (0,15%)",brl(c.g.fat*COMISSAO)],["Lotes vendidos",c.V.length+" de "+L.length],["Cabeças vendidas",c.g.cab+" de "+c.cabT],["Média por cabeça",brl(c.g.mc)],["Média por kg","R$ "+f2(c.g.mk)+"/kg"],["Retornos",c.R.length+" lotes, "+c.ret.cab+" cabeças"]],{columnStyles:{1:{halign:"right"}},tableWidth:110});
+  var K=calc(),C=com();
+  p("O leilão faturou "+brl(c.g.fat)+" com "+c.V.length+" dos "+L.length+" lotes vendidos ("+c.g.cab+" de "+c.cabT+" cabeças"+(c.cabT?", "+Math.round(c.g.cab/c.cabT*100)+"%":"")+")."+(K.nDoa?" "+K.nDoa+" lote(s) de doação somam "+brl(K.doa)+" e não geram comissão.":"")+(K.semTaxa?" A comissão da praça não foi informada.":" A comissão da leiloeira ("+pc(C.comp)+" do comprador + "+pc(C.vend)+" do vendedor) é "+brl(K.cTot)+".")+(c.falta?" Atenção: "+c.falta+" lote(s) ainda sem marcação.":""));
+  tb(["Item","Valor"],[["Faturamento bruto",brl(c.g.fat)],["Lotes vendidos",c.V.length+" de "+L.length],["Cabeças vendidas",c.g.cab+" de "+c.cabT],["Média por cabeça",brl(c.g.mc)],["Média por kg","R$ "+f2(c.g.mk)+"/kg"],["Retornos",c.R.length+" lotes, "+c.ret.cab+" cabeças"]],{columnStyles:{1:{halign:"right"}},tableWidth:110});
+  if(!K.semTaxa){h("Comissão · "+(C.cidade||"praça"));
+    tb(["Item","Base","Valor"],cascata(K,C).map(function(r){return [r[0],r[1],r[2]]}),{columnStyles:{1:{halign:"right"},2:{halign:"right"}},tableWidth:150,didParseCell:function(d){if(d.section==="body"&&/Minha comissão|Líquido/.test(d.row.raw[0]))d.cell.styles.fontStyle="bold"}});}
   p("Valor de cada lote = lance × 3 × número de cabeças. R$/kg = (lance × 3) ÷ peso médio do lote.");
   y+=3;h("Machos, fêmeas e raças");
   function lg(n,o){return [n,o.lotes,o.cab,brl(o.fat),brl(o.mc),"R$ "+f2(o.mk)]}
@@ -294,9 +489,10 @@ function gerarPdf(){
     tb(["Lote","Cabeças","Raça","Último lance","Valor pelo lance","R$/kg","Vendedor"],c.R.map(function(x){var v=S.la[x.l]||0,i=kgInfo(v,x);return [z(x.l),x.q+" "+x.s,cap(x.r),v?fmt(v):"—",brl(v*3*x.q),i?f2(i.k):"—",cap(x.v)]}))}
   else p("Nenhum lote voltou.");
   doc.addPage("a4","landscape");y=14;h("Tabela completa dos lotes");
-  tb(["Ordem","Lote","Qtde","Sexo","Raça","Idade","Peso","Vendedor","Situação","Lance","Valor/cab.","Valor do lote","R$/kg","Corretor"],
-    L.map(function(x){var v=S.la[x.l]||0,s=S.st[x.l],i=kgInfo(v,x);return [x.o+"º",z(x.l),x.q,x.s,x.r,x.i,x.p+" kg",cap(x.v),s==="V"?"Vendido":s==="R"?"Retorno":"—",v?f2(v):"—",v?brl(v*3):"—",s==="V"&&v?brl(v*3*x.q):"—",i?f2(i.k):"—",S.qm[x.l]||""]}),
-    {styles:{fontSize:7.5,cellPadding:1.2},didParseCell:function(d){if(d.section==="body"&&d.column.index===8){if(d.cell.raw==="Retorno")d.cell.styles.textColor=[194,80,31];else if(d.cell.raw==="Vendido")d.cell.styles.textColor=VERDE}}});
+  var pT=K.pc+K.pv;
+  tb(["Ordem","Lote","Qtde","Sexo","Raça","Idade","Peso","Vendedor","Situação","Lance","Valor/cab.","Valor do lote","R$/kg","Comissão","Corretor"],
+    L.map(function(x){var v=S.la[x.l]||0,s=S.st[x.l],i=kgInfo(v,x),dz=s==="V"&&S.doa&&S.doa[x.l];return [x.o+"º",z(x.l),x.q,x.s,x.r,x.i,x.p+" kg",cap(x.v),dz?"Doação":s==="V"?"Vendido":s==="R"?"Retorno":"—",v?f2(v):"—",v?brl(v*3):"—",s==="V"&&v?brl(v*3*x.q):"—",i?f2(i.k):"—",s==="V"&&v?(dz?"doação":K.semTaxa?"—":brl(v*3*x.q*pT)):"—",S.qm[x.l]||""]}),
+    {styles:{fontSize:7.5,cellPadding:1.2},didParseCell:function(d){if(d.section==="body"&&d.column.index===8){if(d.cell.raw==="Retorno")d.cell.styles.textColor=[194,80,31];else if(d.cell.raw==="Vendido")d.cell.styles.textColor=VERDE;else if(d.cell.raw==="Doação")d.cell.styles.textColor=[168,116,0]}}});
   var n=doc.getNumberOfPages();for(var k=1;k<=n;k++){doc.setPage(k);doc.setFontSize(7.5);doc.setTextColor(120);var pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight();doc.text("Conferência Boleta · "+titulo(S)+" · página "+k+" de "+n,pw/2,ph-6,{align:"center"})}
   return doc;
 }
@@ -318,10 +514,10 @@ async function salvarGh(b){if(!S){msg("Escolha ou crie um leilão.","err");retur
 /* ---------- finalizar / cancelar (popups) ---------- */
 function fechaMod(){$("mod").innerHTML=""}
 function abreMod(html){$("mod").innerHTML='<div class="mod" id="modBg"><div class="cx" role="dialog" aria-modal="true">'+html+'</div></div>';$("modBg").onclick=function(e){if(e.target.id==="modBg")fechaMod()}}
-$("bFim").onclick=function(){if(!S)return;var c=contas();
+$("bFim").onclick=function(){if(!S)return;var c=contas(),K=calc();
   abreMod('<h3>Finalizar leilão</h3><p>'+esc(titulo(S))+'</p>'+
    (c.falta?'<div class="aviso">Ainda há '+c.falta+' lote(s) sem marcação. Eles saem como "—" no relatório.</div>':'')+
-   '<div class="rs"><div>Vendidos<b>'+c.V.length+' lotes · '+c.g.cab+' cab.</b></div><div>Retorno<b>'+c.R.length+' lotes · '+c.ret.cab+' cab.</b></div><div>Faturamento<b>'+brl(c.g.fat)+'</b></div><div>Comissão (0,15%)<b>'+brl(c.g.fat*COMISSAO)+'</b></div></div>'+
+   '<div class="rs"><div>Vendidos<b>'+c.V.length+' lotes · '+c.g.cab+' cab.</b></div><div>Retorno<b>'+c.R.length+' lotes · '+c.ret.cab+' cab.</b></div><div>Faturamento<b>'+brl(c.g.fat)+'</b></div><div>Comissão leiloeira<b>'+(K.semTaxa?'falta a %':brl(K.cTot))+'</b></div><div>Líquido leiloeira<b>'+(K.semTaxa?'—':brl(K.liq))+'</b></div><div>Minha comissão<b>'+(K.semTaxa?'—':brl(K.eu))+'</b></div></div>'+
    '<button class="mb" id="mPdf" type="button">Exportar PDF</button><button class="mb pri" id="mGh" type="button">Salvar no GitHub</button><div class="msg" id="mMsg"></div>'+
    '<button class="mb lev" id="mX" type="button">Voltar para a pista</button>');
   S.finalizado=new Date().toISOString();salva();
@@ -369,7 +565,7 @@ async function puxaNuvem(){
   if(!S||NV.pend||NV.enviando)return;
   try{var at=await ler(caminhoB(S.id));if(!at){if(S.alterado)agendaNuvem();else nvTxt("☁ Conectado","var(--v)");return}
     NV.sha[S.id]=at.sha;var r=JSON.parse(b64dec(at.content));
-    if((r.alterado||"")>(S.alterado||"")&&!NV.pend){var cur=S.cur;DB.sess[r.id]=r;S=r;L=r.L;if(tab==="pista"&&!pend)S.cur=r.cur;salvaLocal();montaSel();if(!document.activeElement||document.activeElement.id!=="lance")render()}
+    if((r.alterado||"")>(S.alterado||"")&&!NV.pend){var cur=S.cur;DB.sess[r.id]=r;S=r;L=r.L;if(tab==="pista"&&!pend)S.cur=r.cur;salvaLocal();montaSel();var ae=document.activeElement;if(!ae||(ae.id!=="lance"&&!(ae.closest&&ae.closest(".tw,.cmw"))))render()}
     else if((S.alterado||"")>(r.alterado||""))agendaNuvem();
     if(!NV.pend)nvTxt("☁ Salvo na nuvem · aparece nos outros aparelhos","var(--v)")}
   catch(e){nvTxt("Sem internet agora","var(--r)")}}
@@ -385,9 +581,10 @@ document.addEventListener("visibilitychange",function(){if(document.visibilitySt
 function proximo(de){for(var i=de;i<L.length;i++)if(!S.st[L[i].l])return i;for(i=0;i<L.length;i++)if(!S.st[L[i].l])return i;return -1}
 function totais(){var c={V:[0,0],R:[0,0],F:[0,0]};L.forEach(function(x){var k=(S&&S.st[x.l])||"F";c[k][0]++;c[k][1]+=x.q});
 ["V","R","F"].forEach(function(k){var id={V:"v",R:"r",F:"f"}[k];$("n"+id).textContent=c[k][0];$("c"+id).textContent=c[k][1]+" cab."})}
-function render(){heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
-  if(!S){m.innerHTML='<div class="vazio">Toque em <b>Começar a boleta</b> acima, ou escolha outro leilão na lista.</div>';$("pos").textContent="";return}
-  if(tab==="pista")pista(m);else lista(m,tab)}
+function render(){var tw0=document.querySelector(".tw");RF.sc=tw0&&tab==="rel"?[tw0.scrollTop,tw0.scrollLeft,window.scrollY]:null;heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
+  if(!S){document.body.classList.remove("largo");m.innerHTML='<div class="vazio">Toque em <b>Começar a boleta</b> acima, ou escolha outro leilão na lista.</div>';$("pos").textContent="";return}
+  document.body.classList.toggle("largo",tab==="rel"||tab==="com");
+  if(tab==="pista")pista(m);else if(tab==="rel")relatorio(m);else if(tab==="com")comissao(m);else lista(m,tab)}
 function pista(m){
   if(S.cur<0||S.cur>=L.length||S.st[L[S.cur].l]&&!pend)S.cur=proximo(Math.max(0,S.cur));
   if(S.cur<0){m.innerHTML='<div class="fim"><b>Todos os lotes marcados</b>Veja nas abas Vendidos e Retorno, ou exporte o PDF.</div>';$("pos").textContent="";return}
@@ -399,6 +596,7 @@ function pista(m){
    '<div class="bid"><label for="lance">Lance (R$)</label><input id="lance" inputmode="decimal" value="'+(v?fmt(v):"")+'" placeholder="0"><div class="x3">× 3 = <b id="res"></b><span id="kg"></span></div>'+(pend==="V"?'<div class="vlote">Valor do lote ('+x.q+' cab.)<b id="vl"></b></div>':"")+'</div>'+
    '<div class="inc"><button data-d="-10">−10</button><button data-d="-5">−5</button><button class="mais" data-d="5">+5</button><button class="mais" data-d="10">+10</button></div>'+
    '<div class="acao"><button class="bv" aria-pressed="'+(pend==="V")+'">VENDIDO</button><button class="br" aria-pressed="'+(pend==="R")+'">RETORNO</button></div>'+
+   (pend==="V"?'<button class="doab" id="doab" aria-pressed="'+!!(S.doa&&S.doa[x.l])+'">'+(S.doa&&S.doa[x.l]?'✓ DOAÇÃO · sem comissão':'Marcar como DOAÇÃO (sem comissão)')+'</button>':'')+
    '<div class="quem">'+quem().map(function(n){return '<button data-q="'+esc(n)+'" aria-pressed="'+(S.qm[x.l]===n)+'">'+esc(n)+'</button>'}).join("")+'</div>'+
    '<button class="ok"'+(pend?"":" disabled")+'>OK · próximo lote</button>'+
    '<div class="nav"><button id="ant">◀ lote anterior</button><button id="pula">pular ▶</button></div>';
@@ -411,7 +609,8 @@ function pista(m){
   d.querySelectorAll(".quem button").forEach(function(b){b.onclick=function(){if(S.qm[x.l]===b.dataset.q)delete S.qm[x.l];else S.qm[x.l]=b.dataset.q;salva();d.querySelectorAll(".quem button").forEach(function(o){o.setAttribute("aria-pressed",S.qm[x.l]===o.dataset.q)})}});
   d.querySelector(".bv").onclick=function(){pend=pend==="V"?null:"V";render()};
   d.querySelector(".br").onclick=function(){pend=pend==="R"?null:"R";render()};
-  d.querySelector(".ok").onclick=function(){if(!pend)return;S.st[x.l]=pend;pend=null;S.cur=proximo(S.cur+1);salva();render();window.scrollTo(0,0)};
+  var db=d.querySelector("#doab");if(db)db.onclick=function(){com();if(S.doa[x.l])delete S.doa[x.l];else S.doa[x.l]=true;salva();render()};
+  d.querySelector(".ok").onclick=function(){if(!pend)return;if(pend!=="V"&&S.doa)delete S.doa[x.l];S.st[x.l]=pend;pend=null;S.cur=proximo(S.cur+1);salva();render();window.scrollTo(0,0)};
   d.querySelector("#ant").onclick=function(){pend=null;for(var i=S.cur-1;i>=0;i--){if(!S.st[L[i].l]){S.cur=i;break}}salva();render()};
   d.querySelector("#pula").onclick=function(){pend=null;for(var i=S.cur+1;i<L.length;i++){if(!S.st[L[i].l]){S.cur=i;break}}salva();render()};
 }
@@ -421,13 +620,13 @@ function lista(m,k){
   if(!it.length){m.innerHTML='<div class="vazio">Nenhum lote '+(k==="V"?"vendido":"em retorno")+' ainda.</div>';return}
   var soma=0,cab=0,sem=0,pq={};
   it.forEach(function(x){var v=S.la[x.l]||0;soma+=v*3*x.q;if(S.qm[x.l])pq[S.qm[x.l]]=(pq[S.qm[x.l]]||0)+v*3*x.q;cab+=x.q;if(!v)sem++;var li=document.createElement("li");
-    li.innerHTML='<div><b>Lote '+z(x.l)+'</b> · '+x.q+' '+x.s+' · '+x.p+' kg<div class="d">'+x.o+'º · '+esc(x.r)+(x.v?' · '+esc(x.v):'')+(S.qm[x.l]?' · <b>'+esc(S.qm[x.l])+'</b>':'')+'</div></div><div class="val">'+(v?"R$ "+fmt(v)+" × 3 = "+brl(v*3)+"/cab.<b>"+brl(v*3*x.q)+"</b>":"sem lance")+kgHtml(v,x)+'</div>';
+    li.innerHTML='<div><b>Lote '+z(x.l)+'</b>'+(S.doa&&S.doa[x.l]?'<span class="tg">DOAÇÃO</span>':'')+' · '+x.q+' '+x.s+' · '+x.p+' kg<div class="d">'+x.o+'º · '+esc(x.r)+(x.v?' · '+esc(x.v):'')+(S.qm[x.l]?' · <b>'+esc(S.qm[x.l])+'</b>':'')+'</div></div><div class="val">'+(v?"R$ "+fmt(v)+" × 3 = "+brl(v*3)+"/cab.<b>"+brl(v*3*x.q)+"</b>":"sem lance")+kgHtml(v,x)+'</div>';
     var b=document.createElement("button");b.textContent="Voltar p/ pista";b.onclick=function(){delete S.st[x.l];S.cur=L.indexOf(x);pend=null;tab="pista";marcaTab();salva();render()};
     li.appendChild(b);ul.appendChild(li)});
-  if(k==="V"){var f=document.createElement("div");f.className="fat";f.innerHTML='<div>Faturamento total<b>'+brl(soma)+'</b></div><div class="cm">Minha comissão (0,15%)<b>'+brl(soma*COMISSAO)+'</b></div><small>'+it.length+' lotes · '+cab+' cabeças · lance × 3 × nº de cabeças'+(sem?' · '+sem+' lote(s) sem lance não entram na soma':'')+'</small><div class="porq">'+quem().map(function(n){return '<div>'+esc(n)+'<b>'+brl(pq[n]||0)+'</b></div>'}).join('')+'</div>';m.appendChild(f)}
+  if(k==="V"){var K=calc(),f=document.createElement("div");f.className="fat";f.innerHTML='<div>Faturamento total<b>'+brl(soma)+'</b></div><div class="cm">Minha comissão<b>'+(K.semTaxa?'—':brl(K.eu))+'</b></div><small>'+(K.semTaxa?'Coloque a comissão da praça na aba <b>Comissão</b> para calcular. ':'Comissão da leiloeira '+brl(K.cTot)+(K.nDoa?' · '+K.nDoa+' doação(ões) sem comissão':'')+' · ')+it.length+' lotes · '+cab+' cabeças · lance × 3 × nº de cabeças'+(sem?' · '+sem+' lote(s) sem lance não entram na soma':'')+'</small><div class="porq">'+quem().map(function(n){return '<div>'+esc(n)+'<b>'+brl(pq[n]||0)+'</b></div>'}).join('')+'</div>';m.appendChild(f)}
   m.appendChild(ul);
   var lb=document.createElement("button");lb.className="limpa";lb.textContent="Limpar marcações e lances deste leilão";
-  lb.onclick=function(){if(!arm){arm=true;lb.textContent="Toque de novo para limpar tudo";setTimeout(function(){arm=false;render()},4000);return}S.st={};S.la={};S.qm={};S.cur=0;arm=false;salva();tab="pista";marcaTab();render()};
+  lb.onclick=function(){if(!arm){arm=true;lb.textContent="Toque de novo para limpar tudo";setTimeout(function(){arm=false;render()},4000);return}S.st={};S.la={};S.qm={};S.doa={};S.cur=0;arm=false;salva();tab="pista";marcaTab();render()};
   m.appendChild(lb);
 }
 
@@ -456,7 +655,7 @@ async function carregaProx(){
 }
 function marcaTab(){document.querySelectorAll(".tabs button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===tab)})}
 document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){tab=b.dataset.t;pend=null;marcaTab();render();window.scrollTo(0,0)}});
-montaSel();render();
+montaSel();render();puxaCM();
 carregaProx().then(async function(){var sp=sessaoDoProx()||await buscaProxNuvem();
   if(sp)abrir(sp.id);            /* referência: o leilão mais próximo da agenda */
   else{S=null;L=[];DB.atual=null;montaSel();var el=$("leilao");el.insertAdjacentHTML("afterbegin",'<option value="" selected>Próximo leilão'+(PROX?" · "+esc(PROX.cidade):"")+'</option>');render()}});
