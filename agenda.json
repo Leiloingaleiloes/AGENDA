@@ -35,7 +35,9 @@
       "nome": "Leilão Especial Fim de Ano – Gado de Corte",
       "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-fim-de-ano-gado-de-corte-guaraniacu-pr",
       "youtube": "https://www.youtube.com/watch?v=l_VQK-LLcKw",
-      "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-gado-de-corte-guaraniacu-pr-1790791061.jpeg"
+      "banner": "https://www.leiloinga.com.br/uploads/images/2026/11/leilao-especial-fim-de-ano-gado-de-corte-guaraniacu-pr-1794940633.png",
+      "bannerLocal": "banners/li-2026-11-22-guaraniacu.png",
+      "bannerGenerico": false
     },
     {
       "id": "ga-2026-11-22-turvo",
@@ -70,7 +72,9 @@
       "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-gado-de-corte-palmital-pr",
       "youtube": null,
       "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
-      "banner": "https://www.leiloinga.com.br/uploads/images/2026/11/leilao-especial-gado-de-corte-palmital-pr-1794432083.jpeg"
+      "banner": "https://www.leiloinga.com.br/uploads/images/2026/11/leilao-especial-gado-de-corte-palmital-pr-1794940550.jpeg",
+      "bannerLocal": "banners/li-2026-11-25-palmital.jpg",
+      "bannerGenerico": false
     },
     {
       "id": "pr-2026-11-26-doisvizinhos",
@@ -115,8 +119,10 @@
       "local": "CTG Jacob Fritz",
       "nome": "Leilão Especial Fim de Ano",
       "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-fim-de-ano-cantagalo-pr",
-      "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-cantagalo-pr-1790791135.jpeg",
-      "youtube": null
+      "banner": "https://www.leiloinga.com.br/uploads/images/2026/11/leilao-especial-fim-de-ano-cantagalo-pr-1794940664.png",
+      "youtube": null,
+      "bannerLocal": "banners/li-2026-11-29-cantagalo.png",
+      "bannerGenerico": false
     },
     {
       "id": "pa-2026-12-01-tabapua",
@@ -183,8 +189,10 @@
       "local": "Recinto de Leilões",
       "nome": "Leilão Especial Fim de Ano",
       "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-fim-de-ano-laranjeiras-do-sul",
-      "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-laranjeiras-do-sul-1790791250.jpeg",
-      "youtube": null
+      "banner": "https://www.leiloinga.com.br/uploads/images/2026/11/leilao-especial-fim-de-ano-laranjeiras-do-sul-1794940687.jpeg",
+      "youtube": null,
+      "bannerLocal": "banners/li-2026-12-06-laranjeiras.jpg",
+      "bannerGenerico": false
     },
     {
       "id": "ga-2026-12-06-candoi",
@@ -263,7 +271,9 @@
       "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-fim-de-ano-palmital-pr-131",
       "youtube": null,
       "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
-      "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-palmital-pr-131-1790791674.jpeg"
+      "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-palmital-pr-131-1790791674.jpeg",
+      "bannerLocal": "banners/li-2026-12-12-palmital.jpg",
+      "bannerGenerico": true
     },
     {
       "id": "pa-2026-12-13-virtual",
@@ -320,7 +330,9 @@
       "pagina": "https://www.leiloinga.com.br/leilao/leilao-especial-fim-de-ano-marquinho-pr",
       "youtube": null,
       "canal": "https://www.youtube.com/channel/UCO1C4K1sw8uBCpYDjGH2scg",
-      "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-marquinho-pr-1790791501.jpeg"
+      "banner": "https://www.leiloinga.com.br/uploads/images/2026/09/leilao-especial-fim-de-ano-marquinho-pr-1790791501.jpeg",
+      "bannerLocal": "banners/li-2026-12-16-marquinho.jpg",
+      "bannerGenerico": true
     },
     {
       "id": "pr-2026-12-17-doisvizinhos",
