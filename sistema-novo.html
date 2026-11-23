@@ -226,6 +226,7 @@ const I = {
   boleta:'<path d="M10 2.5v3M5 6h10l-1 11H6z"/><path d="M8 10h4M8 13h4"/>',
   pos:'<rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M2.5 8h15M2.5 12.5h15M7.5 3.5v13"/>',
   comissao:'<circle cx="10" cy="10" r="7.5"/><path d="M12.5 7.3c-.5-.8-1.4-1.3-2.5-1.3-1.4 0-2.5.8-2.5 2s1.1 1.7 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1.1 0-2-.5-2.5-1.3M10 4.5V6M10 14v1.5"/>',
+  comparar:'<path d="M3 16.5 7.5 11l3 3 6.5-8"/><path d="M12.5 6H17v4.5"/>',
   relatorio:'<path d="M3 17h14"/><rect x="4" y="10" width="3" height="5" rx=".7"/><rect x="8.5" y="5" width="3" height="10" rx=".7"/><rect x="13" y="8" width="3" height="7" rx=".7"/>',
   lotes:'<path d="M7 5h10M7 10h10M7 15h10"/><circle cx="3.5" cy="5" r="1"/><circle cx="3.5" cy="10" r="1"/><circle cx="3.5" cy="15" r="1"/>',
   propagandas:'<path d="M3 8v4h3l6.5 4V4L6 8z"/><path d="M15 7a4 4 0 0 1 0 6"/>',
@@ -255,7 +256,8 @@ const AREAS = [
         {h:'R',nome:'Retorno',desc:'Lotes que voltaram'}]},
   {id:'pos', nome:'Pós-leilão', desc:'Todos os lotes em linhas: comprador, doação e valores', ic:'pos', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'rel'},
   {id:'comissao', nome:'Comissão', desc:'Vendas do leilão e divisão da comissão', ic:'comissao', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'com'},
-  {id:'relatorio', nome:'Relatório por categoria', desc:'Peso, raça, idade e sexo · médias de R$/kg', ic:'relatorio', url:'relatorio.html'},
+  {id:'comparar', nome:'Comparar leilões', desc:'Gráfico e tabela dos leilões registrados na Boleta', ic:'comparar', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'cmp'},
+  {id:'relatorio', nome:'Relatório por categoria', desc:'Peso, raça, idade e sexo · médias de R$/kg', ic:'relatorio', url:'relatorio-novo.html'},
   {id:'v2', nome:'Lotes ADM v2', desc:'Layout novo em teste', ic:'v2', url:'lotes-v2/', tag:'teste'},
   {grp:'Divulgação'},
   {id:'lotes', nome:'Catálogo dos lotes', desc:'O que o produtor vê no link do QR code', ic:'lotes', url:'../LOTES/'},
@@ -345,7 +347,7 @@ window.addEventListener('hashchange', () => ir(location.hash.slice(1), true));
 /* a boleta avisa quando troca de aba por conta própria */
 window.addEventListener('message', e => {
   if (e.origin !== location.origin || !e.data || !e.data.boletaTab) return;
-  const t = e.data.boletaTab, alvo = t === 'rel' ? 'pos' : t === 'com' ? 'comissao' : 'boleta-' + t;
+  const t = e.data.boletaTab, alvo = t === 'rel' ? 'pos' : t === 'com' ? 'comissao' : t === 'cmp' ? 'comparar' : 'boleta-' + t;
   if (BY[atual] && BY[atual].frame === 'boleta'){ const cur = atual === 'boleta' ? 'boleta-' + subAtual.boleta : atual; if (cur !== alvo) ir(alvo); }
 });
 document.getElementById('reload').addEventListener('click', () => {
