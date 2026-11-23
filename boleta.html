@@ -87,7 +87,9 @@ li button{border:1px solid var(--line);background:var(--bg);border-radius:8px;pa
 .vazio{text-align:center;color:var(--mut);padding:30px}
 .limpa{display:block;margin:10px auto 20px;border:0;background:none;color:var(--mut);text-decoration:underline}
 /* ---- 5 abas, doação, relatório pós-leilão (computador) e comissão ---- */
-.tabs{grid-template-columns:repeat(5,1fr)}.tabs button{font-size:.88rem;padding:14px 2px}
+.tabs{grid-template-columns:repeat(5,1fr);gap:4px;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+.tabs button{font-size:.92rem;padding:12px 2px;border-radius:10px;color:var(--fg)}
+.tabs button[aria-pressed=true]{background:var(--v);color:#fff;box-shadow:none}
 :root{--d:#a87400;--ds:#fbefc9}
 @media (prefers-color-scheme:dark){:root{--d:#f2c94c;--ds:#3a3016}}
 .doab{display:block;width:100%;margin-top:8px;min-height:46px;border-radius:10px;border:2px dashed var(--d);background:transparent;color:var(--d);font-weight:800;font-size:1rem}
@@ -133,6 +135,13 @@ table.rt{border-collapse:separate;border-spacing:0;width:100%;font-size:.86rem;f
 .cad .menos b{color:var(--r)}.cad .sub{font-weight:800}.cad .sub span{color:var(--fg)}.cad .eu b{color:var(--v);font-size:1.2rem}.cad .eu span{color:var(--fg);font-weight:800}
 .cid{width:100%;border-collapse:collapse;font-size:.88rem}.cid td,.cid th{padding:6px 4px;white-space:nowrap;border-bottom:1px solid var(--line);text-align:left}.cid th{font-size:.7rem;color:var(--mut);text-transform:uppercase}
 .cid button{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:4px 8px;font-size:.78rem}
+/* cada aba mostra só o que é dela */
+body:is([data-aba=rel],[data-aba=com]) #hero,body:is([data-aba=rel],[data-aba=com]) .tot,body:not([data-aba=pista]) .bts,body:not([data-aba=""]):not([data-aba=pista]) #nuvemSt{display:none}
+body[data-aba=""] .bts{display:none}
+/* dentro do sistema: o menu lateral do sistema faz o papel das abas */
+.emb .top,.emb .tabs{display:none!important}.emb body{padding-bottom:16px}
+.emb .sel{padding-top:12px}.emb .relh h2{display:none}
+.kp{grid-template-columns:repeat(auto-fit,minmax(132px,1fr))!important}
 @media(min-width:900px){
   body.cmlarg main{max-width:1100px!important}
   body:not(.largo) :is(.sel,.bts,#hero,#extra,.tot,main,#nuvemSt){max-width:680px;margin-left:auto;margin-right:auto}
@@ -170,6 +179,9 @@ try{var gx=JSON.parse(localStorage.getItem("leiloinga-adm-gh")||"null");if(gx&&g
 var KB="leiloinga-boleta-v1",DB={atual:null,sess:{}};
 try{var y=JSON.parse(localStorage.getItem(KB)||"null");if(y&&y.sess)DB=y;}catch(e){}
 var S=null,L=[],tab="pista",arm=false,pend=null,PROX=null;
+var ABAS=["pista","V","R","rel","com"],EMB=/[?&]embed=1/.test(location.search);
+if(EMB)document.documentElement.classList.add("emb");
+(function(){var h=location.hash.slice(1);if(ABAS.indexOf(h)>=0)tab=h})();
 var SEM=["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
 
 function $(i){return document.getElementById(i)}
@@ -194,7 +206,7 @@ function novaSessao(nome,data,lotes,quemL){
   if(PROX&&data===PROX.data){s.yt=PROX.youtube?ytId(PROX.youtube):"";s.banner=PROX.banner||"";s.cidade=PROX.cidade;s.hora=PROX.hora;s.local=PROX.local||""}
   return s;
 }
-function abrir(id){S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;tab="pista";marcaTab();salvaLocal();montaSel();render();puxaNuvem()}
+function abrir(id){S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;marcaTab();salvaLocal();montaSel();render();puxaNuvem()}
 function montaSel(){
   var el=$("leilao"),ids=Object.keys(DB.sess).sort(function(a,b){return (DB.sess[b].data||"").localeCompare(DB.sess[a].data||"")});
   el.innerHTML=ids.length?ids.map(function(i){return '<option value="'+i+'"'+(S&&S.id===i?" selected":"")+'>'+esc(titulo(DB.sess[i]))+'</option>'}).join(""):'<option value="">Nenhum leilão ainda</option>';
@@ -380,7 +392,7 @@ function comissao(m){$("pos").textContent="";var c=com(),K=calc(),cs=Object.keys
    '<div class="cmc"><h3>Conta deste leilão</h3><p id="cEf"></p><div class="cad" id="cCad"></div></div>'+
    '<div class="cmc" style="grid-column:1/-1"><h3>Comissões salvas por cidade</h3><div id="cLst" style="overflow-x:auto">'+(cs.length?'<table class="cid"><thead><tr><th>Cidade</th><th>Comprador</th><th>Vendedor</th><th>Rural</th><th>Leiloeiro</th><th></th></tr></thead><tbody>'+cs.map(function(x){return '<tr><td><b>'+esc(x.cidade)+'</b></td><td>'+pc(x.comp)+'</td><td>'+pc(x.vend)+'</td><td>'+pc(x.rural==null?RURAL_PADRAO:x.rural)+'</td><td>'+esc(x.leil||"")+'</td><td><button type="button" data-usa="'+esc(slug(x.cidade))+'">Usar</button></td></tr>'}).join("")+'</tbody></table>':'<p style="color:var(--mut);font-size:.88rem;margin:6px 0 0">Nenhuma ainda. A primeira fica salva quando você colocar a comissão de uma cidade.</p>')+'</div></div>'+
   '</div></div>';
-  function conta(){var K=calc();$("cCad").innerHTML=cascata(K,S.com).map(function(r){return '<div class="'+r[3]+'"><span>'+esc(r[0])+(r[1]?' <small>('+esc(r[1])+')</small>':'')+'</span><b>'+r[2]+'</b></div>'}).join("");
+  function conta(){var K=calc();$("cCad").innerHTML=cascata(K,S.com).slice(0,K.semTaxa?3:99).map(function(r){return '<div class="'+r[3]+'"><span>'+esc(r[0])+(r[1]?' <small>('+esc(r[1])+')</small>':'')+'</span><b>'+r[2]+'</b></div>'}).join("");
     $("cEf").textContent=K.semTaxa?"Falta a comissão da praça.":(K.bruto?"Minha comissão = "+pc(Math.round(K.efet*1000)/1000)+" do faturamento bruto.":"Ainda sem lotes vendidos com lance.")}
   conta();
   function listaCid(){var cs=Object.keys(CM).map(function(k){return CM[k]}).sort(function(a,b){return a.cidade.localeCompare(b.cidade)});if(!cs.length)return;
@@ -585,7 +597,7 @@ document.addEventListener("visibilitychange",function(){if(document.visibilitySt
 function proximo(de){for(var i=de;i<L.length;i++)if(!S.st[L[i].l])return i;for(i=0;i<L.length;i++)if(!S.st[L[i].l])return i;return -1}
 function totais(){var c={V:[0,0],R:[0,0],F:[0,0]};L.forEach(function(x){var k=(S&&S.st[x.l])||"F";c[k][0]++;c[k][1]+=x.q});
 ["V","R","F"].forEach(function(k){var id={V:"v",R:"r",F:"f"}[k];$("n"+id).textContent=c[k][0];$("c"+id).textContent=c[k][1]+" cab."})}
-function render(){var tw0=document.querySelector(".tw");RF.sc=tw0&&tab==="rel"?[tw0.scrollTop,tw0.scrollLeft,window.scrollY]:null;heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
+function render(){document.body.dataset.aba=S?tab:"";var tw0=document.querySelector(".tw");RF.sc=tw0&&tab==="rel"?[tw0.scrollTop,tw0.scrollLeft,window.scrollY]:null;heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
   if(!S){document.body.classList.remove("largo");m.innerHTML='<div class="vazio">Toque em <b>Começar a boleta</b> acima, ou escolha outro leilão na lista.</div>';$("pos").textContent="";return}
   document.body.classList.toggle("largo",tab==="rel"||tab==="com");
   if(tab==="pista")pista(m);else if(tab==="rel")relatorio(m);else if(tab==="com")comissao(m);else lista(m,tab)}
@@ -657,7 +669,10 @@ async function carregaProx(){
     var ls=(j.leiloes||[]).filter(function(l){return l.leiloeira==="Leiloingá"&&l.data>=hoje}).sort(function(a,b){return (a.data+a.hora).localeCompare(b.data+b.hora)});
     PROX=ls[0]||null}catch(e){PROX=null}
 }
-function marcaTab(){document.querySelectorAll(".tabs button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===tab)})}
+function marcaTab(){document.querySelectorAll(".tabs button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===tab)});
+  if(location.hash.slice(1)!==tab)history.replaceState(null,"","#"+tab);
+  try{if(window.parent!==window)window.parent.postMessage({boletaTab:tab},location.origin)}catch(e){}}
+window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(ABAS.indexOf(h)>=0&&h!==tab){tab=h;pend=null;marcaTab();render();window.scrollTo(0,0)}});
 document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){tab=b.dataset.t;pend=null;marcaTab();render();window.scrollTo(0,0)}});
 montaSel();render();puxaCM();
 carregaProx().then(async function(){var sp=sessaoDoProx()||await buscaProxNuvem();

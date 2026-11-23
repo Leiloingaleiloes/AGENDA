@@ -64,6 +64,11 @@ a{color:inherit}
 .app.mini .item .dot{position:absolute;top:8px;right:12px}
 .app.mini .item:hover::after{content:attr(data-nome);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--fg);color:#fff;font-size:13px;font-weight:600;padding:5px 10px;border-radius:6px;white-space:nowrap;z-index:20;pointer-events:none}
 .sidefoot{border-top:1px solid var(--line);padding:10px;flex:none}
+.subs{display:grid;gap:1px;margin:2px 0 6px 21px;padding-left:12px;border-left:2px solid var(--line)}
+.sub{display:flex;align-items:center;min-height:36px;padding:6px 10px;border:0;border-radius:8px;background:none;cursor:pointer;text-align:left;font-size:14px;font-weight:500;color:var(--muted)}
+.sub:hover{background:var(--surface-2);color:var(--fg)}
+.sub.on{color:var(--green-ink);font-weight:700;background:var(--green-soft)}
+.app.mini .subs{display:none}
 .sidefoot .item{color:var(--muted)}
 
 /* ---------- área principal ---------- */
@@ -277,8 +282,13 @@ const AREAS = [
   {id:'tempo', nome:'Previsão do tempo', desc:'Mapa e 10 dias nas cidades dos leilões', ic:'tempo', url:'tempo.html'},
   {grp:'Dia de leilão'},
   {id:'fichas', nome:'Lotes · ADM', desc:'Fichas em Word, câmera dos lotes e envio para o site', ic:'fichas', url:'fichas.html'},
-  {id:'boleta', nome:'Conferência Boleta', desc:'Vendido ou retorno, lance e corretor de cada lote', ic:'boleta', url:'boleta.html'},
-  {id:'relatorio', nome:'Relatório dos lotes', desc:'Soma por idade, raça e sexo, peso médio e R$/kg', ic:'relatorio', url:'relatorio.html'},
+  {id:'boleta', nome:'Conferência Boleta', desc:'Vendido ou retorno, lance e corretor de cada lote', ic:'boleta', url:'boleta.html?embed=1', aberta:'boleta.html',
+   sub:[{h:'pista',nome:'Pista',desc:'Lote a lote: lance, vendido ou retorno, corretor'},
+        {h:'V',nome:'Vendidos',desc:'Lotes vendidos e faturamento'},
+        {h:'R',nome:'Retorno',desc:'Lotes que voltaram'},
+        {h:'rel',nome:'Pós-leilão',desc:'Todos os lotes em linhas, doação e comissão'},
+        {h:'com',nome:'Comissão',desc:'Comissão da praça, Rural, leiloeiro e divisão'}]},
+  {id:'relatorio', nome:'Relatório por categoria', desc:'Peso, raça, idade e sexo: médias de R$/kg para mandar ao chefe', ic:'relatorio', url:'relatorio.html'},
   {id:'v2', nome:'Lotes ADM v2', desc:'Layout novo em teste, com dados de teste separados', ic:'v2', url:'lotes-v2/', tag:'teste'},
   {grp:'Divulgação'},
   {id:'lotes', nome:'Catálogo dos lotes', desc:'O que o produtor vê no link do QR code', ic:'lotes', url:'../LOTES/'},
@@ -290,7 +300,8 @@ const CATALOGO = 'https://leiloingaleiloes.github.io/LOTES/';
 
 const app = document.getElementById('app'), nav = document.getElementById('nav'), stage = document.getElementById('stage');
 nav.innerHTML = AREAS.map(a => a.grp ? `<div class="grp">${a.grp}</div>` :
-  `<button class="item" type="button" data-id="${a.id}" data-nome="${a.nome}">${svg(a.ic)}<span class="lbl">${a.nome}</span>${a.tag?`<span class="tag">${a.tag}</span>`:''}<span class="dot" aria-hidden="true"></span></button>`).join('');
+  `<button class="item" type="button" data-id="${a.id}" data-nome="${a.nome}">${svg(a.ic)}<span class="lbl">${a.nome}</span>${a.tag?`<span class="tag">${a.tag}</span>`:''}<span class="dot" aria-hidden="true"></span></button>` +
+  (a.sub ? `<div class="subs">${a.sub.map(x => `<button class="sub" type="button" data-id="${a.id}" data-sub="${x.h}">${x.nome}</button>`).join('')}</div>` : '')).join('');
 
 /* ---------- troca de área sem sair da tela ---------- */
 const frames = {};
@@ -317,13 +328,13 @@ function ajustarPagina(id, fr){
   }, true);
 }
 
-function abrirFrame(id){
+function abrirFrame(id, sub){
   const a = BY[id];
   const v = document.createElement('section');
   v.className = 'view'; v.id = 'v-' + id;
   v.innerHTML = `<div class="loading">Carregando ${a.nome}…</div>`;
   const fr = document.createElement('iframe');
-  fr.title = a.nome; fr.src = a.url;
+  fr.title = a.nome; fr.src = a.url + (sub ? '#' + sub : '');
   fr.setAttribute('allow', 'camera; microphone; clipboard-write; fullscreen');
   fr.addEventListener('load', () => { v.querySelector('.loading').classList.add('off'); ajustarPagina(id, fr); });
   v.prepend(fr); stage.appendChild(v);
@@ -332,27 +343,36 @@ function abrirFrame(id){
   return v;
 }
 
+let subAtual = {};
 function ir(id, semHash){
+  let sub = null;
+  if (!BY[id] && id && id.indexOf('-') > 0){ const p = id.split('-'); id = p[0]; sub = p[1]; }
   if (!BY[id]) id = 'inicio';
   const a = BY[id];
-  if (id !== 'inicio' && !frames[id]) abrirFrame(id);
+  if (a.sub){ sub = (a.sub.find(x => x.h === sub) || a.sub.find(x => x.h === subAtual[id]) || a.sub[0]).h; subAtual[id] = sub; }
+  if (id !== 'inicio' && !frames[id]) abrirFrame(id, sub);
+  else if (sub && frames[id]) { try { if (frames[id].contentWindow.location.hash !== '#' + sub) frames[id].contentWindow.location.hash = sub; } catch(e){} }
   stage.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + id));
   nav.querySelectorAll('.item[data-id]').forEach(b => { const on = b.dataset.id === id; b.classList.toggle('on', on); on ? b.setAttribute('aria-current','page') : b.removeAttribute('aria-current'); });
-  document.getElementById('t-nome').textContent = a.nome;
-  document.getElementById('t-desc').textContent = a.desc;
+  nav.querySelectorAll('.sub').forEach(b => b.classList.toggle('on', b.dataset.id === id && b.dataset.sub === sub));
+  const sa = sub && a.sub ? a.sub.find(x => x.h === sub) : null;
+  document.getElementById('t-nome').textContent = sa ? sa.nome : a.nome;
+  document.getElementById('t-desc').textContent = sa ? a.nome + ' · ' + sa.desc : a.desc;
   const nt = document.getElementById('newtab');
-  nt.href = a.url ? new URL(a.url, location.href).href : location.href.split('#')[0];
+  nt.href = a.url ? new URL((a.aberta || a.url) + (sub ? '#' + sub : ''), location.href).href : location.href.split('#')[0];
   nt.style.display = a.url ? '' : 'none';
-  document.title = (id === 'inicio' ? 'Leiloingá · Sistema' : a.nome + ' · Leiloingá');
+  document.title = (id === 'inicio' ? 'Leiloingá · Sistema' : (sa ? sa.nome : a.nome) + ' · Leiloingá');
   atual = id;
   app.classList.remove('open');
-  if (!semHash && location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+  const hh = sub ? id + '-' + sub : id;
+  if (!semHash && location.hash !== '#' + hh) history.replaceState(null, '', '#' + hh);
   try { localStorage.setItem('sistema-ultima', id); } catch(e){}
 }
 
-nav.addEventListener('click', e => { const b = e.target.closest('.item[data-id]'); if (b) ir(b.dataset.id); });
+nav.addEventListener('click', e => { const s2 = e.target.closest('.sub'); if (s2) return ir(s2.dataset.id + '-' + s2.dataset.sub); const b = e.target.closest('.item[data-id]'); if (b) ir(b.dataset.id); });
 document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) ir(g.dataset.go); });
 window.addEventListener('hashchange', () => ir(location.hash.slice(1), true));
+window.addEventListener('message', e => { if (e.origin !== location.origin || !e.data || !e.data.boletaTab) return; if (atual === 'boleta' && subAtual.boleta !== e.data.boletaTab) ir('boleta-' + e.data.boletaTab); });
 document.getElementById('reload').addEventListener('click', () => {
   if (atual === 'inicio') return carregar();
   const fr = frames[atual]; if (!fr) return;
@@ -471,9 +491,9 @@ document.getElementById('cities').addEventListener('click', e => { const b = e.t
 
 document.getElementById('quick').innerHTML = [
   {go:'fichas', ic:'fichas', b:'Gerar fichas', s:'Ordem de entrada em PDF → Word'},
-  {go:'boleta', ic:'boleta', b:'Conferência Boleta', s:'Lances e vendidos na pista'},
-  {go:'relatorio', ic:'relatorio', b:'Relatório dos lotes', s:'Médias por categoria e R$/kg'},
-  {go:'propagandas', ic:'propagandas', b:'Propagandas', s:'Artes dos leilões'},
+  {go:'boleta-pista', ic:'boleta', b:'Conferência Boleta', s:'Lances e vendidos na pista'},
+  {go:'boleta-rel', ic:'boleta', b:'Pós-leilão', s:'Todos os lotes, doação e comissão'},
+  {go:'relatorio', ic:'relatorio', b:'Relatório por categoria', s:'Peso, raça e idade · R$/kg'},
   {id:'q-cat', ic:'copy', b:'Copiar link do catálogo', s:'Para mandar ao cliente'},
   {go:'lotes', ic:'lotes', b:'Ver catálogo', s:'Como o produtor vê'}
 ].map(q => `<button class="qa" type="button" ${q.go?`data-go="${q.go}"`:`id="${q.id}"`}><span class="ic">${svg(q.ic)}</span><span><b>${q.b}</b><span>${q.s}</span></span></button>`).join('');
