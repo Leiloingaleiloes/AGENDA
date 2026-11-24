@@ -443,6 +443,11 @@ input.ro:hover{background:#fff6cc!important;cursor:text}
 .rgl{display:grid;gap:8px;margin-top:12px}.rgl:empty{display:none}
 .rgi{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .rgi b{font:700 1rem var(--f-display);text-transform:uppercase}.rgi small{display:block;color:var(--muted);font-size:.82rem}
+.lbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px;padding:10px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff}
+.lbar label{font:700 .95rem var(--f-display);text-transform:uppercase}
+.lbar select{font:inherit;font-weight:600;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);max-width:100%;min-width:260px}
+.lbar .note{margin:0}
+.lbar.falta{border-color:#e0a100;background:#fff8e1}.lbar.falta select{border-color:#e0a100}
 </style>
 </head>
 <body>
@@ -466,6 +471,7 @@ input.ro:hover{background:#fff6cc!important;cursor:text}
     <button type="button" data-v="ord" aria-pressed="false">Ordem de entrada</button>
     <button type="button" data-v="ped" aria-pressed="false">✍ Pedidos</button>
   </nav>
+  <div class="lbar" id="lbar"><label for="lbSel">Leilão</label><select id="lbSel" aria-label="Leilão destes lotes"></select><span class="note" id="lbInfo"></span></div>
   <section class="resgate" id="resgate" hidden aria-labelledby="resgT">
     <div class="rgh"><div><h2 id="resgT">Que leilão você quer abrir?</h2><p class="note" id="resgSub" style="margin:2px 0 0">Comece um leilão novo ou traga de volta os lotes de um leilão que já foi lançado.</p></div>
       <button class="btn link" type="button" id="resgFecha" aria-label="Fechar">✕</button></div>
@@ -555,6 +561,7 @@ input.ro:hover{background:#fff6cc!important;cursor:text}
     <div class="sum" id="barSum"></div>
     <div class="row">
       <button class="btn danger" type="button" id="limpar">Limpar tudo</button>
+      <button class="btn big" type="button" id="enviarSemFicha" title="Manda os lotes pro site dos produtores sem gerar o Word. Para a Boleta eles já vão sozinhos.">⬆ Enviar lotes</button>
       <button class="btn pri big" type="button" id="gerar" disabled>Gerar Word</button>
     </div>
   </div>
@@ -893,6 +900,8 @@ var S={leilao:"",data:"",totais:null,rows:[]};
 var files=[], seq=1, busy=false;
 function salvar(){
   try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+  /* lote digitado sem leilão escolhido: liga ao próximo leilão da agenda (senão não chega na Boleta) */
+  if(!S.data&&S.rows.length&&typeof proxAg==="function"&&typeof AGL!=="undefined"&&AGL&&AGL.length){var px=proxAg();if(px){S.leilao=S.leilao||nomeAg(px);S.data=brDeIso(px.data);try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}setTimeout(function(){toast("Lotes ligados ao próximo leilão: "+S.data+". Dá para trocar em “Leilão”, no topo.",6000);renderLbar();},50);}}
   if(typeof arquivar==="function")arquivar();
   if(window.__nuvemSalvar)window.__nuvemSalvar();
 }
@@ -1040,6 +1049,7 @@ function renderNums(){
 var CAMPOS=[["mang","n",4],["qtde","n",4],["sexo","t",2],["vendedor","t",40],["idade","t",14],["raca","t",24],["peso","n",5]];
 function render(){
   $("nomeLeilao").value=S.leilao||"";
+  if(typeof renderLbar==="function"&&typeof AGL!=="undefined"&&AGL)renderLbar();
   if(typeof mostraResgate==="function")mostraResgate(false);
   if(typeof renderVend==="function"&&VIEW==="vend")setTimeout(renderVend,0);
   renderNums();renderChecks();
@@ -1860,9 +1870,35 @@ $("resgBusca").addEventListener("click",buscaNuvemResgate);
 mostraResgate(false);
 $("resgNovo").addEventListener("click",function(){
   if(S.rows.length){if(!confirm("Começar um leilão novo?\n\n"+(S.leilao||"Os lotes de agora")+" ("+S.rows.length+" lotes) fica guardado e dá para abrir de novo em 📂 Leilões lançados."))return;
-    arquivar();S={leilao:"",data:"",totais:null,rows:[]};salvar();render();}
+    arquivar();S={leilao:"",data:"",totais:null,rows:[]};}
+  var px=proxAg();if(px&&!S.rows.length){S.leilao=nomeAg(px);S.data=brDeIso(px.data);}salvar();render();renderLbar();
   RESG.fechado=true;$("resgate").hidden=true;mostrar("fichas");toast("Leilão novo: leia o PDF da ordem de entrada ou digite os lotes.",5000);
 });
+/* ---------- leilão destes lotes: o Lotes ADM manda no resto ----------
+   Os lotes daqui vão para a Boleta, o Pós-leilão e o Relatório pelo leilão (data). Por isso o leilão precisa estar escolhido. */
+var AGL=[];
+function isoDeBr(d){var m=/(\d{2})\/(\d{2})\/(\d{4})/.exec(d||"");return m?m[3]+"-"+m[2]+"-"+m[1]:"";}
+function brDeIso(d){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(d||"");return m?m[3]+"/"+m[2]+"/"+m[1]:"";}
+function nomeAg(l){return up((l.nome||"Leilão")+" "+(l.cidade||""));}
+async function carregaAgendaLeiloes(){try{var j=await (await fetch("agenda.json?t="+Date.now(),{cache:"no-store"})).json();
+  var hj=new Date();hj.setDate(hj.getDate()-20);var lim=hj.toISOString().slice(0,10);
+  AGL=(j.leiloes||[]).filter(function(l){return l.leiloeira==="Leiloingá"&&l.data>=lim;}).sort(function(a,b){return a.data.localeCompare(b.data);});}catch(e){AGL=[];}
+  if(!S.data&&S.rows.length)salvar();
+  renderLbar();}
+function proxAg(){var h=new Date().toISOString().slice(0,10);for(var i=0;i<AGL.length;i++)if(AGL[i].data>=h)return AGL[i];return null;}
+function renderLbar(){var sel=$("lbSel");if(!sel)return;var di=isoDeBr(S.data);
+  var ops='<option value="">'+(S.data?"":"⚠ Escolha o leilão destes lotes")+'</option>';var tem=false;
+  AGL.forEach(function(l,k){var on=di&&l.data===di;if(on)tem=true;ops+='<option value="'+k+'"'+(on?" selected":"")+'>'+brDeIso(l.data)+" · "+vEsc((l.nome||"")+" – "+(l.cidade||""))+'</option>';});
+  if(S.data&&!tem)ops+='<option value="atual" selected>'+vEsc(S.data+" · "+(S.leilao||"Leilão"))+'</option>';
+  sel.innerHTML=ops;$("lbar").classList.toggle("falta",!S.data);
+  $("lbInfo").textContent=S.data?S.rows.length+(S.rows.length===1?" lote":" lotes")+" · vão para a Boleta, o Pós-leilão e o Relatório deste leilão":"Sem o leilão escolhido, os lotes não chegam na Boleta.";}
+function escolheLeilao(l){S.leilao=nomeAg(l);S.data=brDeIso(l.data);salvar();render();renderLbar();}
+
+$("lbSel").addEventListener("change",function(){var v=this.value;if(v===""||v==="atual"){renderLbar();return;}var l=AGL[+v];if(!l)return;
+  var di=isoDeBr(S.data);
+  if(S.rows.length&&di&&di!==l.data&&!confirm("Estes "+S.rows.length+" lotes estão no leilão de "+S.data+".\n\nOK = passar estes lotes para "+brDeIso(l.data)+" ("+(l.cidade||"")+")\n\nPara começar do zero, cancele e use 📂 Leilões lançados → Começar leilão novo.")){renderLbar();return;}
+  escolheLeilao(l);toast("Lotes ligados ao leilão de "+brDeIso(l.data)+". A Boleta e o Pós-leilão já usam eles.",5000);});
+carregaAgendaLeiloes();
 /* ---------- encerrar o leilão no site dos produtores ----------
    Grava estado.json no site: com encerrado:true, o site some com lotes e ordem de entrada e mostra o
    banner do próximo leilão da Leiloingá (da agenda). "Mandar lotes pro site" reabre automaticamente. */
@@ -2079,6 +2115,7 @@ $("pubDados").addEventListener("click",async function(){
   finally{b.disabled=false;b.textContent="Atualizar dados no site";}
 });
 /* botão do topo: manda os dados dos lotes pro site dos produtores sem precisar abrir a aba Câmera */
+$("enviarSemFicha").addEventListener("click",function(){$("pubTopo").click();});
 $("pubTopo").addEventListener("click",async function(){
   if(!GH.token){abrirConexao();return;}
   if(!S.rows.some(function(r){return r.lote!=null;})){toast("Ainda não tem lotes nas fichas para mandar.");return;}
@@ -2088,7 +2125,7 @@ $("pubTopo").addEventListener("click",async function(){
     await naFila(async function(){if(!(await conferirLeilaoNovo())){foi=false;return;}await publicarDados();LEILAO_PUB={nome:S.leilao||"",data:S.data||""};});
     if(foi){
       var comMidia=S.rows.filter(function(r){var m=MID.dados&&MID.dados[String(r.lote)];return m&&((m.fotos||[]).length||(m.videos||[]).length);}).length;
-      toast("Lotes mandados pro site (sem o nome do vendedor). Aparecem em 1 a 2 minutos. "+(comMidia?comMidia+(comMidia>1?" lotes têm":" lote tem")+" foto ou vídeo e já aparecem.":"Lembre: no site só aparecem os lotes com foto ou vídeo (aba Câmera)."),8000);
+      toast("Lotes mandados pro site (sem o nome do vendedor), sem precisar das fichas. Na Boleta eles já estão. Aparecem em 1 a 2 minutos. "+(comMidia?comMidia+(comMidia>1?" lotes têm":" lote tem")+" foto ou vídeo e já aparecem.":"Lembre: no site só aparecem os lotes com foto ou vídeo (aba Câmera)."),8000);
     }
   }catch(e){toast(e&&(e.status===401||e.status===403)?"A chave do GitHub não deixou mandar. Toque no botão da nuvem.":"Não deu para mandar pro site agora. Confira a internet e tente de novo.",7000);}
   finally{b.disabled=false;b.textContent=txt;}

@@ -291,6 +291,7 @@ body[data-aba=cmp] .sel{display:none!important}
   .lote{grid-template-columns:minmax(0,1fr)!important;gap:22px}
 }
 @media(max-width:600px){.capa{grid-template-columns:minmax(0,1fr)}.capa .ca{max-width:260px;margin:0 auto}.vendas .vd1{grid-column:1/-1}.prog{grid-template-columns:repeat(2,1fr)}}
+.prox2{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin:10px 12px 0;padding:10px 14px;border:2px solid var(--v);border-radius:12px;background:var(--vs)}.prox2 .bt{min-height:44px}
 </style></head><body>
 <div class="top"><a href="./">◀ Painel</a><b>BOLETA</b><span id="pos"></span></div>
 <div id="nuvemSt" style="text-align:center;font-size:.75rem;color:var(--mut);padding:4px 0 0"></div>
@@ -644,6 +645,8 @@ async function atualizaLotes(){if(!S)return;msg("Atualizando lotes pela página 
 async function comecarProx(){
   msg("Buscando os lotes na página dos produtores…");
   try{
+    var adm=await lotesDoAdm();
+    if(adm&&mesmaData(adm.data,PROX.data)&&adm.lin.length){var sA=await garanteSessaoAdm(false);if(sA){abrir(sA.id);return}}
     /* o site dos produtores precisa estar com ESTE leilão; senão a boleta começa vazia e os lotes vêm do Lotes ADM */
     var siteOk=false;try{var lj=await (await fetch("https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/leilao.json?t="+Date.now(),{cache:"no-store"})).json();siteOk=mesmaData(lj.data,PROX.data)}catch(e){}
     if(!siteOk){var s0=novaSessao(PROX.nome+" – "+PROX.cidade.replace(/-PR$/,""),PROX.data,[],QUEM_PADRAO.slice());if(DB.sess[s0.id])s0.id+="-"+Date.now().toString(36).slice(-4);DB.sess[s0.id]=s0;abrir(s0.id);
@@ -936,6 +939,22 @@ function ligaCmp(m){
 function mesmaData(a,b){var n=function(d){d=String(d||"");var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(d);if(m)return m[1]+m[2]+m[3];m=/(\d{2})\/(\d{2})\/(\d{4})/.exec(d);return m?m[3]+m[2]+m[1]:""};return n(a)&&n(a)===n(b)}
 function linhasAdm(d){var o={};(d.rows||[]).forEach(function(r){if(r.lote==null)return;o[+r.lote]={q:+r.qtde||0,p:+r.peso||0,s:r.sexo==="F"?"F":r.sexo==="M"?"M":"",r:r.raca||"",i:r.idade||"",v:r.vendedor||""}});return o}
 var SINC={rod:false};
+/* ---------- o Lotes ADM manda: se ele tem lotes de um leilão (data) e aqui ainda não existe boleta desse dia, ela é criada sozinha ---------- */
+async function lotesDoAdm(){var d=null;
+  try{d=JSON.parse(localStorage.getItem("fichas-lotes-v1")||"null")}catch(e){}
+  if((!d||!d.rows||!d.rows.length)&&GH.token){try{var j=await ler("fichas.json");if(j)d=JSON.parse(b64dec(j.content))}catch(e){}}
+  if(!d||!d.rows||!d.rows.length||!d.data)return null;
+  var lin=d.rows.filter(function(r){return r.lote!=null}).map(function(r){return{l:+r.lote,q:+r.qtde||0,s:r.sexo==="F"?"F":"M",v:r.vendedor||"",r:r.raca||"",i:r.idade||"",p:+r.peso||0,ord:r.ord!=null?r.ord:null}});
+  return {nome:d.leilao||"",data:isoData(d.data),lin:lin}}
+async function garanteSessaoAdm(abrirSe){
+  var a=await lotesDoAdm();if(!a||!a.data||!a.lin.length)return null;
+  var s=sessDoDia(a.data);
+  if(!s){var ag=null;for(var i=0;i<AG.length;i++)if(AG[i].data===a.data)ag=AG[i];
+    var nome=ag?ag.nome+" – "+String(ag.cidade||"").replace(/-PR$/,""):cap(a.nome)||"Leilão";
+    s=novaSessao(nome,a.data,deLinhas(a.lin,[]),QUEM_PADRAO.slice());if(DB.sess[s.id])s.id+="-"+Date.now().toString(36).slice(-4);DB.sess[s.id]=s;salvaLocal();montaSel();
+    msg("Boleta criada com os "+a.lin.length+" lotes do Lotes ADM ("+titulo(s)+").","bom")}
+  if(abrirSe&&(!S||S.id!==s.id&&(!S.L.length||abrirSe==="sempre")))abrir(s.id);
+  return s}
 async function sincLotes(avisar){
   if(!S||SINC.rod)return;SINC.rod=true;
   try{
@@ -1014,7 +1033,8 @@ async function anexarPdf(f){
   }catch(e){console.error(e);msg(/password/i.test(e&&e.message||"")?"Esse PDF tem senha. Gere de novo sem senha.":"Não consegui abrir esse PDF ("+(e&&e.message||e)+").","err")}
 }
 $("arqPdf").addEventListener("change",function(e){var f=e.target.files[0];e.target.value="";if(f)anexarPdf(f)});
-window.addEventListener("storage",function(e){if(e.key==="fichas-lotes-v1")sincLotes(false)});
+window.addEventListener("storage",function(e){if(e.key==="fichas-lotes-v1"){garanteSessaoAdm(true).then(function(){sincLotes(false)})}});
+document.addEventListener("visibilitychange",function(){if(!document.hidden)garanteSessaoAdm(true).then(function(){if(S)sincLotes(false)})});
 document.addEventListener("visibilitychange",function(){if(!document.hidden)sincLotes(false)});
 
 /* ---------- PDF ---------- */
@@ -1200,6 +1220,9 @@ function sessaoDoProx(){if(!PROX)return null;for(var k in DB.sess){if(DB.sess[k]
 function agDo(s){if(!s||!s.data)return null;for(var i=0;i<AG.length;i++)if(AG[i].data===s.data)return AG[i];return null}
 function heroi(){
   var h=$("hero");if(!h)return;
+  if(S&&PROX&&tab==="ini"&&!mesmaData(S.data,PROX.data)){var sp0=sessaoDoProx();
+    h.innerHTML='<div class="prox2"><span><b>Próximo leilão:</b> '+esc(PROX.nome+" – "+PROX.cidade)+' · '+esc(quando(PROX))+'</span><button class="bt pri" id="hb2" type="button">'+(sp0?"Abrir a boleta deste leilão":"Começar a boleta deste leilão")+'</button></div>';
+    $("hb2").onclick=function(){if(sp0)abrir(sp0.id);else comecarProx()};return}
   if(S){h.innerHTML="";return}
   if(!S&&PROX){var sp=sessaoDoProx();
     h.innerHTML='<div class="hero">'+imgTag(bannerDe(PROX))+'<div class="hi"><span class="tag">Próximo leilão · '+falta(PROX)+'</span><h2>'+esc(PROX.nome)+'</h2><div class="qd">'+esc(PROX.cidade+(PROX.local?" · "+PROX.local:""))+'<br>'+esc(quando(PROX))+'</div>'+
@@ -1219,7 +1242,7 @@ function marcaTab(){document.querySelectorAll(".tabs button").forEach(function(b
 window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(ABAS.indexOf(h)>=0&&h!==tab){tab=h;pend=null;marcaTab();render();window.scrollTo(0,0)}});
 document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){tab=b.dataset.t;pend=null;marcaTab();render();window.scrollTo(0,0)}});
 montaSel();render();puxaCM();listaNuvem();
-carregaProx().then(async function(){var sp=sessaoDoProx()||await buscaProxNuvem();
+carregaProx().then(async function(){var sa=await garanteSessaoAdm(false);var sp=sa||sessaoDoProx()||await buscaProxNuvem();
   if(!sp&&DB.atual&&DB.sess[DB.atual])sp=DB.sess[DB.atual];   /* senão, o último leilão aberto */
   if(sp)abrir(sp.id);            /* referência: o leilão mais próximo da agenda */
   else{S=null;L=[];DB.atual=null;montaSel();var el=$("leilao");el.insertAdjacentHTML("afterbegin",'<option value="" selected>Próximo leilão'+(PROX?" · "+esc(PROX.cidade):"")+'</option>');render()}});
