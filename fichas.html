@@ -364,6 +364,13 @@ td input:focus{border-color:var(--destaque)}
   .orow{min-height:0;padding:3px 8px;break-inside:avoid}
   .orow .on{border:0;height:auto}
 }
+.qtd{cursor:text;border-bottom:1px dashed currentColor;border-radius:2px}
+.qtd:hover{background:rgba(255,213,35,.35)}
+.qted{position:fixed;z-index:200;background:var(--surface,#fff);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.22);padding:12px;display:grid;gap:8px;width:240px}
+.qted b{font-size:.92rem}.qted small{color:var(--muted);font-size:.78rem}
+.qted input{font-size:1.6rem;font-weight:700;padding:6px 10px;border-radius:9px;border:2px solid var(--accent,#2E6A3E);width:100%;text-align:center}
+.qted .bb{display:flex;gap:6px}.qted .bb button{flex:1;min-height:40px;border-radius:9px;border:1px solid var(--line);background:var(--surface,#fff);font-weight:700;cursor:pointer}
+.qted .bb .ok2{background:var(--accent,#2E6A3E);color:#fff;border-color:transparent}
 </style>
 </head>
 <body>
@@ -982,6 +989,30 @@ function resumoLotes(ns){
   return out.length>8?out.slice(0,8).join(", ")+"…":out.join(", ");
 }
 function achar(id){id=Number(id);return S.rows.find(function(r){return r.id===id;});}
+/* ---------- dois cliques na quantidade de animais para corrigir ---------- */
+function qtdSpan(r,suf,dz){var sp=el("span","qtd",r.qtde!=null?(dz?dois(r.qtde):String(r.qtde))+suf:"–");sp.dataset.rid=r.id;sp.title="Dois cliques para corrigir a quantidade";return sp;}
+var QED=null;
+function fechaQtd(){if(QED){QED.remove();QED=null;}}
+function editarQtd(r,alvo){
+  fechaQtd();
+  var box=el("div","qted");box.setAttribute("role","dialog");box.setAttribute("aria-label","Corrigir quantidade do lote "+dois(r.lote));
+  box.append(el("b",null,"Lote "+dois(r.lote)+" · quantidade de animais"));
+  var i=document.createElement("input");i.inputMode="numeric";i.value=r.qtde==null?"":String(r.qtde);i.setAttribute("aria-label","Quantidade de animais");box.append(i);
+  if(r.feita)box.append(el("small",null,"A ficha deste lote já foi feita: depois de corrigir, gere o Word dele de novo."));
+  var bb=el("div","bb"),ca=el("button",null,"Cancelar"),ok=el("button","ok2","Salvar");ca.type=ok.type="button";bb.append(ca,ok);box.append(bb);
+  document.body.append(box);QED=box;
+  var bx=alvo.getBoundingClientRect(),top=bx.bottom+6;if(top+box.offsetHeight>window.innerHeight-8)top=Math.max(8,bx.top-box.offsetHeight-6);
+  box.style.top=top+"px";box.style.left=Math.max(8,Math.min(window.innerWidth-box.offsetWidth-8,bx.left-20))+"px";
+  i.focus();i.select();
+  function salva(){var n=loteN(i.value);if(!(n>0)){i.style.borderColor="var(--bad,#c0392b)";i.focus();return;}
+    var antes=r.qtde;r.qtde=n;r.duvida=false;salvar();fechaQtd();render();
+    toast("Lote "+dois(r.lote)+": "+(antes!=null?antes+" → ":"")+n+" animais."+(r.feita?" Gere a ficha dele de novo.":""));}
+  ok.addEventListener("click",salva);ca.addEventListener("click",fechaQtd);
+  i.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();salva();}else if(e.key==="Escape")fechaQtd();});
+}
+document.addEventListener("dblclick",function(e){var t=e.target.closest&&e.target.closest(".qtd[data-rid]");if(!t)return;e.preventDefault();var r=achar(t.dataset.rid);if(r)editarQtd(r,t);});
+document.addEventListener("mousedown",function(e){if(QED&&!QED.contains(e.target))fechaQtd();});
+
 $("tbody").addEventListener("change",function(e){
   var t=e.target,tr=t.closest("tr");if(!tr)return;var r=achar(tr.dataset.id);if(!r)return;var k=t.dataset.k;
   if(k==="sel"){r.sel=t.checked;tr.classList.toggle("sel",r.sel);salvar();renderBar();return;}
@@ -1610,7 +1641,7 @@ function renderCam(){
     mostrados++;
     var c=el("div","lc"+(tem?" tem":""));c.dataset.l=r.lote;
     var h=el("div","lc-h"),tg=el("span","tag",dois(r.lote)),inf=el("div","lc-info");
-    inf.append(el("b",null,[r.qtde!=null?r.qtde+" cab.":"",r.sexo==="M"?"Machos":r.sexo==="F"?"Fêmeas":"",r.peso!=null?r.peso+" kg":""].filter(Boolean).join(" · ")||"Lote "+dois(r.lote)));
+    var bq=el("b");bq.append(qtdSpan(r," cab."),document.createTextNode([r.sexo==="M"?" · Machos":r.sexo==="F"?" · Fêmeas":"",r.peso!=null?" · "+r.peso+" kg":""].join("")));inf.append(bq);
     inf.append(el("span",null,[racaFicha(r.raca),idadeFicha(r.idade)].filter(Boolean).join(" · ")));
     if(r.vendedor)inf.append(el("span",null,r.vendedor));
     var cn=el("div","lc-n");cn.append(el("b",null,String(videos.length+fotos.length)));cn.append(document.createTextNode(videos.length+" vídeo"+(videos.length===1?"":"s")+" · "+fotos.length+" foto"+(fotos.length===1?"":"s")));
@@ -2046,9 +2077,9 @@ function linhaOrd(r,total){
   var cSx=el("span","cel");cSx.append(sx);
   var desc=el("div","desc");
   desc.append(el("b",null,[r.sexo==="M"?"Macho":r.sexo==="F"?"Fêmea":"",racaFicha(r.raca),idadeFicha(r.idade)].filter(Boolean).join(" · ")||"Lote "+dois(r.lote)));
-  desc.append(el("span",null,[r.qtde!=null?r.qtde+" cab.":"",r.peso!=null?r.peso+" kg":"sem peso",r.vendedor].filter(Boolean).join(" · ")));
+  var dsp=el("span");dsp.append(qtdSpan(r," cab."),document.createTextNode(" · "+[r.peso!=null?r.peso+" kg":"sem peso",r.vendedor].filter(Boolean).join(" · ")));desc.append(dsp);
   li.append(on,mx,el("span","tag",dois(r.lote)),cSx,el("span","cel",racaFicha(r.raca)||"–"),el("span","cel",idadeFicha(r.idade)||"–"),
-    el("span","cel",r.qtde!=null?dois(r.qtde):"–"),el("span","cel",r.peso!=null?r.peso+" kg":"–"),el("span","cel vend",r.vendedor||""),desc);
+    (function(){var c=el("span","cel");c.append(qtdSpan(r,"",true));return c;})(),el("span","cel",r.peso!=null?r.peso+" kg":"–"),el("span","cel vend",r.vendedor||""),desc);
   return li;
 }
 /* digitar o número da ordem */
