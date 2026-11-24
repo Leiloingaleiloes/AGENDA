@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><script src="trava.js?v=1"></script>
+<meta charset="utf-8"><script src="trava.js?v=2"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light only">
 <meta name="robots" content="noindex, nofollow">
@@ -198,6 +198,9 @@ button{font:inherit;color:inherit}a{color:inherit}
 .atualTag{display:block;width:calc(100% - 20px);margin:0 10px 6px;padding:6px 10px;border-radius:9px;border:1px solid rgba(36,181,59,.45);background:rgba(36,181,59,.12);color:#bff0c9;font:600 12px Poppins,sans-serif;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .atualTag.teste{border-color:#f08c00;background:rgba(240,140,0,.18);color:#ffd59c}
 .app.mini .atualTag{display:none}
+/* modo teste: aviso laranja no topo de todas as telas */
+body.modo-teste .top{background:#fff1de!important;border-bottom:3px solid #f08c00!important}
+body.modo-teste #t-desc::after{content:' · 🧪 MODO TESTE: nada vai para a nuvem, o site ou o pós-leilão';color:#b35c00;font-weight:700}
 /* modo público (vindo do catálogo): só o Início, sem menu */
 html.publico .app{grid-template-columns:minmax(0,1fr)}
 html.publico .side,html.publico .scrim,html.publico #burger,html.publico #newtab,html.publico #reload{display:none!important}
@@ -299,6 +302,7 @@ function pintaAtual(){
     else if (x && x.data) txt = x.data.slice(0,5) + ' · ' + String(x.leilao || '').replace(/^LEIL[ÃA]O\s+(ESPECIAL\s+)?(FIM DE ANO\s+)?(–\s*)?(GADO DE CORTE\s+)?(–\s*)?/i, '').replace(/-[A-Z]{2}$/,'').toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase());
   } catch(e){}
   t.textContent = txt; t.classList.toggle('teste', teste);
+  document.body.classList.toggle('modo-teste', teste);
 }
 window.addEventListener('storage', e => { if (!e.key || /^fichas-(lotes-v1|modo)$/.test(e.key)) pintaAtual(); });
 setTimeout(pintaAtual, 0); setInterval(pintaAtual, 5000);
@@ -382,6 +386,7 @@ window.addEventListener('hashchange', () => ir(location.hash.slice(1), true));
 /* a boleta avisa quando troca de aba por conta própria */
 window.addEventListener('message', e => {
   if (e.origin === location.origin && e.data && e.data.fichasView){ const alvo = e.data.fichasView === 'vend' ? 'vendedores' : 'fichas'; if (BY[atual] && BY[atual].frame === 'fichas' && atual !== alvo) ir(alvo); return; }
+  if (e.origin === location.origin && e.data && e.data.irPara) { ir(e.data.irPara); return; }
   if (e.origin !== location.origin || !e.data || !e.data.boletaTab) return;
   const t = e.data.boletaTab, alvo = t === 'rel' ? 'pos' : t === 'com' ? 'comissao' : t === 'cmp' ? 'comparar' : 'boleta-' + t;
   if (BY[atual] && BY[atual].frame === 'boleta'){ const cur = atual === 'boleta' ? 'boleta-' + subAtual.boleta : atual; if (cur !== alvo) ir(alvo); }

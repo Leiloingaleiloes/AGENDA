@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><script src="trava.js?v=1"></script>
+<meta charset="utf-8"><script src="trava.js?v=2"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2E6A3E">
@@ -1520,6 +1520,7 @@ async function baixaComp(){
   compOrdenado().forEach(function(it){
     var g=grpSx(it.sx);
     if(antG!==null&&g!==antG){y+=5;doc.setDrawColor(150);doc.setLineWidth(.15);doc.line(M,y,W-M,y);y+=2;}
+    if(g!==antG){if(y+14>297-M-8){doc.addPage();y=M;}y+=5;doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(110);doc.text(g===0?"MACHOS":g===1?"FÊMEAS":"OUTROS",M,y);doc.setFont("helvetica","normal");doc.setTextColor(25);doc.setFontSize(10.5);y+=1;}
     antG=g;
     var gl=doc.splitTextToSize(it.t,cols[0].w-3),h=Math.max(8,gl.length*4.6+3.4);
     if(y+h>297-M-8){doc.addPage();y=M;}
@@ -1635,7 +1636,8 @@ function encheBol(){
   var nv=Object.keys(BOLN).filter(function(i){return !loc[i];}).sort().reverse();
   var html='<option value="">'+(ids.length||nv.length?"Escolha o leilão (pós-leilão)":"Nenhum leilão no pós-leilão ainda")+'</option>'+ids.map(function(i){var x=loc[i];return '<option value="l:'+i.replace(/"/g,"")+'">'+(dataBrIso(x.data)?dataBrIso(x.data)+" · ":"")+String(x.nome||"Leilão").replace(/</g,"")+'</option>';}).join("")+
     (nv.length?'<optgroup label="Salvos na nuvem">'+nv.map(function(i){return '<option value="n:'+i.replace(/"/g,"")+'">☁ '+nomeId(i)+'</option>';}).join("")+'</optgroup>':"");
-  ["bolSel","bolSel2"].forEach(function(k){var e=$(k);if(e)e.innerHTML=html;});
+  var cur=R&&R.id&&R.id.indexOf("boleta|")===0?R.id.slice(7):"";
+  ["bolSel","bolSel2"].forEach(function(k){var e=$(k);if(!e)return;e.innerHTML=html;if(cur){if(e.querySelector('option[value="l:'+cur+'"]'))e.value="l:"+cur;else if(e.querySelector('option[value="n:'+cur+'"]'))e.value="n:"+cur;}});
 }
 async function listaBolNuvem(){if(!GH.token)return;try{var hj=hojeIsoR(),r=await api(caminho("boletas"));if(r.ok)(await r.json()).forEach(function(f){if(/\.json$/.test(f.name)&&f.name.slice(0,10)<hj)BOLN[f.name.replace(/\.json$/,"")]=f.path;});
   var r2=await api(caminho("pos"));if(r2.ok)(await r2.json()).forEach(function(f){if(/\.json$/.test(f.name))BOLN[f.name.replace(/\.json$/,"")]=f.path;});encheBol();}catch(e){}}

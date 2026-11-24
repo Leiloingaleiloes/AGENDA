@@ -33,6 +33,10 @@
   window.TRAVA={ok:ok,form:form,sair:sair};
   if(ok("geral"))return;
   document.documentElement.classList.add("trv-fechado");
+  /* dentro do painel (mesmo site), quem pede a senha é o painel; o quadro só espera ela ser digitada */
+  var dentro=false;try{dentro=window.parent!==window&&!!window.parent.TRAVA&&window.parent.location.origin===location.origin;}catch(e){}
+  if(dentro){var lib=function(){if(ok("geral")){document.documentElement.classList.remove("trv-fechado");try{window.dispatchEvent(new Event("resize"));}catch(e){}}};
+    window.addEventListener("storage",function(e){if(e.key===K+"geral")lib();});setInterval(lib,1500);return;}
   function monta(){var d=document.createElement("div");d.id="trava";document.body.appendChild(d);
     form(d,"geral","Leiloingá","Digite a senha para entrar no sistema.",function(){d.remove();document.documentElement.classList.remove("trv-fechado");
       try{window.dispatchEvent(new Event("resize"));}catch(e){}});}
