@@ -411,6 +411,15 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
 .mdsw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:2px 0 10px;font-size:.85rem;opacity:.95}
 .mdsw button{border:1px solid rgba(255,255,255,.35);background:transparent;color:inherit;border-radius:99px;padding:4px 12px;font:600 .82rem var(--f-body);cursor:pointer}
 .mdsw button[aria-pressed=true]{background:#fff;color:var(--accent-2);border-color:#fff}
+.catb{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.cfoto{display:block;width:calc(100% + 20px);margin:-10px -10px 4px;aspect-ratio:4/3;border:0;padding:0;background:#e6e9e6;cursor:zoom-in;position:relative;overflow:hidden;border-radius:10px 10px 0 0;color:#8c968e;font:500 .8rem var(--f-body)}
+.cfoto img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s}
+.cfoto:hover img{transform:scale(1.04)}
+.cfoto.vaz{aspect-ratio:auto;height:44px;cursor:default}
+.cfoto .cfn,.cfoto .cfo{position:absolute;top:8px;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:99px;color:#fff}
+.cfoto .cfn{right:8px;background:rgba(0,0,0,.6)}.cfoto .cfo{left:8px;background:#B42318;text-transform:uppercase}
+.clote.out .cfoto img{filter:grayscale(1);opacity:.55}
+.ficha{z-index:150!important}
 </style>
 </head>
 <body>
@@ -527,7 +536,7 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="modal catm" id="catModal" hidden role="dialog" aria-modal="true" aria-labelledby="catT">
   <div class="cx catcx">
-    <div class="cath"><div><h3 id="catT"></h3><p class="muted" id="catR" style="margin:0"></p></div><button class="btn peq" type="button" id="catX">Fechar ✕</button></div>
+    <div class="cath"><div><h3 id="catT"></h3><p class="muted" id="catR" style="margin:0"></p></div><div class="catb"><button class="btn pri peq" type="button" id="catAdd">＋ Adicionar ao relatório PDF</button><button class="btn peq" type="button" id="catX">Fechar ✕</button></div></div>
     <div id="catLista" class="catlista"></div>
   </div>
 </div>
@@ -1142,11 +1151,18 @@ function renderCategoria(){
   var ls=lotesDoDestino(CAT_ABERTA.dest,CAT_ABERTA.raca),q=soma(ls.filter(function(l){return !tirado(l);}));
   $("catT").textContent=CAT_ABERTA.t;
   $("catR").textContent=(q.rk!=null?"R$ "+f2(q.rk)+"/kg · ":"")+(q.c?kg(q.m)+" kg de média · ":"")+q.c+" cab. em "+q.n+(q.n===1?" lote":" lotes")+" na soma"+(ls.length>q.n?" · "+(ls.length-q.n)+" fora":"");
+  var ab=$("catAdd"),fr0=CAT_ABERTA.t,ja=compIdx(fr0)>=0;ab.textContent=ja?"✓ No relatório PDF · atualizar":"＋ Adicionar ao relatório PDF";ab.disabled=!q.n;
+  ab.onclick=function(){addComp(fr0,q);renderCategoria();};
   var box=$("catLista");box.textContent="";
   if(!ls.length){box.append(el("p","muted","Nenhum lote aqui. Para trazer um lote, abra a categoria onde ele está e mude em \"Mover para\", ou arraste na aba Categorias."));return;}
   ls.forEach(function(l){
     var v=lanceDe(l),s=R.st[l.lote]||"",g=grupoDe(l.raca),out=tirado(l);
     var c=el("div","clote"+(out?" out":""));
+    var fs=fotosDe(l),ph=el("button","cfoto"+(fs.length?"":" vaz"));ph.type="button";ph.setAttribute("aria-label","Ver o lote "+dois(l.lote)+" grande");
+    if(fs.length){var im=document.createElement("img");im.loading="lazy";im.alt="Foto do lote "+dois(l.lote);im.src=RAWL+(fs[0].mini||fs[0].src);ph.append(im);if(fs.length>1)ph.append(el("span","cfn",fs.length+" fotos"));if(fs.some(function(f){return f.oculta;}))ph.append(el("span","cfo","oculta no site"));}
+    else ph.append(el("span",null,temFotos()?"sem foto":"sem fotos deste leilão"));
+    ph.addEventListener("click",function(){abrirFicha(l.lote);});
+    c.append(ph);
     var top=el("div","ct");
     var lab=el("label","cin"),cb=el("input");cb.type="checkbox";cb.checked=!out;
     cb.addEventListener("change",function(){if(cb.checked)delete R.fora[l.lote];else R.fora[l.lote]=true;mudou();});
@@ -1166,7 +1182,7 @@ function renderCategoria(){
 }
 $("catX").addEventListener("click",fecharCategoria);
 $("catModal").addEventListener("click",function(e){if(e.target.id==="catModal")fecharCategoria();});
-document.addEventListener("keydown",function(e){if(e.key==="Escape"&&CAT_ABERTA)fecharCategoria();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&CAT_ABERTA&&FICHA==null)fecharCategoria();});
 
 /* ---------- aba Categorias: quadros lado a lado, lotes como botões para arrastar (ou tocar e escolher) ---------- */
 var MENU_L=null;
