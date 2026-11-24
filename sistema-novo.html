@@ -189,6 +189,11 @@ button{font:inherit;color:inherit}a{color:inherit}
   .dock{padding:0 14px 14px}.arr{display:none}.tb{width:160px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.tx>*,.art .card{opacity:1!important;transform:none!important}}
+/* banners: o conteúdo encosta na faixa dos próximos leilões (sem um vão grande no meio em tela alta, como tablet) */
+.sl .in{align-items:end;padding-bottom:128px}
+@media (max-height:640px){.sl .in{align-items:center;padding-bottom:140px}}
+@media (max-width:860px){.car{align-content:start}.sl .in{padding-bottom:12px}}
+@media (max-width:860px) and (min-width:600px){.car{align-content:center}.art.por .card{width:min(54vw,460px)}.art.pai .card,.art.qua .card{width:min(86vw,680px)}.tx h2{font-size:clamp(34px,6vw,54px)}.meta{font-size:17px}.cd b{font-size:32px}.cd div{min-width:80px}.ba{min-height:52px;font-size:16px}.tb{width:190px}}
 /* modo público (vindo do catálogo): só o Início, sem menu */
 html.publico .app{grid-template-columns:minmax(0,1fr)}
 html.publico .side,html.publico .scrim,html.publico #burger,html.publico #newtab,html.publico #reload{display:none!important}
@@ -305,7 +310,7 @@ function abrirFrame(a, h){
   v.className = 'view'; v.id = 'v-' + fid;
   v.innerHTML = `<div class="loading"><div><div class="spin"></div>Carregando…</div></div>`;
   const fr = document.createElement('iframe');
-  fr.title = a.frame === 'boleta' ? 'Boleta' : a.frame === 'fichas' ? 'Lotes · ADM' : a.nome; fr.src = a.url + (h ? '#' + h : '');
+  fr.title = a.frame === 'boleta' ? 'Boleta' : a.frame === 'fichas' ? 'Lotes · ADM' : a.nome; fr.src = a.url + (a.url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + Math.floor(Date.now() / 6e5) + (h ? '#' + h : '');  /* sempre pega a versão nova da página (no máximo 10 min de atraso) */
   fr.setAttribute('allow', 'camera; microphone; clipboard-write; fullscreen');
   fr.addEventListener('load', () => { v.querySelector('.loading').classList.add('off'); ajustarPagina(fr, fid); });
   v.prepend(fr); stage.appendChild(v);
