@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="utf-8">
+<html lang="pt-BR"><head><meta charset="utf-8"><script src="trava.js?v=1"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Conferência Boleta · Leiloingá</title>
@@ -1107,7 +1107,7 @@ function render(){document.body.dataset.aba=tab;var tw0=document.querySelector("
   if(!S){document.body.classList.remove("largo");$("pos").textContent="";if(tab==="rel"||tab==="com"){m.innerHTML='<div class="vazio"><b>Escolha o leilão</b>Use a lista acima para ver qualquer leilão já registrado na Boleta.</div>';return}
     if(tab!=="ini"){m.innerHTML='<div class="vazio"><b>Nenhum leilão aberto</b>Comece ou escolha um leilão no <a href="#ini">Início do leilão</a>.'+(tab==="rel"?'<div style="margin-top:12px"><button class="bt pri" type="button" id="vAnexa">📄 Anexar PDF do leilão</button><p style="margin:8px 0 0;font-size:.85rem">A ordem de entrada do sistema ou o PDF da boleta.</p></div>':'')+'</div>';if($("vAnexa"))$("vAnexa").onclick=function(){$("arqPdf").click()};return}iniVazio(m);return}
   document.body.classList.toggle("largo",tab==="rel"||tab==="com");
-  if(tab==="ini")inicio(m);else if(tab==="pista")pista(m);else if(tab==="rel")relatorio(m);else if(tab==="com")comissao(m);else lista(m,tab)}
+  if(tab==="ini")inicio(m);else if(tab==="pista")pista(m);else if(tab==="rel")relatorio(m);else if(tab==="com"){if(window.TRAVA&&!TRAVA.ok("com")){var tv=document.createElement("div");tv.style.cssText="padding:40px 12px";m.append(tv);TRAVA.form(tv,"com","Comissão","Esta parte pede a senha da comissão.",function(){render()});}else comissao(m);}else lista(m,tab)}
 function pista(m){
   if(S.cur<0||S.cur>=L.length||S.st[L[S.cur].l]&&!pend)S.cur=proximo(Math.max(0,S.cur));
   if(S.cur<0){m.innerHTML='<div class="fim"><b>Todos os lotes marcados</b>Veja nas abas Vendidos e Retorno, ou exporte o PDF.</div>';$("pos").textContent="";return}
