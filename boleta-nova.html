@@ -253,16 +253,17 @@ body[data-aba=cmp] .sel{display:none!important}
   .ini .capa{grid-column:1/-1}
   .tabs{left:50%;right:auto;transform:translateX(-50%);width:min(680px,100%);border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0}
 }
-/* pós-leilão no computador: a tabela ocupa o resto da tela, e a barra de rolagem lateral fica sempre à vista */
+/* pós-leilão no computador: a página rola (os totais sobem) e a lista tem rolagem própria, ocupando quase a tela toda */
 @media(min-width:760px){
-  body[data-aba=rel]{height:100vh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:0}
-  body[data-aba=rel] main{flex:1;min-height:0;width:100%;display:flex;flex-direction:column}
-  html:not(.emb) body[data-aba=rel] main{padding-bottom:62px}
-  body[data-aba=rel] .rel{flex:1;min-height:0;display:flex;flex-direction:column;padding-bottom:12px}
-  body[data-aba=rel] .tw{flex:1;min-height:160px;max-height:none}
-  body[data-aba=rel] .kp b{font-size:1.05rem}
+  body[data-aba=rel] .tw{height:calc(100vh - 74px);max-height:none;min-height:320px}
+  html:not(.emb) body[data-aba=rel] .tw{height:calc(100vh - 140px)}
+  body[data-aba=rel] .kp{gap:6px;margin-bottom:8px}
+  body[data-aba=rel] .kp>div{padding:6px 10px}
+  body[data-aba=rel] .kp b{font-size:1.02rem}
+  body[data-aba=rel] .relh{margin:4px 0 8px}
+  body[data-aba=rel] .rt td{padding:3px 7px}
+  body[data-aba=rel] .flt{position:sticky;top:0;z-index:4;background:var(--bg);padding:6px 0;margin-bottom:6px}
 }
-.sincb{display:block;margin:10px auto 0;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:.85rem;color:var(--v);cursor:pointer}
 .rolar{display:inline-flex;gap:4px;margin-left:6px}.rolar button{width:38px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-weight:800;cursor:pointer}
 /* notebook baixo (altura ~720): a pista cabe sem rolar */
 @media(min-width:760px) and (max-height:820px){
@@ -282,7 +283,197 @@ body[data-aba=cmp] .sel{display:none!important}
 <div class="tot"><div class="tv">Vendidos<b id="nv">0</b><span id="cv"></span></div><div class="tr">Retorno<b id="nr">0</b><span id="cr"></span></div><div>Faltam<b id="nf">0</b><span id="cf"></span></div></div>
 <main id="main"></main>
 <nav class="tabs"><button data-t="ini" aria-pressed="true">Início</button><button data-t="pista" aria-pressed="false">Pista</button><button data-t="V" aria-pressed="false">Vendidos</button><button data-t="R" aria-pressed="false">Retorno</button><button data-t="rel" aria-pressed="false">Pós-leilão</button></nav>
-<input type="file" id="arq" accept=".json,.txt,.csv,application/json,text/plain" hidden>
+<input type="file" id="arq" accept=".json,.txt,.csv,application/json,text/plain" hidden><input type="file" id="arqPdf" accept="application/pdf,.pdf" hidden>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+<script>
+/* leitor de PDF (o mesmo do Lotes · ADM e do Relatório), isolado aqui para o botão "Anexar PDF" do Pós-leilão */
+var LEPDF=(function(){
+function num(v){if(v==null)return null;var m=String(v).replace(",",".").match(/\d+(\.\d+)?/);return m?Number(m[0]):null;}
+function loteN(v){var n=num(v);return n==null?null:Math.round(n);}
+var CDN3="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/";
+var pdfjsLib=null;
+async function biblioteca(){
+  if(pdfjsLib)return pdfjsLib;
+  if(window.pdfjsLib&&window.pdfjsLib.getDocument){
+    pdfjsLib=window.pdfjsLib;pdfjsLib.GlobalWorkerOptions.workerSrc=CDN3+"pdf.worker.min.js";
+  }else{
+    pdfjsLib=await import("./vendor/pdfjs/pdf.min.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc=new URL("vendor/pdfjs/pdf.worker.min.mjs",location.href).href;
+  }
+  return pdfjsLib;
+}
+
+/* junta os pedaços da linha; pedaços grudados (sem espaço entre eles, ex.: "1" e "2" que formam o 12 da coluna Ord.) viram um só */
+function juntaLinha(g){
+  var its=g.its.slice().sort(function(a,b){return a.x-b.x;}),s="",ant=null;
+  its.forEach(function(i){
+    if(ant&&(i.x-ant.r)<Math.min(ant.cw,i.cw)*0.3&&(i.x-ant.r)>-Math.min(ant.cw,i.cw)*0.5)s+=i.s;
+    else s+=(s?" ":"")+i.s;
+    ant=i;
+  });
+  return s.replace(/\s+/g," ").trim();
+}
+var ULT_GRUPOS=[];
+/* junta os pedaços de texto em linhas da folha (tolerando colunas um pouco acima ou abaixo) */
+function linhasDaPagina(items){
+  var its=items.filter(function(i){return i.str&&i.str.trim();}).map(function(i){
+    var lead=i.str.length-i.str.replace(/^\s+/,"").length,cw=(i.width&&i.str.length)?i.width/i.str.length:5;
+    var s=i.str.trim(),x=i.transform[4]+lead*cw;
+    return {s:s,x:x,r:x+s.length*cw,y:i.transform[5],cw:cw};});
+  ULT_GRUPOS=[];
+  if(!its.length)return [];
+  var ys=its.map(function(i){return i.y;}).sort(function(a,b){return b-a;});
+  var dif=[];for(var k=1;k<ys.length;k++){var d=ys[k-1]-ys[k];if(d>1.5)dif.push(d);}
+  dif.sort(function(a,b){return a-b;});
+  var passo=dif.length?dif[Math.floor(dif.length/2)]:12, tol=Math.max(2,passo*0.42);
+  its.sort(function(a,b){return b.y-a.y;});
+  var grupos=[];
+  /* âncoras: os números da coluna "Ord." (a mais à esquerda). Cada pedaço de texto vai para a
+     linha do lote mais próxima, mesmo que Idade/Raça/Peso estejam bem mais acima ou abaixo */
+  var nums=its.filter(function(i){return /^\d{1,3}º?$/.test(i.s);});
+  if(nums.length){
+    /* a coluna Ord. pode vir alinhada à direita: 1 a 9 ficam mais para dentro que 10 ou 100.
+       Vale como âncora quem começa na borda esquerda OU termina na mesma borda direita dela. */
+    /* acha a coluna Ord. pelo alinhamento (muitos números um embaixo do outro), não pelo número
+       mais à esquerda: na 1ª folha um número solto do cabeçalho (página, data) ficava mais à
+       esquerda e fazia sumir os primeiros lotes */
+    function alinhados(a){return nums.filter(function(b){return Math.abs(b.x-a.x)<=4||Math.abs(b.r-a.r)<=4;}).length;}
+    var cont=nums.map(alinhados),maxC=Math.max.apply(null,cont);
+    var cand=nums.filter(function(i,k){return cont[k]>=Math.max(2,maxC*0.6);});
+    if(!cand.length)cand=nums;
+    var minX=Math.min.apply(null,cand.map(function(i){return i.x;}));
+    var col=cand.filter(function(i){return i.x<=minX+8;});
+    var rs=col.map(function(i){return i.r;}).sort(function(a,b){return a-b;}),rMed=rs[Math.floor(rs.length/2)];
+    var anc=nums.filter(function(i){return (i.x>=minX-4&&i.x<=minX+8)||(Math.abs(i.r-rMed)<=4&&i.x>=minX-4&&i.x<minX+40);}).map(function(i){return i.y;});
+    var ga=[];for(var a=1;a<anc.length;a++){var dd=Math.abs(anc[a-1]-anc[a]);if(dd>3)ga.push(dd);}
+    ga.sort(function(p,q){return p-q;});
+    var passoL=ga.length?ga[Math.floor(ga.length/2)]:Math.max(passo,12);
+    var lim=passoL*0.5;
+    anc.forEach(function(y){grupos.push({y:y,its:[],anc:true});});
+    var resto=[];
+    its.forEach(function(i){
+      var best=null,bd=1e9;
+      grupos.forEach(function(g){var d=Math.abs(g.y-i.y);if(d<bd){bd=d;best=g;}});
+      /* fora das linhas de lote (título, cabeçalho, totais) ou abaixo do lote do lado esquerdo */
+      if(best&&bd<lim&&!/Total|Ord\.|Vendedor|Peso\(|Idade|Ra[çc]a/i.test(i.s))best.its.push(i);else resto.push(i);
+    });
+    var outros=[];
+    resto.forEach(function(i){
+      var g=outros.length?outros[outros.length-1]:null;
+      if(g&&Math.abs(g.y-i.y)<=tol){g.its.push(i);g.y=(g.y*(g.its.length-1)+i.y)/g.its.length;}
+      else outros.push({y:i.y,its:[i]});
+    });
+    grupos=grupos.filter(function(g){return g.its.length;}).concat(outros).sort(function(p,q){return q.y-p.y;});
+    ULT_GRUPOS=grupos;
+    return grupos.map(juntaLinha);
+  }
+  its.forEach(function(i){
+    var g=grupos.length?grupos[grupos.length-1]:null;
+    if(g&&Math.abs(g.y-i.y)<=tol){g.its.push(i);g.y=(g.y*(g.its.length-1)+i.y)/g.its.length;}
+    else grupos.push({y:i.y,its:[i]});
+  });
+  ULT_GRUPOS=grupos;
+  return grupos.map(juntaLinha);
+}
+var RE_LINHA=/^(\d{1,4})\s+(\d{1,4})\s+(\d{1,4})\s*([MF])\s+(.+?)\s+((?:\d{1,2}\s*A\s*\d{1,2}|\d{1,2}\s*\/\s*\d{1,2})\s*M\w*|\+\s*\d{1,2}\s*M\w*)\s+(.+?)\s+(\d{2,4})(?:[.,]\d+)?(?:\s.*)?$/i;
+var RE_CATALOGO=/^(\d{1,3})\s*º\s+(\d{1,4})\s+(.+?)\s+(\+?\d{1,2}(?:\s*\/\s*\d{1,2})?\s*M)\s+(Macho|F[êe]mea)\s+(\d{1,4})\s+(\d{2,4})\s*kg/i;
+var RE_COMECO=/^(\d{1,4})\s+(\d{2,4})\s+\d/;
+function interpretar(linhas){
+  var out={leilao:"",data:"",totais:null,lotes:[],naoEntendi:[]};
+  linhas.forEach(function(t){
+    var m;
+    /* Ord. partido em dois pedaços ("1 2 002 5 M ..." ou "1 152 152 2 M ..."): junta antes de ler */
+    t=t.replace(/^(\d{1,3})\s+(\d{1,3})(?=\s+\d{2,4}\s+\d{1,4}\s*[MF]\b)/i,"$1$2");
+    if(!out.leilao&&/LEIL[AÃ]O/i.test(t)&&!/ORDEM DE ENTRADA/i.test(t))out.leilao=t;
+    if(!out.data&&(m=t.match(/\b(\d{2}\/\d{2}\/\d{4})\b/))&&!/\d{2}:\d{2}/.test(t))out.data=m[1];
+    if((m=t.match(/Total de Animais:?\s*(\d+)/i))){
+      out.totais=out.totais||{};out.totais.animais=+m[1];
+      var mm=t.match(/Machos:?\s*(\d+)/i),ff=t.match(/F[êe]meas:?\s*(\d+)/i);
+      if(mm)out.totais.machos=+mm[1];if(ff)out.totais.femeas=+ff[1];
+      return;
+    }
+    if((m=t.match(RE_LINHA))){
+      out.lotes.push({ord:+m[1],lote:m[2],qtde:+m[3],sexo:m[4].toUpperCase(),vendedor:m[5],idade:m[6],raca:m[7],peso:+m[8]});
+    }else if((m=t.match(RE_CATALOGO))){
+      out.catalogo=true;
+      out.lotes.push({ord:+m[1],lote:m[2],qtde:+m[6],sexo:m[5].charAt(0).toUpperCase(),vendedor:"",idade:m[4],raca:m[3],peso:+m[7]});
+    }else if((m=t.match(RE_COMECO))&&!/Ord\.|Lote/i.test(t)){
+      out.naoEntendi.push(t);
+      out.lotes.push({ord:+m[1],lote:m[2],qtde:null,sexo:"",vendedor:"",idade:"",raca:"",peso:null,duvida:true,bruto:t});
+    }
+  });
+  return out;
+}
+var semWorker=false;
+async function abrirDoc(bytes){
+  var lib=await biblioteca();
+  try{return await lib.getDocument({data:bytes.slice(0),isEvalSupported:false}).promise;}
+  catch(e){
+    if(semWorker||(e&&/password|Invalid PDF|corrupt/i.test(e.message||"")))throw e;
+    /* alguns navegadores não abrem o leitor em segundo plano: tenta de novo na própria página */
+    semWorker=true;
+    try{lib.GlobalWorkerOptions.workerPort=null;}catch(_){}
+    return await lib.getDocument({data:bytes.slice(0),isEvalSupported:false,disableWorker:true}).promise;
+  }
+}
+/* leitura pela posição das colunas do cabeçalho (Ord. Lote Qtde Sx Vendedor Idade Raça Peso) */
+var ROTULOS=[["ord",/^Ord/i],["lote",/^Lote/i],["qtde",/^Qtd/i],["sexo",/^(Sx|Sexo)$/i],["vendedor",/^Vend/i],["idade",/^Idade/i],["raca",/^Ra[çc]a/i],["peso",/^Peso/i],["nome",/^Nome/i]];
+function palavras(g){
+  var w=[];
+  g.its.forEach(function(i){var re=/\S+/g,m;while((m=re.exec(i.s)))w.push({s:m[0],x:i.x+m.index*i.cw});});
+  return w.sort(function(a,b){return a.x-b.x;});
+}
+function porColunas(grupos){
+  var cols=null,lotes=[];
+  grupos.forEach(function(g){
+    var w=palavras(g);
+    if(!cols){
+      var c=[];w.forEach(function(p){ROTULOS.forEach(function(r){if(r[1].test(p.s)&&!c.some(function(x){return x.k===r[0];}))c.push({k:r[0],x:p.x});});});
+      if(c.length>=5&&c.some(function(x){return x.k==="lote";})){cols=c.sort(function(a,b){return a.x-b.x;});}
+      return;
+    }
+    if(!w.length||!/^\d{1,3}º?$/.test(w[0].s))return;
+    var v={};
+    w.forEach(function(p){
+      var k=null;cols.forEach(function(c){if(c.x<=p.x+4)k=c.k;});
+      if(!k)k=cols[0].k;
+      v[k]=(v[k]?v[k]+" ":"")+p.s;
+    });
+    /* número de qtde e sexo às vezes vêm grudados ("7M") ou na coluna vizinha */
+    var qs=((v.qtde||"")+" "+(v.sexo||"")).trim(),m=qs.match(/(\d{1,4})\s*([MF])\b/i);
+    var lote=(v.lote||"").match(/\d{1,4}/);
+    if(!lote||!m)return;
+    lotes.push({ord:+((v.ord||"").match(/\d+/)||[0])[0]||null,lote:lote[0],qtde:+m[1],sexo:m[2].toUpperCase(),
+      vendedor:(v.vendedor||"").trim(),idade:(v.idade||"").trim(),raca:(v.raca||"").trim(),peso:+(((v.peso||"").match(/\d{2,4}/)||[""])[0])||null});
+  });
+  return lotes;
+}
+async function lerPdf(file){
+  var buf=new Uint8Array(await file.arrayBuffer());
+  var doc=await abrirDoc(buf);
+  var linhas=[],grupos=[];
+  for(var p=1;p<=doc.numPages;p++){
+    var page=await doc.getPage(p);
+    var tc=await page.getTextContent();
+    linhas=linhas.concat(linhasDaPagina(tc.items));
+    grupos=grupos.concat(ULT_GRUPOS);
+  }
+  var meta=null;try{meta=await doc.getMetadata();}catch(e){}
+  var info=interpretar(linhas);
+  if(info.lotes.some(function(l){return l.duvida;})){
+    var pc=porColunas(grupos);
+    info.lotes=info.lotes.map(function(l){
+      if(!l.duvida)return l;
+      var a=pc.find(function(x){return loteN(x.lote)===loteN(l.lote);});
+      return a||l;
+    });
+    info.naoEntendi=info.lotes.filter(function(l){return l.duvida;}).map(function(l){return l.bruto;});
+  }
+  return {linhas:linhas,info:info,meta:meta};
+}
+return {lerPdf:lerPdf,loteN:loteN};
+})();
+</script>
 <script src="vendor/jspdf/jspdf.umd.min.js"></script>
 <script src="vendor/jspdf/jspdf.plugin.autotable.min.js"></script>
 <script>
@@ -565,7 +756,7 @@ function relatorio(m){$("pos").textContent="";var c=com(),K=calc(),pT=K.pc+K.pv,
      '<td><select data-qm="'+x.l+'" aria-label="Pisteiro do lote '+z(x.l)+'"><option value="">—</option>'+quem().map(function(n){return '<option'+(S.qm[x.l]===n?" selected":"")+'>'+esc(n)+'</option>'}).join("")+'</select></td></tr>'});
   var F=[["todos","Todos"],["V","Vendidos"],["D","Doação"],["R","Retorno"],["F","Sem marcação"]];
   m.innerHTML='<div class="rel"><div class="relh"><div><h2>Relatório pós-leilão</h2><p>'+esc(titulo(S))+(c.cidade?' · '+esc(c.cidade):'')+' · '+L.length+' lotes</p></div>'+
-   '<div class="relb"><button class="bt" id="rSinc" type="button">↻ Puxar correções do Lotes ADM</button><button class="bt" id="rCopy" type="button">Copiar resumo</button><button class="bt" id="rCsv" type="button">Planilha (CSV)</button><button class="bt" id="rPdf" type="button">Exportar PDF</button><button class="bt pri" id="rGh" type="button">Salvar no GitHub</button></div></div>'+
+   '<div class="relb"><button class="bt" id="rAnexa" type="button">📄 Anexar PDF</button><button class="bt" id="rSinc" type="button">↻ Puxar correções do Lotes ADM</button><button class="bt" id="rCopy" type="button">Copiar resumo</button><button class="bt" id="rCsv" type="button">Planilha (CSV)</button><button class="bt" id="rPdf" type="button">Exportar PDF</button><button class="bt pri" id="rGh" type="button">Salvar no GitHub</button></div></div>'+
    '<div class="kp">'+
     '<div>Faturamento bruto<b>'+brl(K.bruto)+'</b><small>'+K.cab+' cabeças vendidas</small></div>'+
     '<div>Vendidos<b>'+ct.V.length+' de '+L.length+'</b><small>lotes</small></div>'+
@@ -594,7 +785,7 @@ function relatorio(m){$("pos").textContent="";var c=com(),K=calc(),pT=K.pc+K.pv,
   m.querySelectorAll(".flt [data-ord]").forEach(function(b){b.onclick=function(){RF.ord=b.dataset.ord;try{localStorage.setItem("boleta-ord",RF.ord)}catch(e){}if(RF.sc)RF.sc[0]=0;render()}});
   var qi=$("rQ");qi.oninput=function(){RF.q=qi.value;render();var n=$("rQ");n.focus();n.setSelectionRange(n.value.length,n.value.length)};
   if($("rCom"))$("rCom").onclick=function(){tab="com";marcaTab();render()};
-  $("rSinc").onclick=function(){sincLotes(true)};
+  $("rSinc").onclick=function(){sincLotes(true)};$("rAnexa").onclick=function(){$("arqPdf").click()};
   $("rPdf").onclick=exportarPdf;$("rGh").onclick=function(){salvarGh(this)};
   $("rCopy").onclick=function(){copiaTxt(resumoTxt(),"Resumo copiado. Cole no WhatsApp.")};
   $("rCsv").onclick=baixaCsv;
@@ -723,16 +914,75 @@ async function sincLotes(avisar){
       if(a.i&&a.i!==x.i){det.push("idade");x.i=a.i}
       if(a.v&&a.v!==x.v)x.v=a.v;
       if(det.length)mud.push("lote "+z(x.l)+" ("+det.join(", ")+")")});
+    /* lotes novos no Lotes ADM entram no fim; lotes excluídos lá saem daqui se ainda não têm lance nem marcação */
+    var tem={};S.L.forEach(function(x){tem[x.l]=1});
+    Object.keys(fonte).map(Number).sort(function(a,b){return a-b}).forEach(function(n){if(tem[n])return;var a=fonte[n];S.L.push({o:S.L.length+1,l:n,q:a.q,s:a.s,v:a.v,r:a.r,i:a.i,p:a.p});mud.push("lote "+z(n)+" (novo)")});
+    if(Object.keys(fonte).length){var fica=S.L.filter(function(x){if(fonte[x.l])return true;if(S.st[x.l]||S.la[x.l]){return true}mud.push("lote "+z(x.l)+" (excluído)");return false});if(fica.length!==S.L.length){S.L=fica;L=S.L}}
     if(mud.length){salva();render();msg("Atualizado com o Lotes ADM: "+mud.join("; ")+".","bom")}
     else if(avisar)msg("Os lotes já estão iguais ao Lotes ADM.","bom");
   }finally{SINC.rod=false}
 }
+
+/* ---------- Anexar PDF no Pós-leilão ----------
+   Aceita: (1) o PDF da própria boleta (os novos trazem os dados completos escondidos; os antigos são lidos pela tabela);
+   (2) a ordem de entrada do sistema (lotes, vendedor, peso). Se já existe leilão do mesmo dia aqui, junta nele. */
+function upB(x){return String(x==null?"":x).trim().replace(/\s+/g," ").toUpperCase()}
+function isoData(d){d=String(d||"").trim();var m=d.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);if(m)return (m[3].length===2?"20"+m[3]:m[3])+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[1]).slice(-2);return /^\d{4}-\d{2}-\d{2}$/.test(d)?d:""}
+function sessDoDia(d){if(!d)return null;for(var k in DB.sess)if(DB.sess[k].data===d)return DB.sess[k];return null}
+function tabelaBoleta(linhas){
+  var out={L:[],st:{},la:{},qm:{},cp:{}},nome="",data="";
+  linhas.forEach(function(t,k){if(!nome&&/Confer[êe]ncia Boleta/i.test(t)){var q=linhas[k+1]||"",m=q.match(/^(.*?)\s*·\s*(\d{2}\/\d{2}\/\d{4})/);if(m){nome=m[1].trim();data=isoData(m[2])}}
+    var m=t.match(/^(\d{1,3})º\s+(\d{1,4})\s+(\d{1,4})\s+([MF])\s+(.+?)\s+(\d{2,4})\s*kg\s+(.*)$/);if(!m)return;
+    var mio=m[5],id="",r=mio,im=mio.match(/^(.*?)\s+(\d{1,2}\s*\/\s*\d{1,2}(?:\s*M)?|\d{1,2}\s*M|\d{1,2}\s*a\s*\d{1,2}\s*M?)$/i);if(im){r=im[1];id=im[2]}
+    var resto=m[7],sm=resto.match(/^(.*?)\s*\b(Vendido|Retorno|Doação|Doacao|—|-)\s+(\S+)(.*)$/),v=resto,s="",la=null,tail="";
+    if(sm){v=sm[1];s=sm[2];la=lnum(sm[3]);tail=sm[4]}
+    var l=+m[2];out.L.push({o:+m[1],l:l,q:+m[3],s:m[4],r:r.trim(),i:id.trim(),p:+m[6],v:v.trim()});
+    if(/Vend|Doa/.test(s))out.st[l]="V";else if(/Ret/.test(s))out.st[l]="R";if(/Doa/.test(s)){out.doa=out.doa||{};out.doa[l]=true}
+    if(la!=null&&la>0)out.la[l]=la;
+    var nomes=quem();nomes.forEach(function(n){if(new RegExp("\\b"+n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i").test(tail))out.qm[l]=n});
+  });
+  out.nome=nome;out.data=data;return out}
+function juntaNaSessao(alvo,nova,comValores){
+  var por={};alvo.L.forEach(function(x){por[x.l]=x});var mud=0,novos=0;
+  nova.L.forEach(function(x){var a=por[x.l];if(!a){alvo.L.push(Object.assign({},x,{o:alvo.L.length+1}));novos++;return}
+    ["q","s","r","i","p","v"].forEach(function(k){if(x[k]&&x[k]!==a[k]){a[k]=x[k];mud++}})});
+  if(comValores){["st","la","qm","cp","doa"].forEach(function(k){if(!nova[k])return;alvo[k]=alvo[k]||{};Object.keys(nova[k]).forEach(function(l){if(alvo[k][l]!==nova[k][l]){alvo[k][l]=nova[k][l];mud++}})})}
+  alvo.alterado=new Date().toISOString();return {mud:mud,novos:novos}}
+async function anexarPdf(f){
+  msg("Lendo o PDF…");
+  try{
+    var r=await LEPDF.lerPdf(f),kw=r.meta&&r.meta.info&&r.meta.info.Keywords||"";
+    /* 1) PDF da boleta com os dados completos */
+    if(/^LEILOINGA-BOLETA:/.test(kw)){var x=JSON.parse(b64dec(kw.slice(17)));x.st=x.st||{};x.la=x.la||{};x.qm=x.qm||{};x.cur=x.cur||0;
+      var ja=DB.sess[x.id];if(ja&&(ja.alterado||"")>(x.alterado||"")&&!confirm("Este aparelho tem uma versão mais nova deste leilão. Trocar pela do PDF?")){abrir(ja.id);tab="rel";marcaTab();render();msg("Mantive a versão deste aparelho.");return}
+      DB.sess[x.id]=x;abrir(x.id);tab="rel";marcaTab();render();msg("PDF da boleta aberto: "+titulo(x)+" · "+x.L.length+" lotes com lances e situação.","bom");return}
+    /* 2) PDF antigo da boleta: lê a tabela completa dos lotes */
+    var tb=tabelaBoleta(r.linhas||[]);
+    if(tb.L.length){var al=sessDoDia(tb.data);
+      if(al){var j=juntaNaSessao(al,tb,true);abrir(al.id);tab="rel";marcaTab();salva();render();msg("PDF da boleta juntado em "+titulo(al)+": "+j.mud+" informações atualizadas"+(j.novos?", "+j.novos+" lotes novos":"")+".","bom");return}
+      var s=novaSessao(tb.nome||f.name.replace(/\.pdf$/i,""),tb.data,tb.L,quem().slice());s.st=tb.st;s.la=tb.la;s.qm=tb.qm;if(tb.doa)s.doa=tb.doa;
+      if(DB.sess[s.id])s.id+="-"+Date.now().toString(36).slice(-4);DB.sess[s.id]=s;abrir(s.id);tab="rel";marcaTab();salva();render();
+      msg("PDF da boleta aberto: "+tb.L.length+" lotes. Confira lances e situação na tabela.","bom");return}
+    /* 3) ordem de entrada do sistema */
+    var info=r.info,ls=(info.lotes||[]).filter(function(l){return !l.duvida&&LEPDF.loteN(l.lote)!=null});
+    if(!ls.length){msg("Não achei lotes nesse PDF. Use a ordem de entrada do sistema ou o PDF gerado pela boleta.","err");return}
+    var lin=ls.map(function(l){return{l:LEPDF.loteN(l.lote),q:l.qtde||0,s:/^f/i.test(l.sexo||"")?"F":"M",v:upB(l.vendedor),r:upB(l.raca),i:upB(l.idade),p:l.peso||0,ord:l.ord||null}});
+    var lotes=deLinhas(lin,[]),dt=isoData(info.data),nome=String(info.leilao||"").replace(/\s*-\s*ORDEM DE ENTRADA\s*$/i,"").trim();
+    var al2=sessDoDia(dt);
+    if(al2){var j2=juntaNaSessao(al2,{L:lotes},false);abrir(al2.id);tab="rel";marcaTab();salva();render();msg("Ordem de entrada juntada em "+titulo(al2)+": "+j2.mud+" correções"+(j2.novos?", "+j2.novos+" lotes novos":"")+". Lances e marcações foram mantidos.","bom");return}
+    var s2=novaSessao(cap(nome)||f.name.replace(/\.pdf$/i,""),dt,lotes,quem().slice());
+    if(DB.sess[s2.id])s2.id+="-"+Date.now().toString(36).slice(-4);DB.sess[s2.id]=s2;abrir(s2.id);tab="rel";marcaTab();salva();render();
+    msg(lotes.length+" lotes lidos da ordem de entrada. Agora é só marcar a situação e digitar os lances na tabela.","bom");
+  }catch(e){console.error(e);msg(/password/i.test(e&&e.message||"")?"Esse PDF tem senha. Gere de novo sem senha.":"Não consegui abrir esse PDF ("+(e&&e.message||e)+").","err")}
+}
+$("arqPdf").addEventListener("change",function(e){var f=e.target.files[0];e.target.value="";if(f)anexarPdf(f)});
 window.addEventListener("storage",function(e){if(e.key==="fichas-lotes-v1")sincLotes(false)});
 document.addEventListener("visibilitychange",function(){if(!document.hidden)sincLotes(false)});
 
 /* ---------- PDF ---------- */
 function gerarPdf(){
   var J=window.jspdf.jsPDF,doc=new J({unit:"mm",format:"a4"}),c=contas(),W=210,y=16,VERDE=[13,92,35];
+  try{doc.setProperties({title:"Boleta · "+titulo(S),subject:"Leiloingá · relatório pós-leilão",keywords:"LEILOINGA-BOLETA:"+b64enc(JSON.stringify(S))})}catch(e){}
   function h(t){if(y>255){doc.addPage();y=16}doc.setFont("helvetica","bold");doc.setFontSize(12.5);doc.setTextColor(13,92,35);doc.text(t,14,y);y+=2}
   function p(t){doc.setFont("helvetica","normal");doc.setFontSize(9.5);doc.setTextColor(40);var ls=doc.splitTextToSize(t,W-28);doc.text(ls,14,y+4);y+=4+ls.length*4.2}
   function tb(head,body,opt){doc.autoTable(Object.assign({startY:y+2,head:[head],body:body,theme:"grid",margin:{left:14,right:14},styles:{fontSize:8.5,cellPadding:1.6},headStyles:{fillColor:VERDE,textColor:255},alternateRowStyles:{fillColor:[240,244,238]}},opt||{}));y=doc.lastAutoTable.finalY+7}
@@ -855,7 +1105,7 @@ function totais(){var c={V:[0,0],R:[0,0],F:[0,0]};L.forEach(function(x){var k=(S
 function render(){document.body.dataset.aba=tab;var tw0=document.querySelector(".tw");RF.sc=tw0&&tab==="rel"?[tw0.scrollTop,tw0.scrollLeft,window.scrollY]:null;heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
   if(tab==="cmp"){document.body.classList.add("largo");$("pos").textContent="";comparar(m);return}
   if(!S){document.body.classList.remove("largo");$("pos").textContent="";if(tab==="rel"||tab==="com"){m.innerHTML='<div class="vazio"><b>Escolha o leilão</b>Use a lista acima para ver qualquer leilão já registrado na Boleta.</div>';return}
-    if(tab!=="ini"){m.innerHTML='<div class="vazio"><b>Nenhum leilão aberto</b>Comece ou escolha um leilão no <a href="#ini">Início do leilão</a>.</div>';return}iniVazio(m);return}
+    if(tab!=="ini"){m.innerHTML='<div class="vazio"><b>Nenhum leilão aberto</b>Comece ou escolha um leilão no <a href="#ini">Início do leilão</a>.'+(tab==="rel"?'<div style="margin-top:12px"><button class="bt pri" type="button" id="vAnexa">📄 Anexar PDF do leilão</button><p style="margin:8px 0 0;font-size:.85rem">A ordem de entrada do sistema ou o PDF da boleta.</p></div>':'')+'</div>';if($("vAnexa"))$("vAnexa").onclick=function(){$("arqPdf").click()};return}iniVazio(m);return}
   document.body.classList.toggle("largo",tab==="rel"||tab==="com");
   if(tab==="ini")inicio(m);else if(tab==="pista")pista(m);else if(tab==="rel")relatorio(m);else if(tab==="com")comissao(m);else lista(m,tab)}
 function pista(m){
