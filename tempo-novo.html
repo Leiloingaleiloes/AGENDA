@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light only">
+<title>Previsão do tempo · Leiloingá</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+/* Previsão do tempo — mesma linha do sistema: verde da marca, Oswald nos títulos.
+   O céu do topo muda com o tempo do dia escolhido (sol, nuvens, chuva, temporal).
+   Dados: previsão diária da agenda (Climatempo, atualizada pela tarefa diária) e,
+   quando disponível, a previsão hora a hora do Open-Meteo para o gráfico do dia. */
+:root{
+  --ink:#0E1410;--ink-2:#151D17;--ink-line:#26332A;--on-ink:#E9EFEA;--on-ink-2:#93A398;
+  --green:#055D20;--green-2:#24B53B;--bg:#F3F4F2;--surface:#fff;--line:#E2E5E1;--fg:#141A16;--muted:#5D675F;
+  --sun:#FFC83D;--rain:#3B8BEB;--alert:#E5484D;--alert-soft:#FDECEC;
+  --f-d:"Oswald","Arial Narrow",sans-serif;--f-b:"Poppins","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--fg);font:14.5px/1.5 var(--f-b);overflow-x:hidden}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--green-2);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:16px clamp(12px,2.5vw,28px) 40px;display:grid;gap:16px}
+
+/* cidades */
+.cids{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.cid{flex:none;display:flex;align-items:center;gap:8px;padding:7px 14px 7px 8px;border-radius:99px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600;transition:transform .15s,border-color .15s}
+.cid:hover{transform:translateY(-1px);border-color:#b8c0ba}
+.cid svg{width:26px;height:26px}
+.cid small{font-weight:500;color:var(--muted)}
+.cid[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}.cid[aria-pressed=true] small{color:var(--on-ink-2)}
+.cid .lz{width:7px;height:7px;border-radius:50%;background:var(--green-2)}
+
+/* topo com o céu animado */
+.hero{position:relative;overflow:hidden;border-radius:20px;min-height:300px;color:#fff;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;padding:clamp(20px,3vw,34px);isolation:isolate;transition:background 1s}
+.hero.sol{background:linear-gradient(160deg,#1c6fc4 0%,#3e9be6 55%,#f7c76b 120%)}
+.hero.nuv{background:linear-gradient(160deg,#47607a 0%,#7d93a8 70%,#a9b6c2 120%)}
+.hero.chu{background:linear-gradient(160deg,#243445 0%,#3d5368 70%,#5d6f80 120%)}
+.hero.tem{background:linear-gradient(160deg,#151b26 0%,#2a3343 70%,#3c4555 120%)}
+.ceu{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.astro{position:absolute;right:8%;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,#fff6c9 0%,#ffd45a 32%,rgba(255,200,61,.35) 55%,transparent 70%);animation:brilha 6s ease-in-out infinite}
+.raios{position:absolute;right:calc(8% - 120px);top:-180px;width:500px;height:500px;background:repeating-conic-gradient(rgba(255,240,180,.18) 0 6deg,transparent 6deg 18deg);border-radius:50%;animation:gira 60s linear infinite;mask:radial-gradient(circle,#000 20%,transparent 70%)}
+@keyframes gira{to{transform:rotate(360deg)}}
+@keyframes brilha{50%{transform:scale(1.08);opacity:.9}}
+.nuvem{position:absolute;height:60px;border-radius:60px;background:rgba(255,255,255,.75);filter:blur(1px);animation:vai linear infinite}
+.nuvem::before,.nuvem::after{content:"";position:absolute;background:inherit;border-radius:50%}
+.nuvem::before{width:55%;height:150%;left:15%;top:-60%}.nuvem::after{width:40%;height:120%;right:12%;top:-40%}
+.hero.chu .nuvem,.hero.tem .nuvem{background:rgba(150,165,180,.55)}
+@keyframes vai{from{transform:translateX(-30vw)}to{transform:translateX(120vw)}}
+.gota{position:absolute;top:-20px;width:2px;height:16px;border-radius:2px;background:linear-gradient(transparent,rgba(190,220,255,.85));animation:cai linear infinite}
+@keyframes cai{to{transform:translateY(420px) translateX(-30px)}}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;animation:raio 7s infinite}
+@keyframes raio{0%,91%,95%,100%{opacity:0}92%{opacity:.35}93%{opacity:0}94%{opacity:.25}}
+.hl{display:flex;flex-direction:column;gap:10px;justify-content:center}
+.hl .kk{font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.hl h1{margin:0;font:700 clamp(30px,4vw,48px)/1.02 var(--f-d);text-transform:uppercase;text-wrap:balance}
+.tnow{display:flex;align-items:center;gap:16px}
+.tnow b{font:600 clamp(56px,7vw,92px)/.9 var(--f-d)}
+.tnow svg{width:88px;height:88px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.25));animation:boia 4s ease-in-out infinite}
+@keyframes boia{50%{transform:translateY(-6px)}}
+.tnow .tx{display:grid;gap:2px}
+.tnow .tx span{font-size:15px;font-weight:500}
+.tnow .tx small{opacity:.8}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.st{padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.18);font-size:12px;opacity:.95}
+.st b{display:block;font:600 19px var(--f-d)}
+.hr{display:flex;flex-direction:column;gap:10px;justify-content:center}
+.leilbox{padding:14px 16px;border-radius:16px;background:rgba(10,15,12,.38);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16)}
+.leilbox .kk{font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#9be7a8}
+.leilbox b{display:block;font:600 22px/1.1 var(--f-d);text-transform:uppercase;margin:4px 0}
+.leilbox p{margin:0;font-size:13.5px;opacity:.92}
+.leilbox.al{border-color:rgba(255,120,120,.6);background:rgba(90,10,10,.45)}.leilbox.al .kk{color:#ffb1b1}
+
+/* blocos */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.ch{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 14px;margin-bottom:12px}
+.ch h2{margin:0;font:600 19px var(--f-d);text-transform:uppercase;letter-spacing:.02em}
+.ch span{font-size:12.5px;color:var(--muted)}
+
+/* leilões */
+.leils{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.lc{display:grid;grid-template-columns:52px minmax(0,1fr);gap:4px 12px;align-items:center;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--surface);cursor:pointer;text-align:left;transition:transform .15s,box-shadow .15s}
+.lc:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.lc svg{width:52px;height:52px;grid-row:span 3}
+.lc b{font:600 16px var(--f-d);text-transform:uppercase}
+.lc span{font-size:12.5px;color:var(--muted)}
+.lc .t{font-weight:600;color:var(--fg)}
+.lc.al{border-color:#f3b6b8;background:var(--alert-soft)}
+.lc .alt{grid-column:1/-1;font-size:12px;color:#a2262b;font-weight:600;margin-top:4px}
+.lc[aria-pressed=true]{outline:2px solid var(--green-2);outline-offset:1px}
+
+/* 10 dias */
+.dias{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(96px,1fr);gap:8px;overflow-x:auto;padding:10px 2px 6px;scrollbar-width:thin}
+.dia{position:relative;display:grid;justify-items:center;gap:4px;padding:10px 6px 12px;border-radius:14px;border:1px solid var(--line);background:var(--surface);cursor:pointer;text-align:center;transition:transform .15s,background .15s}
+.dia:hover{transform:translateY(-2px)}
+.dia[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dia .w{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.75}
+.dia .dd{font:600 15px var(--f-d)}
+.dia svg{width:44px;height:44px}
+.rng{position:relative;width:76%;height:6px;border-radius:6px;background:rgba(128,128,128,.18);margin:4px 0}
+.rng i{position:absolute;top:0;bottom:0;border-radius:6px;background:linear-gradient(90deg,#4aa3ff,#ffb02e)}
+.dia .tt{font-size:12.5px;font-variant-numeric:tabular-nums}.dia .tt b{font-weight:700}
+.dia .mm{font-size:11.5px;color:var(--rain);font-weight:600}
+.dia[aria-pressed=true] .mm{color:#8fc3ff}
+.dia .ev{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--green-2);color:#06200D;white-space:nowrap}
+.dia.al::after{content:"";position:absolute;top:8px;right:8px;width:9px;height:9px;border-radius:50%;background:var(--alert);box-shadow:0 0 0 0 rgba(229,72,77,.6);animation:pul 2s infinite}
+@keyframes pul{70%{box-shadow:0 0 0 8px rgba(229,72,77,0)}100%{box-shadow:0 0 0 0 rgba(229,72,77,0)}}
+
+/* gráfico hora a hora */
+.fig{position:relative;height:240px}
+.fig svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.fig .ln{fill:none;stroke:#ff9d2e;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:desenha 1.4s ease forwards}
+@keyframes desenha{to{stroke-dashoffset:0}}
+.fig .bar{fill:var(--rain);opacity:.75;transform-origin:bottom;transform-box:fill-box;animation:sobeb .8s ease both}
+@keyframes sobeb{from{transform:scaleY(0)}}
+.fig text{font:500 11px var(--f-b);fill:var(--muted)}
+.fig .tv{font:600 11.5px var(--f-b);fill:#c76a00}
+.fig .lv{fill:var(--green-2);opacity:.12}
+.fig .lt{font:600 11px var(--f-b);fill:var(--green)}
+.leg{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:6px}.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.semh{color:var(--muted);font-size:13.5px;padding:20px 0}
+
+/* mapa */
+.mapw{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px}
+#mapa{height:420px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#e8ece8}
+.mk{position:relative;transform:translate(-50%,-50%);display:grid;justify-items:center}
+.mk .bo{display:grid;place-items:center;border-radius:50%;background:rgba(59,139,235,.22);border:2px solid rgba(59,139,235,.8);transition:all .5s ease}
+.mk.al .bo{background:rgba(229,72,77,.22);border-color:var(--alert);animation:pul 2s infinite}
+.mk svg{width:30px;height:30px}
+.mk .nm{margin-top:3px;font:600 11.5px var(--f-b);background:rgba(255,255,255,.92);padding:1px 7px;border-radius:99px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.mk.sel .nm{background:var(--ink);color:#fff}
+.mapc{display:flex;flex-direction:column;gap:10px}
+.play{display:flex;align-items:center;gap:8px}
+.play button{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer}
+.play button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.play input{flex:1;accent-color:var(--green-2)}
+.mdia{font:600 18px var(--f-d);text-transform:uppercase}
+.rk{display:grid;gap:4px}
+.rkr{display:grid;grid-template-columns:110px minmax(0,1fr) 54px;gap:10px;align-items:center;font-size:13px;cursor:pointer;padding:4px 6px;border-radius:8px}
+.rkr:hover{background:var(--bg)}.rkr.sel{background:#e8f6eb}
+.rkr .bb{height:10px;border-radius:6px;background:rgba(59,139,235,.15);overflow:hidden}
+.rkr .bb i{display:block;height:100%;border-radius:6px;background:var(--rain);transition:width .6s ease}
+.rkr.forte .bb i{background:var(--alert)}
+.rkr b{text-align:right;font-variant-numeric:tabular-nums}
+.fonte{font-size:12px;color:var(--muted);text-align:right}
+.vazio{padding:60px 0;text-align:center;color:var(--muted)}
+
+/* ícones animados */
+.i-sun .rays{transform-origin:24px 24px;animation:gira 14s linear infinite}
+.i-rain .drop{animation:pingo 1.1s linear infinite}.i-rain .drop:nth-child(2){animation-delay:.35s}.i-rain .drop:nth-child(3){animation-delay:.7s}
+@keyframes pingo{0%{transform:translateY(-3px);opacity:0}30%{opacity:1}100%{transform:translateY(5px);opacity:0}}
+.i-storm .bolt{animation:pisca 2.4s infinite}
+@keyframes pisca{0%,70%,100%{opacity:1}75%{opacity:.2}80%{opacity:1}85%{opacity:.3}}
+.i-cloud .c2,.i-partly .c1{animation:deriva 5s ease-in-out infinite}
+@keyframes deriva{50%{transform:translateX(2px)}}
+
+@media(max-width:860px){
+  .hero{grid-template-columns:minmax(0,1fr);min-height:0}
+  .tnow{flex-wrap:wrap;gap:8px 14px}.tnow b{font-size:64px}.tnow svg{width:64px;height:64px}.tnow .tx{flex-basis:100%}
+  .mapw{grid-template-columns:minmax(0,1fr)}
+  #mapa{height:320px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.fig .ln{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="cids" id="cids" role="group" aria-label="Cidade"></div>
+  <section class="hero" id="hero"><div class="ceu" id="ceu"></div><div class="vazio" style="color:#fff">Carregando a previsão…</div></section>
+  <section class="card"><div class="ch"><h2>Próximos leilões da Leiloingá</h2><span>toque para ver o dia</span></div><div class="leils" id="leils"></div></section>
+  <section class="card"><div class="ch"><h2 id="tDias">Próximos dias</h2><span>toque num dia</span></div><div class="dias" id="dias"></div></section>
+  <section class="card"><div class="ch"><h2 id="tHora">Hora a hora</h2><span id="sHora"></span></div><div class="fig" id="fig"></div><div class="leg"><span><i style="background:#ff9d2e"></i>Temperatura</span><span><i style="background:var(--rain)"></i>Chuva (mm por hora)</span><span id="legL"></span></div></section>
+  <section class="card"><div class="ch"><h2>Mapa da região</h2><span>chuva prevista em cada cidade</span></div>
+    <div class="mapw"><div id="mapa"></div>
+      <div class="mapc"><div class="mdia" id="mdia"></div>
+        <div class="play"><button type="button" id="bPlay" aria-label="Animar os dias">▶ Animar os dias</button><input type="range" id="slDia" min="0" max="9" value="0" aria-label="Dia no mapa"></div>
+        <div class="rk" id="rk"></div></div></div></section>
+  <p class="fonte" id="fonte"></p>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+{
+const BASE = "Laranjeiras do Sul-PR", NDIAS = 10;
+const SEM = ["dom","seg","ter","qua","qui","sex","sáb"], SEML = ["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
+const MES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const COORD = {"Laranjeiras do Sul-PR":[-25.4075,-52.4106],"Cantagalo-PR":[-25.3736,-52.1219],"Palmital-PR":[-24.8864,-52.2008],"Marquinho-PR":[-25.1100,-52.2461],"Guaraniaçu-PR":[-25.0997,-52.8750],"Toledo-PR":[-24.7136,-53.7433],"Ivaiporã-PR":[-24.2483,-51.6750]};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pd = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const hojeIso = () => { const n = new Date(); return n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0"); };
+const nome = c => c.replace(/-[A-Z]{2}$/, "");
+const ddmm = s => s.slice(8)+"/"+s.slice(5,7);
+
+/* ícones animados */
+const IC = {
+  sol:'<svg class="i-sun" viewBox="0 0 48 48" aria-hidden="true"><g class="rays" stroke="#FFC83D" stroke-width="3" stroke-linecap="round"><path d="M24 4v6M24 38v6M4 24h6M38 24h6M9.9 9.9l4.2 4.2M33.9 33.9l4.2 4.2M9.9 38.1l4.2-4.2M33.9 14.1l4.2-4.2"/></g><circle cx="24" cy="24" r="9" fill="#FFC83D"/></svg>',
+  par:'<svg class="i-partly" viewBox="0 0 48 48" aria-hidden="true"><g stroke="#FFC83D" stroke-width="2.6" stroke-linecap="round"><path d="M18 4v4M6 16h4M9.5 7.5l2.8 2.8M26.5 7.5l-2.8 2.8"/></g><circle cx="18" cy="17" r="7" fill="#FFC83D"/><path class="c1" fill="#DDE5EE" d="M15 40h22a7 7 0 0 0 .9-13.9A10 10 0 0 0 19 25.5 7.3 7.3 0 0 0 15 40z"/></svg>',
+  nuv:'<svg class="i-cloud" viewBox="0 0 48 48" aria-hidden="true"><path class="c2" fill="#AFBCCB" d="M26 30h14a6 6 0 0 0 .7-12A9 9 0 0 0 24 17a6 6 0 0 0 2 13z"/><path fill="#DDE5EE" d="M11 40h22a7 7 0 0 0 .9-13.9A10 10 0 0 0 15 25.5 7.3 7.3 0 0 0 11 40z"/></svg>',
+  chu:'<svg class="i-rain" viewBox="0 0 48 48" aria-hidden="true"><path fill="#C9D3DE" d="M11 30h24a7.5 7.5 0 0 0 1-14.9A11 11 0 0 0 15.3 14 8 8 0 0 0 11 30z"/><g stroke="#3B8BEB" stroke-width="3" stroke-linecap="round"><path class="drop" d="M15 35l-1.5 5"/><path class="drop" d="M23 35l-1.5 5"/><path class="drop" d="M31 35l-1.5 5"/></g></svg>',
+  tem:'<svg class="i-storm" viewBox="0 0 48 48" aria-hidden="true"><path fill="#97A5B5" d="M11 28h24a7.5 7.5 0 0 0 1-14.9A11 11 0 0 0 15.3 12 8 8 0 0 0 11 28z"/><path class="bolt" fill="#FFC83D" d="M25 26l-7 11h6l-2 9 9-13h-6l3-7z"/><g stroke="#3B8BEB" stroke-width="3" stroke-linecap="round"><path d="M13 33l-2 5M35 33l-2 5"/></g></svg>'
+};
+function tipo(t){ const s = (t||"").toLowerCase(); if (/trovoad|temporal|severo|granizo/.test(s)) return "tem"; if (/chuv|pancad|garoa/.test(s)) return "chu"; if (/nublad|encobert|instável/.test(s)) return "nuv"; if (/nuvens/.test(s)) return "par"; if (/sol|claro|aberto/.test(s)) return "sol"; return "nuv"; }
+const ic = t => IC[tipo(t)];
+
+let D = {leiloes:[], previsao:{}, clima:{}}, cidade = BASE, dia = null, idxMapa = 0, mapa = null, marcas = {}, playT = null, HORA = {};
+const nossos = () => D.leiloes.filter(l => l.leiloeira === "Leiloingá" && l.data >= hojeIso()).sort((a,b) => (a.data+a.hora).localeCompare(b.data+b.hora));
+const diasDe = c => ((D.clima[c] || {}).dias || []).filter(x => x.data >= hojeIso()).slice(0, NDIAS);
+const diaDe = (c, d) => ((D.clima[c] || {}).dias || []).find(x => x.data === d);
+const leilDe = (c, d) => nossos().find(l => l.cidade === c && l.data === d);
+function alerta(c, x){
+  if (!x) return null;
+  const l = leilDe(c, x.data), p = l && D.previsao[l.id];
+  if (p && p.alerta) return p.alerta;
+  const r = (x.resumo || "").toLowerCase(), o = [];
+  if ((x.chuvaMm||0) > 30 || ((x.chuvaPct||0) > 60 && (x.chuvaMm||0) >= 10)) o.push("muita chuva (~"+Math.round(x.chuvaMm)+" mm)");
+  if (/trovoad|temporal|granizo/.test(r)) o.push("temporal");
+  if ((x.rajada||0) > 50) o.push("rajadas de "+x.rajada+" km/h");
+  if (x.min != null && x.min < 5) o.push("frio de "+x.min+"°");
+  return o.length ? o.join(", ") : null;
+}
+
+/* ---------- cidades ---------- */
+function renderCids(){
+  const ks = [BASE, ...Object.keys(D.clima).filter(k => k !== BASE)], h = hojeIso(), tem = new Set(nossos().map(l => l.cidade));
+  $("cids").innerHTML = ks.map(c => { const x = diaDe(c, h); return `<button class="cid" type="button" data-c="${esc(c)}" aria-pressed="${c===cidade}">${x?ic(x.resumo):""}<span>${esc(nome(c))}</span>${x?`<small>${x.max}°</small>`:""}${tem.has(c)?'<i class="lz" title="Tem leilão da Leiloingá"></i>':""}</button>`; }).join("");
+}
+/* ---------- topo ---------- */
+function ceu(t){
+  const c = $("ceu"); let h = "";
+  if (t === "sol" || t === "par") h += '<div class="raios"></div><div class="astro"></div>';
+  const nn = t === "sol" ? 2 : t === "par" ? 3 : 5;
+  for (let i = 0; i < nn; i++) h += `<div class="nuvem" style="top:${8+i*16}%;width:${140+((i*53)%120)}px;animation-duration:${38+i*11}s;animation-delay:-${i*9}s;opacity:${.5+((i*7)%4)/10}"></div>`;
+  if (t === "chu" || t === "tem") for (let i = 0; i < 60; i++) h += `<i class="gota" style="left:${(i*37)%100}%;animation-duration:${.55+((i*13)%7)/14}s;animation-delay:-${((i*17)%10)/10}s"></i>`;
+  if (t === "tem") h += '<div class="flash"></div>';
+  c.innerHTML = h;
+}
+function renderHero(){
+  const x = diaDe(cidade, dia), ehHoje = dia === hojeIso(), hr = $("hero");
+  if (!x){ hr.className = "hero nuv"; hr.innerHTML = '<div class="ceu" id="ceu"></div><div class="vazio" style="color:#fff">Sem previsão para esta cidade.</div>'; return; }
+  const t = tipo(x.resumo), cls = {sol:"sol",par:"sol",nuv:"nuv",chu:"chu",tem:"tem"}[t], d = pd(x.data), l = leilDe(cidade, x.data), al = alerta(cidade, x);
+  const prox = l || nossos().find(v => v.cidade === cidade);
+  const agora = ehHoje && HORA[cidade] && HORA[cidade].atual;
+  hr.className = "hero " + cls;
+  hr.innerHTML = `<div class="ceu" id="ceu"></div>
+    <div class="hl"><span class="kk">${ehHoje ? "Hoje" : SEML[d.getDay()]}, ${d.getDate()} de ${MES[d.getMonth()]}</span><h1>${esc(nome(cidade))}</h1>
+      <div class="tnow">${ic(x.resumo)}<div><b>${agora ? Math.round(agora.t) : x.max}°</b></div><div class="tx"><span>${esc(x.resumo || "")}</span><small>${agora ? "agora · " : ""}mín ${x.min}° · máx ${x.max}°</small></div></div>
+      <div class="stats"><div class="st">Chuva<b>${x.chuvaMm != null ? Math.round(x.chuvaMm) + " mm" : "—"}</b></div><div class="st">Chance<b>${x.chuvaPct != null ? x.chuvaPct + "%" : "—"}</b></div><div class="st">Rajadas<b>${x.rajada != null ? x.rajada + " km/h" : "—"}</b></div>${x.mm2 != null ? `<div class="st">Outra fonte<b>~${Math.round(x.mm2)} mm</b></div>` : ""}</div></div>
+    <div class="hr">${prox ? `<div class="leilbox${l && al ? " al" : ""}"><span class="kk">${l ? "Leilão neste dia" : "Próximo leilão aqui"}</span><b>${esc(prox.nome)}</b><p>${SEML[pd(prox.data).getDay()]}, ${ddmm(prox.data)} às ${esc((prox.hora || "").replace(":","h"))}${l && al ? "<br>⚠ " + esc(al) : ""}</p></div>` : ""}
+      ${!l && al ? `<div class="leilbox al"><span class="kk">Atenção</span><p>${esc(al)}</p></div>` : ""}</div>`;
+  ceu(t);
+}
+/* ---------- leilões ---------- */
+function renderLeils(){
+  const ls = nossos().slice(0, 6);
+  $("leils").innerHTML = ls.length ? ls.map(l => { const x = diaDe(l.cidade, l.data), al = alerta(l.cidade, x), d = pd(l.data);
+    return `<button class="lc${al ? " al" : ""}" type="button" data-c="${esc(l.cidade)}" data-d="${l.data}" aria-pressed="${l.cidade===cidade&&l.data===dia}">${x ? ic(x.resumo) : IC.nuv}<b>${esc(nome(l.cidade))}</b><span>${SEM[d.getDay()]} ${ddmm(l.data)} · ${esc((l.hora||"").replace(":","h"))}</span><span class="t">${x ? `${x.min}° / ${x.max}° · ${x.chuvaPct ?? "—"}% · ${Math.round(x.chuvaMm||0)} mm` : "previsão ainda não saiu"}</span>${al ? `<span class="alt">⚠ ${esc(al)}</span>` : ""}</button>`; }).join("")
+    : '<p class="semh">Nenhum leilão da Leiloingá na agenda.</p>';
+}
+/* ---------- 10 dias ---------- */
+function renderDias(){
+  const ds = diasDe(cidade); $("tDias").textContent = "Próximos " + ds.length + " dias · " + nome(cidade);
+  const mn = Math.min(...ds.map(x => x.min)), mx = Math.max(...ds.map(x => x.max)), sp = Math.max(1, mx - mn);
+  $("dias").innerHTML = ds.map(x => { const d = pd(x.data), l = leilDe(cidade, x.data), al = alerta(cidade, x);
+    return `<button class="dia${al ? " al" : ""}" type="button" data-d="${x.data}" aria-pressed="${x.data===dia}" title="${esc(x.resumo||"")}${al ? " · " + esc(al) : ""}">${l ? '<span class="ev">Leilão</span>' : ""}<span class="w">${x.data===hojeIso() ? "hoje" : SEM[d.getDay()]}</span><span class="dd">${ddmm(x.data)}</span>${ic(x.resumo)}<span class="rng"><i style="left:${(x.min-mn)/sp*100}%;right:${(mx-x.max)/sp*100}%"></i></span><span class="tt">${x.min}° <b>${x.max}°</b></span><span class="mm">${x.chuvaMm ? Math.round(x.chuvaMm) + " mm" : "sem chuva"}</span></button>`; }).join("");
+  const box = $("dias"), sel = box.querySelector('[aria-pressed="true"]');   /* rola só a faixa dos dias, sem mexer na página */
+  if (sel){ const l = sel.offsetLeft - box.offsetLeft, r = l + sel.offsetWidth; if (l < box.scrollLeft) box.scrollLeft = l - 8; else if (r > box.scrollLeft + box.clientWidth) box.scrollLeft = r - box.clientWidth + 8; }
+}
+/* ---------- hora a hora (Open-Meteo, quando disponível) ---------- */
+async function hora(c){
+  if (HORA[c]) return HORA[c];
+  const k = "om-" + c + "-" + new Date().toISOString().slice(0,13);
+  try { const s = sessionStorage.getItem(k); if (s) return (HORA[c] = JSON.parse(s)); } catch(e){}
+  const [la, lo] = COORD[c] || []; if (la == null) return null;
+  try {
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code&hourly=temperature_2m,precipitation,precipitation_probability&timezone=America%2FSao_Paulo&forecast_days=8`);
+    if (!r.ok) return null; const j = await r.json(); if (!j.hourly) return null;
+    const o = {atual: j.current ? {t: j.current.temperature_2m} : null, h: j.hourly.time.map((t, i) => ({t, temp: j.hourly.temperature_2m[i], mm: j.hourly.precipitation[i], p: j.hourly.precipitation_probability[i]}))};
+    try { sessionStorage.setItem(k, JSON.stringify(o)); } catch(e){}
+    return (HORA[c] = o);
+  } catch(e){ return null; }
+}
+async function renderHora(){
+  const c = cidade, d = dia, fig = $("fig"), l = leilDe(c, d);
+  $("tHora").textContent = "Hora a hora · " + (d === hojeIso() ? "hoje" : SEM[pd(d).getDay()] + " " + ddmm(d));
+  $("legL").innerHTML = l ? '<i style="background:rgba(36,181,59,.35)"></i>Horário do leilão' : "";
+  fig.innerHTML = '<p class="semh">Carregando…</p>';
+  const H = await hora(c); if (c !== cidade || d !== dia) return;
+  const hs = H ? H.h.filter(x => x.t.startsWith(d)) : [];
+  if (!hs.length){ fig.innerHTML = '<p class="semh">A previsão hora a hora não está disponível para este dia agora.</p>'; $("sHora").textContent = ""; return; }
+  $("sHora").textContent = "Open-Meteo";
+  if (d === hojeIso() && H.atual) renderHero();
+  const draw = () => {
+    const W = fig.clientWidth, Hh = fig.clientHeight, pl = 34, pr = 10, pt = 26, pb = 24, iw = W - pl - pr, ih = Hh - pt - pb;
+    const tmin = Math.min(...hs.map(x => x.temp)) - 1, tmax = Math.max(...hs.map(x => x.temp)) + 1, mmax = Math.max(4, ...hs.map(x => x.mm));
+    const X = i => pl + iw * (i + .5) / hs.length, Y = t => pt + ih * (1 - (t - tmin) / (tmax - tmin)), bw = Math.max(3, iw / hs.length * .55);
+    let s = `<svg viewBox="0 0 ${W} ${Hh}">`;
+    if (l && l.hora){ const h0 = +l.hora.slice(0,2); s += `<rect class="lv" x="${X(h0) - iw/hs.length/2}" y="${pt-18}" width="${iw/hs.length*4}" height="${ih+18}" rx="6"/><text class="lt" x="${X(h0) - iw/hs.length/2 + 4}" y="${pt-6}">leilão ${l.hora.replace(":","h")}</text>`; }
+    hs.forEach((x, i) => { if (x.mm > 0){ const h = ih * .55 * x.mm / mmax; s += `<rect class="bar" style="animation-delay:${i*25}ms" x="${X(i)-bw/2}" y="${pt+ih-h}" width="${bw}" height="${h}" rx="2"><title>${x.t.slice(11)} · ${x.mm} mm · ${x.p ?? "—"}%</title></rect>`; } });
+    const pts = hs.map((x, i) => [X(i), Y(x.temp)]);
+    let path = "M" + pts.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" L");
+    let len = 0; for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]);
+    s += `<path class="ln" style="--len:${Math.ceil(len)}" d="${path}"/>`;
+    const step = W < 520 ? 4 : 2;
+    hs.forEach((x, i) => { if (i % step === 0){ s += `<text x="${X(i)}" y="${Hh-6}" text-anchor="middle">${x.t.slice(11,13)}h</text>`; if (i % (step*2) === 0) s += `<text class="tv" x="${X(i)}" y="${Y(x.temp)-8}" text-anchor="middle">${Math.round(x.temp)}°</text>`; } });
+    s += `<text x="4" y="${pt+ih}">${Math.round(tmin)}°</text><text x="4" y="${pt+8}">${Math.round(tmax)}°</text></svg>`;
+    fig.innerHTML = s;
+  };
+  draw(); clearTimeout(renderHora.t);
+  if (!renderHora.ro){ renderHora.ro = new ResizeObserver(() => { clearTimeout(renderHora.t); renderHora.t = setTimeout(() => { if (fig.querySelector("svg")) renderHora(); }, 250); }); renderHora.ro.observe(fig); }
+}
+/* ---------- mapa ---------- */
+function diasMapa(){ const s = new Set(); Object.values(D.clima).forEach(c => (c.dias || []).forEach(x => { if (x.data >= hojeIso()) s.add(x.data); })); return [...s].sort().slice(0, NDIAS); }
+function renderMapa(){
+  const ds = diasMapa(); if (!ds.length) return;
+  idxMapa = Math.max(0, Math.min(ds.length - 1, idxMapa)); const dm = ds[idxMapa], dt = pd(dm);
+  $("slDia").max = ds.length - 1; $("slDia").value = idxMapa;
+  $("mdia").textContent = (dm === hojeIso() ? "Hoje" : SEML[dt.getDay()]) + " · " + ddmm(dm);
+  if (typeof L !== "undefined" && !mapa){
+    mapa = L.map("mapa", {scrollWheelZoom:false, zoomControl:true, attributionControl:true}).setView([-25.0,-52.5], 8);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:12, maxNativeZoom:12, attribution:"&copy; OpenStreetMap"}).addTo(mapa);
+    const pts = Object.keys(COORD).filter(c => D.clima[c]).map(c => COORD[c]);
+    const fit = () => { mapa.invalidateSize(); mapa.fitBounds(pts, {padding:[40,40], animate:false}); };
+    fit(); new ResizeObserver(fit).observe($("mapa"));
+  }
+  const rows = [];
+  for (const c of Object.keys(COORD)){
+    if (!D.clima[c]) continue; const x = diaDe(c, dm), al = alerta(c, x), mm = x ? x.chuvaMm || 0 : 0;
+    rows.push({c, x, al, mm});
+    if (!mapa) continue;
+    const sz = 30 + Math.min(46, mm * .9);
+    const html = `<div class="mk${c === cidade ? " sel" : ""}${al ? " al" : ""}"><div class="bo" style="width:${sz}px;height:${sz}px">${x ? ic(x.resumo) : ""}</div><span class="nm">${esc(nome(c))}${x ? " · " + Math.round(mm) + " mm" : ""}</span></div>`;
+    const icon = L.divIcon({html, className:"", iconSize:[0,0]});
+    if (marcas[c]) marcas[c].setIcon(icon); else marcas[c] = L.marker(COORD[c], {icon}).addTo(mapa).on("click", () => escolhe(c, dm));
+    marcas[c].bindTooltip(x ? `${esc(x.resumo||"")} · ${x.min}°/${x.max}° · ${x.chuvaPct ?? "—"}%` : "Sem previsão", {direction:"top", offset:[0,-20]});
+  }
+  const mx = Math.max(10, ...rows.map(r => r.mm));
+  $("rk").innerHTML = rows.sort((a,b) => b.mm - a.mm).map(r => `<div class="rkr${r.c === cidade ? " sel" : ""}${r.mm >= 30 ? " forte" : ""}" data-c="${esc(r.c)}" title="${esc(r.x ? r.x.resumo : "")}"><span>${esc(nome(r.c))}</span><span class="bb"><i style="width:${r.mm/mx*100}%"></i></span><b>${Math.round(r.mm)} mm</b></div>`).join("");
+}
+function play(on){
+  clearInterval(playT); playT = null; const b = $("bPlay");
+  if (on){ b.classList.add("on"); b.textContent = "❚❚ Parar"; playT = setInterval(() => { const n = diasMapa().length; idxMapa = (idxMapa + 1) % n; renderMapa(); }, 1300); }
+  else { b.classList.remove("on"); b.textContent = "▶ Animar os dias"; }
+}
+/* ---------- escolher cidade e dia ---------- */
+function escolhe(c, d){
+  if (c) cidade = c; try { localStorage.setItem("cidadeTempo", cidade); } catch(e){}
+  const ds = diasDe(cidade); if (d && ds.some(x => x.data === d)) dia = d; else if (!ds.some(x => x.data === dia)) dia = ds[0] ? ds[0].data : null;
+  const ix = diasMapa().indexOf(dia); if (ix >= 0) idxMapa = ix;
+  renderCids(); renderHero(); renderLeils(); renderDias(); renderMapa(); renderHora();
+}
+$("cids").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (b) escolhe(b.dataset.c, dia); });
+$("leils").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (b){ escolhe(b.dataset.c, b.dataset.d); $("hero").scrollIntoView({behavior:"smooth", block:"start"}); } });
+$("dias").addEventListener("click", e => { const b = e.target.closest("[data-d]"); if (b) escolhe(null, b.dataset.d); });
+$("rk").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (b) escolhe(b.dataset.c, diasMapa()[idxMapa]); });
+$("slDia").addEventListener("input", e => { play(false); idxMapa = +e.target.value; renderMapa(); });
+$("bPlay").addEventListener("click", () => play(!playT));
+
+async function carregar(){
+  try {
+    const r = await fetch("agenda.json?t=" + Date.now(), {cache:"no-store"}); const j = await r.json();
+    D = {leiloes: j.leiloes || [], previsao: j.previsao || {}, clima: j.clima || {}};
+    try { const c = localStorage.getItem("cidadeTempo"); if (c && D.clima[c]) cidade = c; } catch(e){}
+    if (!D.clima[cidade]) cidade = Object.keys(D.clima)[0];
+    const f = (D.clima[cidade] || {}).fonte, at = j.atualizadoEm ? new Date(j.atualizadoEm) : null;
+    $("fonte").textContent = "Previsão diária: " + (f || "Climatempo") + (at ? " · atualizada " + at.toLocaleString("pt-BR", {day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"}) : "") + " · hora a hora: Open-Meteo";
+    escolhe(cidade, dia || hojeIso());
+  } catch(e){ $("hero").innerHTML = '<div class="ceu"></div><div class="vazio" style="color:#fff">Não consegui carregar a previsão. Recarregue a página.</div>'; }
+}
+carregar();
+document.addEventListener("visibilitychange", () => { if (document.hidden) play(false); });
+}
+</script>
+</body>
+</html>

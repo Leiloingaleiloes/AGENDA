@@ -246,7 +246,7 @@ const AREAS = [
   {grp:'Geral'},
   {id:'inicio', nome:'Início', desc:'Próximos leilões da Leiloingá', ic:'inicio'},
   {id:'agenda', nome:'Agenda de leilões', desc:'Leiloingá, Gralha Azul, Panorama e Pampa Remates', ic:'agenda', url:'agenda.html'},
-  {id:'tempo', nome:'Previsão do tempo', desc:'Cidades dos leilões da Leiloingá', ic:'tempo', url:'tempo.html'},
+  {id:'tempo', nome:'Previsão do tempo', desc:'Cidades dos leilões da Leiloingá · dia a dia, hora a hora e mapa', ic:'tempo', url:'tempo-novo.html'},
   {grp:'Leilão'},
   {id:'fichas', nome:'Lotes · ADM', desc:'Fichas em Word, câmera dos lotes e envio para o site', ic:'fichas', url:'fichas.html'},
   {id:'boleta', nome:'Boleta', desc:'Conferência na pista', ic:'boleta', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html',
@@ -256,13 +256,14 @@ const AREAS = [
         {h:'R',nome:'Retorno',desc:'Lotes que voltaram'}]},
   {id:'pos', nome:'Pós-leilão', desc:'Todos os lotes em linhas: comprador, doação e valores', ic:'pos', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'rel'},
   {id:'comissao', nome:'Comissão', desc:'Vendas do leilão e divisão da comissão', ic:'comissao', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'com'},
-  {id:'comparar', nome:'Comparar leilões', desc:'Gráfico e tabela dos leilões registrados na Boleta', ic:'comparar', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'cmp'},
   {id:'relatorio', nome:'Relatório por categoria', desc:'Peso, raça, idade e sexo · médias de R$/kg', ic:'relatorio', url:'relatorio-novo.html'},
   {id:'v2', nome:'Lotes ADM v2', desc:'Layout novo em teste', ic:'v2', url:'lotes-v2/', tag:'teste'},
   {grp:'Divulgação'},
   {id:'lotes', nome:'Catálogo dos lotes', desc:'O que o produtor vê no link do QR code', ic:'lotes', url:'../LOTES/'},
   {id:'propagandas', nome:'Propagandas', desc:'Artes de divulgação dos leilões', ic:'propagandas', url:'propagandas.html'},
-  {id:'site', nome:'Site novo', desc:'Versão completa do site, em teste', ic:'site', url:'site/', tag:'teste'}
+  {id:'site', nome:'Site novo', desc:'Versão completa do site, em teste', ic:'site', url:'site/', tag:'teste'},
+  {grp:'Análises'},
+  {id:'comparar', nome:'Comparar leilões', desc:'Um leilão ao lado do outro: faturamento, médias e vendas', ic:'comparar', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'cmp'}
 ];
 const BY = Object.fromEntries(AREAS.filter(a => a.id).map(a => [a.id, a]));
 const CATALOGO = 'https://leiloingaleiloes.github.io/LOTES/';
