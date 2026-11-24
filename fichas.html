@@ -381,7 +381,21 @@ td input:focus{border-color:var(--destaque)}
 .vform input,.vform select{padding:8px 10px;border-radius:8px;border:1px solid var(--line);font:inherit;font-size:1rem;text-transform:none;background:#fff}
 .vfb{display:flex;gap:8px;align-items:end;grid-column:1/-1}
 .vdica{font-size:.84rem;color:var(--muted);margin:0 0 10px}
-.vgrp{border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;background:#fff}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+@media (max-width:520px){.vgrid{grid-template-columns:repeat(2,1fr);gap:8px}.vcard{padding:10px 6px}.vav{width:44px;height:44px;font-size:1.05rem}}
+.vcard{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:14px 10px 12px;border:1.5px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;font:inherit;color:inherit;transition:transform .15s,box-shadow .15s,border-color .15s}
+.vcard:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.vcard[aria-expanded="true"]{border-color:var(--accent);box-shadow:0 0 0 3px rgba(36,181,59,.18)}
+.vav{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font:700 1.25rem var(--f-display);color:#fff;letter-spacing:.02em}
+.vcn{font:700 .98rem var(--f-display);text-transform:uppercase;line-height:1.15;word-break:break-word}
+.vcl{font-size:.82rem;color:var(--muted)}
+.vsx{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.vsx span{font-size:.78rem;font-weight:600;padding:2px 8px;border-radius:999px}
+.vsx .m{background:#e3effc;color:#1d5fa8}.vsx .f{background:#fbe6ef;color:#a3285c}
+.vgrid .vgrp{grid-column:1/-1;margin:0;animation:vabre .2s ease-out}
+@keyframes vabre{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.vgrp{border:1.5px solid var(--accent);border-radius:14px;margin-bottom:10px;overflow:hidden;background:#fff}
+.vfecha{border:0;background:none;font-size:1.1rem;cursor:pointer;color:var(--muted);padding:0 4px}
 .vgh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
 .vgh .vnome{font:700 1.1rem var(--f-display);text-transform:uppercase;letter-spacing:.02em;cursor:text}
 .vgh span{font-size:.85rem;color:var(--muted)}
@@ -1058,7 +1072,7 @@ function achar(id){id=Number(id);return S.rows.find(function(r){return r.id===id
    É o único lugar para mudar número, quantidade, peso etc. Tudo salva no mesmo estado do Lotes ADM
    (e na nuvem), e a Boleta e o Relatório puxam as correções sozinhos. */
 var VCAMPOS=[{k:"lote",t:"Lote",n:1,w:58},{k:"mang",t:"Mang.",n:1,w:58},{k:"qtde",t:"Qtde",n:1,w:58},{k:"sexo",t:"Sexo",w:70},{k:"raca",t:"Raça",w:160,dl:"vRacas"},{k:"idade",t:"Idade",w:90},{k:"peso",t:"Peso",n:1,w:70},{k:"vendedor",t:"Vendedor",w:200,dl:"vVends"}];
-var VQ="",VEDIT=null,VARM=null;
+var VQ="",VEDIT=null,VARM=null,VOPEN=null;
 function vEsc(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 function vVal(r,k){var v=r[k];if(v==null||v==="")return "";if(k==="lote"||k==="mang")return dois(v);if(k==="peso")return v+" kg";if(k==="sexo")return v==="M"?"Macho":v==="F"?"Fêmea":v;return String(v);}
 function vNome(r){return (r.vendedor||"").trim()||"(sem vendedor)";}
@@ -1073,23 +1087,42 @@ function renderVend(){
   $("vVends").innerHTML=[...new Set(S.rows.map(function(r){return r.vendedor;}).filter(Boolean))].sort().map(function(x){return '<option value="'+vEsc(x)+'">';}).join("");
   box.textContent="";
   if(!nomes.length){box.append(el("p","muted",S.rows.length?"Nenhum lote com essa busca.":"Nenhum lote ainda. Leia o PDF da ordem de entrada na aba Fichas ou use “+ Novo lote”."));return;}
+  if(VOPEN&&!gr[VOPEN])VOPEN=null;if(q&&nomes.length===1)VOPEN=nomes[0];
+  var grid=el("div","vgrid"),cards={};box.append(grid);
+  var CORES=["#1f7a3a","#2c6e9e","#8a5a1f","#7a2f6b","#3d6b5a","#a14a2a","#4b5aa0","#6b7a1f"];
   nomes.forEach(function(nm){
-    var ls=gr[nm].slice().sort(function(a,b){return (a.lote||0)-(b.lote||0);}),c=ls.reduce(function(s,r){return s+(r.qtde||0);},0);
-    var g=el("section","vgrp"),h=el("div","vgh"),hn=el("b","vnome",nm);
-    if(nm!=="(sem vendedor)"){hn.title="Dois cliques para mudar o nome em todos os lotes deste vendedor";hn.addEventListener("dblclick",function(){editarVendedor(nm,hn);});}
-    h.append(hn,el("span",null,ls.length+(ls.length===1?" lote":" lotes")+" · "+c+" cab."));g.append(h);
-    var t=document.createElement("table");t.className="vtab";
-    var th=document.createElement("tr");VCAMPOS.forEach(function(f){var x=el("th",f.n?"n":null,f.t);th.append(x);});th.append(el("th"));t.append(th);
-    ls.forEach(function(r){
-      var tr=document.createElement("tr");tr.dataset.rid=r.id;
-      VCAMPOS.forEach(function(f){var td=el("td",(f.n?"n ":"")+"ved",vVal(r,f.k)||"–");td.dataset.k=f.k;td.title="Dois cliques para editar";tr.append(td);});
-      var tdx=el("td","vx"),bx=el("button","vdel",VARM===r.id?"Excluir?":"🗑");bx.type="button";bx.setAttribute("aria-label","Excluir o lote "+dois(r.lote));
-      bx.addEventListener("click",function(){if(VARM!==r.id){VARM=r.id;renderVend();setTimeout(function(){if(VARM===r.id){VARM=null;renderVend();}},4000);return;}
-        VARM=null;S.rows=S.rows.filter(function(x){return x.id!==r.id;});salvar();render();toast("Lote "+dois(r.lote)+" excluído.");});
-      tdx.append(bx);tr.append(tdx);t.append(tr);
-    });
-    var sc=el("div","vscroll");sc.append(t);g.append(sc);box.append(g);
+    var ls=gr[nm],mc=0,fc=0,ml=0,fl=0;ls.forEach(function(r){if(r.sexo==="F"){fc+=r.qtde||0;fl++;}else if(r.sexo==="M"){mc+=r.qtde||0;ml++;}});
+    var cd=document.createElement("button");cd.type="button";cd.className="vcard";cd.setAttribute("aria-expanded",VOPEN===nm?"true":"false");
+    var ini=nm==="(sem vendedor)"?"?":nm.replace(/^(FAZENDA|FAZ\.?|SITIO|SÍTIO|AGROPECUARIA|AGROPECUÁRIA)\s+/i,"").split(/\s+/).filter(function(w){return w.length>2||/^\d/.test(w);}).slice(0,2).map(function(w){return w[0];}).join("").toUpperCase()||nm[0];
+    var hsh=0;for(var i=0;i<nm.length;i++)hsh=(hsh*31+nm.charCodeAt(i))>>>0;
+    var av=el("span","vav",ini);av.style.background=CORES[hsh%CORES.length];
+    var sx=el("div","vsx");if(ml)sx.append(el("span","m","♂ "+mc+" machos"));if(fl)sx.append(el("span","f","♀ "+fc+" fêmeas"));
+    cd.append(av,el("span","vcn",nm),el("span","vcl",ls.length+(ls.length===1?" lote":" lotes")),sx);
+    cd.addEventListener("click",function(){VOPEN=VOPEN===nm?null:nm;renderVend();if(VOPEN){var g=$("vendLista").querySelector(".vgrp");if(g)g.scrollIntoView({block:"nearest",behavior:"smooth"});}});
+    grid.append(cd);cards[nm]=cd;
   });
+  if(!VOPEN)return;
+  var nm=VOPEN,ls=gr[nm].slice().sort(function(a,b){return (a.lote||0)-(b.lote||0);}),c=ls.reduce(function(s,r){return s+(r.qtde||0);},0);
+  var g=el("section","vgrp"),h=el("div","vgh"),hn=el("b","vnome",nm);
+  if(nm!=="(sem vendedor)"){hn.title="Dois cliques para mudar o nome em todos os lotes deste vendedor";hn.addEventListener("dblclick",function(){editarVendedor(nm,hn);});}
+  var fx=el("button","vfecha","✕");fx.type="button";fx.setAttribute("aria-label","Fechar");fx.addEventListener("click",function(){VOPEN=null;renderVend();});
+  var dir=el("span",null,ls.length+(ls.length===1?" lote":" lotes")+" · "+c+" cab. ");dir.append(fx);
+  h.append(hn,dir);g.append(h);
+  var t=document.createElement("table");t.className="vtab";
+  var th=document.createElement("tr");VCAMPOS.forEach(function(f){th.append(el("th",f.n?"n":null,f.t));});th.append(el("th"));t.append(th);
+  ls.forEach(function(r){
+    var tr=document.createElement("tr");tr.dataset.rid=r.id;
+    VCAMPOS.forEach(function(f){var td=el("td",(f.n?"n ":"")+"ved",vVal(r,f.k)||"–");td.dataset.k=f.k;td.title="Dois cliques para editar";tr.append(td);});
+    var tdx=el("td","vx"),bx=el("button","vdel",VARM===r.id?"Excluir?":"🗑");bx.type="button";bx.setAttribute("aria-label","Excluir o lote "+dois(r.lote));
+    bx.addEventListener("click",function(){if(VARM!==r.id){VARM=r.id;renderVend();setTimeout(function(){if(VARM===r.id){VARM=null;renderVend();}},4000);return;}
+      VARM=null;S.rows=S.rows.filter(function(x){return x.id!==r.id;});salvar();render();toast("Lote "+dois(r.lote)+" excluído.");});
+    tdx.append(bx);tr.append(tdx);t.append(tr);
+  });
+  var sc=el("div","vscroll");sc.append(t);g.append(sc);
+  /* abre logo abaixo da linha do vendedor clicado */
+  var cs=Array.prototype.slice.call(grid.children),top=cards[nm].offsetTop,ult=cards[nm];
+  cs.forEach(function(x){if(x.offsetTop===top)ult=x;});
+  ult.after(g);
 }
 function vSalvaCampo(r,k,v){
   var f=VCAMPOS.find(function(x){return x.k===k;}),antes=r[k];
@@ -1121,7 +1154,7 @@ function editarCelula(td){
 function editarVendedor(nm,alvo){
   var inp=document.createElement("input");inp.className="vin big";inp.value=nm;inp.setAttribute("list","vVends");alvo.replaceWith(inp);inp.focus();inp.select();var feito=false;
   function fim(ok){if(feito)return;feito=true;var novo=inp.value.trim().replace(/\s+/g," ");
-    if(ok&&novo&&novo!==nm){var n=0;S.rows.forEach(function(r){if(vNome(r)===nm){r.vendedor=novo;n++;}});salvar();render();toast(n+" lotes passaram para "+novo+".");}else renderVend();}
+    if(ok&&novo&&novo!==nm){var n=0;S.rows.forEach(function(r){if(vNome(r)===nm){r.vendedor=novo;n++;}});if(VOPEN===nm)VOPEN=vNome({vendedor:novo});salvar();render();toast(n+" lotes passaram para "+novo+".");}else renderVend();}
   inp.addEventListener("keydown",function(e){if(e.key==="Enter")fim(true);else if(e.key==="Escape")fim(false);});
   inp.addEventListener("blur",function(){fim(true);});
 }
@@ -1140,7 +1173,7 @@ $("vendForm").addEventListener("submit",function(e){e.preventDefault();
   var lote=loteN($("vnLote").value);if(!(lote>0)){toast("Coloque o número do lote.");$("vnLote").focus();return;}
   if(S.rows.some(function(r){return r.lote===lote;})){toast("Já existe o lote "+dois(lote)+".");$("vnLote").focus();return;}
   var d={lote:lote,mang:loteN($("vnMang").value),qtde:loteN($("vnQtde").value),sexo:sexoN($("vnSexo").value),raca:up($("vnRaca").value),idade:up($("vnIdade").value),peso:loteN($("vnPeso").value),vendedor:$("vnVend").value.trim().replace(/\s+/g," ")};
-  d.id=seq++;d.feita=false;d.sel=true;d.nova=true;S.rows.push(d);salvar();render();
+  d.id=seq++;d.feita=false;d.sel=true;d.nova=true;S.rows.push(d);VOPEN=vNome(d);salvar();render();
   ["vnLote","vnMang","vnQtde","vnRaca","vnIdade","vnPeso"].forEach(function(i){$(i).value="";});$("vnLote").value=lote+1;$("vnQtde").focus();
   toast("Lote "+dois(lote)+" adicionado ("+(d.vendedor||"sem vendedor")+").");
 });
