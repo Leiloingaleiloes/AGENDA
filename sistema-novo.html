@@ -189,6 +189,11 @@ button{font:inherit;color:inherit}a{color:inherit}
   .dock{padding:0 14px 14px}.arr{display:none}.tb{width:160px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.tx>*,.art .card{opacity:1!important;transform:none!important}}
+/* modo público (vindo do catálogo): só o Início, sem menu */
+html.publico .app{grid-template-columns:minmax(0,1fr)}
+html.publico .side,html.publico .scrim,html.publico #burger,html.publico #newtab,html.publico #reload{display:none!important}
+.voltacat{display:none}
+html.publico .voltacat{display:inline-flex;align-items:center;gap:6px;text-decoration:none;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -202,6 +207,7 @@ button{font:inherit;color:inherit}a{color:inherit}
   <div class="main">
     <header class="top">
       <button class="btn ico burger" id="burger" type="button" aria-label="Abrir menu"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5.5h14M3 10h14M3 14.5h14"/></svg></button>
+      <a class="btn voltacat" href="../LOTES/">&larr; Catálogo de lotes</a>
       <div class="ttl"><b id="t-nome">Início</b><span id="t-desc">Próximos leilões da Leiloingá</span></div>
       <button class="btn ico" id="reload" type="button" title="Recarregar" aria-label="Recarregar esta área"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5v3.2h-3.2"/></svg></button>
       <a class="btn" id="newtab" href="#" target="_blank" rel="noopener" title="Abrir numa aba separada"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3.5h5.5V9M16.5 3.5 9.5 10.5M14 12v3.5a1 1 0 0 1-1 1H4.5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1H8"/></svg><span class="t">Nova aba</span></a>
@@ -307,8 +313,10 @@ function abrirFrame(a, h){
 }
 function hashDe(a, sub){ return a.sub ? sub : (a.h || ''); }
 
+const PUBLICO = document.documentElement.classList.contains('publico');
 function ir(rota, semHash){
   let [id, sub] = String(rota || '').split('-');
+  if (PUBLICO){ id = 'inicio'; sub = null; semHash = true; }
   if (!BY[id]) id = 'inicio';
   const a = BY[id];
   if (a.sub){ sub = (a.sub.find(x => x.h === sub) || a.sub.find(x => x.h === subAtual[id]) || a.sub[0]).h; subAtual[id] = sub; } else sub = null;
@@ -324,10 +332,11 @@ function ir(rota, semHash){
   const sa = sub ? a.sub.find(x => x.h === sub) : null;
   document.getElementById('t-nome').textContent = sa ? a.nome + ' · ' + sa.nome : a.nome;
   document.getElementById('t-desc').textContent = sa ? sa.desc : a.desc;
+  if (PUBLICO){ document.getElementById('t-nome').textContent = 'Próximos leilões'; document.getElementById('t-desc').textContent = 'Leiloingá Leilões'; }
   const nt = document.getElementById('newtab');
   nt.style.display = a.url ? '' : 'none';
   if (a.url) nt.href = new URL((a.aberta || a.url) + (h ? '#' + h : ''), location.href).href;
-  document.title = id === 'inicio' ? 'Leiloingá · Sistema' : (sa ? sa.nome : a.nome) + ' · Leiloingá';
+  document.title = PUBLICO ? 'Próximos leilões · Leiloingá' : id === 'inicio' ? 'Leiloingá · Sistema' : (sa ? sa.nome : a.nome) + ' · Leiloingá';
   atual = id; app.classList.remove('open');
   carrossel(id === 'inicio');
   const hh = sub ? id + '-' + sub : id;
