@@ -371,6 +371,9 @@ td input:focus{border-color:var(--destaque)}
 .qted input{font-size:1.6rem;font-weight:700;padding:6px 10px;border-radius:9px;border:2px solid var(--accent,#2E6A3E);width:100%;text-align:center}
 .qted .bb{display:flex;gap:6px}.qted .bb button{flex:1;min-height:40px;border-radius:9px;border:1px solid var(--line);background:var(--surface,#fff);font-weight:700;cursor:pointer}
 .qted .bb .ok2{background:var(--accent,#2E6A3E);color:#fff;border-color:transparent}
+.enctop{background:#B42318!important;color:#fff!important;border-color:#B42318!important}
+.enctop.reabrir{background:#14843A!important;border-color:#14843A!important}
+.enctop.armado{background:#7a120c!important}
 </style>
 </head>
 <body>
@@ -380,6 +383,7 @@ td input:focus{border-color:var(--destaque)}
     <div class="row">
       <button class="nuvem" type="button" id="nuvemBtn"><i></i><span id="nuvemTxt">Só neste aparelho</span></button>
       <button class="home pubtop" type="button" id="pubTopo">⬆ Mandar lotes pro site</button>
+      <button class="home enctop" type="button" id="encTopo" title="Tira lotes e ordem de entrada do site dos produtores e mostra o próximo leilão">⏹ Encerrar no site</button>
       <a class="home" href="https://leiloingaleiloes.github.io/LOTES/" target="_blank" rel="noopener">Site dos produtores ↗</a>
       <a class="home" href="./">&larr; Início</a>
     </div>
@@ -1518,7 +1522,44 @@ async function publicarDados(){
   var ord=pubs.length?pubs.sort(function(a,b){return a.osPub-b.osPub;}):S.rows.filter(function(r){return r.ord!=null&&r.lote!=null;}).sort(function(a,b){return a.ord-b.ord;});
   if(ord.length)await gravarTexto(PUB,"ordem.txt",ord.map(function(r){return r.lote;}).join("\n")+"\n","Lotes: ordem de entrada");
   await gravarTexto(PUB,"leilao.json",JSON.stringify({nome:S.leilao||"",data:S.data||""})+"\n","Lotes: leilão atual");
+  if(ENC.on!==false){try{if(ENC.on===null)await lerEstadoPub();if(ENC.on)await gravarEstado(false);}catch(e){}}
 }
+/* ---------- encerrar o leilão no site dos produtores ----------
+   Grava estado.json no site: com encerrado:true, o site some com lotes e ordem de entrada e mostra o
+   banner do próximo leilão da Leiloingá (da agenda). "Mandar lotes pro site" reabre automaticamente. */
+var ENC={on:null,arm:false};
+async function lerEstadoPub(){try{var rr=await lerArq(PUB,"estado.json");var x={};try{x=JSON.parse(rr.texto||"{}");}catch(e){}ENC.on=!!x.encerrado;}catch(e){ENC.on=false;}pintaEnc();return ENC.on;}
+function pintaEnc(){var b=$("encTopo");if(!b)return;b.classList.toggle("reabrir",!!ENC.on);b.classList.remove("armado");b.textContent=ENC.on?"▶ Reabrir no site":"⏹ Encerrar no site";
+  b.title=ENC.on?"O site está mostrando 'Leilão encerrado'. Toque para voltar a mostrar os lotes e a ordem de entrada.":"Tira lotes e ordem de entrada do site dos produtores e mostra o próximo leilão";}
+async function proximoLeilao(){
+  try{var r=await fetch("agenda.json?t="+Date.now(),{cache:"no-store"});var j=await r.json();
+    var m=/(\d{2})\/(\d{2})\/(\d{4})/.exec(S.data||""),base=m?m[3]+"-"+m[2]+"-"+m[1]:"";
+    var h=new Date(),hoje=h.getFullYear()+"-"+String(h.getMonth()+1).padStart(2,"0")+"-"+String(h.getDate()).padStart(2,"0");
+    var lim=base&&base>hoje?base:hoje;
+    var l=(j.leiloes||[]).filter(function(x){return x.leiloeira==="Leiloingá"&&x.data>lim;}).sort(function(a,b){return (a.data+a.hora).localeCompare(b.data+b.hora);})[0];
+    if(!l)return null;
+    var ban=l.bannerLocal&&!l.bannerGenerico?"https://leiloingaleiloes.github.io/AGENDA/"+l.bannerLocal:(l.banner||"");
+    return {nome:l.nome,data:l.data,hora:l.hora||"",cidade:l.cidade||"",banner:ban,pagina:l.pagina||""};
+  }catch(e){return null;}
+}
+async function gravarEstado(enc){
+  var x={encerrado:enc,em:new Date().toISOString()};
+  if(enc){x.leilao={nome:S.leilao||"",data:S.data||""};x.proximo=await proximoLeilao();}
+  await gravarTexto(PUB,"estado.json",JSON.stringify(x,null,1)+"\n",enc?"Site: leilão encerrado (lotes e ordem fora do ar)":"Site: leilão reaberto");
+  ENC.on=enc;pintaEnc();return x;
+}
+$("encTopo").addEventListener("click",async function(){
+  var b=this;
+  if(!GH.token){toast("Conecte este aparelho à nuvem primeiro (botão “Só neste aparelho”).");return;}
+  if(ENC.on===null)await lerEstadoPub();
+  if(!ENC.on&&!ENC.arm){ENC.arm=true;b.classList.add("armado");b.textContent="Toque de novo para encerrar";setTimeout(function(){ENC.arm=false;pintaEnc();},4500);return;}
+  ENC.arm=false;b.disabled=true;b.textContent=ENC.on?"Reabrindo…":"Encerrando…";
+  try{var x=await gravarEstado(!ENC.on);
+    toast(x.encerrado?"Site encerrado: lotes e ordem de entrada fora do ar"+(x.proximo?". Banner trocado para "+x.proximo.nome+".":".")+" (leva 1 a 2 minutos)":"Site reaberto: lotes e ordem de entrada voltaram. (leva 1 a 2 minutos)",7000);}
+  catch(e){toast("Não deu agora ("+(e.message||e)+"). Tente de novo.");pintaEnc();}
+  finally{b.disabled=false;}
+});
+if(GH.token)setTimeout(lerEstadoPub,1500);
 /* "Começar leilão novo": deixa o site dos produtores vazio (não republica os lotes que ainda estão aqui no ADM) */
 async function limparSite(){
   await gravarTexto(PUB,"lotes.csv","LOTE;RAÇA;IDADE;SEXO;QTDE;PESO MÉDIO;MANGUEIRA;OBSERVAÇÃO\n","Lotes: site limpo para o leilão novo");
