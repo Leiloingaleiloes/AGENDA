@@ -259,6 +259,7 @@ body[data-aba=cmp] .sel{display:none!important}
   body[data-aba=rel] .tw{flex:1;min-height:160px;max-height:none}
   body[data-aba=rel] .kp b{font-size:1.05rem}
 }
+.sincb{display:block;margin:10px auto 0;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:.85rem;color:var(--v);cursor:pointer}
 .rolar{display:inline-flex;gap:4px;margin-left:6px}.rolar button{width:38px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-weight:800;cursor:pointer}
 /* notebook baixo (altura ~720): a pista cabe sem rolar */
 @media(min-width:760px) and (max-height:820px){
@@ -324,7 +325,7 @@ function novaSessao(nome,data,lotes,quemL){
   if(PROX&&data===PROX.data){s.yt=PROX.youtube?ytId(PROX.youtube):"";s.banner=PROX.banner||"";s.cidade=PROX.cidade;s.hora=PROX.hora;s.local=PROX.local||""}
   return s;
 }
-function abrir(id){S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;marcaTab();salvaLocal();montaSel();render();puxaNuvem()}
+function abrir(id){S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;marcaTab();setTimeout(function(){sincLotes(false)},300);salvaLocal();montaSel();render();puxaNuvem()}
 var NUV={};   /* boletas salvas no GitHub que ainda não estão neste aparelho: id -> caminho */
 function nomeDoId(id){var m=/^(\d{4})-(\d{2})-(\d{2})-(.*)$/.exec(id)||[];var n=String(m[4]||id).replace(/-[a-z0-9]{4}$/,"").replace(/-/g," ");return cap(n)+(m[1]?" · "+m[3]+"/"+m[2]+"/"+m[1]:"")}
 function montaSel(){
@@ -561,7 +562,7 @@ function relatorio(m){$("pos").textContent="";var c=com(),K=calc(),pT=K.pc+K.pv,
      '<td><select data-qm="'+x.l+'" aria-label="Pisteiro do lote '+z(x.l)+'"><option value="">—</option>'+quem().map(function(n){return '<option'+(S.qm[x.l]===n?" selected":"")+'>'+esc(n)+'</option>'}).join("")+'</select></td></tr>'});
   var F=[["todos","Todos"],["V","Vendidos"],["D","Doação"],["R","Retorno"],["F","Sem marcação"]];
   m.innerHTML='<div class="rel"><div class="relh"><div><h2>Relatório pós-leilão</h2><p>'+esc(titulo(S))+(c.cidade?' · '+esc(c.cidade):'')+' · '+L.length+' lotes</p></div>'+
-   '<div class="relb"><button class="bt" id="rCopy" type="button">Copiar resumo</button><button class="bt" id="rCsv" type="button">Planilha (CSV)</button><button class="bt" id="rPdf" type="button">Exportar PDF</button><button class="bt pri" id="rGh" type="button">Salvar no GitHub</button></div></div>'+
+   '<div class="relb"><button class="bt" id="rSinc" type="button">↻ Puxar correções do Lotes ADM</button><button class="bt" id="rCopy" type="button">Copiar resumo</button><button class="bt" id="rCsv" type="button">Planilha (CSV)</button><button class="bt" id="rPdf" type="button">Exportar PDF</button><button class="bt pri" id="rGh" type="button">Salvar no GitHub</button></div></div>'+
    '<div class="kp">'+
     '<div>Faturamento bruto<b>'+brl(K.bruto)+'</b><small>'+K.cab+' cabeças vendidas</small></div>'+
     '<div>Vendidos<b>'+ct.V.length+' de '+L.length+'</b><small>lotes</small></div>'+
@@ -590,6 +591,7 @@ function relatorio(m){$("pos").textContent="";var c=com(),K=calc(),pT=K.pc+K.pv,
   m.querySelectorAll(".flt [data-ord]").forEach(function(b){b.onclick=function(){RF.ord=b.dataset.ord;try{localStorage.setItem("boleta-ord",RF.ord)}catch(e){}if(RF.sc)RF.sc[0]=0;render()}});
   var qi=$("rQ");qi.oninput=function(){RF.q=qi.value;render();var n=$("rQ");n.focus();n.setSelectionRange(n.value.length,n.value.length)};
   if($("rCom"))$("rCom").onclick=function(){tab="com";marcaTab();render()};
+  $("rSinc").onclick=function(){sincLotes(true)};
   $("rPdf").onclick=exportarPdf;$("rGh").onclick=function(){salvarGh(this)};
   $("rCopy").onclick=function(){copiaTxt(resumoTxt(),"Resumo copiado. Cole no WhatsApp.")};
   $("rCsv").onclick=baixaCsv;
@@ -690,6 +692,34 @@ function ligaCmp(m){
     msg(n+" leilões trazidos da nuvem.","bom");render()};
   var bc=m.querySelector("#cCon");if(bc)bc.onclick=function(){telaToken();window.scrollTo(0,0)};
 }
+
+
+/* ---------- correções do Lotes ADM (quantidade, peso, raça...) chegam sozinhas na Boleta ---------- */
+function mesmaData(a,b){var n=function(d){d=String(d||"");var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(d);if(m)return m[1]+m[2]+m[3];m=/(\d{2})\/(\d{2})\/(\d{4})/.exec(d);return m?m[3]+m[2]+m[1]:""};return n(a)&&n(a)===n(b)}
+function linhasAdm(d){var o={};(d.rows||[]).forEach(function(r){if(r.lote==null)return;o[+r.lote]={q:+r.qtde||0,p:+r.peso||0,s:r.sexo==="F"?"F":r.sexo==="M"?"M":"",r:r.raca||"",i:r.idade||"",v:r.vendedor||""}});return o}
+var SINC={rod:false};
+async function sincLotes(avisar){
+  if(!S||SINC.rod)return;SINC.rod=true;
+  try{
+    var fonte=null;
+    try{var loc=JSON.parse(localStorage.getItem("fichas-lotes-v1")||"null");if(loc&&loc.rows&&mesmaData(loc.data,S.data))fonte=linhasAdm(loc)}catch(e){}
+    if(!fonte&&GH.token){try{var j=await ler("fichas.json");if(j){var d=JSON.parse(b64dec(j.content));if(mesmaData(d.data,S.data))fonte=linhasAdm(d)}}catch(e){}}
+    if(!fonte){if(avisar)msg("Não achei os lotes deste leilão no Lotes ADM (confira se a data do leilão é a mesma lá e aqui).","err");return}
+    var mud=[];
+    S.L.forEach(function(x){var a=fonte[x.l];if(!a)return;var det=[];
+      if(a.q&&a.q!==x.q){det.push(x.q+"→"+a.q+" cab.");x.q=a.q}
+      if(a.p&&a.p!==x.p){det.push(x.p+"→"+a.p+" kg");x.p=a.p}
+      if(a.s&&a.s!==x.s){det.push("sexo");x.s=a.s}
+      if(a.r&&cap(a.r)!==cap(x.r)){det.push("raça");x.r=a.r}
+      if(a.i&&a.i!==x.i){det.push("idade");x.i=a.i}
+      if(a.v&&a.v!==x.v)x.v=a.v;
+      if(det.length)mud.push("lote "+z(x.l)+" ("+det.join(", ")+")")});
+    if(mud.length){salva();render();msg("Atualizado com o Lotes ADM: "+mud.join("; ")+".","bom")}
+    else if(avisar)msg("Os lotes já estão iguais ao Lotes ADM.","bom");
+  }finally{SINC.rod=false}
+}
+window.addEventListener("storage",function(e){if(e.key==="fichas-lotes-v1")sincLotes(false)});
+document.addEventListener("visibilitychange",function(){if(!document.hidden)sincLotes(false)});
 
 /* ---------- PDF ---------- */
 function gerarPdf(){
@@ -858,6 +888,7 @@ function lista(m,k){
     li.innerHTML='<div><b>Lote '+z(x.l)+'</b>'+(S.doa&&S.doa[x.l]?'<span class="tg">DOAÇÃO</span>':'')+' · '+x.q+' '+x.s+' · '+x.p+' kg<div class="d">'+x.o+'º · '+esc(x.r)+(x.v?' · '+esc(x.v):'')+(S.qm[x.l]?' · <b>'+esc(S.qm[x.l])+'</b>':'')+'</div></div><div class="val">'+(v?"R$ "+fmt(v)+" × 3 = "+brl(v*3)+"/cab.<b>"+brl(v*3*x.q)+"</b>":"sem lance")+kgHtml(v,x)+'</div>';
     var b=document.createElement("button");b.textContent="Voltar p/ pista";b.onclick=function(){delete S.st[x.l];S.cur=L.indexOf(x);pend=null;tab="pista";marcaTab();salva();render()};
     li.appendChild(b);ul.appendChild(li)});
+  if(k==="V"||k==="R"){var sb=document.createElement("button");sb.type="button";sb.className="sincb";sb.textContent="↻ Puxar correções do Lotes ADM";sb.onclick=function(){sincLotes(true)};m.appendChild(sb)}
   if(k==="V"){var K=calc(),f=document.createElement("div");f.className="fat";f.innerHTML='<div>Faturamento total<b>'+brl(soma)+'</b></div><div class="cm">Minha comissão<b>'+(K.semTaxa?'—':brl(K.eu))+'</b></div><small>'+(K.semTaxa?'Coloque a comissão da praça na aba <b>Comissão</b> para calcular. ':'Comissão total '+brl(K.cTot)+' (Leiloingá '+brl(K.casa)+')'+(K.nDoa?' · '+K.nDoa+' doação(ões) sem comissão':'')+' · ')+it.length+' lotes · '+cab+' cabeças · lance × 3 × nº de cabeças'+(sem?' · '+sem+' lote(s) sem lance não entram na soma':'')+'</small><div class="porq">'+quem().map(function(n){return '<div>'+esc(n)+'<b>'+brl(pq[n]||0)+'</b></div>'}).join('')+'</div>';m.appendChild(f)}
   m.appendChild(ul);
 }

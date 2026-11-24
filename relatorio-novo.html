@@ -1602,11 +1602,29 @@ async function escolheBol(v){
 ["bolSel","bolSel2"].forEach(function(k){var e=$(k);if(e)e.addEventListener("change",function(){escolheBol(this.value);});});
 encheBol();listaBolNuvem();
 
+
+/* ---------- quantidade/peso corrigidos (Lotes ADM → Boleta) chegam sozinhos aqui ---------- */
+function sessaoDoR(){var loc=bolLocais();if(!R)return null;if(R.id.indexOf("boleta|")===0)return loc[R.id.slice(7)]||null;
+  var ks=Object.keys(loc);for(var i=0;i<ks.length;i++)if(dataBrIso(loc[ks[i]].data)===R.data)return loc[ks[i]];return null;}
+function sincDaBoleta(){
+  var x=sessaoDoR();if(!x||!Array.isArray(x.L))return;
+  var by={};x.L.forEach(function(y){by[+y.l]=y;});var mud=[];
+  R.lotes.forEach(function(l){var y=by[l.lote];if(!y)return;var d=[];
+    if(+y.q&&+y.q!==l.qtde){d.push(l.qtde+"→"+y.q+" cab.");l.qtde=+y.q;}
+    if(+y.p&&+y.p!==l.peso){d.push(l.peso+"→"+y.p+" kg");l.peso=+y.p;}
+    if(y.s&&y.s.charAt(0).toUpperCase()!==l.sexo){l.sexo=y.s.charAt(0).toUpperCase();d.push("sexo");}
+    if(d.length)mud.push("lote "+dois(l.lote)+" ("+d.join(", ")+")");});
+  if(mud.length){salvaDB();toast("Atualizado com a Boleta: "+mud.join("; ")+".",6000);}
+  aplicarBoleta(x,"Boleta deste aparelho");
+}
+window.addEventListener("storage",function(e){if(e.key==="leiloinga-boleta-v1"&&R)sincDaBoleta();});
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&R)sincDaBoleta();});
+
 /* ---------- início ---------- */
 if(DB.atual&&DB.rel[DB.atual])R=DB.rel[DB.atual];
 mostrar();
 puxaRacas();
-if(R)puxarBoleta(true);
+if(R){sincDaBoleta();puxarBoleta(true);}
 window.__rel={abrirArquivo:abrirArquivo,faixaDe:faixaDe,grupoDe:grupoDe,aplicarBoleta:aplicarBoleta,estado:function(){return R;}};
 </script>
 </body>
