@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="utf-8">
+<html lang="pt-BR"><head><meta charset="utf-8"><script src="trava.js?v=1"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Conferência Boleta · Leiloingá</title>
@@ -993,7 +993,7 @@ function gerarPdf(){
   p("O leilão faturou "+brl(c.g.fat)+" com "+c.V.length+" dos "+L.length+" lotes vendidos ("+c.g.cab+" de "+c.cabT+" cabeças"+(c.cabT?", "+Math.round(c.g.cab/c.cabT*100)+"%":"")+")."+(K.nDoa?" "+K.nDoa+" lote(s) de doação somam "+brl(K.doa)+" e não geram comissão.":"")+(K.semTaxa?" A comissão da praça não foi informada.":" A comissão total ("+pc(C.comp)+" do comprador + "+pc(C.vend)+" do vendedor) é "+brl(K.cTot)+"; "+pc(K.ruralP)+" fica com a Rural e a parte da Leiloingá é "+brl(K.casa)+".")+(c.falta?" Atenção: "+c.falta+" lote(s) ainda sem marcação.":""));
   tb(["Item","Valor"],[["Faturamento bruto",brl(c.g.fat)],["Lotes vendidos",c.V.length+" de "+L.length],["Cabeças vendidas",c.g.cab+" de "+c.cabT],["Média por cabeça",brl(c.g.mc)],["Média por kg","R$ "+f2(c.g.mk)+"/kg"],["Retornos",c.R.length+" lotes, "+c.ret.cab+" cabeças"]],{columnStyles:{1:{halign:"right"}},tableWidth:110});
   if(!K.semTaxa){h("Comissão · "+(C.cidade||"praça"));
-    tb(["Item","Base","Valor"],cascata(K,C).map(function(r){return [r[0],r[1],r[2]]}),{columnStyles:{1:{halign:"right"},2:{halign:"right"}},tableWidth:150,didParseCell:function(d){if(d.section==="body"&&/Minha comissão|Líquido/.test(d.row.raw[0]))d.cell.styles.fontStyle="bold"}});}
+    tb(["Item","Base","Valor"],cascata(K,C).filter(function(r){return r[3]!=="eu"}).map(function(r){return [r[0],r[1],r[2]]}),{columnStyles:{1:{halign:"right"},2:{halign:"right"}},tableWidth:150,didParseCell:function(d){if(d.section==="body"&&/Minha comissão|Líquido/.test(d.row.raw[0]))d.cell.styles.fontStyle="bold"}});}
   p("Valor de cada lote = lance × 3 × número de cabeças. R$/kg = (lance × 3) ÷ peso médio do lote.");
   y+=3;h("Machos, fêmeas e raças");
   function lg(n,o){return [n,o.lotes,o.cab,brl(o.fat),brl(o.mc),"R$ "+f2(o.mk)]}
@@ -1038,7 +1038,7 @@ function abreMod(html){$("mod").innerHTML='<div class="mod" id="modBg"><div clas
 $("bFim").onclick=function(){if(!S)return;var c=contas(),K=calc();
   abreMod('<h3>Finalizar leilão</h3><p>'+esc(titulo(S))+'</p>'+
    (c.falta?'<div class="aviso">Ainda há '+c.falta+' lote(s) sem marcação. Eles saem como "—" no relatório.</div>':'')+
-   '<div class="rs"><div>Vendidos<b>'+c.V.length+' lotes · '+c.g.cab+' cab.</b></div><div>Retorno<b>'+c.R.length+' lotes · '+c.ret.cab+' cab.</b></div><div>Faturamento<b>'+brl(c.g.fat)+'</b></div><div>Parte da Leiloingá<b>'+(K.semTaxa?'falta a %':brl(K.casa))+'</b></div><div>Líquido leiloeira<b>'+(K.semTaxa?'—':brl(K.liq))+'</b></div><div>Minha comissão<b>'+(K.semTaxa?'—':brl(K.eu))+'</b></div></div>'+
+   '<div class="rs"><div>Vendidos<b>'+c.V.length+' lotes · '+c.g.cab+' cab.</b></div><div>Retorno<b>'+c.R.length+' lotes · '+c.ret.cab+' cab.</b></div><div>Faturamento<b>'+brl(c.g.fat)+'</b></div><div>Parte da Leiloingá<b>'+(K.semTaxa?'falta a %':brl(K.casa))+'</b></div><div>Líquido leiloeira<b>'+(K.semTaxa?'—':brl(K.liq))+'</b></div></div>'+
    '<button class="mb" id="mPdf" type="button">Exportar PDF</button><button class="mb pri" id="mGh" type="button">Salvar no GitHub</button><div class="msg" id="mMsg"></div>'+
    '<button class="mb lev" id="mX" type="button">Voltar para a pista</button>');
   S.finalizado=new Date().toISOString();salva();
@@ -1107,7 +1107,7 @@ function render(){document.body.dataset.aba=tab;var tw0=document.querySelector("
   if(!S){document.body.classList.remove("largo");$("pos").textContent="";if(tab==="rel"||tab==="com"){m.innerHTML='<div class="vazio"><b>Escolha o leilão</b>Use a lista acima para ver qualquer leilão já registrado na Boleta.</div>';return}
     if(tab!=="ini"){m.innerHTML='<div class="vazio"><b>Nenhum leilão aberto</b>Comece ou escolha um leilão no <a href="#ini">Início do leilão</a>.'+(tab==="rel"?'<div style="margin-top:12px"><button class="bt pri" type="button" id="vAnexa">📄 Anexar PDF do leilão</button><p style="margin:8px 0 0;font-size:.85rem">A ordem de entrada do sistema ou o PDF da boleta.</p></div>':'')+'</div>';if($("vAnexa"))$("vAnexa").onclick=function(){$("arqPdf").click()};return}iniVazio(m);return}
   document.body.classList.toggle("largo",tab==="rel"||tab==="com");
-  if(tab==="ini")inicio(m);else if(tab==="pista")pista(m);else if(tab==="rel")relatorio(m);else if(tab==="com")comissao(m);else lista(m,tab)}
+  if(tab==="ini")inicio(m);else if(tab==="pista")pista(m);else if(tab==="rel")relatorio(m);else if(tab==="com"){if(window.TRAVA&&!TRAVA.ok("com")){var tv=document.createElement("div");tv.style.cssText="padding:40px 12px";m.append(tv);TRAVA.form(tv,"com","Comissão","Esta parte pede a senha da comissão.",function(){render()});}else comissao(m);}else lista(m,tab)}
 function pista(m){
   if(S.cur<0||S.cur>=L.length||S.st[L[S.cur].l]&&!pend)S.cur=proximo(Math.max(0,S.cur));
   if(S.cur<0){m.innerHTML='<div class="fim"><b>Todos os lotes marcados</b>Veja nas abas Vendidos e Retorno, ou exporte o PDF.</div>';$("pos").textContent="";return}
@@ -1148,7 +1148,7 @@ function lista(m,k){
     var b=document.createElement("button");b.textContent="Voltar p/ pista";b.onclick=function(){delete S.st[x.l];S.cur=L.indexOf(x);pend=null;tab="pista";marcaTab();salva();render()};
     li.appendChild(b);ul.appendChild(li)});
   if(k==="V"||k==="R"){var sb=document.createElement("button");sb.type="button";sb.className="sincb";sb.textContent="↻ Puxar correções do Lotes ADM";sb.onclick=function(){sincLotes(true)};m.appendChild(sb)}
-  if(k==="V"){var K=calc(),f=document.createElement("div");f.className="fat";f.innerHTML='<div>Faturamento total<b>'+brl(soma)+'</b></div><div class="cm">Minha comissão<b>'+(K.semTaxa?'—':brl(K.eu))+'</b></div><small>'+(K.semTaxa?'Coloque a comissão da praça na aba <b>Comissão</b> para calcular. ':'Comissão total '+brl(K.cTot)+' (Leiloingá '+brl(K.casa)+')'+(K.nDoa?' · '+K.nDoa+' doação(ões) sem comissão':'')+' · ')+it.length+' lotes · '+cab+' cabeças · lance × 3 × nº de cabeças'+(sem?' · '+sem+' lote(s) sem lance não entram na soma':'')+'</small><div class="porq">'+quem().map(function(n){return '<div>'+esc(n)+'<b>'+brl(pq[n]||0)+'</b></div>'}).join('')+'</div>';m.appendChild(f)}
+  if(k==="V"){var K=calc(),f=document.createElement("div");f.className="fat";f.innerHTML='<div>Faturamento total<b>'+brl(soma)+'</b></div><div class="cm">Parte da Leiloingá<b>'+(K.semTaxa?'—':brl(K.casa))+'</b></div><small>'+(K.semTaxa?'Coloque a comissão da praça na aba <b>Comissão</b> para calcular. ':'Comissão total '+brl(K.cTot)+' (Leiloingá '+brl(K.casa)+')'+(K.nDoa?' · '+K.nDoa+' doação(ões) sem comissão':'')+' · ')+it.length+' lotes · '+cab+' cabeças · lance × 3 × nº de cabeças'+(sem?' · '+sem+' lote(s) sem lance não entram na soma':'')+'</small><div class="porq">'+quem().map(function(n){return '<div>'+esc(n)+'<b>'+brl(pq[n]||0)+'</b></div>'}).join('')+'</div>';m.appendChild(f)}
   m.appendChild(ul);
 }
 

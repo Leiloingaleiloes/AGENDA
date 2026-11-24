@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><script src="trava.js?v=1"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light only">
 <meta name="robots" content="noindex, nofollow">
@@ -196,7 +196,7 @@ button{font:inherit;color:inherit}a{color:inherit}
   <aside class="side" aria-label="Menu">
     <div class="brand"><img src="logo-leiloinga.png" alt="Leiloingá Leilões"><span class="mk" aria-hidden="true">L</span></div>
     <nav class="nav" id="nav"></nav>
-    <div class="sidefoot"><button class="it" id="mini" type="button" data-nome="Recolher menu"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="15" height="14" rx="2.5"/><path d="M7.5 3v14M12.5 8l-2 2 2 2"/></svg><span class="lbl">Recolher menu</span></button></div>
+    <div class="sidefoot"><button class="it" id="mini" type="button" data-nome="Recolher menu"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="15" height="14" rx="2.5"/><path d="M7.5 3v14M12.5 8l-2 2 2 2"/></svg><span class="lbl">Recolher menu</span></button><button class="it" id="trancar" type="button" data-nome="Trancar"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="12" height="8.5" rx="2"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></svg><span class="lbl">Trancar</span></button></div>
   </aside>
   <div class="scrim" id="scrim"></div>
   <div class="main">
@@ -464,5 +464,6 @@ carregar();
 ir(location.hash.slice(1) || 'inicio', !location.hash);
 }
 </script>
+<script>document.getElementById("trancar").onclick=function(){if(window.TRAVA)TRAVA.sair();};</script>
 </body>
 </html>
