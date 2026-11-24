@@ -878,16 +878,18 @@ async function puxarBoleta(auto){
   if(!R)return;
   var iso=dataIso(R.data),cands=[],origem="";
   /* 1) a Conferência Boleta deste aparelho (mesmo site, mesmo navegador) */
-  try{var b=JSON.parse(localStorage.getItem("leiloinga-boleta-v1")||"null");if(b&&b.sess)Object.keys(b.sess).forEach(function(k){var s=b.sess[k];if(!iso||s.data===iso)cands.push(s);});}catch(e){}
+  try{var bl=bolLocais();Object.keys(bl).forEach(function(k){var s=bl[k];if(!iso||s.data===iso)cands.push(s);});}catch(e){}
   var loc=melhorBoleta(cands);
   /* 2) a cópia salva no GitHub do ADM (de qualquer aparelho) */
   var nuv=null;
   if(GH.token&&iso){
     try{
-      var r=await api(caminho("boletas"));
-      if(r.ok){
-        var arqs=(await r.json()).filter(function(a){return a.name.indexOf(iso)===0&&/\.json$/.test(a.name);}),lst=[];
-        for(var i=0;i<arqs.length;i++){var a=await api(caminho("boletas/"+arqs[i].name));if(a.ok){try{lst.push(JSON.parse(b64dec((await a.json()).content)));}catch(e){}}}
+      var pasta="pos",r=await api(caminho("pos"));
+      var arqs0=r.ok?(await r.json()).filter(function(a){return a.name.indexOf(iso)===0&&/\.json$/.test(a.name);}):[];
+      if(!arqs0.length){pasta="boletas";r=await api(caminho("boletas"));arqs0=r.ok?(await r.json()).filter(function(a){return a.name.indexOf(iso)===0&&/\.json$/.test(a.name);}):[];}
+      if(arqs0.length){
+        var arqs=arqs0,lst=[];
+        for(var i=0;i<arqs.length;i++){var a=await api(caminho(pasta+"/"+arqs[i].name));if(a.ok){try{lst.push(JSON.parse(b64dec((await a.json()).content)));}catch(e){}}}
         nuv=melhorBoleta(lst);
       }
     }catch(e){}
@@ -1621,17 +1623,22 @@ carregaMidia();
 
 /* ---------- leilões da Boleta (sem PDF) ---------- */
 var BOLN={};
-function bolLocais(){try{var b=JSON.parse(localStorage.getItem("leiloinga-boleta-v1")||"null");return b&&b.sess?b.sess:{};}catch(e){return {};}}
+/* o relatório usa o PÓS-LEILÃO (leilões encerrados e o de hoje, atualizado a cada 5 lotes), não a boleta da pista */
+function hojeIsoR(){var h=new Date();return h.getFullYear()+"-"+String(h.getMonth()+1).padStart(2,"0")+"-"+String(h.getDate()).padStart(2,"0");}
+function bolLocais(){try{var b=JSON.parse(localStorage.getItem("leiloinga-boleta-v1")||"null");if(!b)return {};var o={},hj=hojeIsoR();
+  Object.keys(b.sess||{}).forEach(function(k){var x=b.sess[k];if(x&&x.data&&x.data<hj&&k!=="teste"&&Object.keys(x.st||{}).length)o[k]=x;});
+  Object.keys(b.pos||{}).forEach(function(k){o[k]=b.pos[k];});return o;}catch(e){return {};}}
 function nomeId(id){var m=/^(\d{4})-(\d{2})-(\d{2})-(.*)$/.exec(id)||[];return String(m[4]||id).replace(/-[a-z0-9]{4}$/,"").replace(/-/g," ").toUpperCase()+(m[1]?" · "+m[3]+"/"+m[2]+"/"+m[1]:"");}
 function dataBrIso(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||"");return m?m[3]+"/"+m[2]+"/"+m[1]:"";}
 function encheBol(){
   var loc=bolLocais(),ids=Object.keys(loc).sort(function(a,b){return (loc[b].data||"").localeCompare(loc[a].data||"");});
   var nv=Object.keys(BOLN).filter(function(i){return !loc[i];}).sort().reverse();
-  var html='<option value="">'+(ids.length||nv.length?"Escolha o leilão":"Nenhum leilão na Boleta ainda")+'</option>'+ids.map(function(i){var x=loc[i];return '<option value="l:'+i.replace(/"/g,"")+'">'+(dataBrIso(x.data)?dataBrIso(x.data)+" · ":"")+String(x.nome||"Leilão").replace(/</g,"")+'</option>';}).join("")+
+  var html='<option value="">'+(ids.length||nv.length?"Escolha o leilão (pós-leilão)":"Nenhum leilão no pós-leilão ainda")+'</option>'+ids.map(function(i){var x=loc[i];return '<option value="l:'+i.replace(/"/g,"")+'">'+(dataBrIso(x.data)?dataBrIso(x.data)+" · ":"")+String(x.nome||"Leilão").replace(/</g,"")+'</option>';}).join("")+
     (nv.length?'<optgroup label="Salvos na nuvem">'+nv.map(function(i){return '<option value="n:'+i.replace(/"/g,"")+'">☁ '+nomeId(i)+'</option>';}).join("")+'</optgroup>':"");
   ["bolSel","bolSel2"].forEach(function(k){var e=$(k);if(e)e.innerHTML=html;});
 }
-async function listaBolNuvem(){if(!GH.token)return;try{var r=await api(caminho("boletas"));if(!r.ok)return;(await r.json()).forEach(function(f){if(/\.json$/.test(f.name))BOLN[f.name.replace(/\.json$/,"")]=f.path;});encheBol();}catch(e){}}
+async function listaBolNuvem(){if(!GH.token)return;try{var hj=hojeIsoR(),r=await api(caminho("boletas"));if(r.ok)(await r.json()).forEach(function(f){if(/\.json$/.test(f.name)&&f.name.slice(0,10)<hj)BOLN[f.name.replace(/\.json$/,"")]=f.path;});
+  var r2=await api(caminho("pos"));if(r2.ok)(await r2.json()).forEach(function(f){if(/\.json$/.test(f.name))BOLN[f.name.replace(/\.json$/,"")]=f.path;});encheBol();}catch(e){}}
 function abrirDaBoleta(x,origem){
   if(!x||!Array.isArray(x.L)||!x.L.length){toast("Esse leilão não tem lotes na Boleta.");return;}
   var id="boleta|"+x.id,antigo=DB.rel[id];

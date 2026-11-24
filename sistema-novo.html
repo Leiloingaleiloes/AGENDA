@@ -194,6 +194,10 @@ button{font:inherit;color:inherit}a{color:inherit}
 @media (max-height:640px){.sl .in{align-items:center;padding-bottom:140px}}
 @media (max-width:860px){.car{align-content:start}.sl .in{padding-bottom:12px}}
 @media (max-width:860px) and (min-width:600px){.car{align-content:center}.art.por .card{width:min(54vw,460px)}.art.pai .card,.art.qua .card{width:min(86vw,680px)}.tx h2{font-size:clamp(34px,6vw,54px)}.meta{font-size:17px}.cd b{font-size:32px}.cd div{min-width:80px}.ba{min-height:52px;font-size:16px}.tb{width:190px}}
+/* leilão atual no menu */
+.atualTag{display:block;width:calc(100% - 20px);margin:0 10px 6px;padding:6px 10px;border-radius:9px;border:1px solid rgba(36,181,59,.45);background:rgba(36,181,59,.12);color:#bff0c9;font:600 12px Poppins,sans-serif;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atualTag.teste{border-color:#f08c00;background:rgba(240,140,0,.18);color:#ffd59c}
+.app.mini .atualTag{display:none}
 /* modo público (vindo do catálogo): só o Início, sem menu */
 html.publico .app{grid-template-columns:minmax(0,1fr)}
 html.publico .side,html.publico .scrim,html.publico #burger,html.publico #newtab,html.publico #reload{display:none!important}
@@ -259,7 +263,7 @@ const AREAS = [
   {id:'inicio', nome:'Início', desc:'Próximos leilões da Leiloingá', ic:'inicio'},
   {id:'agenda', nome:'Agenda de leilões', desc:'Leiloingá, Gralha Azul, Panorama e Pampa Remates', ic:'agenda', url:'agenda.html'},
   {id:'tempo', nome:'Previsão do tempo', desc:'Cidades dos leilões da Leiloingá · dia a dia, hora a hora e mapa', ic:'tempo', url:'tempo-novo.html'},
-  {grp:'Leilão'},
+  {grp:'Leilão atual'},
   {id:'fichas', nome:'Lotes · ADM', desc:'Fichas em Word, câmera dos lotes e envio para o site', ic:'fichas', frame:'fichas', url:'fichas.html', h:'adm'},
   {id:'vendedores', nome:'Vendedores', desc:'Lotes por vendedor · dois cliques para editar, adicionar ou excluir', ic:'vend', frame:'fichas', url:'fichas.html', h:'vendedores'},
   {id:'boleta', nome:'Boleta', desc:'Conferência na pista', ic:'boleta', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html',
@@ -267,22 +271,38 @@ const AREAS = [
         {h:'pista',nome:'Pista',desc:'Lote a lote: lance, vendido ou retorno'},
         {h:'V',nome:'Vendidos',desc:'Lotes vendidos'},
         {h:'R',nome:'Retorno',desc:'Lotes que voltaram'}]},
-  {id:'pos', nome:'Pós-leilão', desc:'Todos os lotes em linhas: comprador, doação e valores', ic:'pos', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'rel'},
+  {grp:'Pós-leilão'},
+  {id:'pos', nome:'Pós-leilão', desc:'Leilões encerrados e o de hoje (a cada 5 lotes) · comprador, doação e valores', ic:'pos', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'rel'},
   {id:'relatorio', nome:'Relatório por categoria', desc:'Peso, raça, idade e sexo · médias de R$/kg', ic:'relatorio', url:'relatorio-novo.html'},
   {id:'comissao', nome:'Comissão', desc:'Vendas do leilão e divisão da comissão', ic:'comissao', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'com'},
+  {id:'comparar', nome:'Comparar leilões', desc:'Um leilão ao lado do outro: faturamento, médias e vendas', ic:'comparar', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'cmp'},
   {grp:'Divulgação'},
   {id:'lotes', nome:'Catálogo dos lotes', desc:'O que o produtor vê no link do QR code', ic:'lotes', url:'../LOTES/'},
   {id:'propagandas', nome:'Propagandas', desc:'Artes de divulgação dos leilões', ic:'propagandas', url:'propagandas.html'},
-  {grp:'Análises'},
-  {id:'comparar', nome:'Comparar leilões', desc:'Um leilão ao lado do outro: faturamento, médias e vendas', ic:'comparar', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'cmp'}
 ];
 const BY = Object.fromEntries(AREAS.filter(a => a.id).map(a => [a.id, a]));
 const CATALOGO = 'https://leiloingaleiloes.github.io/LOTES/';
 const app = document.getElementById('app'), nav = document.getElementById('nav'), stage = document.getElementById('stage');
 
-nav.innerHTML = AREAS.map(a => a.grp ? `<div class="grp">${a.grp}</div>` :
+nav.innerHTML = AREAS.map(a => a.grp ? `<div class="grp">${a.grp}</div>` + (a.grp === 'Leilão atual' ? '<button class="atualTag" id="atualTag" type="button" title="Leilão em que os lotes estão sendo lançados · trocar no Lotes ADM"></button>' : '') :
   `<button class="it" type="button" data-id="${a.id}" data-nome="${a.nome}"${a.sub ? ' aria-expanded="false"' : ''}>${svg(a.ic)}<span class="lbl">${a.nome}</span>${a.tag ? `<span class="tag">${a.tag}</span>` : ''}${a.sub ? svg('chev','chev') : ''}</button>` +
   (a.sub ? `<div class="subs" id="subs-${a.id}"><div>${a.sub.map(x => `<button class="sb" type="button" data-id="${a.id}" data-sub="${x.h}">${x.nome}</button>`).join('')}</div></div>` : '')).join('');
+
+/* leilão atual (o escolhido no Lotes ADM) aparece no menu */
+function pintaAtual(){
+  const t = document.getElementById('atualTag'); if (!t) return;
+  let txt = '⚠ Escolha o leilão no Lotes ADM', teste = false;
+  try {
+    teste = localStorage.getItem('fichas-modo') === 'teste';
+    const x = JSON.parse(localStorage.getItem('fichas-lotes-v1') || 'null');
+    if (teste) txt = '🧪 Leilão de teste';
+    else if (x && x.data) txt = x.data.slice(0,5) + ' · ' + String(x.leilao || '').replace(/^LEIL[ÃA]O\s+(ESPECIAL\s+)?(FIM DE ANO\s+)?(–\s*)?(GADO DE CORTE\s+)?(–\s*)?/i, '').replace(/-[A-Z]{2}$/,'').toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase());
+  } catch(e){}
+  t.textContent = txt; t.classList.toggle('teste', teste);
+}
+window.addEventListener('storage', e => { if (!e.key || /^fichas-(lotes-v1|modo)$/.test(e.key)) pintaAtual(); });
+setTimeout(pintaAtual, 0); setInterval(pintaAtual, 5000);
+document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#atualTag')) ir('fichas'); });
 
 /* ---------- quadros ---------- */
 const frames = {};
