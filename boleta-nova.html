@@ -205,6 +205,9 @@ body[data-aba=cmp] .sel{display:none!important}
 .cmpw{padding:6px 16px 24px}
 .cmph{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:6px 0 12px}
 .cmph p{margin:0;color:var(--mut);font-size:.88rem}
+.mdsw2{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px;font-size:.85rem;color:var(--mut)}
+.mdsw2 button{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 12px;font-weight:700;font-size:.82rem;cursor:pointer}
+.mdsw2 button[aria-pressed=true]{background:var(--v);border-color:var(--v);color:#fff}
 .mets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .mets button{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:8px 14px;font-weight:700;font-size:.85rem}
 .mets button[aria-pressed=true]{background:#0E1410;color:#fff;border-color:#0E1410}
@@ -505,10 +508,10 @@ function comissao(m){$("pos").textContent="";var c=com(),K=calc(),cs=Object.keys
   var ct=contas();
   m.innerHTML='<div class="cmw"><div class="relh"><div><h2>Comissão</h2><p>'+esc(titulo(S))+'</p></div></div>'+
    '<div class="vendas"><div class="vd1"><small>Faturamento bruto</small><b>'+brl(K.bruto)+'</b><span>'+ct.V.length+' de '+L.length+' lotes vendidos · '+K.cab+' de '+ct.cabT+' cabeças</span></div>'+
-   '<div><small>Média por kg</small><b>R$ '+f2(ct.g.mk)+'</b><span>só lotes vendidos</span></div>'+
+   '<div><small>Média R$/kg</small><b>R$ '+f2(metr(S).mk)+'</b><span>'+(MEDIA==="kg"?"por kg vendido":"média dos lotes")+'</span></div>'+
    '<div><small>Média por cabeça</small><b>'+brl(ct.g.mc)+'</b><span>lance × 3</span></div>'+
-   '<div><small>Machos</small><b>'+brl(ct.porSexo.M.fat)+'</b><span>'+ct.porSexo.M.cab+' cab. · R$ '+f2(ct.porSexo.M.mk)+'/kg</span></div>'+
-   '<div><small>Fêmeas</small><b>'+brl(ct.porSexo.F.fat)+'</b><span>'+ct.porSexo.F.cab+' cab. · R$ '+f2(ct.porSexo.F.mk)+'/kg</span></div>'+
+   '<div><small>Machos</small><b>'+brl(ct.porSexo.M.fat)+'</b><span>'+ct.porSexo.M.cab+' cab. · R$ '+f2(metr(S).mkM)+'/kg</span></div>'+
+   '<div><small>Fêmeas</small><b>'+brl(ct.porSexo.F.fat)+'</b><span>'+ct.porSexo.F.cab+' cab. · R$ '+f2(metr(S).mkF)+'/kg</span></div>'+
    '<div><small>Retorno</small><b>'+ct.R.length+' lotes</b><span>'+ct.ret.cab+' cabeças</span></div>'+
    (K.nDoa?'<div><small>Doações</small><b>'+brl(K.doa)+'</b><span>'+K.nDoa+' lote(s) · sem comissão</span></div>':'')+'</div>'+
    '<h3 class="sec">Divisão da comissão</h3><div class="cmg">'+
@@ -653,10 +656,14 @@ function hojeIso(){var h=new Date();return h.getFullYear()+"-"+z(h.getMonth()+1)
 
 /* ---------- comparar leilões ---------- */
 var CMP={met:"fat",extra:{}};
-function metr(x){var o={fat:0,cab:0,kg:0,cabT:0,lv:0,lr:0,n:(x.L||[]).length,mM:[0,0],mF:[0,0]};
-  (x.L||[]).forEach(function(y){o.cabT+=y.q;var st=(x.st||{})[y.l];if(st==="R")o.lr++;if(st!=="V")return;var v=((x.la||{})[y.l]||0)*3*y.q;o.lv++;o.cab+=y.q;o.fat+=v;
-    if(v&&y.p){o.kg+=y.q*y.p;var g=y.s==="F"?o.mF:o.mM;g[0]+=v;g[1]+=y.q*y.p}});
-  o.mk=o.kg?o.fat/o.kg:0;o.mc=o.cab?o.fat/o.cab:0;o.pct=o.cabT?o.cab/o.cabT*100:0;o.mkM=o.mM[1]?o.mM[0]/o.mM[1]:0;o.mkF=o.mF[1]?o.mF[0]/o.mF[1]:0;return o}
+/* média R$/kg: "lotes" = média dos R$/kg de cada lote (padrão, como no relatório) · "kg" = total em R$ ÷ total de kg */
+var MEDIA="lotes";try{MEDIA=localStorage.getItem("relatorio-media")||"lotes"}catch(e){}
+function metr(x){var o={fat:0,cab:0,kg:0,cabT:0,lv:0,lr:0,n:(x.L||[]).length,mM:[0,0,0,0],mF:[0,0,0,0],sl:0,nl:0};
+  (x.L||[]).forEach(function(y){o.cabT+=y.q;var st=(x.st||{})[y.l];if(st==="R")o.lr++;if(st!=="V")return;var la=(x.la||{})[y.l]||0,v=la*3*y.q;o.lv++;o.cab+=y.q;o.fat+=v;
+    if(v&&y.p){o.kg+=y.q*y.p;var r=la*3/y.p;o.sl+=r;o.nl++;var g=y.s==="F"?o.mF:o.mM;g[0]+=v;g[1]+=y.q*y.p;g[2]+=r;g[3]++}});
+  var L=MEDIA!=="kg";
+  o.mk=L?(o.nl?o.sl/o.nl:0):(o.kg?o.fat/o.kg:0);o.mc=o.cab?o.fat/o.cab:0;o.pct=o.cabT?o.cab/o.cabT*100:0;
+  o.mkM=L?(o.mM[3]?o.mM[2]/o.mM[3]:0):(o.mM[1]?o.mM[0]/o.mM[1]:0);o.mkF=L?(o.mF[3]?o.mF[2]/o.mF[3]:0):(o.mF[1]?o.mF[0]/o.mF[1]:0);return o}
 var METS=[{k:"fat",t:"Faturamento",f:function(v){return brl(v)},c:function(v){return v>=1e6?"R$ "+(v/1e6).toFixed(2).replace(".",",")+" mi":"R$ "+Math.round(v/1e3)+" mil"}},
   {k:"mk",t:"Média R$/kg",f:function(v){return "R$ "+f2(v)},c:function(v){return f2(v)}},
   {k:"mc",t:"Média por cabeça",f:function(v){return brl(v)},c:function(v){return "R$ "+Math.round(v).toLocaleString("pt-BR")}},
@@ -673,6 +680,7 @@ function comparar(m){
   var vals=lst.map(function(o){return o.m[met.k]||0}),mx=Math.max.apply(null,vals)||1,med=vals.reduce(function(a,b){return a+b},0)/vals.length;
   var best={};METS.forEach(function(x){var b=null;lst.forEach(function(o){if(b===null||o.m[x.k]>b)b=o.m[x.k]});best[x.k]=b});
   m.innerHTML='<div class="cmpw">'+head+
+   '<div class="mdsw2" role="group" aria-label="Como calcular a média R$/kg"><span>Média R$/kg:</span><button type="button" data-md="lotes" aria-pressed="'+(MEDIA!=="kg")+'">dos lotes</button><button type="button" data-md="kg" aria-pressed="'+(MEDIA==="kg")+'">por kg vendido</button></div>'+
    '<div class="mets">'+METS.map(function(x){return '<button type="button" data-met="'+x.k+'" aria-pressed="'+(x.k===met.k)+'">'+x.t+'</button>'}).join("")+'</div>'+
    '<div class="gr"><h3>'+met.t+' por leilão</h3><p>Do mais antigo ao mais recente · linha tracejada = média ('+met.f(med)+') · em amarelo, o leilão aberto</p>'+
     '<div class="bars"><div class="med" style="bottom:'+(med/mx*100*0.86)+'%"><span>média</span></div>'+lst.map(function(o){var v=o.m[met.k]||0;return '<div class="bc'+(S&&o.id===S.id?' at':'')+'" data-ab="'+esc(o.id)+'" title="'+esc(titulo(o.s))+': '+met.f(v)+'"><b>'+met.c(v)+'</b><i data-h="'+(v/mx*86).toFixed(1)+'"></i></div>'}).join("")+'</div>'+
@@ -683,6 +691,7 @@ function comparar(m){
    '</tbody></table></div></div>';
   requestAnimationFrame(function(){requestAnimationFrame(function(){m.querySelectorAll(".bc i").forEach(function(i){i.style.height=i.dataset.h+"%"})})});
   m.querySelectorAll("[data-met]").forEach(function(b){b.onclick=function(){CMP.met=b.dataset.met;render()}});
+  m.querySelectorAll("[data-md]").forEach(function(b){b.onclick=function(){MEDIA=b.dataset.md;try{localStorage.setItem("relatorio-media",MEDIA)}catch(e){}render()}});
   m.querySelectorAll(".bc[data-ab]").forEach(function(b){b.onclick=function(){var id=b.dataset.ab;if(!DB.sess[id]&&CMP.extra[id])DB.sess[id]=CMP.extra[id];abrir(id);tab="rel";marcaTab();render()}});
   ligaCmp(m);
 }
