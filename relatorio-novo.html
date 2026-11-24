@@ -460,7 +460,7 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
       <div class="fotobar"><div><h2 style="margin:0">Fotos dos lotes</h2><p class="dica" id="fotoInfo" style="margin:2px 0 0"></p></div>
         <div class="fseg" role="group" aria-label="Mostrar"><button type="button" data-ff="todos" aria-pressed="true">Todos</button><button type="button" data-ff="com" aria-pressed="false">Com foto</button><button type="button" data-ff="sem" aria-pressed="false">Sem foto</button></div></div>
       <div class="fgrid" id="fgrid"></div>
-      <p class="note">Toque no lote para ver a foto grande e trocar a categoria com um toque. As setas ← → passam para o lote seguinte. As fotos vêm do Lotes · ADM (aba Câmera); vídeos não entram aqui. Foto oculta no site dos produtores aparece aqui com a marca "oculta".</p>
+      <p class="note">Toque no lote para ver a foto grande e trocar a categoria com um toque. As setas ← → passam para o lote seguinte. As fotos vêm do Lotes · ADM (aba Câmera) e ficam guardadas por 30 dias depois do leilão; vídeos não entram aqui. Foto oculta no site dos produtores aparece aqui com a marca "oculta".</p>
     </section>
 
     <section class="card" id="p-cats" role="tabpanel" hidden>
@@ -1390,18 +1390,30 @@ $("mOk").addEventListener("click",async function(){
 
 /* ---------- fotos dos lotes (vêm do Lotes · ADM pelo midia.json do site dos produtores) ---------- */
 var RAWL="https://raw.githubusercontent.com/Leiloingaleiloes/LOTES/main/",MIDIA={lotes:{},data:"",nome:"",ok:false},FF="todos",FICHA=null,FICHA_I=0;
+var ARQF={idx:[],cache:{},buscando:{}};   /* fotos guardadas por 30 dias em LOTES/arquivo/ */
+async function carregaArquivo(){try{var r=await fetch(RAWL+"arquivo/index.json?t="+Date.now(),{cache:"no-store"});if(r.ok){ARQF.idx=(await r.json()).leiloes||[];if(R)render();}}catch(e){}}
+function arqDo(){if(!R)return null;for(var i=0;i<ARQF.idx.length;i++)if(ARQF.idx[i].data===R.data)return ARQF.idx[i];return null;}
 async function carregaMidia(){
+  carregaArquivo();
   try{var a=await fetch(RAWL+"midia.json?t="+Date.now(),{cache:"no-store"}),b=await fetch(RAWL+"leilao.json?t="+Date.now(),{cache:"no-store"});
     MIDIA.lotes=a.ok?await a.json():{};var lj=b.ok?await b.json():{};MIDIA.data=lj.data||"";MIDIA.nome=lj.nome||"";MIDIA.ok=true;if(R)render();}catch(e){}
 }
 function midiaVale(){return MIDIA.ok&&R&&MIDIA.data&&MIDIA.data===R.data;}
-function fotosDe(l){if(!midiaVale())return [];var m=MIDIA.lotes[String(l.lote)];return m&&m.fotos?m.fotos:[];}
+function lotesDeFoto(){
+  if(midiaVale())return MIDIA.lotes;
+  var a=arqDo();if(!a)return null;
+  if(ARQF.cache[a.pasta])return ARQF.cache[a.pasta];
+  if(!ARQF.buscando[a.pasta]){ARQF.buscando[a.pasta]=1;fetch(RAWL+"arquivo/"+a.pasta+"/midia.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():{};}).then(function(j){ARQF.cache[a.pasta]=j;if(R)render();}).catch(function(){});}
+  return null;
+}
+function temFotos(){return !!lotesDeFoto();}
+function fotosDe(l){var L2=lotesDeFoto();if(!L2)return [];var m=L2[String(l.lote)];return m&&m.fotos?m.fotos:[];}
 function nomeCat(l){if(tirado(l))return {t:"Fora da soma",c:"fora"};var c=catDe(l);if(c)return {t:nomeEsp(c),c:"esp"};var f=faixaDe(l);return {t:(l.sexo==="M"?"Machos ":l.sexo==="F"?"Fêmeas ":"")+(f?txtFaixa(f):"sem peso"),c:""};}
 function renderFotos(){
   var g=$("fgrid");if(!g)return;g.textContent="";
   var info=$("fotoInfo");
   if(!MIDIA.ok)info.textContent="Carregando as fotos…";
-  else if(!midiaVale())info.textContent="As fotos são as do leilão que está no site dos produtores ("+(MIDIA.data||"nenhum")+"). Este relatório é de "+(R.data||"outra data")+", então não há fotos para mostrar.";
+  else if(!temFotos())info.textContent=arqDo()?"Buscando as fotos guardadas…":"Sem fotos guardadas para "+(R.data||"este leilão")+". As fotos ficam guardadas por 30 dias depois do leilão.";
   else{var n=R.lotes.filter(function(l){return fotosDe(l).length;}).length;info.textContent=n+" de "+R.lotes.length+" lotes com foto · toque para ver e trocar a categoria";}
   document.querySelectorAll("[data-ff]").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.ff===FF?"true":"false");});
   var ls=R.lotes.slice().sort(function(a,b){return a.lote-b.lote;}).filter(function(l){var t=fotosDe(l).length;return FF==="todos"||(FF==="com"?t:!t);});
@@ -1429,7 +1441,7 @@ function desenhaFicha(){
   ov.textContent="";var bx=el("div","fbox");bx.setAttribute("role","dialog");bx.setAttribute("aria-modal","true");
   var vis=el("div","fvis"),big=el("div","big");
   if(fs.length){var im=document.createElement("img");im.src=RAWL+fs[FICHA_I].src;im.alt="Foto do lote "+dois(l.lote);im.onerror=function(){if(fs[FICHA_I].mini&&im.src.indexOf(fs[FICHA_I].mini)<0)im.src=RAWL+fs[FICHA_I].mini;};big.append(im);}
-  else big.append(el("span","semf",midiaVale()?"Este lote ainda não tem foto.":"Sem fotos para este leilão."));
+  else big.append(el("span","semf",temFotos()?"Este lote não tem foto.":"Sem fotos guardadas para este leilão."));
   vis.append(big);
   if(fs.length>1){var tr=el("div","tira");fs.forEach(function(f,i){var t=el("button");t.type="button";t.setAttribute("aria-pressed",i===FICHA_I?"true":"false");var ti=document.createElement("img");ti.src=RAWL+(f.mini||f.src);ti.alt="";t.append(ti);t.addEventListener("click",function(){FICHA_I=i;desenhaFicha();});tr.append(t);});vis.append(tr);}
   var inf=el("div","finfo"),hd=el("div","fhead");hd.append(el("h3",null,"Lote "+dois(l.lote)));
