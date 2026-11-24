@@ -395,6 +395,16 @@ td input:focus{border-color:var(--destaque)}
 .vgrid .vgrp{grid-column:1/-1;margin:0;animation:vabre .2s ease-out}
 @keyframes vabre{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .vgrp{border:1.5px solid var(--accent);border-radius:14px;margin-bottom:10px;overflow:hidden;background:#fff}
+.vlw{display:inline-flex;align-items:center;gap:6px;justify-content:flex-end}
+.vfoto{border:1px solid var(--line);background:#fff;border-radius:8px;padding:2px 6px;font-size:.95rem;cursor:pointer;line-height:1.2}
+.vfoto:hover{border-color:var(--accent);background:#eef8f0}.vfoto.sem{opacity:.3}
+.vluz{position:fixed;inset:0;background:rgba(10,14,12,.86);z-index:9999;display:grid;place-items:center;padding:16px}
+.vlc{position:relative;max-width:min(920px,100%);width:100%;background:#111;border-radius:14px;overflow:hidden}
+.vlc img{display:block;width:100%;max-height:78vh;object-fit:contain;background:#000}
+.vlt{display:flex;gap:10px;align-items:center;padding:10px 14px;color:#fff;font-size:.9rem}.vlt b{font:700 1.05rem var(--f-display);text-transform:uppercase;flex:1}
+.vlx{border:0;background:none;color:#fff;font-size:1.3rem;cursor:pointer}
+.vlo{margin:0;padding:8px 14px;color:#ffd27a;font-size:.85rem}
+.vla{position:absolute;top:50%;transform:translateY(-50%);border:0;background:rgba(0,0,0,.5);color:#fff;font-size:2rem;width:44px;height:60px;border-radius:10px;cursor:pointer}.vla.e{left:8px}.vla.d{right:8px}
 .vfecha{border:0;background:none;font-size:1.1rem;cursor:pointer;color:var(--muted);padding:0 4px}
 .vgh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
 .vgh .vnome{font:700 1.1rem var(--f-display);text-transform:uppercase;letter-spacing:.02em;cursor:text}
@@ -1087,7 +1097,7 @@ function renderVend(){
   $("vVends").innerHTML=[...new Set(S.rows.map(function(r){return r.vendedor;}).filter(Boolean))].sort().map(function(x){return '<option value="'+vEsc(x)+'">';}).join("");
   box.textContent="";
   if(!nomes.length){box.append(el("p","muted",S.rows.length?"Nenhum lote com essa busca.":"Nenhum lote ainda. Leia o PDF da ordem de entrada na aba Fichas ou use “+ Novo lote”."));return;}
-  if(VOPEN&&!gr[VOPEN])VOPEN=null;if(q&&nomes.length===1)VOPEN=nomes[0];
+  garanteMidia();if(VOPEN&&!gr[VOPEN])VOPEN=null;if(q&&nomes.length===1)VOPEN=nomes[0];
   var grid=el("div","vgrid"),cards={};box.append(grid);
   var CORES=["#1f7a3a","#2c6e9e","#8a5a1f","#7a2f6b","#3d6b5a","#a14a2a","#4b5aa0","#6b7a1f"];
   nomes.forEach(function(nm){
@@ -1112,7 +1122,12 @@ function renderVend(){
   var th=document.createElement("tr");VCAMPOS.forEach(function(f){th.append(el("th",f.n?"n":null,f.t));});th.append(el("th"));t.append(th);
   ls.forEach(function(r){
     var tr=document.createElement("tr");tr.dataset.rid=r.id;
-    VCAMPOS.forEach(function(f){var td=el("td",(f.n?"n ":"")+"ved",vVal(r,f.k)||"–");td.dataset.k=f.k;td.title="Dois cliques para editar";tr.append(td);});
+    VCAMPOS.forEach(function(f){var td=el("td",(f.n?"n ":"")+"ved",vVal(r,f.k)||"–");td.dataset.k=f.k;td.title="Dois cliques para editar";tr.append(td);
+      if(f.k==="lote"){var fs=fotosLote(r.lote),bf=el("button","vfoto"+(fs.length?"":" sem"),"📷");bf.type="button";
+        bf.title=fs.length?fs.length+(fs.length===1?" foto":" fotos")+" do lote":"Sem foto ainda";bf.setAttribute("aria-label","Ver a foto do lote "+dois(r.lote));
+        bf.addEventListener("click",function(e){e.stopPropagation();if(fs.length)verFotos(r.lote,0);else toast("O lote "+dois(r.lote)+" ainda não tem foto. Tire na aba Câmera.");});
+        bf.addEventListener("dblclick",function(e){e.stopPropagation();});
+        var w=el("span","vlw");w.append(el("span",null,td.textContent),bf);td.textContent="";td.append(w);}});
     var tdx=el("td","vx"),bx=el("button","vdel",VARM===r.id?"Excluir?":"🗑");bx.type="button";bx.setAttribute("aria-label","Excluir o lote "+dois(r.lote));
     bx.addEventListener("click",function(){if(VARM!==r.id){VARM=r.id;renderVend();setTimeout(function(){if(VARM===r.id){VARM=null;renderVend();}},4000);return;}
       VARM=null;S.rows=S.rows.filter(function(x){return x.id!==r.id;});salvar();render();toast("Lote "+dois(r.lote)+" excluído.");});
@@ -1124,6 +1139,25 @@ function renderVend(){
   cs.forEach(function(x){if(x.offsetTop===top)ult=x;});
   ult.after(g);
 }
+/* fotos do lote (as mesmas que foram pro site dos produtores) */
+var MIDPUB={pedido:false};
+function fotosLote(n){var m=(MID.dados||{})[String(n)]||{};return (m.fotos||[]).filter(function(f){return f&&f.src;});}
+function garanteMidia(){if(MID.carregado||MIDPUB.pedido)return;MIDPUB.pedido=true;
+  fetch(RAWPUB+"midia.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(d){if(d&&!MID.carregado){MID.dados=d;MID.carregado=true;renderVend();}}).catch(function(){});}
+function verFotos(n,i){
+  var fs=fotosLote(n);if(!fs.length)return;i=(i+fs.length)%fs.length;var f=fs[i],r=S.rows.find(function(x){return x.lote===n;})||{};
+  var bg=$("vLuz");if(!bg){bg=el("div","vluz");bg.id="vLuz";bg.setAttribute("role","dialog");bg.setAttribute("aria-modal","true");document.body.append(bg);
+    bg.addEventListener("click",function(e){if(e.target===bg)bg.remove();});}
+  bg.textContent="";var cx=el("div","vlc"),top=el("div","vlt");
+  top.append(el("b",null,"Lote "+dois(n)+(r.qtde?" · "+r.qtde+" cab.":"")+(r.raca?" · "+r.raca:"")+(r.peso?" · "+r.peso+" kg":"")),el("span",null,fs.length>1?(i+1)+" de "+fs.length:""));
+  var x=el("button","vlx","✕");x.type="button";x.setAttribute("aria-label","Fechar");x.onclick=function(){bg.remove();};top.append(x);
+  var im=document.createElement("img");im.src=RAWPUB+f.src;im.alt="Foto do lote "+dois(n);
+  cx.append(top,im);if(f.oculta)cx.append(el("p","vlo","Esta foto está oculta para os produtores."));
+  if(fs.length>1){var a=el("button","vla e","‹"),b=el("button","vla d","›");a.type=b.type="button";a.setAttribute("aria-label","Foto anterior");b.setAttribute("aria-label","Próxima foto");
+    a.onclick=function(){verFotos(n,i-1);};b.onclick=function(){verFotos(n,i+1);};cx.append(a,b);}
+  bg.append(cx);bg.dataset.n=n;bg.dataset.i=i;x.focus();
+}
+document.addEventListener("keydown",function(e){var bg=$("vLuz");if(!bg)return;if(e.key==="Escape")bg.remove();else if(e.key==="ArrowRight")verFotos(+bg.dataset.n,+bg.dataset.i+1);else if(e.key==="ArrowLeft")verFotos(+bg.dataset.n,+bg.dataset.i-1);});
 function vSalvaCampo(r,k,v){
   var f=VCAMPOS.find(function(x){return x.k===k;}),antes=r[k];
   if(f.n){var n=loteN(v);if(v.trim()!==""&&!(n>=0))return "Número inválido";
