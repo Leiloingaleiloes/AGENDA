@@ -227,6 +227,7 @@ const I = {
   pos:'<rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M2.5 8h15M2.5 12.5h15M7.5 3.5v13"/>',
   comissao:'<circle cx="10" cy="10" r="7.5"/><path d="M12.5 7.3c-.5-.8-1.4-1.3-2.5-1.3-1.4 0-2.5.8-2.5 2s1.1 1.7 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1.1 0-2-.5-2.5-1.3M10 4.5V6M10 14v1.5"/>',
   comparar:'<path d="M3 16.5 7.5 11l3 3 6.5-8"/><path d="M12.5 6H17v4.5"/>',
+  vend:'<circle cx="7.5" cy="7" r="2.8"/><path d="M2.5 16.5c.6-2.8 2.6-4.5 5-4.5s4.4 1.7 5 4.5"/><circle cx="14" cy="7.5" r="2.2"/><path d="M13.5 12c2 0 3.6 1.4 4 3.8"/>',
   relatorio:'<path d="M3 17h14"/><rect x="4" y="10" width="3" height="5" rx=".7"/><rect x="8.5" y="5" width="3" height="10" rx=".7"/><rect x="13" y="8" width="3" height="7" rx=".7"/>',
   lotes:'<path d="M7 5h10M7 10h10M7 15h10"/><circle cx="3.5" cy="5" r="1"/><circle cx="3.5" cy="10" r="1"/><circle cx="3.5" cy="15" r="1"/>',
   propagandas:'<path d="M3 8v4h3l6.5 4V4L6 8z"/><path d="M15 7a4 4 0 0 1 0 6"/>',
@@ -248,20 +249,19 @@ const AREAS = [
   {id:'agenda', nome:'Agenda de leilões', desc:'Leiloingá, Gralha Azul, Panorama e Pampa Remates', ic:'agenda', url:'agenda.html'},
   {id:'tempo', nome:'Previsão do tempo', desc:'Cidades dos leilões da Leiloingá · dia a dia, hora a hora e mapa', ic:'tempo', url:'tempo-novo.html'},
   {grp:'Leilão'},
-  {id:'fichas', nome:'Lotes · ADM', desc:'Fichas em Word, câmera dos lotes e envio para o site', ic:'fichas', url:'fichas.html'},
+  {id:'fichas', nome:'Lotes · ADM', desc:'Fichas em Word, câmera dos lotes e envio para o site', ic:'fichas', frame:'fichas', url:'fichas.html', h:'adm'},
+  {id:'vendedores', nome:'Vendedores', desc:'Lotes por vendedor · dois cliques para editar, adicionar ou excluir', ic:'vend', frame:'fichas', url:'fichas.html', h:'vendedores'},
   {id:'boleta', nome:'Boleta', desc:'Conferência na pista', ic:'boleta', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html',
    sub:[{h:'ini',nome:'Início do leilão',desc:'Nome, pisteiros e lotes do leilão'},
         {h:'pista',nome:'Pista',desc:'Lote a lote: lance, vendido ou retorno'},
         {h:'V',nome:'Vendidos',desc:'Lotes vendidos'},
         {h:'R',nome:'Retorno',desc:'Lotes que voltaram'}]},
   {id:'pos', nome:'Pós-leilão', desc:'Todos os lotes em linhas: comprador, doação e valores', ic:'pos', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'rel'},
-  {id:'comissao', nome:'Comissão', desc:'Vendas do leilão e divisão da comissão', ic:'comissao', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'com'},
   {id:'relatorio', nome:'Relatório por categoria', desc:'Peso, raça, idade e sexo · médias de R$/kg', ic:'relatorio', url:'relatorio-novo.html'},
-  {id:'v2', nome:'Lotes ADM v2', desc:'Layout novo em teste', ic:'v2', url:'lotes-v2/', tag:'teste'},
+  {id:'comissao', nome:'Comissão', desc:'Vendas do leilão e divisão da comissão', ic:'comissao', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'com'},
   {grp:'Divulgação'},
   {id:'lotes', nome:'Catálogo dos lotes', desc:'O que o produtor vê no link do QR code', ic:'lotes', url:'../LOTES/'},
   {id:'propagandas', nome:'Propagandas', desc:'Artes de divulgação dos leilões', ic:'propagandas', url:'propagandas.html'},
-  {id:'site', nome:'Site novo', desc:'Versão completa do site, em teste', ic:'site', url:'site/', tag:'teste'},
   {grp:'Análises'},
   {id:'comparar', nome:'Comparar leilões', desc:'Um leilão ao lado do outro: faturamento, médias e vendas', ic:'comparar', frame:'boleta', url:'boleta-nova.html?embed=1', aberta:'boleta-nova.html', h:'cmp'}
 ];
@@ -299,7 +299,7 @@ function abrirFrame(a, h){
   v.className = 'view'; v.id = 'v-' + fid;
   v.innerHTML = `<div class="loading"><div><div class="spin"></div>Carregando…</div></div>`;
   const fr = document.createElement('iframe');
-  fr.title = a.frame ? 'Boleta' : a.nome; fr.src = a.url + (h ? '#' + h : '');
+  fr.title = a.frame === 'boleta' ? 'Boleta' : a.frame === 'fichas' ? 'Lotes · ADM' : a.nome; fr.src = a.url + (h ? '#' + h : '');
   fr.setAttribute('allow', 'camera; microphone; clipboard-write; fullscreen');
   fr.addEventListener('load', () => { v.querySelector('.loading').classList.add('off'); ajustarPagina(fr, fid); });
   v.prepend(fr); stage.appendChild(v);
@@ -347,6 +347,7 @@ nav.addEventListener('click', e => {
 window.addEventListener('hashchange', () => ir(location.hash.slice(1), true));
 /* a boleta avisa quando troca de aba por conta própria */
 window.addEventListener('message', e => {
+  if (e.origin === location.origin && e.data && e.data.fichasView){ const alvo = e.data.fichasView === 'vend' ? 'vendedores' : 'fichas'; if (BY[atual] && BY[atual].frame === 'fichas' && atual !== alvo) ir(alvo); return; }
   if (e.origin !== location.origin || !e.data || !e.data.boletaTab) return;
   const t = e.data.boletaTab, alvo = t === 'rel' ? 'pos' : t === 'com' ? 'comissao' : t === 'cmp' ? 'comparar' : 'boleta-' + t;
   if (BY[atual] && BY[atual].frame === 'boleta'){ const cur = atual === 'boleta' ? 'boleta-' + subAtual.boleta : atual; if (cur !== alvo) ir(alvo); }

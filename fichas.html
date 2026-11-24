@@ -374,6 +374,44 @@ td input:focus{border-color:var(--destaque)}
 .enctop{background:#B42318!important;color:#fff!important;border-color:#B42318!important}
 .enctop.reabrir{background:#14843A!important;border-color:#14843A!important}
 .enctop.armado{background:#7a120c!important}
+.vtop{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:flex-end;margin-bottom:10px}
+.vtb{display:flex;gap:8px;flex-wrap:wrap}.vtb input{min-width:240px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);font:inherit}
+.vform{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;padding:12px;border:1.5px dashed var(--accent);border-radius:12px;background:var(--accent-soft);margin-bottom:10px}
+.vform label{display:grid;gap:3px;font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--muted)}
+.vform input,.vform select{padding:8px 10px;border-radius:8px;border:1px solid var(--line);font:inherit;font-size:1rem;text-transform:none;background:#fff}
+.vfb{display:flex;gap:8px;align-items:end;grid-column:1/-1}
+.vdica{font-size:.84rem;color:var(--muted);margin:0 0 10px}
+.vgrp{border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;background:#fff}
+.vgh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.vgh .vnome{font:700 1.1rem var(--f-display);text-transform:uppercase;letter-spacing:.02em;cursor:text}
+.vgh span{font-size:.85rem;color:var(--muted)}
+.vscroll{overflow-x:auto}
+table.vtab{min-width:760px}
+.vtab th{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.vtab th.n,.vtab td.n{text-align:right}
+.vtab td{padding:6px 10px;border-bottom:1px solid #eef3ef;white-space:nowrap;font-variant-numeric:tabular-nums}
+.vtab tr:last-child td{border-bottom:0}
+.vtab td.ved{cursor:text}.vtab td.ved:hover{background:#fff6cc}
+.vtab td.ved:first-child{font-weight:800}
+.vtab td[data-k=vendedor]{white-space:normal;min-width:200px}
+.vin{width:100%;min-width:60px;padding:5px 7px;border:2px solid var(--accent);border-radius:6px;font:inherit}
+.vin.big{font:700 1.1rem var(--f-display);max-width:420px}
+.vtab td.vx{width:1%;text-align:right}
+.vdel{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 9px;cursor:pointer;font:inherit;font-size:.85rem}
+.vdel:hover{border-color:var(--bad,#c0392b)}
+input.ro{background:transparent!important;border-color:transparent!important;cursor:default}
+input.ro:hover{background:#fff6cc!important;cursor:text}
+.juntos{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0;background:var(--surface-2)}
+.jh{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+.jh h3{margin:0;font:700 1.1rem var(--f-display);text-transform:uppercase}
+.jres{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:10px}
+.jres:empty{display:none}
+.jv{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:8px}
+.jv b{font:700 1rem var(--f-display);text-transform:uppercase}
+.jv video{width:100%;max-height:360px;border-radius:8px;background:#000}
+.jv .row{display:flex;gap:6px;flex-wrap:wrap}.jv a.btn{text-decoration:none;display:inline-flex;align-items:center}
+.jbar{height:6px;border-radius:6px;background:#e3ece5;overflow:hidden;margin-top:8px}.jbar i{display:block;height:100%;width:30%;background:var(--accent);animation:janda 1.4s ease-in-out infinite}
+@keyframes janda{0%{transform:translateX(-100%)}100%{transform:translateX(330%)}}
 </style>
 </head>
 <body>
@@ -390,6 +428,7 @@ td input:focus{border-color:var(--destaque)}
   </header>
   <nav class="abas" aria-label="Telas">
     <button type="button" data-v="fichas" aria-pressed="true">Fichas</button>
+    <button type="button" data-v="vend" aria-pressed="false">Vendedores</button>
     <button type="button" data-v="cam" aria-pressed="false">📷 Câmera</button>
     <button type="button" data-v="rel" aria-pressed="false">Relatório</button>
     <button type="button" data-v="ord" aria-pressed="false">Ordem de entrada</button>
@@ -545,6 +584,21 @@ td input:focus{border-color:var(--destaque)}
     <div id="ordCorpo"></div>
   </div>
 
+  <div id="v-vend" hidden>
+    <div class="vtop"><div><h2 style="margin:0">Vendedores e seus lotes</h2><p class="lead2" id="vendResumo" style="margin:2px 0 0"></p></div>
+      <div class="vtb"><input id="vendBusca" type="search" placeholder="Buscar vendedor, lote ou raça" aria-label="Buscar"><button class="btn" type="button" id="vendPdf">📄 Anexar PDF</button><input type="file" id="vendArq" accept="application/pdf,.pdf" multiple hidden><button class="btn pri" type="button" id="vendNovo">+ Novo lote</button></div></div>
+      <p class="note" id="vendPdfSt" hidden style="margin:6px 0 0"></p>
+    <form class="vform" id="vendForm" hidden>
+      <label>Lote<input id="vnLote" inputmode="numeric" required></label><label>Vendedor<input id="vnVend" list="vVends"></label><label>Qtde<input id="vnQtde" inputmode="numeric"></label>
+      <label>Sexo<select id="vnSexo"><option value="">–</option><option value="M">Macho</option><option value="F">Fêmea</option></select></label>
+      <label>Raça<input id="vnRaca" list="vRacas"></label><label>Idade<input id="vnIdade"></label><label>Peso<input id="vnPeso" inputmode="numeric"></label><label>Mang.<input id="vnMang" inputmode="numeric"></label>
+      <div class="vfb"><button class="btn pri" type="submit">Adicionar lote</button><button class="btn" type="button" id="vendCancela">Fechar</button></div>
+    </form>
+    <p class="vdica">Dois cliques em qualquer campo para editar · Enter salva · Tab vai para o campo seguinte · dois cliques no nome do vendedor muda em todos os lotes dele. As mudanças vão sozinhas para a Boleta e o Relatório.</p>
+    <div id="vendLista"></div>
+    <datalist id="vRacas"></datalist><datalist id="vVends"></datalist>
+  </div>
+
   <div id="v-cam" hidden>
     <div class="camtopo">
       <div>
@@ -558,6 +612,11 @@ td input:focus{border-color:var(--destaque)}
       </div>
     </div>
     <div class="avisocam" id="camAviso" hidden></div>
+    <section class="juntos" id="juntos" aria-labelledby="jT">
+      <div class="jh"><div><h3 id="jT">🎬 Vídeos juntos</h3><p class="note" id="jInfo" style="margin:2px 0 0">Junta os vídeos dos lotes em dois vídeos: primeiro um dos machos, depois um das fêmeas, com o número do lote em cima de cada trecho.</p></div>
+        <button class="btn pri" type="button" id="jBtn">Juntar vídeos</button></div>
+      <div class="jres" id="jRes"></div>
+    </section>
     <div class="cams" id="cams"></div>
     <div class="camrodape">
       <button class="btn" type="button" id="pubDados">Atualizar dados no site</button>
@@ -942,6 +1001,7 @@ function renderNums(){
 var CAMPOS=[["mang","n",4],["qtde","n",4],["sexo","t",2],["vendedor","t",40],["idade","t",14],["raca","t",24],["peso","n",5]];
 function render(){
   $("nomeLeilao").value=S.leilao||"";
+  if(typeof renderVend==="function"&&VIEW==="vend")setTimeout(renderVend,0);
   renderNums();renderChecks();
   var tb=$("tbody");tb.textContent="";
   var dups=contaDups();
@@ -952,7 +1012,7 @@ function render(){
     var tr=el("tr",(r.sel?"sel ":"")+(r.feita?"feita":""));tr.dataset.id=r.id;
     var td0=el("td","c"),cb=document.createElement("input");cb.type="checkbox";cb.checked=!!r.sel;cb.id="sel-"+r.id;
     cb.setAttribute("aria-label","Fazer ficha do lote "+dois(r.lote));cb.dataset.k="sel";td0.append(cb);
-    var td1=el("td"),tg=el("span","tag"),li=document.createElement("input");li.value=dois(r.lote);li.id="lote-"+r.id;li.inputMode="numeric";li.dataset.k="lote";li.setAttribute("aria-label","Número do lote");
+    var td1=el("td"),tg=el("span","tag"),li=document.createElement("input");li.value=dois(r.lote);li.id="lote-"+r.id;li.inputMode="numeric";li.dataset.k="lote";li.setAttribute("aria-label","Número do lote");li.readOnly=true;li.classList.add("ro");li.dataset.rid=r.id;li.title="Para editar: dois cliques (abre a aba Vendedores)";
     if(p.lote){li.title=p.lote;tg.style.outline="2px solid var(--bad)";}
     tg.append(li);td1.append(tg);
     tr.append(td0,td1);
@@ -960,6 +1020,7 @@ function render(){
       var td=el("td"),i=document.createElement("input");i.id=c[0]+"-"+r.id;i.dataset.k=c[0];
       var v=r[c[0]];i.value=v==null?"":(c[0]==="mang"?dois(v):String(v));
       if(c[1]==="n")i.inputMode="numeric";
+      i.readOnly=true;i.classList.add("ro");i.dataset.rid=r.id;i.title="Para editar: dois cliques (abre a aba Vendedores)";
       i.style.minWidth=(c[2]>20?19:c[2]>10?7.5:c[2]>4?4.5:3)+"em";
       i.setAttribute("aria-label",c[0]);
       if(p[c[0]]){i.classList.add("bad");i.title=p[c[0]];}
@@ -970,7 +1031,7 @@ function render(){
     if(r.nova){ts.append(document.createTextNode(" "));ts.append(el("span","pill new","Novo"));}
     if(r.duvida){ts.append(document.createTextNode(" "));ts.append(el("span","pill w","Conferir"));}
     tr.append(ts);
-    var tx=el("td"),bx=el("button","x","×");bx.type="button";bx.dataset.k="del";bx.setAttribute("aria-label","Tirar o lote "+dois(r.lote)+" da tabela");tx.append(bx);tr.append(tx);
+    var tx=el("td"),bx=el("button","x","×");bx.type="button";bx.dataset.k="del";bx.hidden=true;bx.setAttribute("aria-label","Tirar o lote "+dois(r.lote)+" da tabela");tx.append(bx);tr.append(tx);
     tb.append(tr);
   });
   renderBar();
@@ -993,8 +1054,102 @@ function resumoLotes(ns){
   return out.length>8?out.slice(0,8).join(", ")+"…":out.join(", ");
 }
 function achar(id){id=Number(id);return S.rows.find(function(r){return r.id===id;});}
+/* ---------- aba Vendedores: lotes agrupados por vendedor, edição com dois cliques ----------
+   É o único lugar para mudar número, quantidade, peso etc. Tudo salva no mesmo estado do Lotes ADM
+   (e na nuvem), e a Boleta e o Relatório puxam as correções sozinhos. */
+var VCAMPOS=[{k:"lote",t:"Lote",n:1,w:58},{k:"mang",t:"Mang.",n:1,w:58},{k:"qtde",t:"Qtde",n:1,w:58},{k:"sexo",t:"Sexo",w:70},{k:"raca",t:"Raça",w:160,dl:"vRacas"},{k:"idade",t:"Idade",w:90},{k:"peso",t:"Peso",n:1,w:70},{k:"vendedor",t:"Vendedor",w:200,dl:"vVends"}];
+var VQ="",VEDIT=null,VARM=null;
+function vEsc(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function vVal(r,k){var v=r[k];if(v==null||v==="")return "";if(k==="lote"||k==="mang")return dois(v);if(k==="peso")return v+" kg";if(k==="sexo")return v==="M"?"Macho":v==="F"?"Fêmea":v;return String(v);}
+function vNome(r){return (r.vendedor||"").trim()||"(sem vendedor)";}
+function renderVend(){
+  var box=$("vendLista");if(!box||$("v-vend").hidden)return;
+  var q=VQ.trim().toLowerCase(),gr={};
+  S.rows.forEach(function(r){if(q&&(String(r.lote)+" "+(r.vendedor||"")+" "+(r.raca||"")).toLowerCase().indexOf(q)<0)return;(gr[vNome(r)]=gr[vNome(r)]||[]).push(r);});
+  var nomes=Object.keys(gr).sort(function(a,b){if(a==="(sem vendedor)")return 1;if(b==="(sem vendedor)")return -1;return a.localeCompare(b,"pt-BR");});
+  var cab=S.rows.reduce(function(s,r){return s+(r.qtde||0);},0),nv=new Set(S.rows.map(vNome)).size;
+  $("vendResumo").textContent=nv+" vendedores · "+S.rows.length+" lotes · "+cab+" cabeças";
+  $("vRacas").innerHTML=[...new Set(S.rows.map(function(r){return r.raca;}).filter(Boolean))].sort().map(function(x){return '<option value="'+vEsc(x)+'">';}).join("");
+  $("vVends").innerHTML=[...new Set(S.rows.map(function(r){return r.vendedor;}).filter(Boolean))].sort().map(function(x){return '<option value="'+vEsc(x)+'">';}).join("");
+  box.textContent="";
+  if(!nomes.length){box.append(el("p","muted",S.rows.length?"Nenhum lote com essa busca.":"Nenhum lote ainda. Leia o PDF da ordem de entrada na aba Fichas ou use “+ Novo lote”."));return;}
+  nomes.forEach(function(nm){
+    var ls=gr[nm].slice().sort(function(a,b){return (a.lote||0)-(b.lote||0);}),c=ls.reduce(function(s,r){return s+(r.qtde||0);},0);
+    var g=el("section","vgrp"),h=el("div","vgh"),hn=el("b","vnome",nm);
+    if(nm!=="(sem vendedor)"){hn.title="Dois cliques para mudar o nome em todos os lotes deste vendedor";hn.addEventListener("dblclick",function(){editarVendedor(nm,hn);});}
+    h.append(hn,el("span",null,ls.length+(ls.length===1?" lote":" lotes")+" · "+c+" cab."));g.append(h);
+    var t=document.createElement("table");t.className="vtab";
+    var th=document.createElement("tr");VCAMPOS.forEach(function(f){var x=el("th",f.n?"n":null,f.t);th.append(x);});th.append(el("th"));t.append(th);
+    ls.forEach(function(r){
+      var tr=document.createElement("tr");tr.dataset.rid=r.id;
+      VCAMPOS.forEach(function(f){var td=el("td",(f.n?"n ":"")+"ved",vVal(r,f.k)||"–");td.dataset.k=f.k;td.title="Dois cliques para editar";tr.append(td);});
+      var tdx=el("td","vx"),bx=el("button","vdel",VARM===r.id?"Excluir?":"🗑");bx.type="button";bx.setAttribute("aria-label","Excluir o lote "+dois(r.lote));
+      bx.addEventListener("click",function(){if(VARM!==r.id){VARM=r.id;renderVend();setTimeout(function(){if(VARM===r.id){VARM=null;renderVend();}},4000);return;}
+        VARM=null;S.rows=S.rows.filter(function(x){return x.id!==r.id;});salvar();render();toast("Lote "+dois(r.lote)+" excluído.");});
+      tdx.append(bx);tr.append(tdx);t.append(tr);
+    });
+    var sc=el("div","vscroll");sc.append(t);g.append(sc);box.append(g);
+  });
+}
+function vSalvaCampo(r,k,v){
+  var f=VCAMPOS.find(function(x){return x.k===k;}),antes=r[k];
+  if(f.n){var n=loteN(v);if(v.trim()!==""&&!(n>=0))return "Número inválido";
+    if(k==="lote"&&n!=null&&S.rows.some(function(x){return x!==r&&x.lote===n;}))return "Já existe o lote "+dois(n);
+    r[k]=v.trim()===""?null:n;}
+  else if(k==="sexo")r[k]=sexoN(v);
+  else if(k==="vendedor")r[k]=v.trim().replace(/\s+/g," ");
+  else r[k]=up(v);
+  if(r[k]!==antes){if(k==="qtde"||k==="peso")r.duvida=false;salvar();render();toast("Lote "+dois(r.lote)+": "+f.t.toLowerCase()+" "+(antes==null||antes===""?"":vVal({[k]:antes},k)+" → ")+(vVal(r,k)||"vazio")+(r.feita&&k!=="vendedor"?" · gere a ficha dele de novo":""));}
+  return null;
+}
+function editarCelula(td){
+  var tr=td.closest("tr"),r=achar(tr.dataset.rid),k=td.dataset.k;if(!r)return;
+  var f=VCAMPOS.find(function(x){return x.k===k;});VEDIT={id:r.id,k:k};
+  td.textContent="";var inp;
+  if(k==="sexo"){inp=document.createElement("select");[["","–"],["M","Macho"],["F","Fêmea"]].forEach(function(o){var op=document.createElement("option");op.value=o[0];op.textContent=o[1];if((r.sexo||"")===o[0])op.selected=true;inp.append(op);});}
+  else{inp=document.createElement("input");inp.value=r[k]==null?"":String(r[k]);if(f.n)inp.inputMode="numeric";if(f.dl)inp.setAttribute("list",f.dl);}
+  inp.className="vin";td.append(inp);inp.focus();if(inp.select)inp.select();
+  var feito=false;
+  function fim(salva,prox){if(feito)return;feito=true;VEDIT=null;
+    if(salva){var e=vSalvaCampo(r,k,inp.value);if(e){toast(e);feito=false;VEDIT={id:r.id,k:k};inp.focus();return;}}
+    renderVend();
+    if(prox){var row=document.querySelector('#vendLista tr[data-rid="'+r.id+'"]');if(row){var cs=[...row.querySelectorAll("td.ved")],i=cs.findIndex(function(c){return c.dataset.k===k;}),nx=cs[i+(prox>0?1:-1)];if(nx)editarCelula(nx);}}}
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();fim(true);}else if(e.key==="Escape"){fim(false);}else if(e.key==="Tab"){e.preventDefault();fim(true,e.shiftKey?-1:1);}});
+  inp.addEventListener("blur",function(){setTimeout(function(){fim(true);},0);});
+  if(k==="sexo")inp.addEventListener("change",function(){fim(true);});
+}
+function editarVendedor(nm,alvo){
+  var inp=document.createElement("input");inp.className="vin big";inp.value=nm;inp.setAttribute("list","vVends");alvo.replaceWith(inp);inp.focus();inp.select();var feito=false;
+  function fim(ok){if(feito)return;feito=true;var novo=inp.value.trim().replace(/\s+/g," ");
+    if(ok&&novo&&novo!==nm){var n=0;S.rows.forEach(function(r){if(vNome(r)===nm){r.vendedor=novo;n++;}});salvar();render();toast(n+" lotes passaram para "+novo+".");}else renderVend();}
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter")fim(true);else if(e.key==="Escape")fim(false);});
+  inp.addEventListener("blur",function(){fim(true);});
+}
+$("vendLista").addEventListener("dblclick",function(e){var td=e.target.closest("td.ved");if(td&&!td.querySelector(".vin"))editarCelula(td);});
+$("vendBusca").addEventListener("input",function(){VQ=this.value;renderVend();});
+/* novo lote */
+$("vendPdf").addEventListener("click",function(){$("vendArq").click();});
+$("vendArq").addEventListener("change",async function(e){var fs=Array.prototype.slice.call(e.target.files||[]);e.target.value="";if(!fs.length)return;
+  var st=$("vendPdfSt"),antes=S.rows.length;st.hidden=false;st.textContent="Lendo o PDF…";
+  await addFiles(fs);
+  var n=S.rows.length-antes;st.textContent=(($("status").textContent||"").replace(" Confira antes de gerar o Word.","")||(n?n+" lotes novos.":"PDF lido."))+" Os vendedores e lotes abaixo já estão atualizados.";
+  if(VIEW!=="vend")mostrar("vend");else renderVend();setTimeout(function(){st.hidden=true;},15000);});
+$("vendNovo").addEventListener("click",function(){var f=$("vendForm");f.hidden=!f.hidden;if(!f.hidden){var mx=S.rows.reduce(function(m,r){return Math.max(m,r.lote||0);},0);$("vnLote").value=mx+1;$("vnVend").focus();}});
+$("vendCancela").addEventListener("click",function(){$("vendForm").hidden=true;});
+$("vendForm").addEventListener("submit",function(e){e.preventDefault();
+  var lote=loteN($("vnLote").value);if(!(lote>0)){toast("Coloque o número do lote.");$("vnLote").focus();return;}
+  if(S.rows.some(function(r){return r.lote===lote;})){toast("Já existe o lote "+dois(lote)+".");$("vnLote").focus();return;}
+  var d={lote:lote,mang:loteN($("vnMang").value),qtde:loteN($("vnQtde").value),sexo:sexoN($("vnSexo").value),raca:up($("vnRaca").value),idade:up($("vnIdade").value),peso:loteN($("vnPeso").value),vendedor:$("vnVend").value.trim().replace(/\s+/g," ")};
+  d.id=seq++;d.feita=false;d.sel=true;d.nova=true;S.rows.push(d);salvar();render();
+  ["vnLote","vnMang","vnQtde","vnRaca","vnIdade","vnPeso"].forEach(function(i){$(i).value="";});$("vnLote").value=lote+1;$("vnQtde").focus();
+  toast("Lote "+dois(lote)+" adicionado ("+(d.vendedor||"sem vendedor")+").");
+});
+
+/* tabela da aba Fichas: só leitura; dois cliques num campo abre o mesmo campo na aba Vendedores */
+document.addEventListener("dblclick",function(e){var t=e.target.closest&&e.target.closest("input.ro[data-rid]");if(!t)return;e.preventDefault();var id=t.dataset.rid,k=t.dataset.k;
+  mostrar("vend");setTimeout(function(){var td=document.querySelector('#vendLista tr[data-rid="'+id+'"] td[data-k="'+k+'"]');if(td){td.scrollIntoView({block:"center"});editarCelula(td);}},50);});
 /* ---------- dois cliques na quantidade de animais para corrigir ---------- */
-function qtdSpan(r,suf,dz){var sp=el("span","qtd",r.qtde!=null?(dz?dois(r.qtde):String(r.qtde))+suf:"–");sp.dataset.rid=r.id;sp.title="Dois cliques para corrigir a quantidade";return sp;}
+function qtdSpan(r,suf,dz){var sp=el("span","qtd",r.qtde!=null?(dz?dois(r.qtde):String(r.qtde))+suf:"–");sp.dataset.rid=r.id;sp.title="Dois cliques para corrigir (abre a aba Vendedores)";return sp;}
 var QED=null;
 function fechaQtd(){if(QED){QED.remove();QED=null;}}
 function editarQtd(r,alvo){
@@ -1014,7 +1169,8 @@ function editarQtd(r,alvo){
   ok.addEventListener("click",salva);ca.addEventListener("click",fechaQtd);
   i.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();salva();}else if(e.key==="Escape")fechaQtd();});
 }
-document.addEventListener("dblclick",function(e){var t=e.target.closest&&e.target.closest(".qtd[data-rid]");if(!t)return;e.preventDefault();var r=achar(t.dataset.rid);if(r)editarQtd(r,t);});
+document.addEventListener("dblclick",function(e){var t=e.target.closest&&e.target.closest(".qtd[data-rid]");if(!t)return;e.preventDefault();var r=achar(t.dataset.rid);if(!r)return;
+  mostrar("vend");setTimeout(function(){var td=document.querySelector('#vendLista tr[data-rid="'+r.id+'"] td[data-k="qtde"]');if(td){td.scrollIntoView({block:"center"});editarCelula(td);}},50);});
 document.addEventListener("mousedown",function(e){if(QED&&!QED.contains(e.target))fechaQtd();});
 
 $("tbody").addEventListener("change",function(e){
@@ -1442,8 +1598,13 @@ $("c-ok").addEventListener("click",async function(){
 var VIEW="fichas";
 try{VIEW=localStorage.getItem("leiloinga-adm-view")||(window.innerWidth<700?"cam":"fichas");}catch(e){}
 if(location.hash==="#pedidos")VIEW="ped";
+var VIEW_ADM=VIEW==="vend"?"fichas":VIEW;
+if(location.hash==="#vendedores")VIEW="vend";
+window.addEventListener("hashchange",function(){if(location.hash==="#vendedores")mostrar("vend");else if(location.hash==="#adm"&&VIEW==="vend")mostrar(VIEW_ADM||"fichas");});
 function mostrar(v){
-  VIEW=v;$("v-fichas").hidden=v!=="fichas";$("v-cam").hidden=v!=="cam";$("v-rel").hidden=v!=="rel";$("v-ord").hidden=v!=="ord";$("v-ped").hidden=v!=="ped";
+  VIEW=v;$("v-fichas").hidden=v!=="fichas";$("v-vend").hidden=v!=="vend";$("v-cam").hidden=v!=="cam";$("v-rel").hidden=v!=="rel";$("v-ord").hidden=v!=="ord";$("v-ped").hidden=v!=="ped";
+  if(v==="vend")renderVend();else VIEW_ADM=v;
+  try{if(window.parent!==window)window.parent.postMessage({fichasView:v},location.origin);}catch(e){}
   if(v==="ped")carregarPedidos();
   document.querySelectorAll(".abas button").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.v===v));});
   try{localStorage.setItem("leiloinga-adm-view",v);}catch(e){}
@@ -1524,6 +1685,44 @@ async function publicarDados(){
   await gravarTexto(PUB,"leilao.json",JSON.stringify({nome:S.leilao||"",data:S.data||""})+"\n","Lotes: leilão atual");
   if(ENC.on!==false){try{if(ENC.on===null)await lerEstadoPub();if(ENC.on)await gravarEstado(false);}catch(e){}}
 }
+
+/* ---------- juntar vídeos (machos e fêmeas) ----------
+   O botão grava pedido-videos.json no site dos produtores; uma rotina do GitHub junta os vídeos com
+   o número de cada lote e grava juntos/machos.mp4 e juntos/femeas.mp4 (com juntos/status.json). */
+var JT={timer:null,pedido:null};
+async function lerJuntos(){try{var r=await fetch(RAWPUB+"juntos/status.json?t="+Date.now(),{cache:"no-store"});return r.ok?await r.json():null;}catch(e){return null;}}
+function urlPub(p){return "https://leiloingaleiloes.github.io/"+PUB+"/"+p;}
+function mostraJuntos(st,carregando){
+  var box=$("jRes");if(!box)return;box.textContent="";
+  if(carregando){var d=el("div","jv");d.append(el("b",null,"Juntando os vídeos…"),el("span","note","Leva de 2 a 5 minutos. Pode continuar usando o Lotes ADM; o resultado aparece aqui."));var bar=el("div","jbar");bar.append(el("i"));d.append(bar);box.append(d);return;}
+  if(!st)return;
+  var quando=st.pronto_em?new Date(st.pronto_em).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+  $("jInfo").textContent="Últimos vídeos juntos: "+quando+(st.leilao&&st.leilao.data?" · leilão de "+st.leilao.data:"")+". Toque em Juntar vídeos de novo depois de mandar vídeos novos.";
+  [["machos","Machos"],["femeas","Fêmeas"]].forEach(function(x){
+    var it=st[x[0]]||{},d=el("div","jv");d.append(el("b",null,x[1]+(it.lotes&&it.lotes.length?" · "+it.lotes.length+" lotes":"")));
+    if(!it.arquivo){d.append(el("span","note","Nenhum vídeo de "+x[1].toLowerCase()+"."));box.append(d);return;}
+    var url=urlPub(it.arquivo)+"?v="+encodeURIComponent(st.pronto_em||"");
+    var v=document.createElement("video");v.controls=true;v.preload="metadata";v.playsInline=true;v.src=url;d.append(v);
+    var row=el("div","row"),a=document.createElement("a");a.className="btn";a.href=url;a.download=x[0]+".mp4";a.textContent="Baixar ("+(it.mb||"?")+" MB)";
+    var z=document.createElement("a");z.className="btn";z.target="_blank";z.rel="noopener";z.href="https://wa.me/?text="+encodeURIComponent(x[1]+" do leilão"+(st.leilao&&st.leilao.nome?" "+st.leilao.nome:"")+": "+urlPub(it.arquivo));z.textContent="Mandar no WhatsApp";
+    row.append(a,z);d.append(row);box.append(d);
+  });
+}
+async function esperaJuntos(desde){
+  clearInterval(JT.timer);mostraJuntos(null,true);var tent=0;
+  JT.timer=setInterval(async function(){tent++;var st=await lerJuntos();
+    if(st&&st.pronto_em&&(!desde||st.pronto_em>=desde.slice(0,19))){clearInterval(JT.timer);JT.timer=null;$("jBtn").disabled=false;$("jBtn").textContent="Juntar vídeos";mostraJuntos(st);toast("Vídeos juntos prontos.");}
+    else if(tent>60){clearInterval(JT.timer);JT.timer=null;$("jBtn").disabled=false;$("jBtn").textContent="Juntar vídeos";$("jRes").textContent="";toast("Ainda não ficou pronto. Tente abrir de novo daqui a pouco.");}
+  },15000);
+}
+$("jBtn").addEventListener("click",async function(){
+  var b=this;if(!GH.token){toast("Conecte este aparelho à nuvem primeiro (botão “Só neste aparelho”).");return;}
+  b.disabled=true;b.textContent="Pedindo…";
+  try{var em=new Date().toISOString();await gravarTexto(PUB,"pedido-videos.json",JSON.stringify({em:em,leilao:S.leilao||"",data:S.data||""})+"\n","Pedido: juntar vídeos dos lotes");
+    b.textContent="Juntando…";esperaJuntos(em);}
+  catch(e){toast("Não deu agora ("+(e.message||e)+").");b.disabled=false;b.textContent="Juntar vídeos";}
+});
+lerJuntos().then(function(st){if(st)mostraJuntos(st);});
 /* ---------- encerrar o leilão no site dos produtores ----------
    Grava estado.json no site: com encerrado:true, o site some com lotes e ordem de entrada e mostra o
    banner do próximo leilão da Leiloingá (da agenda). "Mandar lotes pro site" reabre automaticamente. */
