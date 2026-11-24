@@ -4,6 +4,8 @@
    Fica guardado só um código embaralhado (SHA-256) das senhas, nunca a senha em si.
    É uma tranca contra quem pega o aparelho; não é um cofre. */
 (function(){
+  /* Página pública: só o Início (banners dos próximos leilões da Leiloingá), aberto pelo botão "Próximos leilões" do catálogo */
+  if(/[?&]publico=1/.test(location.search)&&/\/(sistema-novo\.html)?$/.test(location.pathname)){document.documentElement.classList.add("publico");window.TRAVA={ok:function(){return false;},form:function(){},sair:function(){}};return;}
   var H={geral:"558cbc93fca17621a8f32b91e93ed050e01a0bd2923d97031fd4a4be86736e68",com:"fb8453c60ae66364f9ebdeacccf6d9b809c65970493bd7de10b44032e70295fd"};
   var DUR={geral:30*864e5,com:12*36e5},K="leiloinga-trava-";
   function ok(t){try{var v=+localStorage.getItem(K+t);return v&&v>Date.now();}catch(e){return false;}}
