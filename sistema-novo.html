@@ -370,7 +370,7 @@ document.getElementById('reload').addEventListener('click', () => {
 document.getElementById('burger').addEventListener('click', () => app.classList.add('open'));
 document.getElementById('scrim').addEventListener('click', () => app.classList.remove('open'));
 document.getElementById('mini').addEventListener('click', () => { app.classList.toggle('mini'); try { localStorage.setItem('sistema-mini', app.classList.contains('mini') ? '1' : ''); } catch(e){} });
-try { if (localStorage.getItem('sistema-mini')) app.classList.add('mini'); } catch(e){}
+try { const mm = localStorage.getItem('sistema-mini'); if (mm) app.classList.add('mini'); else if (mm === null && matchMedia('(pointer:coarse) and (min-width:900px) and (max-width:1400px)').matches) app.classList.add('mini'); } catch(e){}  /* tablet deitado: menu recolhido para sobrar tela */
 
 /* ---------- utilidades ---------- */
 const toast = t => { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => el.classList.remove('on'), 2200); };

@@ -436,6 +436,13 @@ input.ro:hover{background:#fff6cc!important;cursor:text}
 .jv .row{display:flex;gap:6px;flex-wrap:wrap}.jv a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .jbar{height:6px;border-radius:6px;background:#e3ece5;overflow:hidden;margin-top:8px}.jbar i{display:block;height:100%;width:30%;background:var(--accent);animation:janda 1.4s ease-in-out infinite}
 @keyframes janda{0%{transform:translateX(-100%)}100%{transform:translateX(330%)}}
+.resgate{border:2px solid var(--accent);border-radius:16px;padding:14px 16px;margin:0 0 14px;background:#f2faf4;animation:rgin .25s ease-out}
+@keyframes rgin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.rgh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.rgh h2{margin:0;font:700 1.25rem var(--f-display);text-transform:uppercase}
+.rgb{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.rgb .btn{min-height:48px;font-size:1rem}
+.rgl{display:grid;gap:8px;margin-top:12px}.rgl:empty{display:none}
+.rgi{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.rgi b{font:700 1rem var(--f-display);text-transform:uppercase}.rgi small{display:block;color:var(--muted);font-size:.82rem}
 </style>
 </head>
 <body>
@@ -446,6 +453,7 @@ input.ro:hover{background:#fff6cc!important;cursor:text}
       <button class="nuvem" type="button" id="nuvemBtn"><i></i><span id="nuvemTxt">Só neste aparelho</span></button>
       <button class="home pubtop" type="button" id="pubTopo">⬆ Mandar lotes pro site</button>
       <button class="home enctop" type="button" id="encTopo" title="Tira lotes e ordem de entrada do site dos produtores e mostra o próximo leilão">⏹ Encerrar no site</button>
+      <button class="home" type="button" id="resgBtn">📂 Leilões lançados</button>
       <a class="home" href="https://leiloingaleiloes.github.io/LOTES/" target="_blank" rel="noopener">Site dos produtores ↗</a>
       <a class="home" href="./">&larr; Início</a>
     </div>
@@ -458,6 +466,12 @@ input.ro:hover{background:#fff6cc!important;cursor:text}
     <button type="button" data-v="ord" aria-pressed="false">Ordem de entrada</button>
     <button type="button" data-v="ped" aria-pressed="false">✍ Pedidos</button>
   </nav>
+  <section class="resgate" id="resgate" hidden aria-labelledby="resgT">
+    <div class="rgh"><div><h2 id="resgT">Que leilão você quer abrir?</h2><p class="note" id="resgSub" style="margin:2px 0 0">Comece um leilão novo ou traga de volta os lotes de um leilão que já foi lançado.</p></div>
+      <button class="btn link" type="button" id="resgFecha" aria-label="Fechar">✕</button></div>
+    <div class="rgb"><button class="btn pri" type="button" id="resgNovo">＋ Começar leilão novo</button><button class="btn" type="button" id="resgBusca">↺ Buscar o último lançado</button></div>
+    <div class="rgl" id="resgLista"></div>
+  </section>
 
   <div id="v-fichas">
   <p class="lead2">Escolha o PDF da ordem de entrada, confira os lotes e baixe as fichas em Word, uma por página.</p>
@@ -879,6 +893,7 @@ var S={leilao:"",data:"",totais:null,rows:[]};
 var files=[], seq=1, busy=false;
 function salvar(){
   try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+  if(typeof arquivar==="function")arquivar();
   if(window.__nuvemSalvar)window.__nuvemSalvar();
 }
 function carregarLocal(){
@@ -1025,6 +1040,7 @@ function renderNums(){
 var CAMPOS=[["mang","n",4],["qtde","n",4],["sexo","t",2],["vendedor","t",40],["idade","t",14],["raca","t",24],["peso","n",5]];
 function render(){
   $("nomeLeilao").value=S.leilao||"";
+  if(typeof mostraResgate==="function")mostraResgate(false);
   if(typeof renderVend==="function"&&VIEW==="vend")setTimeout(renderVend,0);
   renderNums();renderChecks();
   var tb=$("tbody");tb.textContent="";
@@ -1790,6 +1806,63 @@ $("jBtn").addEventListener("click",async function(){
   catch(e){toast("Não deu agora ("+(e.message||e)+").");b.disabled=false;b.textContent="Juntar vídeos";}
 });
 lerJuntos().then(function(st){if(st)mostraJuntos(st);});
+/* ---------- resgatar um leilão já lançado ----------
+   Cada leilão com lotes fica guardado neste aparelho (fichas-arquivo-v1). Na nuvem, o histórico do fichas.json
+   no GitHub guarda todas as versões: "Buscar o último lançado" procura nele os últimos leilões com lotes. */
+var ARQV_KEY="fichas-arquivo-v1",RESG={fechado:false,busy:false};
+function chaveLeilao(x){return (x.data||"")+"|"+(x.leilao||"");}
+function arquivar(){if(!ARQV_KEY||!S.rows.length||(!S.leilao&&!S.data))return;try{var a=JSON.parse(localStorage.getItem(ARQV_KEY)||"{}"),x=limpo(S);x.em=new Date().toISOString();a[chaveLeilao(x)]=x;
+  var ks=Object.keys(a).sort(function(p,q){return (a[q].em||"").localeCompare(a[p].em||"");});ks.slice(12).forEach(function(k){delete a[k];});localStorage.setItem(ARQV_KEY,JSON.stringify(a));}catch(e){}}
+function arquivoLocal(){try{var a=JSON.parse(localStorage.getItem(ARQV_KEY)||"{}");return Object.keys(a).map(function(k){return a[k];});}catch(e){return [];}}
+function dataOrd(d){var m=/(\d{2})\/(\d{2})\/(\d{4})/.exec(d||"");return m?m[3]+m[2]+m[1]:String(d||"");}
+function mostraResgate(forcar){var r=$("resgate");if(!r||!RESG)return;var vazio=!S.rows.length;
+  if(forcar)RESG.fechado=false;
+  r.hidden=!(forcar||(vazio&&!RESG.fechado));
+  $("resgSub").textContent=vazio?"Não há lotes neste aparelho. Comece um leilão novo ou traga de volta os lotes de um leilão já lançado.":"Agora está aberto: "+([S.leilao,S.data].filter(Boolean).join(" · ")||"leilão sem nome")+" ("+S.rows.length+" lotes). Escolha outro para abrir ou comece um novo.";
+  if(!r.hidden&&!$("resgLista").children.length)listaResgate(arquivoLocal(),false);}
+function listaResgate(itens,daNuvem){
+  var box=$("resgLista");box.textContent="";var atual=chaveLeilao(S);
+  itens=itens.filter(function(x){return x&&x.rows&&x.rows.length;}).sort(function(a,b){return dataOrd(b.data).localeCompare(dataOrd(a.data));});
+  if(!itens.length){if(daNuvem)box.append(el("p","note","Não achei leilões anteriores com lotes na nuvem."));return;}
+  box.append(el("p","note",daNuvem?"Leilões encontrados:":"Guardados neste aparelho:"));
+  itens.forEach(function(x){var it=el("div","rgi"),t=el("div");var cab=x.rows.reduce(function(s,r){return s+(+r.qtde||0);},0),igual=chaveLeilao(x)===atual&&S.rows.length===x.rows.length;
+    t.append(el("b",null,x.leilao||"Leilão sem nome"),el("small",null,[x.data,x.rows.length+" lotes",cab+" cabeças"].filter(Boolean).join(" · ")));
+    var b=el("button","btn"+(igual?"":" pri"),igual?"Já está aberto":"Abrir este");b.type="button";b.disabled=igual;
+    b.addEventListener("click",function(){abrirArquivado(x);});it.append(t,b);box.append(it);});
+}
+function abrirArquivado(x){
+  if(S.rows.length&&chaveLeilao(S)!==chaveLeilao(x)){if(!confirm("Abrir "+(x.leilao||"este leilão")+" no lugar de "+(S.leilao||"o leilão aberto agora")+"?\n\nOs lotes de agora ficam guardados e você pode voltar neles por aqui."))return;arquivar();}
+  aplicarEstado(x);salvar();RESG.fechado=true;$("resgate").hidden=true;$("resgLista").textContent="";
+  toast((x.leilao||"Leilão")+" aberto com "+x.rows.length+" lotes.",6000);
+}
+async function buscaNuvemResgate(){
+  if(!GH.token){toast("Conecte este aparelho à nuvem primeiro (botão “Só neste aparelho”). Os lotes lançados ficam guardados lá.",7000);abrirConexao();return;}
+  if(RESG.busy)return;RESG.busy=true;var b=$("resgBusca");b.disabled=true;b.textContent="Procurando…";
+  var achados={},n=0;
+  try{
+    arquivoLocal().forEach(function(x){achados[chaveLeilao(x)]=x;});
+    var r=await api("/repos/"+DONO+"/"+GH.repo+"/commits?path="+ARQ+"&per_page=100");if(!r.ok)throw erroGH(r);
+    var cs=await r.json(),distintos=0;
+    for(var i=0;i<cs.length&&n<45&&distintos<4;i++){
+      n++;b.textContent="Procurando… ("+n+")";
+      var rr=await api(caminho(GH.repo,ARQ)+"?ref="+cs[i].sha);if(!rr.ok)continue;var j=await rr.json();
+      var x={};try{x=JSON.parse(b64dec(j.content||""));}catch(e){continue;}
+      if(!x.rows||!x.rows.length)continue;var k=chaveLeilao(x);
+      if(!achados[k]){distintos++;achados[k]=x;}
+    }
+    listaResgate(Object.keys(achados).map(function(k){return achados[k];}),true);
+  }catch(e){toast("Não consegui procurar na nuvem agora ("+(e.message||e)+").",6000);}
+  finally{RESG.busy=false;b.disabled=false;b.textContent="↺ Buscar o último lançado";}
+}
+$("resgBtn").addEventListener("click",function(){var r=$("resgate");if(!r.hidden){r.hidden=true;RESG.fechado=true;return;}$("resgLista").textContent="";mostraResgate(true);r.scrollIntoView({block:"nearest",behavior:"smooth"});});
+$("resgFecha").addEventListener("click",function(){RESG.fechado=true;$("resgate").hidden=true;});
+$("resgBusca").addEventListener("click",buscaNuvemResgate);
+mostraResgate(false);
+$("resgNovo").addEventListener("click",function(){
+  if(S.rows.length){if(!confirm("Começar um leilão novo?\n\n"+(S.leilao||"Os lotes de agora")+" ("+S.rows.length+" lotes) fica guardado e dá para abrir de novo em 📂 Leilões lançados."))return;
+    arquivar();S={leilao:"",data:"",totais:null,rows:[]};salvar();render();}
+  RESG.fechado=true;$("resgate").hidden=true;mostrar("fichas");toast("Leilão novo: leia o PDF da ordem de entrada ou digite os lotes.",5000);
+});
 /* ---------- encerrar o leilão no site dos produtores ----------
    Grava estado.json no site: com encerrado:true, o site some com lotes e ordem de entrada e mostra o
    banner do próximo leilão da Leiloingá (da agenda). "Mandar lotes pro site" reabre automaticamente. */

@@ -270,6 +270,26 @@ body[data-aba=cmp] .sel{display:none!important}
   .bid input{font-size:2.4rem}.x3{font-size:1.15rem}.x3 b{font-size:1.4rem}.vlote b{font-size:1.6rem}.vlote{padding:8px}
   .inc button{min-height:46px}.acao button{min-height:52px}.ok{min-height:52px}.quem button{min-height:42px}
 }
+/* tablet (tela de toque): a pista ocupa a tela toda, com números e botões grandes */
+@media (pointer:coarse) and (min-width:700px){
+  body[data-aba=pista] main{max-width:none}
+  body[data-aba=pista] .pbar{font-size:1.05rem;padding:12px 18px 14px}body[data-aba=pista] .pbar b{font-size:1.6rem}
+  .lote{min-height:calc(100dvh - 100px);align-items:stretch;padding:28px;gap:28px}
+  html:not(.emb) .lote{min-height:calc(100dvh - 210px)}
+  .lote .pl,.lote .pr{display:flex;flex-direction:column;justify-content:space-between;gap:16px}
+  .lote .pl{justify-content:flex-start;gap:10px}.lote .pl .bid{margin-top:auto}
+  .ln{font-size:4.4rem!important}.lo{font-size:1.4rem}.ld{font-size:1.4rem}.lv{font-size:1.15rem}
+  .bid label{font-size:1rem}.bid input{font-size:5.2rem!important}.x3{font-size:1.6rem!important}.x3 b{font-size:2.2rem!important}
+  .vlote{padding:12px!important}.vlote b{font-size:2.2rem!important}
+  .inc button{min-height:88px!important;font-size:1.8rem}
+  .acao button{min-height:110px!important;font-size:1.7rem}
+  .quem button{min-height:66px!important;font-size:1.2rem}
+  .ok{min-height:100px!important;font-size:1.7rem}
+  .lote .pr a,.lote .pr .nav a,.lote .pr .nav button{font-size:1.15rem}
+}
+@media (pointer:coarse) and (min-width:700px) and (orientation:portrait){
+  .lote{grid-template-columns:minmax(0,1fr)!important;gap:22px}
+}
 @media(max-width:600px){.capa{grid-template-columns:minmax(0,1fr)}.capa .ca{max-width:260px;margin:0 auto}.vendas .vd1{grid-column:1/-1}.prog{grid-template-columns:repeat(2,1fr)}}
 </style></head><body>
 <div class="top"><a href="./">◀ Painel</a><b>BOLETA</b><span id="pos"></span></div>
@@ -519,7 +539,20 @@ function novaSessao(nome,data,lotes,quemL){
   if(PROX&&data===PROX.data){s.yt=PROX.youtube?ytId(PROX.youtube):"";s.banner=PROX.banner||"";s.cidade=PROX.cidade;s.hora=PROX.hora;s.local=PROX.local||""}
   return s;
 }
-function abrir(id){S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;marcaTab();setTimeout(function(){sincLotes(false)},300);salvaLocal();montaSel();render();puxaNuvem()}
+/* conserto: boleta de um leilão que nasceu com os lotes de OUTRO leilão (o site dos produtores ainda estava com o leilão passado).
+   Se ela não tem nenhum lance nem marcação e os números dos lotes são iguais aos de outra boleta de outra data, os lotes saem. */
+function corrigeCopia(s){if(!s||!s.L||!s.L.length)return false;
+  var vazia=!Object.keys(s.st||{}).length&&!Object.keys(s.la||{}).length&&!Object.keys(s.cp||{}).length&&!Object.keys(s.qm||{}).length;if(!vazia)return false;
+  var meu=s.L.map(function(x){return x.l}).sort(function(a,b){return a-b}).join(",");
+  for(var k in DB.sess){var o=DB.sess[k];if(o===s||!o.L||o.data===s.data)continue;if(o.L.map(function(x){return x.l}).sort(function(a,b){return a-b}).join(",")===meu){s.L=[];s.alterado=new Date().toISOString();return o}}
+  return false}
+async function corrigeCopiaSite(s){try{if(!s||!s.L||!s.L.length)return;
+  if(Object.keys(s.st||{}).length||Object.keys(s.la||{}).length||Object.keys(s.cp||{}).length||Object.keys(s.qm||{}).length)return;
+  var raw="https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/",lj=await (await fetch(raw+"leilao.json?t="+Date.now(),{cache:"no-store"})).json();if(mesmaData(lj.data,s.data))return;
+  var t=await (await fetch(raw+"lotes.csv?t="+Date.now(),{cache:"no-store"})).text();
+  var site=t.trim().split(/\r?\n/).slice(1).map(function(x){return +x.split(";")[0]}).filter(function(n){return n>0}).sort(function(a,b){return a-b}).join(",");
+  if(site&&site===s.L.map(function(x){return x.l}).sort(function(a,b){return a-b}).join(",")){s.L=[];if(S===s)L=S.L;salva();render();msg("Esta boleta estava com os lotes do leilão de "+lj.data+" por engano. Tirei. Os lotes certos entram quando forem lançados no Lotes ADM.","bom")}}catch(e){}}
+function abrir(id){var cc=corrigeCopia(DB.sess[id]);if(!cc)setTimeout(function(){corrigeCopiaSite(DB.sess[id])},600);if(cc)setTimeout(function(){salva();msg("Esta boleta estava com os lotes de "+titulo(cc)+" por engano. Tirei. Os lotes certos entram quando forem lançados no Lotes ADM.","bom")},400);S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;marcaTab();setTimeout(function(){sincLotes(false)},300);salvaLocal();montaSel();render();puxaNuvem()}
 var NUV={};   /* boletas salvas no GitHub que ainda não estão neste aparelho: id -> caminho */
 function nomeDoId(id){var m=/^(\d{4})-(\d{2})-(\d{2})-(.*)$/.exec(id)||[];var n=String(m[4]||id).replace(/-[a-z0-9]{4}$/,"").replace(/-/g," ");return cap(n)+(m[1]?" · "+m[3]+"/"+m[2]+"/"+m[1]:"")}
 function montaSel(){
@@ -610,7 +643,12 @@ async function atualizaLotes(){if(!S)return;msg("Atualizando lotes pela página 
   catch(e){msg("Não consegui atualizar ("+e.message+").","err")}}
 async function comecarProx(){
   msg("Buscando os lotes na página dos produtores…");
-  try{var r=await lotesDoSite();
+  try{
+    /* o site dos produtores precisa estar com ESTE leilão; senão a boleta começa vazia e os lotes vêm do Lotes ADM */
+    var siteOk=false;try{var lj=await (await fetch("https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/leilao.json?t="+Date.now(),{cache:"no-store"})).json();siteOk=mesmaData(lj.data,PROX.data)}catch(e){}
+    if(!siteOk){var s0=novaSessao(PROX.nome+" – "+PROX.cidade.replace(/-PR$/,""),PROX.data,[],QUEM_PADRAO.slice());if(DB.sess[s0.id])s0.id+="-"+Date.now().toString(36).slice(-4);DB.sess[s0.id]=s0;abrir(s0.id);
+      msg("Boleta criada sem lotes: o site dos produtores ainda não tem a ordem deste leilão. Os lotes entram sozinhos quando forem lançados no Lotes ADM com a data "+PROX.data.split("-").reverse().join("/")+".","bom");return}
+    var r=await lotesDoSite();
     if(!r.lotes.length){msg("A página dos produtores ainda não tem lotes nem ordem de entrada. Assim que a ordem for publicada lá, toque de novo.","err");return}
     var s=novaSessao(PROX.nome+" – "+PROX.cidade.replace(/-PR$/,""),PROX.data,r.lotes,QUEM_PADRAO.slice());
     if(DB.sess[s.id])s.id+="-"+Date.now().toString(36).slice(-4);DB.sess[s.id]=s;abrir(s.id);
