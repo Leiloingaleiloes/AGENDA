@@ -386,6 +386,28 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
 .flab{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
 .fx{align-self:flex-start;border:0;background:none;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;padding:4px 0}
 @media(max-width:760px){.fbox{grid-template-columns:minmax(0,1fr)}.fvis .big img{max-height:42vh}}
+
+/* ---------- relatório PDF montado a partir das seleções ---------- */
+.btn.addpdf{background:#fff;color:var(--accent-2);border-color:#fff;font-weight:700}
+.cdock{position:fixed;right:16px;bottom:16px;z-index:70;display:flex;gap:8px;padding:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15);animation:fIn .2s ease}
+.cnum{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;margin-left:6px;border-radius:99px;background:var(--accent);color:#fff;font-size:.78rem;font-weight:700}
+.cnum.pula{animation:pula .45s ease}
+@keyframes pula{40%{transform:scale(1.45)}}
+.cpan{position:fixed;inset:0;z-index:90;background:rgba(10,14,11,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.cbox{width:min(760px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);border-radius:16px;padding:18px 20px;display:grid;gap:10px}
+.chd{display:flex;justify-content:space-between;align-items:center;gap:10px}.chd h2{margin:0}
+.clab{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.cinp{width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--line);font:inherit;font-size:1rem}
+.clist{display:grid;gap:6px}
+.citem{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.citem input{width:100%;border:1px solid transparent;background:transparent;font:600 .95rem var(--f-body);padding:4px 6px;border-radius:6px}
+.citem input:hover,.citem input:focus{border-color:var(--line);background:#fff}
+.cvals{display:flex;gap:14px;font-size:.84rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}.cvals b{color:var(--fg)}
+.cbt{display:flex;gap:4px}.cbt button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.cvaz{color:var(--muted);text-align:center;padding:18px}
+.cfoot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:6px}
+@media(max-width:640px){.citem{grid-template-columns:minmax(0,1fr)}.cdock{left:12px;right:12px;bottom:70px;justify-content:center}}
+@media print{.cdock,.cpan{display:none!important}}
 </style>
 </head>
 <body>
@@ -518,6 +540,9 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+<script src="vendor/jspdf/jspdf.umd.min.js"></script>
+<div class="cdock" id="cdock" hidden><button class="btn" type="button" id="cVer">Ver relatório <span class="cnum" id="cNum">0</span></button><button class="btn pri" type="button" id="cBaixa">Fechar e baixar PDF</button></div>
+<div class="cpan" id="cpan" hidden role="dialog" aria-modal="true" aria-labelledby="cpTit"><div class="cbox"><div class="chd"><h2 id="cpTit">Relatório PDF em montagem</h2><button class="btn peq" type="button" id="cFecha" aria-label="Fechar">✕</button></div><label class="clab" for="cTitulo">Título do relatório</label><input id="cTitulo" class="cinp"><div class="clist" id="cList"></div><div class="cfoot"><button class="btn" type="button" id="cLimpa">Limpar tudo</button><button class="btn pri" type="button" id="cBaixa2">Fechar e baixar PDF</button></div></div></div>
 <script type="module">
 /* ---------- leitura do PDF: a mesma do Lotes · ADM (fichas.html) ---------- */
 var CDN3="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/";
@@ -948,7 +973,7 @@ function render(){
   document.querySelectorAll("[data-todos]").forEach(function(b){var g=b.dataset.todos;b.textContent=R.sel[g].length>=L[g].length?"Limpar":"Todos";});
   var tudo=R.sel.peso.length===4&&R.sel.raca.length===2&&R.sel.sexo.length===2&&R.sel.tipo.length>=L.tipo.length;
   $("tudo").textContent=tudo?"Somando tudo ✓":"Somar tudo";
-  renderSoma();renderMedias();renderFotos();renderCategorias();renderCategoria();renderQuadro();renderLotes();renderRacas();renderAvisos();mostrarAba();if(FICHA!=null)desenhaFicha();
+  renderSoma();renderComp();renderMedias();renderFotos();renderCategorias();renderCategoria();renderQuadro();renderLotes();renderRacas();renderAvisos();mostrarAba();if(FICHA!=null)desenhaFicha();
 }
 function renderSoma(){
   var box=$("soma");box.textContent="";
@@ -977,7 +1002,10 @@ function renderSoma(){
   bc.addEventListener("click",function(){copiar(textoResumo());});
   var bz=el("a","btn zap");bz.href="https://wa.me/?text="+encodeURIComponent(textoResumo());bz.target="_blank";bz.rel="noopener";
   bz.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Mandar no WhatsApp';
-  a.append(bi,bc,bz);
+  var ba=el("button","btn addpdf");ba.type="button";var ja=compIdx(fr)>=0;
+  ba.textContent=ja?"✓ No relatório PDF · atualizar":"＋ Adicionar ao relatório PDF";
+  ba.addEventListener("click",function(){addComp(fr,s);});
+  a.append(ba,bi,bc,bz);
   if(okTotais())a.append(el("span","ok","✓ Conferido com o PDF"));
   box.append(a);
   var m=el("span","m");
@@ -1387,6 +1415,74 @@ $("mOk").addEventListener("click",async function(){
 });
 
 
+
+
+/* ---------- relatório PDF montado com várias seleções ---------- */
+function comp(){if(!R.comp)R.comp=[];return R.comp;}
+function compIdx(fr){return comp().findIndex(function(x){return x.base===fr;});}
+function addComp(fr,s){
+  if(s.rk==null&&!s.c){toast("Essa seleção está vazia.");return;}
+  var it={base:fr,t:fr.charAt(0).toUpperCase()+fr.slice(1),rk:s.rk,m:s.c?s.m:null,rc:s.rc},i=compIdx(fr);
+  if(i>=0){it.t=comp()[i].t;comp()[i]=it;toast("Seleção atualizada no relatório PDF.");}
+  else{comp().push(it);toast("Adicionado ao relatório PDF ("+comp().length+").");}
+  salvaDB();renderSoma();renderComp(true);
+}
+function renderComp(pula){
+  var n=R&&R.comp?R.comp.length:0,d=$("cdock");d.hidden=!n;$("cNum").textContent=n;
+  if(pula){var c=$("cNum");c.classList.remove("pula");void c.offsetWidth;c.classList.add("pula");}
+  if(!$("cpan").hidden)desenhaComp();
+}
+function tituloComp(){return R.compTit||("Médias do "+(R.leilao?R.leilao.toLowerCase().replace(/(^|\s)\S/g,function(m){return m.toUpperCase();}).replace(/\s(De|Da|Do|Das|Dos|E)\s/g,function(m){return m.toLowerCase();}):"leilão"));}
+function desenhaComp(){
+  $("cTitulo").value=tituloComp();
+  var L=$("cList");L.textContent="";
+  if(!comp().length){L.append(el("p","cvaz","Nenhuma seleção ainda. Escolha os filtros e toque em “Adicionar ao relatório PDF”."));return;}
+  comp().forEach(function(it,i){
+    var row=el("div","citem"),inp=document.createElement("input");inp.value=it.t;inp.setAttribute("aria-label","Nome do grupo "+(i+1));
+    inp.addEventListener("change",function(){it.t=inp.value.trim()||it.base;salvaDB();});
+    var v=el("div","cvals");
+    function vv(r,x){var sp=el("span");sp.append(document.createTextNode(r+" "),el("b",null,x));v.append(sp);}
+    vv("R$/kg",it.rk!=null?f2(it.rk):"–");vv("Peso",it.m!=null?kg(it.m)+" kg":"–");vv("Cabeça",it.rc!=null?brl0(it.rc):"–");
+    var b=el("div","cbt");
+    [["↑","Subir",-1],["↓","Descer",1],["✕","Tirar",0]].forEach(function(x){var bt=el("button",null,x[0]);bt.type="button";bt.setAttribute("aria-label",x[1]+" "+it.t);
+      bt.addEventListener("click",function(){var a=comp();if(x[2]===0)a.splice(i,1);else{var j=i+x[2];if(j<0||j>=a.length)return;var t=a[i];a[i]=a[j];a[j]=t;}salvaDB();renderComp();renderSoma();});b.append(bt);});
+    row.append(inp,v,b);L.append(row);
+  });
+}
+$("cVer").addEventListener("click",function(){desenhaComp();$("cpan").hidden=false;});
+$("cFecha").addEventListener("click",function(){$("cpan").hidden=true;});
+$("cpan").addEventListener("click",function(e){if(e.target===$("cpan"))$("cpan").hidden=true;});
+$("cTitulo").addEventListener("change",function(){R.compTit=this.value.trim();salvaDB();});
+var limparArm=false;
+$("cLimpa").addEventListener("click",function(){var b=this;if(!limparArm){limparArm=true;b.textContent="Toque de novo para limpar";setTimeout(function(){limparArm=false;b.textContent="Limpar tudo";},3500);return;}R.comp=[];R.compTit="";salvaDB();renderComp();renderSoma();desenhaComp();limparArm=false;b.textContent="Limpar tudo";});
+function carregaImg(src){return new Promise(function(ok){var i=new Image();i.onload=function(){var c=document.createElement("canvas");c.width=i.naturalWidth;c.height=i.naturalHeight;c.getContext("2d").drawImage(i,0,0);try{ok({d:c.toDataURL("image/png"),w:i.naturalWidth,h:i.naturalHeight});}catch(e){ok(null);}};i.onerror=function(){ok(null);};i.src=src;});}
+async function baixaComp(){
+  if(!comp().length){toast("Adicione pelo menos uma seleção.");return;}
+  if(!window.jspdf){toast("Não consegui carregar o gerador de PDF. Recarregue a página.");return;}
+  var doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"}),W=210,M=18,y=M,logo=await carregaImg("logo-leiloinga.png");
+  if(logo){var lh=11,lw=lh*logo.w/logo.h;doc.addImage(logo.d,"PNG",M,y,lw,lh);}
+  doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(110);doc.text([R.leilao||"",R.data||""].filter(Boolean).join(" · "),W-M,y+4,{align:"right"});
+  y+=20;doc.setTextColor(25);doc.setFont("helvetica","bold");doc.setFontSize(15);
+  var tl=doc.splitTextToSize(tituloComp(),W-2*M);doc.text(tl,M,y);y+=tl.length*6.5+4;
+  var cols=[{t:"Grupo",x:M,w:86,a:"left"},{t:"R$/kg",x:M+86,w:26,a:"right"},{t:"Peso médio",x:M+112,w:30,a:"right"},{t:"Por cabeça",x:M+142,w:32,a:"right"}];
+  doc.setFontSize(8.5);doc.setTextColor(110);doc.setFont("helvetica","bold");
+  cols.forEach(function(c){doc.text(c.t.toUpperCase(),c.a==="right"?c.x+c.w:c.x,y,{align:c.a});});
+  y+=2.5;doc.setDrawColor(40);doc.setLineWidth(.4);doc.line(M,y,W-M,y);y+=1;
+  doc.setFont("helvetica","normal");doc.setTextColor(25);doc.setFontSize(10.5);
+  comp().forEach(function(it){
+    var gl=doc.splitTextToSize(it.t,cols[0].w-3),h=Math.max(8,gl.length*4.6+3.4);
+    if(y+h>297-M-8){doc.addPage();y=M;}
+    var base=y+5.2;doc.text(gl,M,base);
+    doc.text(it.rk!=null?"R$ "+f2(it.rk):"–",cols[1].x+cols[1].w,base,{align:"right"});
+    doc.text(it.m!=null?kg(it.m)+" kg":"–",cols[2].x+cols[2].w,base,{align:"right"});
+    doc.text(it.rc!=null?brl0(it.rc):"–",cols[3].x+cols[3].w,base,{align:"right"});
+    y+=h;doc.setDrawColor(215);doc.setLineWidth(.2);doc.line(M,y,W-M,y);
+  });
+  var n=doc.getNumberOfPages();for(var pg=1;pg<=n;pg++){doc.setPage(pg);doc.setFontSize(8);doc.setTextColor(140);doc.text("Leiloingá Leilões · Laranjeiras do Sul - PR",M,297-10);if(n>1)doc.text(pg+"/"+n,W-M,297-10,{align:"right"});}
+  var nome=("medias-"+(R.leilao||"leilao")+"-"+(R.data||"")).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  doc.save(nome+".pdf");$("cpan").hidden=true;toast("PDF baixado: "+nome+".pdf");
+}
+$("cBaixa").addEventListener("click",baixaComp);$("cBaixa2").addEventListener("click",baixaComp);
 
 /* ---------- fotos dos lotes (vêm do Lotes · ADM pelo midia.json do site dos produtores) ---------- */
 var RAWL="https://raw.githubusercontent.com/Leiloingaleiloes/LOTES/main/",MIDIA={lotes:{},data:"",nome:"",ok:false},FF="todos",FICHA=null,FICHA_I=0;
