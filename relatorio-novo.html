@@ -408,6 +408,9 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
 .cfoot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:6px}
 @media(max-width:640px){.citem{grid-template-columns:minmax(0,1fr)}.cdock{left:12px;right:12px;bottom:70px;justify-content:center}}
 @media print{.cdock,.cpan{display:none!important}}
+.mdsw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:2px 0 10px;font-size:.85rem;opacity:.95}
+.mdsw button{border:1px solid rgba(255,255,255,.35);background:transparent;color:inherit;border-radius:99px;padding:4px 12px;font:600 .82rem var(--f-body);cursor:pointer}
+.mdsw button[aria-pressed=true]{background:#fff;color:var(--accent-2);border-color:#fff}
 </style>
 </head>
 <body>
@@ -475,7 +478,7 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
       </div>
       <div id="medias"></div>
       <div class="medacts"><button class="btn pri" type="button" id="medCopiar">Copiar médias</button><button class="btn zap" type="button" id="medZap">Mandar no WhatsApp</button></div>
-      <p class="note">R$/kg médio de cada categoria, só com os lotes vendidos. Lotes marcados como Novilha prenha, Vaca p/ engorda etc. (na aba Lotes e valores) saem das faixas de peso e viram linha própria. Os lotes tirados da soma não entram.</p>
+      <p class="note">R$/kg médio de cada categoria, só com os lotes vendidos (do jeito escolhido em cima: média dos lotes ou por kg vendido). Lotes marcados como Novilha prenha, Vaca p/ engorda etc. (na aba Lotes e valores) saem das faixas de peso e viram linha própria. Os lotes tirados da soma não entram.</p>
     </section>
 
     <section class="card" id="p-fotos" role="tabpanel" hidden>
@@ -906,10 +909,13 @@ function conta(l){return valido(l)&&!tirado(l);}
 function lanceDe(l){return R.la&&R.la[l.lote]||null;}
 function vendido(l){var s=R.st&&R.st[l.lote];return lanceDe(l)&&(s==="V"||(!s&&!temStatus()));}
 function temStatus(){return R.st&&Object.keys(R.st).length>0;}
+var MEDIA="lotes";try{MEDIA=localStorage.getItem("relatorio-media")||"lotes";}catch(e){}
 function soma(ls){
-  var c=0,p=0,cv=0,kv=0,fat=0,nv=0;
-  ls.forEach(function(l){c+=l.qtde;p+=l.qtde*l.peso;if(vendido(l)){var v=lanceDe(l)*3*l.qtde;fat+=v;cv+=l.qtde;kv+=l.qtde*l.peso;nv++;}});
-  return {c:c,p:p,m:c?p/c:0,n:ls.length,fat:fat,cv:cv,nv:nv,rk:kv?fat/kv:null,rc:cv?fat/cv:null};
+  var c=0,p=0,cv=0,kv=0,fat=0,nv=0,sl=0,nl=0;
+  ls.forEach(function(l){c+=l.qtde;p+=l.qtde*l.peso;if(vendido(l)){var v=lanceDe(l)*3*l.qtde;fat+=v;cv+=l.qtde;kv+=l.qtde*l.peso;nv++;if(l.peso>0){sl+=lanceDe(l)*3/l.peso;nl++;}}});
+  var rkK=kv?fat/kv:null,rkL=nl?sl/nl:null;
+  /* MEDIA="lotes": média dos R$/kg de cada lote (cada lote vale igual) · "kg": total em R$ ÷ total de kg vendidos */
+  return {c:c,p:p,m:c?p/c:0,n:ls.length,fat:fat,cv:cv,nv:nv,rkK:rkK,rkL:rkL,rk:MEDIA==="kg"?rkK:rkL,rc:cv?fat/cv:null};
 }
 function temValores(){return R.la&&Object.keys(R.la).length>0;}
 function especiaisUsados(){var u={};R.lotes.forEach(function(l){var c=catDe(l);if(c)u[c]=1;});return ESPECIAIS.filter(function(e){return u[e.k];});}
@@ -987,6 +993,11 @@ function renderSoma(){
   var p=el("p","oque");p.append(document.createTextNode("Somando: "),el("b",null,fr));
   if(nfora){var lk=el("button","tirados",nfora+(nfora>1?" lotes tirados":" lote tirado")+" da soma");lk.type="button";lk.addEventListener("click",function(){ABA="lotes";mostrarAba();$("p-lotes").scrollIntoView({behavior:"smooth",block:"start"});});p.append(document.createTextNode(" · "),lk);}
   box.append(p);
+  var sw=el("div","mdsw");sw.setAttribute("role","group");sw.setAttribute("aria-label","Como calcular a média R$/kg");sw.append(el("span",null,"Média R$/kg:"));
+  [["lotes","dos lotes"],["kg","por kg vendido"]].forEach(function(o){var b=el("button",null,o[1]);b.type="button";b.setAttribute("aria-pressed",MEDIA===o[0]?"true":"false");
+    b.title=o[0]==="lotes"?"Soma o R$/kg de cada lote e divide pelo número de lotes":"Total em reais ÷ total de quilos vendidos";
+    b.addEventListener("click",function(){if(MEDIA===o[0])return;MEDIA=o[0];try{localStorage.setItem("relatorio-media",MEDIA);}catch(e){}render();toast(o[0]==="lotes"?"Média dos lotes: soma o R$/kg de cada lote e divide pelo número de lotes.":"Média por kg vendido: total em reais ÷ total de quilos.");});sw.append(b);});
+  box.append(sw);
   var k=el("div","kpis");
   function kp(rot,val,un,cls,extra){var d=el("div",cls||"");d.append(el("span","k",rot));var b=el("b",null,val);if(un)b.append(el("small",null,un));d.append(b);if(extra)d.append(el("span","x",extra));k.append(d);}
   if(s.rk!=null)kp("Média R$/kg","R$ "+f2(s.rk),"","big ouro",s.nv+(s.nv>1?" lotes vendidos":" lote vendido")+(s.nv<s.n?" de "+s.n:""));
@@ -1419,10 +1430,11 @@ $("mOk").addEventListener("click",async function(){
 
 /* ---------- relatório PDF montado com várias seleções ---------- */
 function comp(){if(!R.comp)R.comp=[];return R.comp;}
+function rkItem(it){var v=MEDIA==="kg"?it.rkK:it.rkL;return v!==undefined?v:it.rk;}
 function compIdx(fr){return comp().findIndex(function(x){return x.base===fr;});}
 function addComp(fr,s){
   if(s.rk==null&&!s.c){toast("Essa seleção está vazia.");return;}
-  var it={base:fr,t:fr.charAt(0).toUpperCase()+fr.slice(1),rk:s.rk,m:s.c?s.m:null,rc:s.rc},i=compIdx(fr);
+  var it={base:fr,t:fr.charAt(0).toUpperCase()+fr.slice(1),rk:s.rk,rkL:s.rkL,rkK:s.rkK,m:s.c?s.m:null,rc:s.rc},i=compIdx(fr);
   if(i>=0){it.t=comp()[i].t;comp()[i]=it;toast("Seleção atualizada no relatório PDF.");}
   else{comp().push(it);toast("Adicionado ao relatório PDF ("+comp().length+").");}
   salvaDB();renderSoma();renderComp(true);
@@ -1442,7 +1454,7 @@ function desenhaComp(){
     inp.addEventListener("change",function(){it.t=inp.value.trim()||it.base;salvaDB();});
     var v=el("div","cvals");
     function vv(r,x){var sp=el("span");sp.append(document.createTextNode(r+" "),el("b",null,x));v.append(sp);}
-    vv("R$/kg",it.rk!=null?f2(it.rk):"–");vv("Peso",it.m!=null?kg(it.m)+" kg":"–");vv("Cabeça",it.rc!=null?brl0(it.rc):"–");
+    var rr=rkItem(it);vv("R$/kg",rr!=null?f2(rr):"–");vv("Peso",it.m!=null?kg(it.m)+" kg":"–");vv("Cabeça",it.rc!=null?brl0(it.rc):"–");
     var b=el("div","cbt");
     [["↑","Subir",-1],["↓","Descer",1],["✕","Tirar",0]].forEach(function(x){var bt=el("button",null,x[0]);bt.type="button";bt.setAttribute("aria-label",x[1]+" "+it.t);
       bt.addEventListener("click",function(){var a=comp();if(x[2]===0)a.splice(i,1);else{var j=i+x[2];if(j<0||j>=a.length)return;var t=a[i];a[i]=a[j];a[j]=t;}salvaDB();renderComp();renderSoma();});b.append(bt);});
@@ -1473,7 +1485,7 @@ async function baixaComp(){
     var gl=doc.splitTextToSize(it.t,cols[0].w-3),h=Math.max(8,gl.length*4.6+3.4);
     if(y+h>297-M-8){doc.addPage();y=M;}
     var base=y+5.2;doc.text(gl,M,base);
-    doc.text(it.rk!=null?"R$ "+f2(it.rk):"–",cols[1].x+cols[1].w,base,{align:"right"});
+    var rr=rkItem(it);doc.text(rr!=null?"R$ "+f2(rr):"–",cols[1].x+cols[1].w,base,{align:"right"});
     doc.text(it.m!=null?kg(it.m)+" kg":"–",cols[2].x+cols[2].w,base,{align:"right"});
     doc.text(it.rc!=null?brl0(it.rc):"–",cols[3].x+cols[3].w,base,{align:"right"});
     y+=h;doc.setDrawColor(215);doc.setLineWidth(.2);doc.line(M,y,W-M,y);
