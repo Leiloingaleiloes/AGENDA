@@ -158,6 +158,14 @@
             <label class="chip-chk"><input type="checkbox" id="camSo"><span>⚪ Só os que faltam foto</span></label>
           </div>
         </div>
+        <section class="juntar" aria-label="Juntar vídeos">
+          <button class="btn juntar-btn" type="button" id="juntarBtn">🎬 Juntar vídeos</button>
+          <div class="juntar-painel" id="juntarPainel" hidden>
+            <p class="juntar-txt" id="juntarTxt" role="status" aria-live="polite"></p>
+            <video class="juntar-video" id="juntarVideo" controls playsinline preload="metadata" hidden></video>
+            <div class="linha" id="juntarAcoes"></div>
+          </div>
+        </section>
         <div class="avisocam" id="camAviso" hidden></div>
         <div class="cams" id="cams"></div>
         <div class="camrodape so-esc">
