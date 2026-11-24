@@ -647,6 +647,9 @@ async function comecarProx(){
   try{
     var adm=await lotesDoAdm();
     if(adm&&mesmaData(adm.data,PROX.data)&&adm.lin.length){var sA=await garanteSessaoAdm(false);if(sA){abrir(sA.id);return}}
+    var gP=await admGuardado(PROX.data);
+    if(gP){var linP=gP.rows.filter(function(r){return r.lote!=null}).map(function(r){return{l:+r.lote,q:+r.qtde||0,s:r.sexo==="F"?"F":"M",v:r.vendedor||"",r:r.raca||"",i:r.idade||"",p:+r.peso||0,ord:r.ord!=null?r.ord:null}});
+      var sP=novaSessao(PROX.nome+" – "+PROX.cidade.replace(/-PR$/,""),PROX.data,deLinhas(linP,[]),QUEM_PADRAO.slice());if(DB.sess[sP.id])sP.id+="-"+Date.now().toString(36).slice(-4);DB.sess[sP.id]=sP;abrir(sP.id);msg(linP.length+" lotes do Lotes ADM.","bom");return}
     /* o site dos produtores precisa estar com ESTE leilão; senão a boleta começa vazia e os lotes vêm do Lotes ADM */
     var siteOk=false;try{var lj=await (await fetch("https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/main/leilao.json?t="+Date.now(),{cache:"no-store"})).json();siteOk=mesmaData(lj.data,PROX.data)}catch(e){}
     if(!siteOk){var s0=novaSessao(PROX.nome+" – "+PROX.cidade.replace(/-PR$/,""),PROX.data,[],QUEM_PADRAO.slice());if(DB.sess[s0.id])s0.id+="-"+Date.now().toString(36).slice(-4);DB.sess[s0.id]=s0;abrir(s0.id);
@@ -946,6 +949,11 @@ async function lotesDoAdm(){var d=null;
   if(!d||!d.rows||!d.rows.length||!d.data)return null;
   var lin=d.rows.filter(function(r){return r.lote!=null}).map(function(r){return{l:+r.lote,q:+r.qtde||0,s:r.sexo==="F"?"F":"M",v:r.vendedor||"",r:r.raca||"",i:r.idade||"",p:+r.peso||0,ord:r.ord!=null?r.ord:null}});
   return {nome:d.leilao||"",data:isoData(d.data),lin:lin}}
+/* lotes que o Lotes ADM guardou para um leilão que não é o aberto lá agora (trocou de leilão): aparelho ou nuvem */
+async function admGuardado(iso){var a=null;
+  try{var arq=JSON.parse(localStorage.getItem("fichas-arquivo-v1")||"{}");Object.keys(arq).forEach(function(k){var x=arq[k];if(x&&x.rows&&x.rows.length&&isoData(x.data)===iso&&(!a||(x.em||"")>(a.em||"")))a=x})}catch(e){}
+  if(!a&&GH.token){try{var j=await ler("fichas-leiloes/"+iso+".json");if(j)a=JSON.parse(b64dec(j.content))}catch(e){}}
+  return a}
 async function garanteSessaoAdm(abrirSe){
   var a=await lotesDoAdm();if(!a||!a.data||!a.lin.length)return null;
   var s=sessDoDia(a.data);
@@ -961,6 +969,7 @@ async function sincLotes(avisar){
     var fonte=null;
     try{var loc=JSON.parse(localStorage.getItem("fichas-lotes-v1")||"null");if(loc&&loc.rows&&mesmaData(loc.data,S.data))fonte=linhasAdm(loc)}catch(e){}
     if(!fonte&&GH.token){try{var j=await ler("fichas.json");if(j){var d=JSON.parse(b64dec(j.content));if(mesmaData(d.data,S.data))fonte=linhasAdm(d)}}catch(e){}}
+    if(!fonte&&S.data){var gd=await admGuardado(S.data);if(gd)fonte=linhasAdm(gd)}
     if(!fonte){if(avisar)msg("Não achei os lotes deste leilão no Lotes ADM (confira se a data do leilão é a mesma lá e aqui).","err");return}
     var mud=[];
     S.L.forEach(function(x){var a=fonte[x.l];if(!a)return;var det=[];

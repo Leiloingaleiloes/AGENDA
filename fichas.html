@@ -1841,7 +1841,7 @@ function listaResgate(itens,daNuvem){
     b.addEventListener("click",function(){abrirArquivado(x);});it.append(t,b);box.append(it);});
 }
 function abrirArquivado(x){
-  if(S.rows.length&&chaveLeilao(S)!==chaveLeilao(x)){if(!confirm("Abrir "+(x.leilao||"este leilão")+" no lugar de "+(S.leilao||"o leilão aberto agora")+"?\n\nOs lotes de agora ficam guardados e você pode voltar neles por aqui."))return;arquivar();}
+  if(S.rows.length&&chaveLeilao(S)!==chaveLeilao(x)){if(!confirm("Abrir "+(x.leilao||"este leilão")+" no lugar de "+(S.leilao||"o leilão aberto agora")+"?\n\nOs lotes de agora ficam guardados e você pode voltar neles por aqui."))return;arquivar();guardaNaNuvem(S);}
   aplicarEstado(x);salvar();RESG.fechado=true;$("resgate").hidden=true;$("resgLista").textContent="";
   toast((x.leilao||"Leilão")+" aberto com "+x.rows.length+" lotes.",6000);
 }
@@ -1870,7 +1870,7 @@ $("resgBusca").addEventListener("click",buscaNuvemResgate);
 mostraResgate(false);
 $("resgNovo").addEventListener("click",function(){
   if(S.rows.length){if(!confirm("Começar um leilão novo?\n\n"+(S.leilao||"Os lotes de agora")+" ("+S.rows.length+" lotes) fica guardado e dá para abrir de novo em 📂 Leilões lançados."))return;
-    arquivar();S={leilao:"",data:"",totais:null,rows:[]};}
+    arquivar();guardaNaNuvem(S);S={leilao:"",data:"",totais:null,rows:[]};}
   var px=proxAg();if(px&&!S.rows.length){S.leilao=nomeAg(px);S.data=brDeIso(px.data);}salvar();render();renderLbar();
   RESG.fechado=true;$("resgate").hidden=true;mostrar("fichas");toast("Leilão novo: leia o PDF da ordem de entrada ou digite os lotes.",5000);
 });
@@ -1894,10 +1894,28 @@ function renderLbar(){var sel=$("lbSel");if(!sel)return;var di=isoDeBr(S.data);
   $("lbInfo").textContent=S.data?S.rows.length+(S.rows.length===1?" lote":" lotes")+" · vão para a Boleta, o Pós-leilão e o Relatório deste leilão":"Sem o leilão escolhido, os lotes não chegam na Boleta.";}
 function escolheLeilao(l){S.leilao=nomeAg(l);S.data=brDeIso(l.data);salvar();render();renderLbar();}
 
-$("lbSel").addEventListener("change",function(){var v=this.value;if(v===""||v==="atual"){renderLbar();return;}var l=AGL[+v];if(!l)return;
+/* cada leilão tem os seus lotes: trocar de leilão guarda os de agora (aparelho + nuvem, em fichas-leiloes/AAAA-MM-DD.json)
+   e abre os do leilão escolhido (ou uma tabela vazia, se ainda não tem nada lançado nele) */
+function caminhoLeilao(iso){return "fichas-leiloes/"+iso+".json";}
+async function guardaNaNuvem(x){if(!GH.token||!x||!x.data||!x.rows||!x.rows.length)return;var iso=isoDeBr(x.data);if(!iso)return;
+  try{await gravarTexto(GH.repo,caminhoLeilao(iso),JSON.stringify(limpo(x))+"\n","Lotes: guarda "+(x.leilao||iso));}catch(e){}}
+async function lotesGuardados(iso){
+  var a=arquivoLocal().filter(function(x){return isoDeBr(x.data)===iso&&x.rows&&x.rows.length;}).sort(function(p,q){return (q.em||"").localeCompare(p.em||"");})[0]||null;
+  if(GH.token){try{var rr=await lerArq(GH.repo,caminhoLeilao(iso));if(rr&&rr.texto){var n=JSON.parse(rr.texto);if(n.rows&&n.rows.length&&(!a||n.rows.length>=a.rows.length))a=n;}}catch(e){}}
+  return a;}
+$("lbSel").addEventListener("change",async function(){var v=this.value;if(v===""||v==="atual"){renderLbar();return;}var l=AGL[+v];if(!l)return;
   var di=isoDeBr(S.data);
-  if(S.rows.length&&di&&di!==l.data&&!confirm("Estes "+S.rows.length+" lotes estão no leilão de "+S.data+".\n\nOK = passar estes lotes para "+brDeIso(l.data)+" ("+(l.cidade||"")+")\n\nPara começar do zero, cancele e use 📂 Leilões lançados → Começar leilão novo.")){renderLbar();return;}
-  escolheLeilao(l);toast("Lotes ligados ao leilão de "+brDeIso(l.data)+". A Boleta e o Pós-leilão já usam eles.",5000);});
+  if(!S.rows.length||!di){escolheLeilao(l);toast("Lotes ligados ao leilão de "+brDeIso(l.data)+" ("+(l.cidade||"")+").",5000);return;}
+  if(di===l.data){renderLbar();return;}
+  if(!confirm("Trocar para o leilão de "+brDeIso(l.data)+" ("+(l.cidade||"")+")?\n\nOs "+S.rows.length+" lotes de "+S.data+" ficam guardados. Quando você voltar a escolher esse leilão aqui, eles voltam.")){renderLbar();return;}
+  var sel=this;sel.disabled=true;
+  try{arquivar();await guardaNaNuvem(S);
+    var g=await lotesGuardados(l.data);
+    if(g){aplicarEstado(g);S.leilao=S.leilao||nomeAg(l);}else{S={leilao:nomeAg(l),data:brDeIso(l.data),totais:null,rows:[]};}
+    salvar();render();renderLbar();
+    toast(g?"Leilão de "+brDeIso(l.data)+" aberto com "+S.rows.length+" lotes já lançados.":"Leilão de "+brDeIso(l.data)+": ainda sem lotes. Pode lançar.",6000);
+  }finally{sel.disabled=false;}
+});
 carregaAgendaLeiloes();
 /* ---------- encerrar o leilão no site dos produtores ----------
    Grava estado.json no site: com encerrado:true, o site some com lotes e ordem de entrada e mostra o
