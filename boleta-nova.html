@@ -292,6 +292,10 @@ body[data-aba=cmp] .sel{display:none!important}
 }
 @media(max-width:600px){.capa{grid-template-columns:minmax(0,1fr)}.capa .ca{max-width:260px;margin:0 auto}.vendas .vd1{grid-column:1/-1}.prog{grid-template-columns:repeat(2,1fr)}}
 .prox2{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin:10px 12px 0;padding:10px 14px;border:2px solid var(--v);border-radius:12px;background:var(--vs)}.prox2 .bt{min-height:44px}
+.faixaT{margin:10px 12px;padding:10px 14px;border-radius:12px;background:#fff1de;border:2px solid #f08c00;color:#7a4300;font-weight:700;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.faixaV{margin:10px 12px;padding:8px 14px;border-radius:12px;background:#e9f8ee;border:1.5px solid var(--v);color:#0d5c23;font-weight:600}
+body.teste .pbar{background:#f08c00!important}
+.encl{margin:8px 0 14px;padding-left:20px;line-height:1.5}
 </style></head><body>
 <div class="top"><a href="./">◀ Painel</a><b>BOLETA</b><span id="pos"></span></div>
 <div id="nuvemSt" style="text-align:center;font-size:.75rem;color:var(--mut);padding:4px 0 0"></div>
@@ -511,6 +515,22 @@ var GH={token:"",repo:"ADM"};
 try{var gx=JSON.parse(localStorage.getItem("leiloinga-adm-gh")||"null");if(gx&&gx.token){GH.token=gx.token;GH.repo=gx.repo||"ADM";}}catch(e){}
 var KB="leiloinga-boleta-v1",DB={atual:null,sess:{}};
 try{var y=JSON.parse(localStorage.getItem(KB)||"null");if(y&&y.sess)DB=y;}catch(e){}
+/* três partes separadas: DB.sess = leilão atual (Boleta do dia) · DB.pos = pós-leilão (resultados) · sessão "teste" = treino */
+if(!DB.pos)DB.pos={};
+var POS_TABS=["rel","com","cmp"];
+function ehPos(t){return POS_TABS.indexOf(t||tab)>=0}
+var ATV={trocou:false};
+function posPadrao(){var ks=Object.keys(DB.pos);if(!ks.length)return null;var v=ks.filter(function(k){return DB.pos[k].aoVivo});if(v.length)return v[0];return ks.sort(function(a,b){return (DB.pos[b].data||"").localeCompare(DB.pos[a].data||"")})[0]}
+function atualPadrao(){var modo="";try{modo=localStorage.getItem("fichas-modo")||""}catch(e){}if(modo==="teste"&&DB.sess.teste)return "teste";
+  var ad=null;try{ad=JSON.parse(localStorage.getItem("fichas-lotes-v1")||"null")}catch(e){}
+  var ks=Object.keys(DB.sess).filter(function(k){return k!=="teste"});if(ad&&ad.data){var di=isoData(ad.data);for(var i=0;i<ks.length;i++)if(DB.sess[ks[i]].data===di)return ks[i]}
+  ks.sort(function(a,b){return (DB.sess[a].data||"").localeCompare(DB.sess[b].data||"")});return ks[0]||(DB.sess.teste?"teste":null)}
+function ativar(){if(ehPos()&&(!DB.posAtual||!DB.pos[DB.posAtual]))DB.posAtual=posPadrao();
+  if(!ehPos()){var md="";try{md=localStorage.getItem("fichas-modo")||""}catch(e){}
+    if(md==="teste"&&DB.sess.teste&&DB.atual!=="teste"&&!ATV.trocou){DB.atual="teste";ATV.trocou=true}
+    if(md!=="teste"){ATV.trocou=false;if(DB.atual==="teste")DB.atual=null}
+    if(!DB.atual||!DB.sess[DB.atual])DB.atual=atualPadrao()}
+  var n=ehPos()?(DB.pos[DB.posAtual]||null):(DB.sess[DB.atual]||null);if(n!==S){S=n;L=S?S.L:[];pend=null}}
 var S=null,L=[],tab="ini",arm=false,pend=null,PROX=null,AG=[];
 var ABAS=["ini","pista","V","R","rel","com","cmp"],EMB=/[?&]embed=1/.test(location.search);
 if(EMB)document.documentElement.classList.add("emb");
@@ -519,7 +539,26 @@ var SEM=["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
 
 function $(i){return document.getElementById(i)}
 function salvaLocal(){try{localStorage.setItem(KB,JSON.stringify(DB))}catch(e){}}
-function salva(){if(S){S.alterado=new Date().toISOString();}salvaLocal();if(S)agendaNuvem()}
+function salva(){if(S){S.alterado=new Date().toISOString();if(S.fase!=="pos"&&S.fase!=="teste")talvezPos(S);}salvaLocal();if(S)agendaNuvem()}
+/* ---------- pós-leilão ao vivo: a cada 5 lotes marcados na pista, a cópia do pós-leilão é atualizada sozinha ---------- */
+function marcados(s){return Object.keys(s.st||{}).filter(function(k){return s.st[k]}).length}
+function talvezPos(s){if(!s||!s.L||!s.L.length)return;var n=marcados(s),P=DB.pos[s.id],ult=P?P.posN||0:0;
+  if(P&&P.encerrado)return;
+  if(n-ult>=5||(n===s.L.length&&n!==ult)||(P&&n<ult))paraPos(s,false)}
+function paraPos(s,final){
+  var P=DB.pos[s.id]||{id:s.id,fase:"pos",cp:{},doa:{},qm:{}};
+  ["nome","data","cidade","hora","local","yt","banner","quem","com"].forEach(function(k){if(k==="com"&&P.com)return;if(s[k]!=null)P[k]=s[k]});
+  P.L=JSON.parse(JSON.stringify(s.L));P.st=JSON.parse(JSON.stringify(s.st||{}));P.la=JSON.parse(JSON.stringify(s.la||{}));
+  P.qm=Object.assign({},s.qm||{});P.cp=Object.assign({},s.cp||{},P.cp||{});P.doa=Object.assign({},s.doa||{},P.doa||{});
+  P.fase="pos";P.posN=marcados(s);P.aoVivo=!final;if(final){P.encerrado=new Date().toISOString();P.aoVivo=false}
+  P.alterado=new Date().toISOString();P.cur=0;DB.pos[s.id]=P;salvaLocal();posNuvem(P);return P}
+var PNV={};
+async function posNuvem(P){if(!GH.token||!P)return;clearTimeout(PNV[P.id]);PNV[P.id]=setTimeout(async function(){
+  var p=caminhoR(P);try{var at=await ler(p);
+    /* o que foi preenchido no pós-leilão em outro aparelho (comprador, doação, comissão) continua valendo */
+    if(at){try{var c=JSON.parse(b64dec(at.content));P.cp=Object.assign({},P.cp||{},c.cp||{});P.doa=Object.assign({},P.doa||{},c.doa||{});if(c.com)P.com=c.com;DB.pos[P.id]=P;salvaLocal()}catch(e){}}
+    var body={message:"Pós-leilão: "+titulo(P)+(P.encerrado?" (encerrado)":" ("+P.posN+" lotes)"),content:b64enc(JSON.stringify(P,null,1)+"\n")};if(at)body.sha=at.sha;
+    var r=await api(caminho(p),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(r.ok)NV.sha[p]=(await r.json()).content.sha}catch(e){}},800)}
 function msg(t,c){var m=$("msg");m.textContent=t||"";m.className="msg"+(c?" "+c:"")}
 function z(n){return n<10?"0"+n:""+n}
 function brl(n){return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
@@ -536,7 +575,7 @@ function cap(s){return String(s||"").toLowerCase().replace(/(^|[\s.(])([a-zà-ú
 /* ---------- leilões salvos ---------- */
 function novaSessao(nome,data,lotes,quemL){
   var id=(data||new Date().toISOString().slice(0,10))+"-"+slug(nome||"leilao");
-  var s={id:id,nome:nome||"Leilão",data:data||"",quem:quemL||QUEM_PADRAO.slice(),L:lotes,st:{},la:{},qm:{},cur:0,alterado:new Date().toISOString()};
+  var s={id:id,fase:"atual",nome:nome||"Leilão",data:data||"",quem:quemL||QUEM_PADRAO.slice(),L:lotes,st:{},la:{},qm:{},cur:0,alterado:new Date().toISOString()};
   if(PROX&&data===PROX.data){s.yt=PROX.youtube?ytId(PROX.youtube):"";s.banner=PROX.banner||"";s.cidade=PROX.cidade;s.hora=PROX.hora;s.local=PROX.local||""}
   return s;
 }
@@ -545,7 +584,8 @@ function novaSessao(nome,data,lotes,quemL){
 function corrigeCopia(s){if(!s||!s.L||!s.L.length)return false;
   var vazia=!Object.keys(s.st||{}).length&&!Object.keys(s.la||{}).length&&!Object.keys(s.cp||{}).length&&!Object.keys(s.qm||{}).length;if(!vazia)return false;
   var meu=s.L.map(function(x){return x.l}).sort(function(a,b){return a-b}).join(",");
-  for(var k in DB.sess){var o=DB.sess[k];if(o===s||!o.L||o.data===s.data)continue;if(o.L.map(function(x){return x.l}).sort(function(a,b){return a-b}).join(",")===meu){s.L=[];s.alterado=new Date().toISOString();return o}}
+  var todos=Object.keys(DB.sess).map(function(k){return DB.sess[k]}).concat(Object.keys(DB.pos||{}).map(function(k){return DB.pos[k]}));
+  for(var ki=0;ki<todos.length;ki++){var o=todos[ki];if(o===s||!o.L||o.data===s.data)continue;if(o.L.map(function(x){return x.l}).sort(function(a,b){return a-b}).join(",")===meu){s.L=[];delete s.cidade;delete s.yt;delete s.banner;delete s.local;delete s.com;s.alterado=new Date().toISOString();return o}}
   return false}
 async function corrigeCopiaSite(s){try{if(!s||!s.L||!s.L.length)return;
   if(Object.keys(s.st||{}).length||Object.keys(s.la||{}).length||Object.keys(s.cp||{}).length||Object.keys(s.qm||{}).length)return;
@@ -553,19 +593,30 @@ async function corrigeCopiaSite(s){try{if(!s||!s.L||!s.L.length)return;
   var t=await (await fetch(raw+"lotes.csv?t="+Date.now(),{cache:"no-store"})).text();
   var site=t.trim().split(/\r?\n/).slice(1).map(function(x){return +x.split(";")[0]}).filter(function(n){return n>0}).sort(function(a,b){return a-b}).join(",");
   if(site&&site===s.L.map(function(x){return x.l}).sort(function(a,b){return a-b}).join(",")){s.L=[];if(S===s)L=S.L;salva();render();msg("Esta boleta estava com os lotes do leilão de "+lj.data+" por engano. Tirei. Os lotes certos entram quando forem lançados no Lotes ADM.","bom")}}catch(e){}}
-function abrir(id){var cc=corrigeCopia(DB.sess[id]);if(!cc)setTimeout(function(){corrigeCopiaSite(DB.sess[id])},600);if(cc)setTimeout(function(){salva();msg("Esta boleta estava com os lotes de "+titulo(cc)+" por engano. Tirei. Os lotes certos entram quando forem lançados no Lotes ADM.","bom")},400);S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;marcaTab();setTimeout(function(){sincLotes(false)},300);salvaLocal();montaSel();render();puxaNuvem()}
+function abrir(id){var cc=id==="teste"?false:corrigeCopia(DB.sess[id]);if(!cc)setTimeout(function(){corrigeCopiaSite(DB.sess[id])},600);if(cc)setTimeout(function(){salva();msg("Esta boleta estava com os lotes de "+titulo(cc)+" por engano. Tirei. Os lotes certos entram quando forem lançados no Lotes ADM.","bom")},400);S=DB.sess[id]||null;DB.atual=S?S.id:null;L=S?S.L:[];pend=null;marcaTab();setTimeout(function(){sincLotes(false)},300);salvaLocal();montaSel();render();puxaNuvem()}
 var NUV={};   /* boletas salvas no GitHub que ainda não estão neste aparelho: id -> caminho */
 function nomeDoId(id){var m=/^(\d{4})-(\d{2})-(\d{2})-(.*)$/.exec(id)||[];var n=String(m[4]||id).replace(/-[a-z0-9]{4}$/,"").replace(/-/g," ");return cap(n)+(m[1]?" · "+m[3]+"/"+m[2]+"/"+m[1]:"")}
+var NUVP={};  /* pós-leilão salvos na nuvem (pos/) */
 function montaSel(){
-  var el=$("leilao"),ids=Object.keys(DB.sess).sort(function(a,b){return (DB.sess[b].data||"").localeCompare(DB.sess[a].data||"")});
-  var nv=Object.keys(NUV).filter(function(i){return !DB.sess[i]}).sort().reverse();
-  el.innerHTML=(ids.length||nv.length)?(S?'':'<option value="" selected>Escolha um leilão</option>')+ids.map(function(i){return '<option value="'+i+'"'+(S&&S.id===i?" selected":"")+'>'+esc(titulo(DB.sess[i]))+'</option>'}).join("")+
+  if(ehPos()){var elp=$("leilao"),pids=Object.keys(DB.pos).sort(function(a,b){return (DB.pos[b].data||"").localeCompare(DB.pos[a].data||"")});
+    var hj=hojeIso(),antigos=Object.keys(NUV).filter(function(i){return !DB.pos[i]&&i.slice(0,10)<hj});
+    var pn=Object.keys(NUVP).filter(function(i){return !DB.pos[i]}).concat(antigos.filter(function(i){return !NUVP[i]})).sort().reverse();
+    elp.innerHTML=(pids.length||pn.length?(S?'':'<option value="" selected>Escolha o leilão</option>'):'<option value="">Nenhum leilão no pós-leilão ainda</option>')+
+      pids.map(function(i){var x=DB.pos[i];return '<option value="'+i+'"'+(S&&S.id===i?" selected":"")+'>'+(x.aoVivo?"● ":"")+esc(titulo(x))+(x.aoVivo?" (ao vivo)":"")+'</option>'}).join("")+
+      (pn.length?'<optgroup label="Salvos na nuvem">'+pn.map(function(i){return '<option value="nuvp:'+esc(i)+'">☁ '+esc(nomeDoId(i))+'</option>'}).join("")+'</optgroup>':'');return}
+  var el=$("leilao"),ids=Object.keys(DB.sess).sort(function(a,b){if(a==="teste")return 1;if(b==="teste")return -1;return (DB.sess[a].data||"").localeCompare(DB.sess[b].data||"")});
+  var hj2=hojeIso(),nv=Object.keys(NUV).filter(function(i){return !DB.sess[i]&&!DB.pos[i]&&i.slice(0,10)>=hj2}).sort();
+  el.innerHTML=(ids.length||nv.length)?(S?'':'<option value="" selected>Escolha um leilão</option>')+ids.map(function(i){return '<option value="'+i+'"'+(S&&S.id===i?" selected":"")+'>'+(i==="teste"?"🧪 Leilão de teste":esc(titulo(DB.sess[i])))+'</option>'}).join("")+
     (nv.length?'<optgroup label="Salvos na nuvem">'+nv.map(function(i){return '<option value="nuv:'+esc(i)+'">☁ '+esc(nomeDoId(i))+'</option>'}).join("")+'</optgroup>':''):'<option value="">Nenhum leilão ainda</option>';
 }
-async function listaNuvem(){if(!GH.token)return;try{var r=await api(caminho("boletas"));if(!r.ok)return;(await r.json()).forEach(function(f){if(/\.json$/.test(f.name))NUV[f.name.replace(/\.json$/,"")]=f.path});montaSel()}catch(e){}}
+async function listaNuvem(){if(!GH.token)return;try{var r=await api(caminho("boletas"));if(r.ok)(await r.json()).forEach(function(f){if(/\.json$/.test(f.name))NUV[f.name.replace(/\.json$/,"")]=f.path});
+  var r2=await api(caminho("pos"));if(r2.ok)(await r2.json()).forEach(function(f){if(/\.json$/.test(f.name))NUVP[f.name.replace(/\.json$/,"")]=f.path});montaSel()}catch(e){}}
 async function abreNuvem(id){msg("Abrindo da nuvem…");try{var j=await ler(NUV[id]);var x=JSON.parse(b64dec(j.content));x.st=x.st||{};x.la=x.la||{};x.qm=x.qm||{};x.cur=x.cur||0;DB.sess[x.id]=x;NV.sha[x.id]=j.sha;abrir(x.id);msg("Aberto: "+titulo(x),"bom")}catch(e){msg("Não consegui abrir ("+e.message+").","err");montaSel()}}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-$("leilao").onchange=function(){var v=this.value;if(!v)return;if(v.indexOf("nuv:")===0)abreNuvem(v.slice(4));else abrir(v)};
+$("leilao").onchange=function(){var v=this.value;if(!v)return;if(v.indexOf("nuvp:")===0)abrePosNuvem(v.slice(5));else if(v.indexOf("nuv:")===0)abreNuvem(v.slice(4));else if(ehPos())abrirPos(v);else abrir(v)};
+function abrirPos(id){DB.posAtual=id;S=DB.pos[id]||null;L=S?S.L:[];pend=null;salvaLocal();montaSel();render();puxaNuvem()}
+async function abrePosNuvem(id){msg("Abrindo da nuvem…");try{var pth=NUVP[id]||NUV[id];var j=await ler(pth);var x=JSON.parse(b64dec(j.content));x.st=x.st||{};x.la=x.la||{};x.qm=x.qm||{};x.cp=x.cp||{};x.doa=x.doa||{};
+  var era=x.fase==="pos";x.fase="pos";if(!era){x.encerrado=x.encerrado||x.finalizado||new Date().toISOString();x.aoVivo=false;x.posN=marcados(x)}DB.pos[x.id]=x;if(era)NV.sha[pth]=j.sha;else posNuvem(x);abrirPos(x.id);msg("Aberto: "+titulo(x),"bom")}catch(e){msg("Não consegui abrir ("+e.message+").","err");montaSel()}}
 
 /* ---------- GitHub (repositório privado do ADM) ---------- */
 function api(path,opt){opt=opt||{};var h={"Accept":"application/vnd.github+json","Authorization":"Bearer "+GH.token,"X-GitHub-Api-Version":"2022-11-28"};
@@ -800,7 +851,7 @@ function relatorio(m){$("pos").textContent="";var c=com(),K=calc(),pT=K.pc+K.pv,
      '<td><select data-qm="'+x.l+'" aria-label="Pisteiro do lote '+z(x.l)+'"><option value="">—</option>'+quem().map(function(n){return '<option'+(S.qm[x.l]===n?" selected":"")+'>'+esc(n)+'</option>'}).join("")+'</select></td></tr>'});
   var F=[["todos","Todos"],["V","Vendidos"],["D","Doação"],["R","Retorno"],["F","Sem marcação"]];
   m.innerHTML='<div class="rel"><div class="relh"><div><h2>Relatório pós-leilão</h2><p>'+esc(titulo(S))+(c.cidade?' · '+esc(c.cidade):'')+' · '+L.length+' lotes</p></div>'+
-   '<div class="relb"><button class="bt" id="rAnexa" type="button">📄 Anexar PDF</button><button class="bt" id="rSinc" type="button">↻ Puxar correções do Lotes ADM</button><button class="bt" id="rCopy" type="button">Copiar resumo</button><button class="bt" id="rCsv" type="button">Planilha (CSV)</button><button class="bt" id="rPdf" type="button">Exportar PDF</button><button class="bt pri" id="rGh" type="button">Salvar no GitHub</button></div></div>'+
+   '<div class="relb"><button class="bt" id="rAnexa" type="button">📄 Anexar PDF</button>'+(S.fase==="pos"?'':'<button class="bt" id="rSinc" type="button">↻ Puxar correções do Lotes ADM</button>')+'<button class="bt" id="rCopy" type="button">Copiar resumo</button><button class="bt" id="rCsv" type="button">Planilha (CSV)</button><button class="bt" id="rPdf" type="button">Exportar PDF</button><button class="bt pri" id="rGh" type="button">Salvar no GitHub</button></div></div>'+
    '<div class="kp">'+
     '<div>Faturamento bruto<b>'+brl(K.bruto)+'</b><small>'+K.cab+' cabeças vendidas</small></div>'+
     '<div>Vendidos<b>'+ct.V.length+' de '+L.length+'</b><small>lotes</small></div>'+
@@ -829,7 +880,7 @@ function relatorio(m){$("pos").textContent="";var c=com(),K=calc(),pT=K.pc+K.pv,
   m.querySelectorAll(".flt [data-ord]").forEach(function(b){b.onclick=function(){RF.ord=b.dataset.ord;try{localStorage.setItem("boleta-ord",RF.ord)}catch(e){}if(RF.sc)RF.sc[0]=0;render()}});
   var qi=$("rQ");qi.oninput=function(){RF.q=qi.value;render();var n=$("rQ");n.focus();n.setSelectionRange(n.value.length,n.value.length)};
   if($("rCom"))$("rCom").onclick=function(){tab="com";marcaTab();render()};
-  $("rSinc").onclick=function(){sincLotes(true)};$("rAnexa").onclick=function(){$("arqPdf").click()};
+  if($("rSinc"))$("rSinc").onclick=function(){sincLotes(true)};$("rAnexa").onclick=function(){$("arqPdf").click()};
   $("rPdf").onclick=exportarPdf;$("rGh").onclick=function(){salvarGh(this)};
   $("rCopy").onclick=function(){copiaTxt(resumoTxt(),"Resumo copiado. Cole no WhatsApp.")};
   $("rCsv").onclick=baixaCsv;
@@ -854,7 +905,7 @@ function baixaCsv(){var K=calc(),pT=K.pc+K.pv,q=function(v){v=String(v==null?"":
 
 /* ---------- início do leilão: nome, pisteiros, lotes e ações (excluir, finalizar…) ---------- */
 function compradores(){var o={};try{(JSON.parse(localStorage.getItem("leiloinga-compradores")||"[]")||[]).forEach(function(n){o[n]=1})}catch(e){}
-  Object.keys(DB.sess).forEach(function(k){var c=DB.sess[k].cp||{};Object.keys(c).forEach(function(l){if(c[l])o[c[l]]=1})});return Object.keys(o).sort(function(a,b){return a.localeCompare(b)})}
+  Object.keys(DB.pos).forEach(function(k){var c=DB.pos[k].cp||{};Object.keys(c).forEach(function(l){if(c[l])o[c[l]]=1})});return Object.keys(o).sort(function(a,b){return a.localeCompare(b)})}
 function guardaComprador(n){try{var a=JSON.parse(localStorage.getItem("leiloinga-compradores")||"[]")||[];if(a.indexOf(n)<0){a.push(n);localStorage.setItem("leiloinga-compradores",JSON.stringify(a.slice(-800)))}}catch(e){}}
 function iniVazio(m){var ids=Object.keys(DB.sess).sort(function(a,b){return (DB.sess[b].data||"").localeCompare(DB.sess[a].data||"")});
   m.innerHTML='<div class="ini">'+(ids.length?'<div class="card2"><h3>Leilões já registrados</h3><div class="recentes">'+ids.slice(0,8).map(function(i){var s=DB.sess[i],n=Object.keys(s.st||{}).length;return '<button type="button" data-ab="'+esc(i)+'"><b>'+esc(s.nome)+'</b><span>'+esc(dataBR(s.data))+' · '+(s.L||[]).length+' lotes · '+n+' marcados</span></button>'}).join("")+'</div></div>':'<div class="vazio"><b>Nenhum leilão registrado</b>Use “Começar a boleta” no próximo leilão ou “+ Novo”.</div>')+'</div>';
@@ -869,7 +920,8 @@ function inicio(m){var a=agDo(S)||S,src=bannerDe(a),ct=contas(),cV=ct.V.length,c
    '<div class="card2"><h3>Pisteiros deste leilão</h3><p>Aparecem como botões na pista. Toque no × para tirar.</p><div class="chips" id="iQ">'+quem().map(function(n,i){return '<span class="chip">'+esc(n)+'<button type="button" data-rq="'+i+'" aria-label="Tirar '+esc(n)+'">×</button></span>'}).join("")+'</div>'+
     '<div class="addq"><input id="iQn" placeholder="Nome do pisteiro" autocomplete="off"><button class="bt" type="button" id="iQa">Adicionar</button></div>'+
     '<label class="chk"><input type="checkbox" id="iQp"> Usar estes pisteiros nos próximos leilões</label></div>'+
-   '<div class="card2"><h3>Fechamento</h3><p>Finalize para gerar o PDF e salvar a cópia no GitHub.</p><div class="ab"><button class="bt pri" type="button" id="iFim">Finalizar leilão</button><button class="bt" type="button" id="iPdf">Exportar PDF</button><button class="bt" type="button" id="iGh">Salvar no GitHub</button><button class="bt" type="button" id="iCom">Comissão</button></div></div>'+
+   (S.fase==="teste"?'<div class="card2"><h3>Leilão de teste</h3><p>Treino: nada daqui vai para a nuvem, o site dos produtores ou o pós-leilão.</p><div class="ab"><button class="bt can" type="button" id="iTesteX">Apagar teste</button></div></div>':
+   '<div class="card2"><h3>Encerrar o leilão</h3><p>Uma coisa só: fecha a boleta, tira os lotes e a ordem de entrada do site dos produtores (troca o banner pelo próximo leilão) e passa tudo para o Pós-leilão. Durante o leilão, o Pós-leilão já vai sendo atualizado a cada 5 lotes.</p><div class="ab"><button class="bt pri" type="button" id="iEnc">⏹ Encerrar leilão</button><button class="bt" type="button" id="iPdf">Exportar PDF</button></div></div>')+
    '<div class="card2 perigo"><h3>Apagar</h3><div class="ab"><button class="bt" type="button" id="iLimpa">Limpar marcações e lances</button><button class="bt can" type="button" id="iCanc">Excluir este leilão</button></div></div>'+
   '</div>';
   function muda(){S.nome=$("iNome").value.trim()||"Leilão";S.data=$("iData").value;var c=$("iCid").value.trim();S.cidade=c;if(S.com&&!S.com.comp&&!S.com.vend){S.com=null}salva();montaSel()}
@@ -881,9 +933,8 @@ function inicio(m){var a=agDo(S)||S,src=bannerDe(a),ct=contas(),cV=ct.V.length,c
   $("iQa").onclick=addQ;$("iQn").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();addQ()}};
   $("iQp").onchange=function(){if(this.checked)padraoQ()};
   m.querySelectorAll("[data-rq]").forEach(function(b){b.onclick=function(){S.quem=quem().slice();S.quem.splice(+b.dataset.rq,1);salva();render()}});
-  $("iFim").onclick=function(){$("bFim").click()};$("iCanc").onclick=function(){$("bCancel").click()};
-  $("iPdf").onclick=exportarPdf;$("iGh").onclick=function(){salvarGh(this)};
-  $("iCom").onclick=function(){tab="com";marcaTab();render()};
+  $("iCanc").onclick=function(){$("bCancel").click()};
+  if($("iPdf"))$("iPdf").onclick=exportarPdf;if($("iEnc"))$("iEnc").onclick=encerrarLeilao;if($("iTesteX"))$("iTesteX").onclick=apagaTeste;
   var lb=$("iLimpa");lb.onclick=function(){if(!arm){arm=true;lb.textContent="Toque de novo para limpar tudo";setTimeout(function(){arm=false;if(tab==="ini")render()},4000);return}S.st={};S.la={};S.qm={};S.doa={};S.cp={};S.cur=0;arm=false;salva();render();msg("Marcações e lances apagados.","bom")};
 }
 function hojeIso(){var h=new Date();return h.getFullYear()+"-"+z(h.getMonth()+1)+"-"+z(h.getDate())}
@@ -907,7 +958,7 @@ var METS=[{k:"fat",t:"Faturamento",f:function(v){return brl(v)},c:function(v){re
   {k:"mkM",t:"R$/kg machos",f:function(v){return "R$ "+f2(v)},c:function(v){return f2(v)}},
   {k:"mkF",t:"R$/kg fêmeas",f:function(v){return "R$ "+f2(v)},c:function(v){return f2(v)}}];
 function comparar(m){
-  var todas={};Object.keys(CMP.extra).forEach(function(k){todas[k]=CMP.extra[k]});Object.keys(DB.sess).forEach(function(k){todas[k]=DB.sess[k]});
+  var todas={};Object.keys(CMP.extra).forEach(function(k){todas[k]=CMP.extra[k]});Object.keys(DB.pos).forEach(function(k){todas[k]=DB.pos[k]});
   var lst=Object.keys(todas).map(function(k){var x=todas[k];return {id:k,s:x,m:metr(x)}}).filter(function(o){return o.m.lv>0}).sort(function(a,b){return (a.s.data||"").localeCompare(b.s.data||"")});
   var faltaNuv=Object.keys(NUV).filter(function(i){return !todas[i]}).length,met=METS.filter(function(x){return x.k===CMP.met})[0]||METS[0];
   var head='<div class="cmph"><p>'+lst.length+' leilões com vendas registradas na Boleta'+(faltaNuv?' · '+faltaNuv+' ainda na nuvem':'')+'</p>'+(faltaNuv?'<button class="bt pri" type="button" id="cNuv">Trazer os '+faltaNuv+' da nuvem</button>':(!GH.token?'<button class="bt" type="button" id="cCon">Conectar para ver os da nuvem</button>':''))+'</div>';
@@ -927,12 +978,12 @@ function comparar(m){
   requestAnimationFrame(function(){requestAnimationFrame(function(){m.querySelectorAll(".bc i").forEach(function(i){i.style.height=i.dataset.h+"%"})})});
   m.querySelectorAll("[data-met]").forEach(function(b){b.onclick=function(){CMP.met=b.dataset.met;render()}});
   m.querySelectorAll("[data-md]").forEach(function(b){b.onclick=function(){MEDIA=b.dataset.md;try{localStorage.setItem("relatorio-media",MEDIA)}catch(e){}render()}});
-  m.querySelectorAll(".bc[data-ab]").forEach(function(b){b.onclick=function(){var id=b.dataset.ab;if(!DB.sess[id]&&CMP.extra[id])DB.sess[id]=CMP.extra[id];abrir(id);tab="rel";marcaTab();render()}});
+  m.querySelectorAll(".bc[data-ab]").forEach(function(b){b.onclick=function(){var id=b.dataset.ab;if(!DB.pos[id]&&CMP.extra[id]){var cx=CMP.extra[id];cx.fase="pos";DB.pos[id]=cx}tab="rel";abrirPos(id);marcaTab();render()}});
   ligaCmp(m);
 }
 function ligaCmp(m){
-  var bn=m.querySelector("#cNuv");if(bn)bn.onclick=async function(){bn.disabled=true;var ids=Object.keys(NUV).filter(function(i){return !DB.sess[i]&&!CMP.extra[i]}),n=0;
-    for(var i=0;i<ids.length;i++){bn.textContent="Trazendo "+(i+1)+" de "+ids.length+"…";try{var j=await ler(NUV[ids[i]]);var x=JSON.parse(b64dec(j.content));if(x&&x.L){CMP.extra[ids[i]]=x;n++}}catch(e){}}
+  var bn=m.querySelector("#cNuv");if(bn)bn.onclick=async function(){bn.disabled=true;var ids=Object.keys(NUVP).filter(function(i){return !DB.pos[i]&&!CMP.extra[i]}).concat(Object.keys(NUV).filter(function(i){return !NUVP[i]&&!DB.pos[i]&&!CMP.extra[i]&&i.slice(0,10)<hojeIso()})),n=0;
+    for(var i=0;i<ids.length;i++){bn.textContent="Trazendo "+(i+1)+" de "+ids.length+"…";try{var j=await ler(NUVP[ids[i]]||NUV[ids[i]]);var x=JSON.parse(b64dec(j.content));if(x&&x.L){CMP.extra[ids[i]]=x;n++}}catch(e){}}
     msg(n+" leilões trazidos da nuvem.","bom");render()};
   var bc=m.querySelector("#cCon");if(bc)bc.onclick=function(){telaToken();window.scrollTo(0,0)};
 }
@@ -944,6 +995,8 @@ function linhasAdm(d){var o={};(d.rows||[]).forEach(function(r){if(r.lote==null)
 var SINC={rod:false};
 /* ---------- o Lotes ADM manda: se ele tem lotes de um leilão (data) e aqui ainda não existe boleta desse dia, ela é criada sozinha ---------- */
 async function lotesDoAdm(){var d=null;
+  try{if(localStorage.getItem("fichas-modo")==="teste"){var t=JSON.parse(localStorage.getItem("fichas-teste-v1")||"null");if(!t||!t.rows)return null;
+    return {teste:true,nome:"Leilão de teste",data:"",lin:t.rows.filter(function(r){return r.lote!=null}).map(function(r){return{l:+r.lote,q:+r.qtde||0,s:r.sexo==="F"?"F":"M",v:r.vendedor||"",r:r.raca||"",i:r.idade||"",p:+r.peso||0,ord:r.ord!=null?r.ord:null}})}}}catch(e){}
   try{d=JSON.parse(localStorage.getItem("fichas-lotes-v1")||"null")}catch(e){}
   if((!d||!d.rows||!d.rows.length)&&GH.token){try{var j=await ler("fichas.json");if(j)d=JSON.parse(b64dec(j.content))}catch(e){}}
   if(!d||!d.rows||!d.rows.length||!d.data)return null;
@@ -955,15 +1008,21 @@ async function admGuardado(iso){var a=null;
   if(!a&&GH.token){try{var j=await ler("fichas-leiloes/"+iso+".json");if(j)a=JSON.parse(b64dec(j.content))}catch(e){}}
   return a}
 async function garanteSessaoAdm(abrirSe){
-  var a=await lotesDoAdm();if(!a||!a.data||!a.lin.length)return null;
+  var a=await lotesDoAdm();
+  if(a&&a.teste){var t=DB.sess.teste;if(!t){t=novaSessao("Leilão de teste","",[],QUEM_PADRAO.slice());t.id="teste";t.fase="teste";DB.sess.teste=t}
+    /* lotes do teste seguem o Lotes ADM */
+    var por={};t.L.forEach(function(x){por[x.l]=x});var nl=deLinhas(a.lin,[]);nl.forEach(function(x){var o=por[x.l];if(o){o.q=x.q;o.p=x.p;o.s=x.s;o.v=x.v;o.r=x.r;o.i=x.i}else t.L.push(Object.assign(x,{o:t.L.length+1}))});
+    var tem={};nl.forEach(function(x){tem[x.l]=1});t.L=t.L.filter(function(x){return tem[x.l]||t.st[x.l]});salvaLocal();montaSel();
+    if(abrirSe&&!ehPos()&&(!S||S.id!=="teste"))abrir("teste");else if(S&&S.id==="teste"){L=S.L=t.L;render()}return t}
+  if(!a||!a.data||!a.lin.length)return null;
   var s=sessDoDia(a.data);
   if(!s){var ag=null;for(var i=0;i<AG.length;i++)if(AG[i].data===a.data)ag=AG[i];
     var nome=ag?ag.nome+" – "+String(ag.cidade||"").replace(/-PR$/,""):cap(a.nome)||"Leilão";
     s=novaSessao(nome,a.data,deLinhas(a.lin,[]),QUEM_PADRAO.slice());if(DB.sess[s.id])s.id+="-"+Date.now().toString(36).slice(-4);DB.sess[s.id]=s;salvaLocal();montaSel();
     msg("Boleta criada com os "+a.lin.length+" lotes do Lotes ADM ("+titulo(s)+").","bom")}
-  if(abrirSe&&(!S||S.id!==s.id&&(!S.L.length||abrirSe==="sempre")))abrir(s.id);
+  if(abrirSe&&!ehPos()&&(!S||S.id!==s.id&&(S.id==="teste"||!S.L.length||abrirSe==="sempre")))abrir(s.id);
   return s}
-async function sincLotes(avisar){
+async function sincLotes(avisar){if(S&&S.fase==="pos")return;
   if(!S||SINC.rod)return;SINC.rod=true;
   try{
     var fonte=null;
@@ -1042,7 +1101,7 @@ async function anexarPdf(f){
   }catch(e){console.error(e);msg(/password/i.test(e&&e.message||"")?"Esse PDF tem senha. Gere de novo sem senha.":"Não consegui abrir esse PDF ("+(e&&e.message||e)+").","err")}
 }
 $("arqPdf").addEventListener("change",function(e){var f=e.target.files[0];e.target.value="";if(f)anexarPdf(f)});
-window.addEventListener("storage",function(e){if(e.key==="fichas-lotes-v1"){garanteSessaoAdm(true).then(function(){sincLotes(false)})}});
+window.addEventListener("storage",function(e){if(e.key==="fichas-lotes-v1"||e.key==="fichas-teste-v1"||e.key==="fichas-modo"){garanteSessaoAdm(true).then(function(){sincLotes(false)})}});
 document.addEventListener("visibilitychange",function(){if(!document.hidden)garanteSessaoAdm(true).then(function(){if(S)sincLotes(false)})});
 document.addEventListener("visibilitychange",function(){if(!document.hidden)sincLotes(false)});
 
@@ -1124,36 +1183,81 @@ $("bCancel").onclick=function(){if(!S)return;
     inp.oninput=function(){b2.disabled=inp.value.trim().toUpperCase()!=="CANCELAR"};
     $("cX2").onclick=fechaMod;
     b2.onclick=async function(){if(b2.disabled)return;var n=titulo(S),id=S.id;clearTimeout(NV.timer);NV.pend=false;
-      if(GH.token){try{var at=await ler(caminhoB(id));if(at)await api(caminho(caminhoB(id)),{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Boleta cancelada: "+n,sha:at.sha})})}catch(e){}}
-      delete DB.sess[id];S=null;L=[];DB.atual=null;salvaLocal();fechaMod();
+      if(GH.token&&S.fase!=="teste"){try{var at=await ler(caminhoR(S));if(at)await api(caminho(caminhoR(S)),{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Boleta cancelada: "+n,sha:at.sha})})}catch(e){}}
+      if(S.fase==="pos"){delete DB.pos[id];DB.posAtual=null}else{delete DB.sess[id];DB.atual=null}S=null;L=[];salvaLocal();fechaMod();
       montaSel();var el=$("leilao");if(PROX)el.insertAdjacentHTML("afterbegin",'<option value="" selected>Próximo leilão · '+esc(PROX.cidade)+'</option>');render();msg("Boleta cancelada: "+n+".","bom")};
   };
 };
 
+
+/* ---------- Encerrar leilão: boleta → pós-leilão, site dos produtores encerrado, Lotes ADM livre para o próximo ---------- */
+function proxDepois(d){for(var i=0;i<AG.length;i++)if(AG[i].data>d)return AG[i];return null}
+async function gravaPub(pth,texto,msgc){var u="/repos/"+DONO+"/"+PUB+"/contents/"+pth;var at=null;try{var r0=await api(u);if(r0.ok)at=await r0.json()}catch(e){}
+  var body={message:msgc,content:b64enc(texto)};if(at&&at.sha)body.sha=at.sha;var r=await api(u,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok)throw new Error("site "+r.status)}
+function encerrarLeilao(){if(!S||S.fase!=="atual"&&S.fase)return;var c=contas();
+  abreMod('<h3>Encerrar o leilão?</h3><p>'+esc(titulo(S))+'</p>'+(c.falta?'<div class="aviso">Ainda há '+c.falta+' lote(s) sem marcação. Eles saem como "—".</div>':'')+
+   '<ul class="encl"><li>A boleta fecha e o leilão vai para o <b>Pós-leilão</b> (relatórios, comissão).</li><li>O site dos produtores tira os lotes e a ordem de entrada e mostra o próximo leilão.</li><li>O Lotes ADM fica livre para o próximo leilão (os lotes deste ficam guardados).</li></ul>'+
+   (GH.token?'':'<div class="aviso">Este aparelho não está conectado à nuvem: o site dos produtores não vai ser encerrado daqui.</div>')+
+   '<button class="mb pri" id="eOk" type="button">Sim, encerrar</button><div class="msg" id="eMsg"></div><button class="mb lev" id="eX" type="button">Voltar</button>');
+  $("eX").onclick=fechaMod;
+  $("eOk").onclick=async function(){var b=this;b.disabled=true;b.textContent="Encerrando…";var aviso=[];
+    var sAt=S,P=paraPos(sAt,true);sAt.encerrado=P.encerrado;sAt.finalizado=P.encerrado;salvaLocal();clearTimeout(NV.timer);NV.pend=false;
+    if(GH.token){try{await gravar(caminhoB(sAt.id),b64enc(JSON.stringify(sAt,null,1)+"\n"),"Boleta encerrada: "+titulo(sAt))}catch(e){}}
+    /* Lotes ADM: guarda os lotes deste leilão e passa para o próximo */
+    try{var ad=JSON.parse(localStorage.getItem("fichas-lotes-v1")||"null");if(ad&&mesmaData(ad.data,sAt.data)){var arq=JSON.parse(localStorage.getItem("fichas-arquivo-v1")||"{}"),cp=JSON.parse(JSON.stringify(ad));cp.em=new Date().toISOString();arq[(ad.data||"")+"|"+(ad.leilao||"")]=cp;localStorage.setItem("fichas-arquivo-v1",JSON.stringify(arq));
+      localStorage.setItem("fichas-encerrar",JSON.stringify({data:ad.data,em:cp.em}))}}catch(e){}
+    if(GH.token){try{var px=proxDepois(sAt.data),ban=px?(px.bannerLocal&&!px.bannerGenerico?"https://leiloingaleiloes.github.io/AGENDA/"+px.bannerLocal:(px.banner||"")):"";
+      await gravaPub("estado.json",JSON.stringify({encerrado:true,em:new Date().toISOString(),leilao:{nome:sAt.nome,data:dataBR(sAt.data)},proximo:px?{nome:px.nome,data:px.data,hora:px.hora||"",cidade:px.cidade||"",banner:ban,pagina:px.pagina||""}:null},null,1)+"\n","Site: leilão encerrado (lotes e ordem fora do ar)")}
+      catch(e){aviso.push("o site dos produtores não foi encerrado ("+e.message+"); use o botão Encerrar no site do Lotes ADM")}}
+    delete DB.sess[sAt.id];DB.atual=null;DB.posAtual=P.id;salvaLocal();fechaMod();
+    tab="rel";marcaTab();location.hash="rel";render();
+    msg("Leilão encerrado e passado para o Pós-leilão."+(aviso.length?" Atenção: "+aviso.join("; ")+".":""),aviso.length?"err":"bom")};
+}
+/* ---------- leilão de teste ---------- */
+function apagaTeste(){if(!confirm("Apagar o leilão de teste? Os lotes e marcações de teste somem; os leilões de verdade não mudam."))return;
+  delete DB.sess.teste;if(DB.atual==="teste")DB.atual=null;salvaLocal();
+  try{localStorage.setItem("fichas-teste-v1",JSON.stringify({leilao:"LEILÃO DE TESTE",data:"",totais:null,rows:[]}))}catch(e){}
+  S=null;L=[];montaSel();render();msg("Teste apagado.","bom")}
+/* ---------- arrumação única: leilões que já passaram vão para o pós-leilão; boletas de teste/erradas saem ---------- */
+(function(){if(DB.v>=2)return;var hj=hojeIso();
+  Object.keys(DB.sess).forEach(function(k){var x=DB.sess[k];if(!x)return;
+    if(/teste/i.test(x.nome||"")&&k!=="teste"){delete DB.sess[k];return}
+    var marc=Object.keys(x.st||{}).length;
+    if(x.data&&x.data<hj){if(marc){x.fase="pos";x.encerrado=x.finalizado||x.alterado||new Date().toISOString();x.aoVivo=false;x.posN=marc;DB.pos[k]=x;posNuvem(x)}delete DB.sess[k];return}
+    x.fase="atual"});
+  /* boletas repetidas do mesmo dia sem nenhuma marcação: fica uma */
+  var vistos={};Object.keys(DB.sess).sort().forEach(function(k){var x=DB.sess[k];if(k==="teste")return;var marc=Object.keys(x.st||{}).length+Object.keys(x.la||{}).length;
+    if(vistos[x.data]&&!marc){delete DB.sess[k];return}if(!vistos[x.data])vistos[x.data]=k});
+  if(DB.atual&&!DB.sess[DB.atual])DB.atual=null;DB.v=2;salvaLocal()})();
 /* ---------- nuvem automática: quem marca salva a cada mudança; os outros aparelhos acompanham ---------- */
 var NV={sha:{},timer:null,enviando:false,pend:false};
 function nvTxt(s,c){var e=$("nuvemSt");if(e){e.textContent=s;e.style.color=c||""}}
 function caminhoB(id){return "boletas/"+id+".json"}
-function agendaNuvem(){if(!GH.token||!S)return;nvTxt("☁ Salvando…");clearTimeout(NV.timer);NV.pend=true;NV.timer=setTimeout(enviaNuvem,1500)}
+function caminhoR(s){return (s&&s.fase==="pos"?"pos/":"boletas/")+s.id+".json"}
+function agendaNuvem(){if(!GH.token||!S||S.fase==="teste")return;nvTxt("☁ Salvando…");clearTimeout(NV.timer);NV.pend=true;NV.timer=setTimeout(enviaNuvem,1500)}
 async function enviaNuvem(){
   if(!GH.token||!S)return;if(NV.enviando){NV.timer=setTimeout(enviaNuvem,1000);return}
-  NV.enviando=true;NV.pend=false;var s=S;
-  try{var p=caminhoB(s.id),body={message:"Boleta: "+titulo(s),content:b64enc(JSON.stringify(s,null,1)+"\n")};
-    if(NV.sha[s.id]===undefined){var at=await ler(p);NV.sha[s.id]=at?at.sha:null}
-    if(NV.sha[s.id])body.sha=NV.sha[s.id];
+  NV.enviando=true;NV.pend=false;var s=S;if(s.fase==="teste"){NV.enviando=false;return}
+  try{var p=caminhoR(s);
+    /* pós-leilão ao vivo: a pista (outro aparelho) manda os lotes marcados; aqui só se acrescenta comprador/doação/comissão */
+    if(s.fase==="pos"){var atP=await ler(p);if(atP){NV.sha[p]=atP.sha;try{var cP=JSON.parse(b64dec(atP.content));if((cP.posN||0)>(s.posN||0)||(cP.encerrado&&!s.encerrado)){s.L=cP.L;s.st=cP.st;s.la=cP.la;s.qm=cP.qm;s.posN=cP.posN;s.aoVivo=cP.aoVivo;s.encerrado=cP.encerrado}}catch(e){}}}
+    var body={message:(s.fase==="pos"?"Pós-leilão: ":"Boleta: ")+titulo(s),content:b64enc(JSON.stringify(s,null,1)+"\n")};
+    if(NV.sha[p]===undefined){var at=await ler(p);NV.sha[p]=at?at.sha:null}
+    if(NV.sha[p])body.sha=NV.sha[p];
     var r=await api(caminho(p),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-    if(r.status===409||r.status===422){var at2=await ler(p);NV.sha[s.id]=at2?at2.sha:null;NV.enviando=false;return enviaNuvem()}
-    if(!r.ok)throw new Error(r.status);NV.sha[s.id]=(await r.json()).content.sha;
+    if(r.status===409||r.status===422){var at2=await ler(p);NV.sha[p]=at2?at2.sha:null;NV.enviando=false;return enviaNuvem()}
+    if(!r.ok)throw new Error(r.status);NV.sha[p]=(await r.json()).content.sha;
     nvTxt("☁ Salvo na nuvem · aparece nos outros aparelhos","var(--v)")}
   catch(e){nvTxt("Sem internet · fica salvo aqui e envia quando voltar","var(--r)");NV.pend=true;setTimeout(function(){if(NV.pend)enviaNuvem()},8000)}
   NV.enviando=false}
 /* traz da nuvem se lá estiver mais novo (outro aparelho marcou) */
 async function puxaNuvem(){
   if(!GH.token){nvTxt(S?"Só neste aparelho · conecte com a senha do ADM para ver em todos":"");return}
-  if(!S||NV.pend||NV.enviando)return;
-  try{var at=await ler(caminhoB(S.id));if(!at){if(S.alterado)agendaNuvem();else nvTxt("☁ Conectado","var(--v)");return}
-    NV.sha[S.id]=at.sha;var r=JSON.parse(b64dec(at.content));
-    if((r.alterado||"")>(S.alterado||"")&&!NV.pend){var cur=S.cur;DB.sess[r.id]=r;S=r;L=r.L;if(tab==="pista"&&!pend)S.cur=r.cur;salvaLocal();montaSel();var ae=document.activeElement;if(!ae||(ae.id!=="lance"&&!(ae.closest&&ae.closest(".tw,.cmw"))))render()}
+  if(!S||NV.pend||NV.enviando||S.fase==="teste")return;
+  try{var pp=caminhoR(S),at=await ler(pp);if(!at){if(S.alterado)agendaNuvem();else nvTxt("☁ Conectado","var(--v)");return}
+    NV.sha[pp]=at.sha;var r=JSON.parse(b64dec(at.content));
+    if(S.fase!=="pos"&&r.encerrado){var idE=r.id;delete DB.sess[idE];if(!DB.pos[idE]){r.fase="pos";r.aoVivo=false;DB.pos[idE]=r}DB.atual=null;S=null;L=[];salvaLocal();montaSel();render();msg("Este leilão foi encerrado em outro aparelho. Ele está no Pós-leilão.","bom");return}
+    if((r.alterado||"")>(S.alterado||"")&&!NV.pend){var cur=S.cur;if(S.fase==="pos"){r.fase="pos";DB.pos[r.id]=r}else DB.sess[r.id]=r;S=r;L=r.L;if(tab==="pista"&&!pend)S.cur=r.cur;salvaLocal();montaSel();var ae=document.activeElement;if(!ae||(ae.id!=="lance"&&!(ae.closest&&ae.closest(".tw,.cmw"))))render()}
     else if((S.alterado||"")>(r.alterado||""))agendaNuvem();
     if(!NV.pend)nvTxt("☁ Salvo na nuvem · aparece nos outros aparelhos","var(--v)")}
   catch(e){nvTxt("Sem internet agora","var(--r)")}}
@@ -1161,7 +1265,7 @@ async function puxaNuvem(){
 async function buscaProxNuvem(){
   if(!GH.token||!PROX)return null;
   try{var r=await api(caminho("boletas"));if(!r.ok)return null;var it=(await r.json()).filter(function(f){return f.name.indexOf(PROX.data+"-")===0&&/\.json$/.test(f.name)});
-    if(!it.length)return null;var at=await ler(it[0].path);var s=JSON.parse(b64dec(at.content));NV.sha[s.id]=at.sha;DB.sess[s.id]=s;salvaLocal();return s}catch(e){return null}}
+    if(!it.length)return null;var at=await ler(it[0].path);var s=JSON.parse(b64dec(at.content));if(s.encerrado||DB.pos[s.id]&&DB.pos[s.id].encerrado)return null;NV.sha[it[0].path]=at.sha;DB.sess[s.id]=s;salvaLocal();return s}catch(e){return null}}
 setInterval(function(){if(document.visibilityState==="visible")puxaNuvem()},10000);
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")puxaNuvem()});
 
@@ -1169,11 +1273,14 @@ document.addEventListener("visibilitychange",function(){if(document.visibilitySt
 function proximo(de){for(var i=de;i<L.length;i++)if(!S.st[L[i].l])return i;for(i=0;i<L.length;i++)if(!S.st[L[i].l])return i;return -1}
 function totais(){var c={V:[0,0],R:[0,0],F:[0,0]};L.forEach(function(x){var k=(S&&S.st[x.l])||"F";c[k][0]++;c[k][1]+=x.q});
 ["V","R","F"].forEach(function(k){var id={V:"v",R:"r",F:"f"}[k];$("n"+id).textContent=c[k][0];$("c"+id).textContent=c[k][1]+" cab."})}
-function render(){document.body.dataset.aba=tab;var tw0=document.querySelector(".tw");RF.sc=tw0&&tab==="rel"?[tw0.scrollTop,tw0.scrollLeft,window.scrollY]:null;heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
+function render(){ativar();if(document.body.dataset.aba&&ehPos(document.body.dataset.aba)!==ehPos())setTimeout(montaSel,0);document.body.dataset.aba=tab;document.body.classList.toggle("teste",!!(S&&S.fase==="teste"));var tw0=document.querySelector(".tw");RF.sc=tw0&&tab==="rel"?[tw0.scrollTop,tw0.scrollLeft,window.scrollY]:null;heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
   if(tab==="cmp"){document.body.classList.add("largo");$("pos").textContent="";comparar(m);return}
-  if(!S){document.body.classList.remove("largo");$("pos").textContent="";if(tab==="rel"||tab==="com"){m.innerHTML='<div class="vazio"><b>Escolha o leilão</b>Use a lista acima para ver qualquer leilão já registrado na Boleta.</div>';return}
+  if(!S){document.body.classList.remove("largo");$("pos").textContent="";if(tab==="rel"||tab==="com"){m.innerHTML='<div class="vazio"><b>Escolha o leilão</b>Na lista acima estão os leilões encerrados e o leilão de hoje (ao vivo, atualizado a cada 5 lotes).<div style="margin-top:12px"><button class="bt" type="button" id="vAnexa">📄 Anexar PDF do leilão</button></div></div>';if($("vAnexa"))$("vAnexa").onclick=function(){$("arqPdf").click()};return}
     if(tab!=="ini"){m.innerHTML='<div class="vazio"><b>Nenhum leilão aberto</b>Comece ou escolha um leilão no <a href="#ini">Início do leilão</a>.'+(tab==="rel"?'<div style="margin-top:12px"><button class="bt pri" type="button" id="vAnexa">📄 Anexar PDF do leilão</button><p style="margin:8px 0 0;font-size:.85rem">A ordem de entrada do sistema ou o PDF da boleta.</p></div>':'')+'</div>';if($("vAnexa"))$("vAnexa").onclick=function(){$("arqPdf").click()};return}iniVazio(m);return}
   document.body.classList.toggle("largo",tab==="rel"||tab==="com");
+  if(S.fase==="teste")m.insertAdjacentHTML("beforeend",'<div class="faixaT">🧪 LEILÃO DE TESTE · nada vai para a nuvem, o site ou o pós-leilão <button class="bt" type="button" id="tApaga">Apagar teste</button></div>');
+  if(S.fase==="pos"&&S.aoVivo)m.insertAdjacentHTML("beforeend",'<div class="faixaV">● Ao vivo · atualizado a cada 5 lotes marcados na pista ('+(S.posN||0)+' de '+S.L.length+')</div>');
+  if($("tApaga"))$("tApaga").onclick=apagaTeste;
   if(tab==="ini")inicio(m);else if(tab==="pista")pista(m);else if(tab==="rel")relatorio(m);else if(tab==="com"){if(window.TRAVA&&!TRAVA.ok("com")){var tv=document.createElement("div");tv.style.cssText="padding:40px 12px";m.append(tv);TRAVA.form(tv,"com","Comissão","Esta parte pede a senha da comissão.",function(){render()});}else comissao(m);}else lista(m,tab)}
 function pista(m){
   if(S.cur<0||S.cur>=L.length||S.st[L[S.cur].l]&&!pend)S.cur=proximo(Math.max(0,S.cur));
