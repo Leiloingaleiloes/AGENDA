@@ -201,6 +201,23 @@ button{font:inherit;color:inherit}a{color:inherit}
 /* modo teste: aviso laranja no topo de todas as telas */
 body.modo-teste .top{background:#fff1de!important;border-bottom:3px solid #f08c00!important}
 body.modo-teste #t-desc::after{content:' · 🧪 MODO TESTE: nada vai para a nuvem, o site ou o pós-leilão';color:#b35c00;font-weight:700}
+/* celular: o Início cabe numa tela só (arte, nome, data, contagem, botões e a faixa dos próximos leilões) */
+@media (max-width:600px){
+  #v-inicio{overflow:hidden}
+  .car{height:100%;min-height:0;grid-template-rows:minmax(0,1fr) auto;align-content:stretch}
+  .sl{min-height:0;overflow:hidden}
+  .sl .in{height:100%;align-content:center;align-items:center;gap:10px;padding:10px 16px 6px}
+  .art .card{width:auto!important;max-width:86vw;height:min(31dvh,300px)!important;max-height:none!important}
+  .art.pai .card{aspect-ratio:16/9}.art.qua .card{aspect-ratio:754/560}.art.por .card{aspect-ratio:4/5}
+  .art .card .tag,.art .card .bdg{transform:scale(.85)}
+  .tx .kk,.tx .st{font-size:11px}
+  .tx h2{margin-top:6px;font-size:clamp(24px,7.4vw,34px)}
+  .meta{margin-top:8px;font-size:13.5px;gap:4px 14px}
+  .cd{margin-top:10px;gap:6px}.cd div{min-width:0;flex:1;padding:6px 4px 5px}.cd b{font-size:20px}.cd small,.cd span{font-size:9.5px}
+  .acts{margin-top:10px;gap:8px}.ba{min-height:40px;padding:0 14px;font-size:13.5px}
+  .dock{padding:0 12px 10px!important}.tb{width:150px;grid-template-columns:40px minmax(0,1fr);padding:6px}.tb img{width:40px;height:40px}
+}
+@media (max-width:600px) and (max-height:700px){.art .card{height:min(26dvh,220px)!important}.cd{display:none}}
 /* modo público (vindo do catálogo): só o Início, sem menu */
 html.publico .app{grid-template-columns:minmax(0,1fr)}
 html.publico .side,html.publico .scrim,html.publico #burger,html.publico #newtab,html.publico #reload{display:none!important}
