@@ -445,7 +445,7 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
     </label>
     <div class="doBol"><b>Ou escolha um leilão da Boleta</b><span>Usa os lotes e os lances já registrados na Boleta, sem precisar de PDF.</span><select id="bolSel" aria-label="Leilão da Boleta"><option value="">Carregando leilões…</option></select></div>
     <p class="status" id="status" role="status" aria-live="polite"></p>
-    <p style="text-align:center;margin:12px 0 0"><button class="btn" type="button" id="exemplo">Testar com o leilão do Marquinho (11/11)</button></p>
+
   </section>
 
   <section id="comPdf" hidden>
@@ -457,7 +457,7 @@ table.tl{width:100%;border-collapse:collapse;min-width:860px;font-variant-numeri
       <div class="acts">
         <select id="bolSel2" aria-label="Escolher leilão da Boleta" class="bolSel2"><option value="">Escolher leilão…</option></select>
         <select id="anteriores" aria-label="Relatórios guardados neste aparelho" hidden></select>
-        <button class="btn" type="button" id="exemplo2">Exemplo: Marquinho</button>
+
         <button class="btn" type="button" id="trocar">Outro PDF</button>
       </div>
     </div>
@@ -798,6 +798,8 @@ function ehNova(raca){var k=chaveRaca(raca);return !RACAS[k]&&!padraoDe(k);}
 
 /* ---------- relatórios guardados neste aparelho ---------- */
 var KB="leiloinga-relatorio-v1";
+/* o exemplo do Marquinho saiu; se ele ficou aberto neste aparelho, é limpo */
+try{var rx=JSON.parse(localStorage.getItem("leiloinga-relatorio-v1")||"null");if(rx&&rx.rel){var mx=false;Object.keys(rx.rel).forEach(function(k){var r0=rx.rel[k]||{};if(/marquinho/i.test(k+" "+(r0.leilao||"")+" "+(r0.nome||"")+" "+(r0.arquivo||""))&&/11\/11|2026-11-11|11-11/.test(k+" "+(r0.data||"")+" "+(r0.arquivo||""))){delete rx.rel[k];mx=true;}});if(mx){if(rx.atual&&!rx.rel[rx.atual])rx.atual=null;localStorage.setItem("leiloinga-relatorio-v1",JSON.stringify(rx));}}}catch(e){}
 var DB={atual:null,rel:{}};
 try{var x=JSON.parse(localStorage.getItem(KB)||"null");if(x&&x.rel)DB=x;}catch(e){}
 function salvaDB(){
@@ -853,8 +855,7 @@ async function carregarExemplo(){
     var b=await r.blob();await abrirArquivo(new File([b],"exemplo-marquinho-11-11.pdf",{type:"application/pdf"}));
   }catch(e){st.className="status err";st.textContent="Não deu para abrir o exemplo agora. Confira a internet.";}
 }
-$("exemplo").addEventListener("click",carregarExemplo);
-$("exemplo2").addEventListener("click",carregarExemplo);
+
 
 /* ---------- lances: Conferência Boleta (neste aparelho ou no GitHub do ADM) ---------- */
 function dataIso(br){var m=String(br||"").match(/(\d{2})\/(\d{2})\/(\d{4})/);return m?m[3]+"-"+m[2]+"-"+m[1]:"";}

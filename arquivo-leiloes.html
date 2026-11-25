@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><script src="trava.js?v=2"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arquivo de leilões · Leiloingá</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f2;--card:#fff;--ink:#14201a;--muted:#5c6b62;--line:#dfe6e0;--v:#1f8a35;--vs:#e9f7ec;--f-d:"Oswald",Poppins,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Poppins,system-ui,sans-serif}
+html.emb .topo{display:none}
+.topo{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#0e1410;color:#fff}
+.topo b{font:700 1.2rem var(--f-d);text-transform:uppercase;letter-spacing:.02em}
+main{max-width:1200px;margin:0 auto;padding:16px}
+.barra{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
+.barra label{font:700 .95rem var(--f-d);text-transform:uppercase}
+select,input[type=search]{font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff}
+select{min-width:280px;max-width:100%;font-weight:600}
+input[type=search]{flex:1;min-width:200px}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{font:600 .9rem Poppins,sans-serif;border:0;background:#fff;padding:9px 14px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--v);color:#fff}
+.note{color:var(--muted);font-size:.88rem;margin:0}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.res div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.res span{display:block;font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.res b{font:700 1.3rem var(--f-d)}
+.vazio{text-align:center;padding:50px 16px;color:var(--muted)}.vazio b{display:block;font:700 1.3rem var(--f-d);color:var(--ink);text-transform:uppercase;margin-bottom:6px}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.vcard{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:14px 10px 12px;border:1.5px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;font:inherit;color:inherit;transition:transform .15s,box-shadow .15s}
+.vcard:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.vcard[aria-expanded=true]{border-color:var(--v);box-shadow:0 0 0 3px rgba(36,181,59,.18)}
+.vav{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:700 1.2rem var(--f-d);color:#fff}
+.vcn{font:700 .95rem var(--f-d);text-transform:uppercase;line-height:1.15;word-break:break-word}
+.vcl{font-size:.82rem;color:var(--muted)}
+.vsx{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.vsx span{font-size:.76rem;font-weight:600;padding:2px 8px;border-radius:999px}
+.vsx .m{background:#e3effc;color:#1d5fa8}.vsx .f{background:#fbe6ef;color:#a3285c}
+.vgrid .det{grid-column:1/-1}
+.det{background:#fff;border:1.5px solid var(--v);border-radius:14px;overflow:hidden}
+.dh{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 14px;background:var(--vs)}
+.dh b{font:700 1.05rem var(--f-d);text-transform:uppercase}
+.dh button{border:0;background:none;font-size:1.1rem;cursor:pointer;color:var(--muted)}
+.sc{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{font:600 .74rem Poppins,sans-serif;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;padding:9px 10px;border-bottom:1.5px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td.n,th.n{text-align:right}
+.tabela{background:#fff;border:1.5px solid var(--line);border-radius:14px;overflow:hidden}
+.lt{display:inline-flex;align-items:center;gap:8px}.lt b{font:700 1.05rem var(--f-d)}
+.ft{border:1px solid var(--line);background:#fff;border-radius:8px;padding:2px 7px;cursor:pointer;font-size:.95rem}
+.ft:hover{border-color:var(--v);background:var(--vs)}.ft.sem{opacity:.28;cursor:default}
+.mini{width:44px;height:34px;object-fit:cover;border-radius:6px;vertical-align:middle;background:#eee;cursor:pointer}
+.st{font-size:.78rem;font-weight:700;padding:2px 8px;border-radius:999px}.st.V{background:#e3f6e8;color:#13702c}.st.R{background:#fdeee2;color:#a14a12}.st.D{background:#efe8fb;color:#5b3fa8}
+.luz{position:fixed;inset:0;background:rgba(10,14,12,.88);z-index:50;display:grid;place-items:center;padding:16px}
+.lc{position:relative;max-width:min(940px,100%);width:100%;background:#111;border-radius:14px;overflow:hidden}
+.lc img{display:block;width:100%;max-height:78vh;object-fit:contain;background:#000}
+.lt2{display:flex;gap:10px;align-items:center;padding:10px 14px;color:#fff}.lt2 b{font:700 1.05rem var(--f-d);text-transform:uppercase;flex:1}
+.lx{border:0;background:none;color:#fff;font-size:1.3rem;cursor:pointer}
+.la{position:absolute;top:50%;transform:translateY(-50%);border:0;background:rgba(0,0,0,.5);color:#fff;font-size:2rem;width:44px;height:60px;border-radius:10px;cursor:pointer}.la.e{left:8px}.la.d{right:8px}
+@media(max-width:520px){.vgrid{grid-template-columns:repeat(2,1fr);gap:8px}select{min-width:0;width:100%}}
+</style>
+</head>
+<body>
+<div class="topo"><b>Arquivo de leilões</b><span class="note" style="color:#bcd">Leilões antigos: lotes, vendedores, fotos e resultados</span></div>
+<main>
+  <div class="barra">
+    <label for="sel">Leilão</label><select id="sel" aria-label="Leilão antigo"><option value="">Carregando…</option></select>
+    <input type="search" id="busca" placeholder="Buscar lote, vendedor, raça, comprador…" aria-label="Buscar">
+    <div class="seg" role="group" aria-label="Ver"><button type="button" data-v="vend" aria-pressed="true">Por vendedor</button><button type="button" data-v="lotes" aria-pressed="false">Todos os lotes</button></div>
+  </div>
+  <p class="note" id="orig" style="margin:8px 2px 0"></p>
+  <div id="res" class="res" hidden></div>
+  <div id="conteudo"><div class="vazio"><b>Escolha um leilão</b>Aqui ficam os leilões que já passaram, para consultar lotes, vendedores e fotos.</div></div>
+</main>
+<script>
+if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("emb");
+var DONO="Leiloingaleiloes",RAWL="https://raw.githubusercontent.com/Leiloingaleiloes/LOTES/main/";
+var GH={token:"",repo:"ADM"};try{var gx=JSON.parse(localStorage.getItem("leiloinga-adm-gh")||"null");if(gx&&gx.token){GH.token=gx.token;GH.repo=gx.repo||"ADM";}}catch(e){}
+function $(i){return document.getElementById(i);}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+function api(p){return fetch("https://api.github.com"+p,{headers:{"Accept":"application/vnd.github+json","Authorization":"Bearer "+GH.token},cache:"no-store"});}
+function caminho(p){return "/repos/"+DONO+"/"+GH.repo+"/contents/"+p.split("/").map(encodeURIComponent).join("/");}
+function b64dec(b){var s=atob(String(b).replace(/\s/g,"")),u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return new TextDecoder().decode(u);}
+function iso(d){d=String(d||"");var m=/(\d{2})\/(\d{2})\/(\d{4})/.exec(d);if(m)return m[3]+"-"+m[2]+"-"+m[1];m=/^(\d{4}-\d{2}-\d{2})/.exec(d);return m?m[1]:"";}
+function br(i){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(i||"");return m?m[3]+"/"+m[2]+"/"+m[1]:"";}
+function hoje(){var h=new Date();return h.getFullYear()+"-"+String(h.getMonth()+1).padStart(2,"0")+"-"+String(h.getDate()).padStart(2,"0");}
+function brl(v){return "R$ "+Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function z(n){return String(n).padStart(2,"0");}
+function cap(s){return String(s||"").toLowerCase().replace(/(^|\s|-)\S/g,function(m){return m.toUpperCase();});}
+
+/* ---------- fontes: pós-leilão (com resultados) e lotes guardados pelo Lotes ADM ---------- */
+var L={};   /* iso -> {iso,nome,lotes:[{l,q,s,r,i,p,v,st,la,cp,doa}],res:bool,fontes:[]} */
+function poe(d,nome,lotes,res,fonte){if(!d||d>=hoje()||!lotes||!lotes.length)return;if(d==="2026-11-11"&&/marquinho/i.test(nome||""))return;  /* era só o exemplo */var a=L[d];
+  if(!a||(res&&!a.res)||(res===a.res&&lotes.length>a.lotes.length)){L[d]={iso:d,nome:nome||(a&&a.nome)||"Leilão",lotes:lotes,res:res,fontes:((a&&a.fontes)||[]).concat([fonte])};}
+  else if(a.fontes.indexOf(fonte)<0)a.fontes.push(fonte);}
+function dePos(x){var st=x.st||{},la=x.la||{},cp=x.cp||{},doa=x.doa||{};return (x.L||[]).map(function(y){return {l:y.l,q:y.q,s:y.s,r:y.r,i:y.i,p:y.p,v:y.v,st:st[y.l]||"",la:la[y.l]||0,cp:cp[y.l]||"",doa:!!doa[y.l]};});}
+function deAdm(x){return (x.rows||[]).filter(function(r){return r.lote!=null;}).map(function(r){return {l:+r.lote,q:+r.qtde||0,s:r.sexo==="F"?"F":"M",r:r.raca||"",i:r.idade||"",p:+r.peso||0,v:r.vendedor||""};});}
+function locais(){
+  try{var b=JSON.parse(localStorage.getItem("leiloinga-boleta-v1")||"null");if(b){Object.keys(b.pos||{}).forEach(function(k){var x=b.pos[k];poe(x.data,x.nome,dePos(x),true,"pós-leilão");});
+    Object.keys(b.sess||{}).forEach(function(k){var x=b.sess[k];if(k!=="teste"&&x.data&&Object.keys(x.st||{}).length)poe(x.data,x.nome,dePos(x),true,"boleta");});}}catch(e){}
+  try{var a=JSON.parse(localStorage.getItem("fichas-arquivo-v1")||"{}");Object.keys(a).forEach(function(k){var x=a[k];poe(iso(x.data),cap(x.leilao),deAdm(x),false,"Lotes ADM");});}catch(e){}
+  try{var c=JSON.parse(localStorage.getItem("fichas-lotes-v1")||"null");if(c)poe(iso(c.data),cap(c.leilao),deAdm(c),false,"Lotes ADM");}catch(e){}
+}
+async function nuvem(){if(!GH.token)return;
+  async function pasta(p,fn){try{var r=await api(caminho(p));if(!r.ok)return;var fs=(await r.json()).filter(function(f){return /\.json$/.test(f.name)&&f.name.slice(0,10)<hoje()&&!L[f.name.slice(0,10)];});
+    for(var i=0;i<fs.length;i++){try{var j=await (await api(caminho(p+"/"+fs[i].name))).json();fn(JSON.parse(b64dec(j.content)));}catch(e){}}}catch(e){}}
+  await pasta("pos",function(x){poe(x.data,x.nome,dePos(x),true,"pós-leilão (nuvem)");});
+  await pasta("fichas-leiloes",function(x){poe(iso(x.data),cap(x.leilao),deAdm(x),false,"Lotes ADM (nuvem)");});
+  await pasta("boletas",function(x){if(Object.keys(x.st||{}).length)poe(x.data,x.nome,dePos(x),true,"boleta (nuvem)");});
+}
+/* ---------- fotos: arquivo de 30 dias no site dos produtores ---------- */
+var FOT={idx:[],cache:{}};
+async function idxFotos(){try{var r=await fetch(RAWL+"arquivo/index.json?t="+Date.now(),{cache:"no-store"});if(r.ok)FOT.idx=(await r.json()).leiloes||[];}catch(e){}}
+function pastaDe(d){for(var i=0;i<FOT.idx.length;i++)if(iso(FOT.idx[i].data)===d)return FOT.idx[i];return null;}
+async function midiaDe(d){if(FOT.cache[d])return FOT.cache[d];var a=pastaDe(d);if(!a)return (FOT.cache[d]={});
+  try{var r=await fetch(RAWL+"arquivo/"+a.pasta+"/midia.json",{cache:"no-store"});FOT.cache[d]=r.ok?await r.json():{};}catch(e){FOT.cache[d]={};}return FOT.cache[d];}
+function fotosDe(d,n){var m=(FOT.cache[d]||{})[String(n)]||{};return (m.fotos||[]).filter(function(f){return f&&f.src&&!f.oculta;});}
+
+/* ---------- tela ---------- */
+var ATUAL=null,VISTA="vend",ABERTO=null,Q="";
+try{VISTA=localStorage.getItem("arquivo-vista")||"vend";}catch(e){}
+function enche(){var ks=Object.keys(L).sort().reverse();var sel=$("sel");
+  sel.innerHTML=ks.length?'<option value="">Escolha o leilão ('+ks.length+')</option>'+ks.map(function(k){var a=L[k];return '<option value="'+k+'"'+(k===ATUAL?" selected":"")+'>'+br(k)+" · "+a.nome.replace(/</g,"")+(a.res?"":" (sem resultados)")+'</option>';}).join(""):'<option value="">Nenhum leilão antigo encontrado</option>';}
+function filtra(ls){if(!Q)return ls;var q=Q.toLowerCase();return ls.filter(function(x){return [z(x.l),x.v,x.r,x.i,x.cp].join(" ").toLowerCase().indexOf(q)>=0;});}
+function situ(x){if(x.doa)return el("span","st D","Doação");if(x.st==="V")return el("span","st V","Vendido");if(x.st==="R")return el("span","st R","Retorno");return el("span",null,"–");}
+function linhaTabela(a,x,comVend){var tr=document.createElement("tr"),fs=fotosDe(a.iso,x.l);
+  var td=el("td"),w=el("span","lt");w.append(el("b",null,z(x.l)));
+  if(fs.length){var im=document.createElement("img");im.className="mini";im.loading="lazy";im.alt="Foto do lote "+z(x.l);im.src=RAWL+(fs[0].mini||fs[0].src);im.onclick=function(){luz(a,x,0);};w.append(im);}
+  else{var b=el("button","ft sem","📷");b.type="button";b.title="Sem foto guardada";b.setAttribute("aria-label","Lote "+z(x.l)+" sem foto");w.append(b);}
+  td.append(w);tr.append(td);
+  tr.append(el("td","n",x.q),el("td",null,x.s==="F"?"Fêmea":"Macho"),el("td",null,[x.r,x.i].filter(Boolean).join(" · ")),el("td","n",x.p?x.p+" kg":"–"));
+  if(comVend)tr.append(el("td",null,x.v||"–"));
+  if(a.res){var t=el("td");t.append(situ(x));tr.append(t);tr.append(el("td","n",x.la?x.la.toLocaleString("pt-BR",{minimumFractionDigits:2}):"–"),el("td","n",x.la&&x.st==="V"?brl(x.la*3*x.q):"–"),el("td",null,x.cp||""));}
+  return tr;}
+function cabeca(a,comVend){var tr=document.createElement("tr");["Lote","Qtde","Sexo","Raça · idade","Peso"].concat(comVend?["Vendedor"]:[]).concat(a.res?["Situação","Lance","Valor do lote","Comprador"]:[]).forEach(function(t,i){tr.append(el("th",/Qtde|Peso|Lance|Valor/.test(t)?"n":null,t));});return tr;}
+function tabela(a,ls,comVend){var t=document.createElement("table");t.append(cabeca(a,comVend));ls.slice().sort(function(p,q){return p.l-q.l;}).forEach(function(x){t.append(linhaTabela(a,x,comVend));});var sc=el("div","sc");sc.append(t);return sc;}
+function render(){var c=$("conteudo"),a=L[ATUAL];c.textContent="";$("res").hidden=!a;
+  if(!a){c.innerHTML='<div class="vazio"><b>Escolha um leilão</b>Aqui ficam os leilões que já passaram, para consultar lotes, vendedores e fotos.</div>';$("orig").textContent="";return;}
+  var ls=a.lotes,cab=0,vend=0,fat=0;ls.forEach(function(x){cab+=x.q||0;if(x.st==="V"){vend++;fat+=x.la*3*x.q;}});
+  var pf=pastaDe(a.iso);
+  $("orig").textContent="Dados de: "+a.fontes.join(", ")+(pf?" · "+pf.fotos+" fotos guardadas":" · sem fotos guardadas (as fotos ficam 30 dias)");
+  var R=$("res");R.innerHTML="";[["Lotes",ls.length],["Cabeças",cab]].concat(a.res?[["Vendidos",vend+" de "+ls.length],["Faturamento",brl(fat)]]:[]).forEach(function(k){var d=el("div");d.append(el("span",null,k[0]),el("b",null,k[1]));R.append(d);});
+  var fl=filtra(ls);if(!fl.length){c.innerHTML='<div class="vazio"><b>Nada encontrado</b>Tente outra busca.</div>';return;}
+  if(VISTA==="lotes"){var box=el("div","tabela");box.append(tabela(a,fl,true));c.append(box);return;}
+  var gr={};fl.forEach(function(x){var n=(x.v||"(sem vendedor)").trim().toUpperCase();(gr[n]=gr[n]||[]).push(x);});
+  var nomes=Object.keys(gr).sort(function(p,q){return p.localeCompare(q,"pt-BR");});if(Q&&nomes.length===1)ABERTO=nomes[0];if(ABERTO&&!gr[ABERTO])ABERTO=null;
+  var grid=el("div","vgrid"),cards={},CORES=["#1f7a3a","#2c6e9e","#8a5a1f","#7a2f6b","#3d6b5a","#a14a2a","#4b5aa0","#6b7a1f"];c.append(grid);
+  nomes.forEach(function(nm){var g=gr[nm],mc=0,fc=0;g.forEach(function(x){if(x.s==="F")fc+=x.q||0;else mc+=x.q||0;});
+    var cd=el("button","vcard");cd.type="button";cd.setAttribute("aria-expanded",ABERTO===nm?"true":"false");
+    var ini=nm==="(SEM VENDEDOR)"?"?":nm.replace(/^(FAZENDA|FAZ\.?|SITIO|SÍTIO)\s+/i,"").split(/\s+/).filter(function(w){return w.length>2;}).slice(0,2).map(function(w){return w[0];}).join("")||nm[0];
+    var h=0;for(var i=0;i<nm.length;i++)h=(h*31+nm.charCodeAt(i))>>>0;var av=el("span","vav",ini);av.style.background=CORES[h%CORES.length];
+    var sx=el("div","vsx");if(mc)sx.append(el("span","m","♂ "+mc+" machos"));if(fc)sx.append(el("span","f","♀ "+fc+" fêmeas"));
+    cd.append(av,el("span","vcn",nm),el("span","vcl",g.length+(g.length===1?" lote":" lotes")),sx);
+    cd.onclick=function(){ABERTO=ABERTO===nm?null:nm;render();};grid.append(cd);cards[nm]=cd;});
+  if(!ABERTO)return;
+  var d=el("section","det"),dh=el("div","dh"),fx=el("button",null,"✕");fx.type="button";fx.setAttribute("aria-label","Fechar");fx.onclick=function(){ABERTO=null;render();};
+  dh.append(el("b",null,ABERTO+" · "+gr[ABERTO].length+" lotes"),fx);d.append(dh,tabela(a,gr[ABERTO],false));
+  var top=cards[ABERTO].offsetTop,ult=cards[ABERTO];Array.prototype.forEach.call(grid.children,function(x){if(x.offsetTop===top)ult=x;});ult.after(d);
+}
+function luz(a,x,i){var fs=fotosDe(a.iso,x.l);if(!fs.length)return;i=(i+fs.length)%fs.length;var bg=$("luz");
+  if(!bg){bg=el("div","luz");bg.id="luz";bg.setAttribute("role","dialog");bg.setAttribute("aria-modal","true");document.body.append(bg);bg.onclick=function(e){if(e.target===bg)bg.remove();};}
+  bg.textContent="";var lc=el("div","lc"),t=el("div","lt2");t.append(el("b",null,"Lote "+z(x.l)+" · "+x.q+" cab."+(x.r?" · "+x.r:"")+(x.p?" · "+x.p+" kg":"")),el("span",null,fs.length>1?(i+1)+" de "+fs.length:""));
+  var cx=el("button","lx","✕");cx.type="button";cx.setAttribute("aria-label","Fechar");cx.onclick=function(){bg.remove();};t.append(cx);
+  var im=document.createElement("img");im.src=RAWL+fs[i].src;im.alt="Foto do lote "+z(x.l);lc.append(t,im);
+  if(fs.length>1){var e=el("button","la e","‹"),dd=el("button","la d","›");e.type=dd.type="button";e.setAttribute("aria-label","Anterior");dd.setAttribute("aria-label","Próxima");e.onclick=function(){luz(a,x,i-1);};dd.onclick=function(){luz(a,x,i+1);};lc.append(e,dd);}
+  bg.append(lc);bg._k={a:a,x:x,i:i};cx.focus();}
+document.addEventListener("keydown",function(e){var bg=$("luz");if(!bg)return;if(e.key==="Escape")bg.remove();else if(e.key==="ArrowRight")luz(bg._k.a,bg._k.x,bg._k.i+1);else if(e.key==="ArrowLeft")luz(bg._k.a,bg._k.x,bg._k.i-1);});
+$("sel").onchange=async function(){ATUAL=this.value||null;ABERTO=null;if(ATUAL)await midiaDe(ATUAL);render();};
+$("busca").oninput=function(){Q=this.value.trim();render();};
+document.querySelectorAll(".seg button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===VISTA?"true":"false");b.onclick=function(){VISTA=b.dataset.v;try{localStorage.setItem("arquivo-vista",VISTA);}catch(e){}document.querySelectorAll(".seg button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});render();};});
+(async function(){locais();await idxFotos();FOT.idx.forEach(function(x){if(!L[iso(x.data)])L[iso(x.data)]&&0;});enche();await nuvem();enche();})();
+</script>
+</body>
+</html>
