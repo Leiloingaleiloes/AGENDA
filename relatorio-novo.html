@@ -1640,8 +1640,9 @@ function encheBol(){
   var cur=R&&R.id&&R.id.indexOf("boleta|")===0?R.id.slice(7):"";
   ["bolSel","bolSel2"].forEach(function(k){var e=$(k);if(!e)return;e.innerHTML=html;if(cur){if(e.querySelector('option[value="l:'+cur+'"]'))e.value="l:"+cur;else if(e.querySelector('option[value="n:'+cur+'"]'))e.value="n:"+cur;}});
 }
-async function listaBolNuvem(){if(!GH.token)return;try{var hj=hojeIsoR(),r=await api(caminho("boletas"));if(r.ok)(await r.json()).forEach(function(f){if(/\.json$/.test(f.name)&&f.name.slice(0,10)<hj)BOLN[f.name.replace(/\.json$/,"")]=f.path;});
-  var r2=await api(caminho("pos"));if(r2.ok)(await r2.json()).forEach(function(f){if(/\.json$/.test(f.name))BOLN[f.name.replace(/\.json$/,"")]=f.path;});encheBol();}catch(e){}}
+async function listaBolNuvem(){if(!GH.token)return;try{var hj=hojeIsoR(),ex=function(n){return n.slice(0,10)==="2026-11-11"&&/marquinho/i.test(n);},diasPos={};
+  var r2=await api(caminho("pos"));if(r2.ok)(await r2.json()).forEach(function(f){if(/\.json$/.test(f.name)&&!ex(f.name)){BOLN[f.name.replace(/\.json$/,"")]=f.path;diasPos[f.name.slice(0,10)]=1;}});
+  var r=await api(caminho("boletas"));if(r.ok)(await r.json()).forEach(function(f){var d=f.name.slice(0,10);if(/\.json$/.test(f.name)&&d<hj&&!ex(f.name)&&!diasPos[d]){diasPos[d]=1;BOLN[f.name.replace(/\.json$/,"")]=f.path;}});encheBol();}catch(e){}}
 function abrirDaBoleta(x,origem){
   if(!x||!Array.isArray(x.L)||!x.L.length){toast("Esse leilão não tem lotes na Boleta.");return;}
   var id="boleta|"+x.id,antigo=DB.rel[id];

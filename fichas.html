@@ -1889,14 +1889,18 @@ $("resgNovo").addEventListener("click",function(){
 });
 /* ---------- leilão destes lotes: o Lotes ADM manda no resto ----------
    Os lotes daqui vão para a Boleta, o Pós-leilão e o Relatório pelo leilão (data). Por isso o leilão precisa estar escolhido. */
-var AGL=[];
+var AGL=[],ENCD={};
 function isoDeBr(d){var m=/(\d{2})\/(\d{2})\/(\d{4})/.exec(d||"");return m?m[3]+"-"+m[2]+"-"+m[1]:"";}
 function brDeIso(d){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(d||"");return m?m[3]+"/"+m[2]+"/"+m[1]:"";}
 function nomeAg(l){return up((l.nome||"Leilão")+" "+(l.cidade||""));}
 async function carregaAgendaLeiloes(){try{var j=await (await fetch("agenda.json?t="+Date.now(),{cache:"no-store"})).json();
   var lim=hojeLocal();  /* Lotes ADM é só para o leilão atual e os próximos; os antigos ficam no Arquivo de leilões */
-  AGL=(j.leiloes||[]).filter(function(l){return l.leiloeira==="Leiloingá"&&l.data>=lim;}).sort(function(a,b){return a.data.localeCompare(b.data);});}catch(e){AGL=[];}
+  var enc={};try{var bdb=JSON.parse(localStorage.getItem("leiloinga-boleta-v1")||"null");if(bdb&&bdb.pos)Object.keys(bdb.pos).forEach(function(k){var P=bdb.pos[k];if(P&&P.encerrado&&P.data)enc[P.data]=1;});}catch(e){}
+  ENCD=enc;
+  AGL=(j.leiloes||[]).filter(function(l){return l.leiloeira==="Leiloingá"&&l.data>=lim&&!enc[l.data];}).sort(function(a,b){return a.data.localeCompare(b.data);});}catch(e){AGL=[];}
   if(!S.data&&S.rows.length)salvar();
+  /* aberto num leilão que já passou ou já foi encerrado: os lotes ficam guardados e passa para o próximo */
+  var diS=isoDeBr(S.data);if(!TESTE&&diS&&(diS<lim||ENCD[diS])){await passaParaProximo(S.data);}
   renderLbar();setTimeout(confereEncerrado,1200);}
 function hojeLocal(){var h=new Date();return h.getFullYear()+"-"+String(h.getMonth()+1).padStart(2,"0")+"-"+String(h.getDate()).padStart(2,"0");}
 function proxAg(){var h=hojeLocal();for(var i=0;i<AGL.length;i++)if(AGL[i].data>=h)return AGL[i];return null;}

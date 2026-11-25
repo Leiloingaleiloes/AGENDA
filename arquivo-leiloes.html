@@ -67,7 +67,7 @@ td.n,th.n{text-align:right}
 <main>
   <div class="barra">
     <label for="sel">Leilão</label><select id="sel" aria-label="Leilão antigo"><option value="">Carregando…</option></select>
-    <input type="search" id="busca" placeholder="Buscar lote, vendedor, raça, comprador…" aria-label="Buscar">
+    <input type="search" id="busca" placeholder="Buscar…" title="Busca por lote, vendedor, raça ou comprador" aria-label="Buscar">
     <div class="seg" role="group" aria-label="Ver"><button type="button" data-v="vend" aria-pressed="true">Por vendedor</button><button type="button" data-v="lotes" aria-pressed="false">Todos os lotes</button></div>
   </div>
   <p class="note" id="orig" style="margin:8px 2px 0"></p>
@@ -92,21 +92,21 @@ function cap(s){return String(s||"").toLowerCase().replace(/(^|\s|-)\S/g,functio
 
 /* ---------- fontes: pós-leilão (com resultados) e lotes guardados pelo Lotes ADM ---------- */
 var L={};   /* iso -> {iso,nome,lotes:[{l,q,s,r,i,p,v,st,la,cp,doa}],res:bool,fontes:[]} */
-function poe(d,nome,lotes,res,fonte){if(!d||d>=hoje()||!lotes||!lotes.length)return;if(d==="2026-11-11"&&/marquinho/i.test(nome||""))return;  /* era só o exemplo */var a=L[d];
+function poe(d,nome,lotes,res,fonte,enc){if(!d||!lotes||!lotes.length)return;if(d>hoje()||(d===hoje()&&!enc))return;  /* hoje só se já foi encerrado */if(d==="2026-11-11"&&/marquinho/i.test(nome||""))return;  /* era só o exemplo */var a=L[d];
   if(!a||(res&&!a.res)||(res===a.res&&lotes.length>a.lotes.length)){L[d]={iso:d,nome:nome||(a&&a.nome)||"Leilão",lotes:lotes,res:res,fontes:((a&&a.fontes)||[]).concat([fonte])};}
   else if(a.fontes.indexOf(fonte)<0)a.fontes.push(fonte);}
 function dePos(x){var st=x.st||{},la=x.la||{},cp=x.cp||{},doa=x.doa||{};return (x.L||[]).map(function(y){return {l:y.l,q:y.q,s:y.s,r:y.r,i:y.i,p:y.p,v:y.v,st:st[y.l]||"",la:la[y.l]||0,cp:cp[y.l]||"",doa:!!doa[y.l]};});}
 function deAdm(x){return (x.rows||[]).filter(function(r){return r.lote!=null;}).map(function(r){return {l:+r.lote,q:+r.qtde||0,s:r.sexo==="F"?"F":"M",r:r.raca||"",i:r.idade||"",p:+r.peso||0,v:r.vendedor||""};});}
 function locais(){
-  try{var b=JSON.parse(localStorage.getItem("leiloinga-boleta-v1")||"null");if(b){Object.keys(b.pos||{}).forEach(function(k){var x=b.pos[k];poe(x.data,x.nome,dePos(x),true,"pós-leilão");});
+  try{var b=JSON.parse(localStorage.getItem("leiloinga-boleta-v1")||"null");if(b){Object.keys(b.pos||{}).forEach(function(k){var x=b.pos[k];poe(x.data,x.nome,dePos(x),true,"pós-leilão",!!x.encerrado);});
     Object.keys(b.sess||{}).forEach(function(k){var x=b.sess[k];if(k!=="teste"&&x.data&&Object.keys(x.st||{}).length)poe(x.data,x.nome,dePos(x),true,"boleta");});}}catch(e){}
   try{var a=JSON.parse(localStorage.getItem("fichas-arquivo-v1")||"{}");Object.keys(a).forEach(function(k){var x=a[k];poe(iso(x.data),cap(x.leilao),deAdm(x),false,"Lotes ADM");});}catch(e){}
   try{var c=JSON.parse(localStorage.getItem("fichas-lotes-v1")||"null");if(c)poe(iso(c.data),cap(c.leilao),deAdm(c),false,"Lotes ADM");}catch(e){}
 }
 async function nuvem(){if(!GH.token)return;
-  async function pasta(p,fn){try{var r=await api(caminho(p));if(!r.ok)return;var fs=(await r.json()).filter(function(f){return /\.json$/.test(f.name)&&f.name.slice(0,10)<hoje()&&!L[f.name.slice(0,10)];});
+  async function pasta(p,fn){try{var r=await api(caminho(p));if(!r.ok)return;var fs=(await r.json()).filter(function(f){var d=f.name.slice(0,10);return /\.json$/.test(f.name)&&d<=hoje()&&!(L[d]&&L[d].res);});
     for(var i=0;i<fs.length;i++){try{var j=await (await api(caminho(p+"/"+fs[i].name))).json();fn(JSON.parse(b64dec(j.content)));}catch(e){}}}catch(e){}}
-  await pasta("pos",function(x){poe(x.data,x.nome,dePos(x),true,"pós-leilão (nuvem)");});
+  await pasta("pos",function(x){poe(x.data,x.nome,dePos(x),true,"pós-leilão (nuvem)",!!x.encerrado);});
   await pasta("fichas-leiloes",function(x){poe(iso(x.data),cap(x.leilao),deAdm(x),false,"Lotes ADM (nuvem)");});
   await pasta("boletas",function(x){if(Object.keys(x.st||{}).length)poe(x.data,x.nome,dePos(x),true,"boleta (nuvem)");});
 }
@@ -119,7 +119,7 @@ async function midiaDe(d){if(FOT.cache[d])return FOT.cache[d];var a=pastaDe(d);i
 function fotosDe(d,n){var m=(FOT.cache[d]||{})[String(n)]||{};return (m.fotos||[]).filter(function(f){return f&&f.src&&!f.oculta;});}
 
 /* ---------- tela ---------- */
-var ATUAL=null,VISTA="vend",ABERTO=null,Q="";
+var ATUAL=null,VISTA="vend",ABERTO=null,Q="",ROLA=false;
 try{VISTA=localStorage.getItem("arquivo-vista")||"vend";}catch(e){}
 function enche(){var ks=Object.keys(L).sort().reverse();var sel=$("sel");
   sel.innerHTML=ks.length?'<option value="">Escolha o leilão ('+ks.length+')</option>'+ks.map(function(k){var a=L[k];return '<option value="'+k+'"'+(k===ATUAL?" selected":"")+'>'+br(k)+" · "+a.nome.replace(/</g,"")+(a.res?"":" (sem resultados)")+'</option>';}).join(""):'<option value="">Nenhum leilão antigo encontrado</option>';}
@@ -151,13 +151,13 @@ function render(){var c=$("conteudo"),a=L[ATUAL];c.textContent="";$("res").hidde
     var cd=el("button","vcard");cd.type="button";cd.setAttribute("aria-expanded",ABERTO===nm?"true":"false");
     var ini=nm==="(SEM VENDEDOR)"?"?":nm.replace(/^(FAZENDA|FAZ\.?|SITIO|SÍTIO)\s+/i,"").split(/\s+/).filter(function(w){return w.length>2;}).slice(0,2).map(function(w){return w[0];}).join("")||nm[0];
     var h=0;for(var i=0;i<nm.length;i++)h=(h*31+nm.charCodeAt(i))>>>0;var av=el("span","vav",ini);av.style.background=CORES[h%CORES.length];
-    var sx=el("div","vsx");if(mc)sx.append(el("span","m","♂ "+mc+" machos"));if(fc)sx.append(el("span","f","♀ "+fc+" fêmeas"));
+    var sx=el("div","vsx");if(mc)sx.append(el("span","m","♂ "+mc+(mc===1?" macho":" machos")));if(fc)sx.append(el("span","f","♀ "+fc+(fc===1?" fêmea":" fêmeas")));
     cd.append(av,el("span","vcn",nm),el("span","vcl",g.length+(g.length===1?" lote":" lotes")),sx);
-    cd.onclick=function(){ABERTO=ABERTO===nm?null:nm;render();};grid.append(cd);cards[nm]=cd;});
+    cd.onclick=function(){ABERTO=ABERTO===nm?null:nm;ROLA=true;render();};grid.append(cd);cards[nm]=cd;});
   if(!ABERTO)return;
   var d=el("section","det"),dh=el("div","dh"),fx=el("button",null,"✕");fx.type="button";fx.setAttribute("aria-label","Fechar");fx.onclick=function(){ABERTO=null;render();};
-  dh.append(el("b",null,ABERTO+" · "+gr[ABERTO].length+" lotes"),fx);d.append(dh,tabela(a,gr[ABERTO],false));
-  var top=cards[ABERTO].offsetTop,ult=cards[ABERTO];Array.prototype.forEach.call(grid.children,function(x){if(x.offsetTop===top)ult=x;});ult.after(d);
+  dh.append(el("b",null,ABERTO+" · "+gr[ABERTO].length+(gr[ABERTO].length===1?" lote":" lotes")),fx);d.append(dh,tabela(a,gr[ABERTO],false));
+  var top=cards[ABERTO].offsetTop,ult=cards[ABERTO];Array.prototype.forEach.call(grid.children,function(x){if(x.offsetTop===top)ult=x;});ult.after(d);if(ABERTO&&ROLA){ROLA=false;setTimeout(function(){d.scrollIntoView({block:"nearest",behavior:"smooth"});},30);}
 }
 function luz(a,x,i){var fs=fotosDe(a.iso,x.l);if(!fs.length)return;i=(i+fs.length)%fs.length;var bg=$("luz");
   if(!bg){bg=el("div","luz");bg.id="luz";bg.setAttribute("role","dialog");bg.setAttribute("aria-modal","true");document.body.append(bg);bg.onclick=function(e){if(e.target===bg)bg.remove();};}
@@ -170,7 +170,9 @@ document.addEventListener("keydown",function(e){var bg=$("luz");if(!bg)return;if
 $("sel").onchange=async function(){ATUAL=this.value||null;ABERTO=null;if(ATUAL)await midiaDe(ATUAL);render();};
 $("busca").oninput=function(){Q=this.value.trim();render();};
 document.querySelectorAll(".seg button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===VISTA?"true":"false");b.onclick=function(){VISTA=b.dataset.v;try{localStorage.setItem("arquivo-vista",VISTA);}catch(e){}document.querySelectorAll(".seg button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});render();};});
-(async function(){locais();await idxFotos();FOT.idx.forEach(function(x){if(!L[iso(x.data)])L[iso(x.data)]&&0;});enche();await nuvem();enche();})();
+(async function(){locais();await idxFotos();enche();await nuvem();enche();})();
+/* um leilão encerrado enquanto o Arquivo estava aberto aparece sem recarregar */
+window.addEventListener("storage",function(e){if(e.key==="leiloinga-boleta-v1"){locais();enche();}});
 </script>
 </body>
 </html>

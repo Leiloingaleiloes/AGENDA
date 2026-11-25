@@ -346,6 +346,7 @@ const PUBLICO = document.documentElement.classList.contains('publico');
 function ir(rota, semHash){
   let [id, sub] = String(rota || '').split('-');
   if (PUBLICO){ id = 'inicio'; sub = null; semHash = true; }
+  if (id === 'vendedores') id = 'fichas';   /* link antigo */
   if (!BY[id]) id = 'inicio';
   const a = BY[id];
   if (a.sub){ sub = (a.sub.find(x => x.h === sub) || a.sub.find(x => x.h === subAtual[id]) || a.sub[0]).h; subAtual[id] = sub; } else sub = null;
@@ -385,7 +386,7 @@ nav.addEventListener('click', e => {
 window.addEventListener('hashchange', () => ir(location.hash.slice(1), true));
 /* a boleta avisa quando troca de aba por conta própria */
 window.addEventListener('message', e => {
-  if (e.origin === location.origin && e.data && e.data.fichasView){ const alvo = e.data.fichasView === 'vend' ? 'vendedores' : 'fichas'; if (BY[atual] && BY[atual].frame === 'fichas' && atual !== alvo) ir(alvo); return; }
+  if (e.origin === location.origin && e.data && e.data.fichasView){ return; }  /* Vendedores é uma aba dentro do Lotes ADM: o painel continua em Lotes · ADM */
   if (e.origin === location.origin && e.data && e.data.irPara) { ir(e.data.irPara); return; }
   if (e.origin !== location.origin || !e.data || !e.data.boletaTab) return;
   const t = e.data.boletaTab, alvo = t === 'rel' ? 'pos' : t === 'com' ? 'comissao' : t === 'cmp' ? 'comparar' : 'boleta-' + t;
