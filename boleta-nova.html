@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8"><script src="trava.js?v=2"></script>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Conferência Boleta · Leiloingá</title>
 <link rel="manifest" href="icones/manifest-boleta.json">
@@ -298,6 +298,10 @@ body.teste .pbar{background:#f08c00!important}
 .encl{margin:8px 0 14px;padding-left:20px;line-height:1.5}
 .bt.iniciar{min-height:60px;font-size:1.15rem;padding:0 26px}
 .inic{border:2px solid var(--v)}
+html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{touch-action:manipulation;overflow-x:hidden}
+button,a,select,label{touch-action:manipulation}
+@media (pointer:coarse){input,select,textarea{font-size:16px}}
 </style></head><body>
 <div class="top"><a href="./">◀ Painel</a><b>BOLETA</b><span id="pos"></span></div>
 <div id="nuvemSt" style="text-align:center;font-size:.75rem;color:var(--mut);padding:4px 0 0"></div>
@@ -310,7 +314,7 @@ body.teste .pbar{background:#f08c00!important}
 <div class="tot"><div class="tv">Vendidos<b id="nv">0</b><span id="cv"></span></div><div class="tr">Retorno<b id="nr">0</b><span id="cr"></span></div><div>Faltam<b id="nf">0</b><span id="cf"></span></div></div>
 <main id="main"></main>
 <nav class="tabs"><button data-t="ini" aria-pressed="true">Início</button><button data-t="pista" aria-pressed="false">Pista</button><button data-t="V" aria-pressed="false">Vendidos</button><button data-t="R" aria-pressed="false">Retorno</button><button data-t="rel" aria-pressed="false">Pós-leilão</button></nav>
-<input type="file" id="arq" accept=".json,.txt,.csv,application/json,text/plain" hidden><input type="file" id="arqPdf" accept="application/pdf,.pdf" hidden>
+<input type="file" id="arq" accept=".json,.txt,.csv,application/json,text/plain" hidden><input type="file" id="arqPdf" accept="application/pdf,.pdf" hidden><input type="file" id="arqPdfB" accept="application/pdf,.pdf" hidden>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
 <script>
 /* leitor de PDF (o mesmo do Lotes · ADM e do Relatório), isolado aqui para o botão "Anexar PDF" do Pós-leilão */
@@ -935,6 +939,7 @@ function inicio(m){var a=agDo(S)||S,src=bannerDe(a),ct=contas(),cV=ct.V.length,c
     '<div class="dois"><div><label class="lb" for="iData">Data</label><input id="iData" type="date" value="'+esc(S.data||"")+'"></div><div><label class="lb" for="iCid">Cidade</label><input id="iCid" value="'+esc(S.cidade||cidadeDe(S))+'"></div></div>'+
     '<div class="prog"><div><b>'+cV+'</b> vendidos</div><div><b>'+cR+'</b> retorno</div><div><b>'+fal+'</b> faltam</div><div><b>'+L.length+'</b> lotes</div><i style="width:'+pr+'%"></i></div>'+
     '<div class="ab"><button class="bt pri iniciar" type="button" id="iPista">'+(!L.length?'Ainda sem lotes · lance no Lotes ADM':fal===L.length?'▶ Iniciar leilão':fal?'▶ Continuar leilão':'Ver pós-leilão ▶')+'</button><button class="bt" type="button" id="iLotes">↻ Atualizar lotes</button></div></div></div>'+
+   (S.fase==="teste"?'':'<div class="card2"><h3>Boleta em PDF</h3><p>Quando outra pessoa fez a boleta: anexe o PDF e os lances, vendidos e retornos entram neste leilão. Se o modelo do PDF ainda não for conhecido, ele fica guardado para ensinarmos o sistema a ler.</p><div class="ab"><button class="bt pri" type="button" id="iPdfB">📄 Anexar PDF da boleta</button></div><div class="msg" id="iPdfMsg"></div></div>')+
    '<div class="card2"><h3>Pisteiros deste leilão</h3><p>Aparecem como botões na pista. Toque no × para tirar.</p><div class="chips" id="iQ">'+quem().map(function(n,i){return '<span class="chip">'+esc(n)+'<button type="button" data-rq="'+i+'" aria-label="Tirar '+esc(n)+'">×</button></span>'}).join("")+'</div>'+
     '<div class="addq"><input id="iQn" placeholder="Nome do pisteiro" autocomplete="off"><button class="bt" type="button" id="iQa">Adicionar</button></div>'+
     '<label class="chk"><input type="checkbox" id="iQp"> Usar estes pisteiros nos próximos leilões</label></div>'+
@@ -952,7 +957,7 @@ function inicio(m){var a=agDo(S)||S,src=bannerDe(a),ct=contas(),cV=ct.V.length,c
   $("iQp").onchange=function(){if(this.checked)padraoQ()};
   m.querySelectorAll("[data-rq]").forEach(function(b){b.onclick=function(){S.quem=quem().slice();S.quem.splice(+b.dataset.rq,1);salva();render()}});
   $("iCanc").onclick=function(){$("bCancel").click()};
-  if($("iPdf"))$("iPdf").onclick=exportarPdf;if($("iEnc"))$("iEnc").onclick=encerrarLeilao;if($("iTesteX"))$("iTesteX").onclick=apagaTeste;
+  if($("iPdf"))$("iPdf").onclick=exportarPdf;if($("iPdfB"))$("iPdfB").onclick=function(){$("arqPdfB").click()};if($("iEnc"))$("iEnc").onclick=encerrarLeilao;if($("iTesteX"))$("iTesteX").onclick=apagaTeste;
   var lb=$("iLimpa");lb.onclick=function(){if(!arm){arm=true;lb.textContent="Toque de novo para limpar tudo";setTimeout(function(){arm=false;if(tab==="ini")render()},4000);return}S.st={};S.la={};S.qm={};S.doa={};S.cp={};S.cur=0;arm=false;salva();render();msg("Marcações e lances apagados.","bom")};
 }
 function hojeIso(){var h=new Date();return h.getFullYear()+"-"+z(h.getMonth()+1)+"-"+z(h.getDate())}
@@ -1126,6 +1131,28 @@ async function anexarPdf(f){if(!ehPos()){tab="rel";marcaTab()}
     msg(lotes.length+" lotes lidos da ordem de entrada. Agora é só marcar a situação e digitar os lances na tabela.","bom");
   }catch(e){console.error(e);msg(/password/i.test(e&&e.message||"")?"Esse PDF tem senha. Gere de novo sem senha.":"Não consegui abrir esse PDF ("+(e&&e.message||e)+").","err")}
 }
+
+/* ---------- PDF da boleta feita por outra pessoa → preenche a boleta do leilão atual ---------- */
+function b64Bytes(buf){var u=new Uint8Array(buf),s="",i;for(i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)}
+async function pdfNaBoletaAtual(f){
+  var box=$("iPdfMsg")||{};function diz(t,c){box.textContent=t;box.className="msg"+(c?" "+c:"");msg(t,c==="err"?"err":"bom")}
+  if(!S||S.fase==="pos"||S.fase==="teste"){diz("Abra primeiro a boleta do leilão (Iniciar leilão).","err");return}
+  diz("Lendo o PDF…");
+  try{
+    var r=await LEPDF.lerPdf(f),kw=r.meta&&r.meta.info&&r.meta.info.Keywords||"",fonte=null;
+    if(/^LEILOINGA-BOLETA:/.test(kw)){var x=JSON.parse(b64dec(kw.slice(17)));fonte={L:x.L||[],st:x.st||{},la:x.la||{},qm:x.qm||{},cp:x.cp||{},doa:x.doa||{}}}
+    else{var tb=tabelaBoleta(r.linhas||[]);if(tb.L.length)fonte=tb}
+    if(fonte&&fonte.L.length){
+      var j=juntaNaSessao(S,fonte,true);L=S.L;salva();render();
+      var b2=$("iPdfMsg");if(b2){b2.textContent="PDF lido: "+j.mud+" informações entraram nesta boleta"+(j.novos?" ("+j.novos+" lotes que não estavam aqui)":"")+". Confira em Vendidos e Retorno.";b2.className="msg bom"}
+      msg("PDF da boleta lido e juntado a "+titulo(S)+".","bom");return}
+    /* modelo desconhecido: guarda o PDF e o texto lido para ensinar o sistema a ler esse modelo */
+    var nome=S.id+"-"+Date.now().toString(36)+".pdf",txt=(r.linhas||[]).join("\n");
+    if(GH.token){try{await gravar("boletas-pdf/"+nome,b64Bytes(await f.arrayBuffer()),"PDF de boleta para ler: "+titulo(S));await gravar("boletas-pdf/"+nome.replace(/\.pdf$/,".txt"),b64enc(txt+"\n"),"Texto do PDF de boleta: "+titulo(S))}catch(e){}}
+    diz("Ainda não conheço esse modelo de PDF"+(GH.token?". Ele ficou guardado na nuvem (boletas-pdf). Peça ao Claude: “lê o PDF da boleta de "+dataBR(S.data)+"” e eu ensino o sistema a ler esse modelo.":". Conecte o aparelho à nuvem para guardar o PDF, ou mande o arquivo ao Claude no chat."),"err");
+  }catch(e){console.error(e);diz(/password/i.test(e&&e.message||"")?"Esse PDF tem senha. Gere de novo sem senha.":"Não consegui abrir esse PDF ("+(e&&e.message||e)+").","err")}
+}
+$("arqPdfB").addEventListener("change",function(e){var f=e.target.files[0];e.target.value="";if(f)pdfNaBoletaAtual(f)});
 $("arqPdf").addEventListener("change",function(e){var f=e.target.files[0];e.target.value="";if(f)anexarPdf(f)});
 window.addEventListener("storage",function(e){if(e.key==="fichas-lotes-v1"||e.key==="fichas-teste-v1"||e.key==="fichas-modo"){if(e.key!=="fichas-teste-v1")carregaProx().then(function(){if(tab==="ini")render()});garanteSessaoAdm(true).then(function(){sincLotes(false)})}});
 document.addEventListener("visibilitychange",function(){if(!document.hidden)garanteSessaoAdm(true).then(function(){if(S)sincLotes(false)})});
