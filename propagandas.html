@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><script src="trava.js?v=2"></script>
 <meta name="color-scheme" content="light only">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2E6A3E">
 <title>Propagandas · Leiloingá</title>
@@ -112,6 +112,10 @@ h1 span { color: var(--accent); }
 .vis-acts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 12px max(14px, env(safe-area-inset-bottom)); }
 .vis-acts a, .vis-acts button { text-align: center; text-decoration: none; padding: 12px 6px; border-radius: 9px; border: 0; background: #fff; color: #111; font-weight: 700; font-size: .92rem; cursor: pointer; }
 .vis-acts .alt { background: rgba(255,255,255,.14); color: #fff; }
+/* celular: tela parada (sem dançar para os lados, sem efeito mola, sem zoom ao tocar nos campos) */
+html,body{overflow-x:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{touch-action:manipulation}
+@media (pointer:coarse){input,select,textarea{font-size:16px}}
 </style>
 </head>
 <body>
