@@ -33,11 +33,11 @@ body{margin:0;background:var(--bg);color:var(--fg);font:14.5px/1.5 var(--f-body)
 button{font:inherit;color:inherit}a{color:inherit}
 :focus-visible{outline:3px solid var(--green-2);outline-offset:2px}
 
-.app{display:grid;grid-template-columns:var(--side) minmax(0,1fr);height:100dvh;transition:grid-template-columns .25s ease}
+.app{display:grid;grid-template-columns:var(--side) minmax(0,1fr);height:100svh;transition:grid-template-columns .25s ease}
 .app.mini{--side:76px}
 
 /* ---------- menu lateral ---------- */
-.side{background:var(--ink);color:var(--on-ink);display:flex;flex-direction:column;height:100dvh;overflow:hidden;padding-top:env(safe-area-inset-top,0px);position:relative}
+.side{background:var(--ink);color:var(--on-ink);display:flex;flex-direction:column;height:100svh;overflow:hidden;padding-top:env(safe-area-inset-top,0px);position:relative}
 .side::after{content:"";position:absolute;inset:auto 0 0 0;height:180px;background:radial-gradient(120% 100% at 0% 100%,rgba(36,181,59,.16),transparent 70%);pointer-events:none}
 .brand{height:76px;display:flex;align-items:center;padding:0 18px;flex:none}
 .brand img{height:36px;width:auto;max-width:180px;object-fit:contain}
@@ -70,7 +70,7 @@ button{font:inherit;color:inherit}a{color:inherit}
 .sidefoot .it{color:var(--on-ink-2)}
 
 /* ---------- área principal ---------- */
-.main{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.main{display:flex;flex-direction:column;height:100svh;overflow:hidden}
 .top{height:var(--top);flex:none;display:flex;align-items:center;gap:12px;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--line);margin-top:env(safe-area-inset-top,0px)}
 .ttl{flex:1;min-width:0;line-height:1.15}
 .ttl b{display:block;font:600 21px var(--f-display);letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -206,7 +206,7 @@ html.publico .app{grid-template-columns:minmax(0,1fr)}
 html.publico .side,html.publico .scrim,html.publico #burger,html.publico #newtab,html.publico #reload{display:none!important}
 .voltacat{display:none}
 html.publico .voltacat{display:inline-flex;align-items:center;gap:6px;text-decoration:none;white-space:nowrap}
-html,body{overscroll-behavior:none}
+html,body{overscroll-behavior:none;overflow-x:hidden}
 body{touch-action:manipulation}
 </style>
 </head>
