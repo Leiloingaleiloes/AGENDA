@@ -310,6 +310,7 @@ button,a,select,label{touch-action:manipulation}
 /* celular: o Início do leilão em uma coluna, sem passar da tela */
 .ini>*{min-width:0}.capa .ci>*{min-width:0}.ab{flex-wrap:wrap}
 @media (max-width:640px){.ini .bt{max-width:100%;white-space:normal;text-align:center}.capa{grid-template-columns:minmax(0,1fr);gap:12px;padding:12px}.capa .ca img{max-height:34vh;object-fit:cover}.ini{padding:10px}.ab .bt{flex:1 1 auto}}
+.capa .ca img[src*="i.ytimg.com"]{aspect-ratio:16/9;object-fit:cover}
 </style></head><body>
 <div class="top"><a href="./">◀ Painel</a><b>BOLETA</b><span id="pos"></span></div>
 <div id="nuvemSt" style="text-align:center;font-size:.75rem;color:var(--mut);padding:4px 0 0"></div>
@@ -1420,9 +1421,13 @@ function lista(m,k){
 function ytId(u){var m=/[?&]v=([\w-]{11})|youtu\.be\/([\w-]{11})/.exec(u||"");return m?(m[1]||m[2]):""}
 function quando(x){var p=(x.data||"").split("-");if(p.length<3)return "";var dt=new Date(+p[0],p[1]-1,+p[2]);return SEM[dt.getDay()]+", "+p[2]+"/"+p[1]+(x.hora?" · "+x.hora.replace(":","h"):"")}
 function falta(x){var p=x.data.split("-"),dt=new Date(+p[0],p[1]-1,+p[2]),h=new Date();h.setHours(0,0,0,0);var n=Math.round((dt-h)/864e5);return n<=0?"É hoje":n===1?"É amanhã":"Faltam "+n+" dias"}
-function bannerDe(x){var id=x.yt||ytId(x.youtube);if(id)return ["https://i.ytimg.com/vi/"+id+"/maxresdefault.jpg","https://i.ytimg.com/vi/"+id+"/hqdefault.jpg"];  /* capa do YouTube (16:9) quando a transmissão já está marcada */
+function bannerDe(x){var id=x.yt||ytId(x.youtube);if(id)return ["https://i.ytimg.com/vi/"+id+"/sddefault.jpg","https://i.ytimg.com/vi/"+id+"/hqdefault.jpg"];  /* capa do YouTube (16:9) quando a transmissão já está marcada */
   if(x.bannerLocal&&!x.bannerGenerico)return [x.bannerLocal];return x.bannerLocal?[x.bannerLocal]:x.banner?[x.banner]:[]}
-function imgTag(src){if(!src.length)return "";return '<img src="'+esc(src[0])+'" alt="Banner do leilão"'+(src[1]?' onerror="this.onerror=null;this.src=\''+esc(src[1])+'\'"':'')+'>'}
+/* capa do YouTube: começa pela de 640px e troca pela grande (1280px) só se ela existir de verdade
+   (quando não existe, o YouTube devolve uma imagem cinza pequena de 120px) */
+function capaGrande(){document.querySelectorAll('img[src*="i.ytimg.com/vi/"][src*="/sddefault.jpg"]').forEach(function(im){if(im.dataset.hd)return;im.dataset.hd="1";
+  var g=new Image(),u=im.src.replace("/sddefault.jpg","/maxresdefault.jpg");g.onload=function(){if(g.naturalWidth>200)im.src=u};g.src=u})}
+function imgTag(src){if(!src.length)return "";if(/i\.ytimg\.com/.test(src[0]))setTimeout(capaGrande,50);return '<img src="'+esc(src[0])+'" alt="Banner do leilão"'+(src[1]?' onerror="this.onerror=null;this.src=\''+esc(src[1])+'\'"':'')+'>'}
 function sessaoDoProx(){if(!PROX)return null;for(var k in DB.sess){if(DB.sess[k].data===PROX.data)return DB.sess[k]}return null}
 function agDo(s){if(!s||!s.data)return null;for(var i=0;i<AG.length;i++)if(AG[i].data===s.data)return AG[i];return null}
 function heroi(){
