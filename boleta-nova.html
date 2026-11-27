@@ -311,7 +311,8 @@ button,a,select,label{touch-action:manipulation}
 .ini>*{min-width:0}.capa .ci>*{min-width:0}.ab{flex-wrap:wrap}
 @media (max-width:640px){.ini .bt{max-width:100%;white-space:normal;text-align:center}.capa{grid-template-columns:minmax(0,1fr);gap:12px;padding:12px}.capa .ca img{max-height:34vh;object-fit:cover}.ini{padding:10px}.ab .bt{flex:1 1 auto}}
 .capa .ca img[src*="i.ytimg.com"]{aspect-ratio:16/9;object-fit:cover}
-</style></head><body>
+</style><link rel="stylesheet" href="graficos.css?v=1">
+</head><body>
 <div class="top"><a href="./">◀ Painel</a><b>BOLETA</b><span id="pos"></span></div>
 <div id="nuvemSt" style="text-align:center;font-size:.75rem;color:var(--mut);padding:4px 0 0"></div>
 <div class="sel"><select id="leilao" aria-label="Leilão"></select><button id="bNovo" type="button">+ Novo</button></div>
@@ -516,6 +517,8 @@ return {lerPdf:lerPdf,loteN:loteN};
 </script>
 <script src="vendor/jspdf/jspdf.umd.min.js"></script>
 <script src="vendor/jspdf/jspdf.plugin.autotable.min.js"></script>
+<script src="graficos-dados.js?v=1"></script>
+<script src="graficos.js?v=1"></script>
 <script>
 /* Conferência Boleta: marca na pista vendido/retorno, lance e corretor de cada lote.
    Cada leilão fica salvo neste aparelho; "Salvar no GitHub" grava boletas/<id>.json e boletas/<id>.pdf
@@ -859,7 +862,15 @@ function comissao(m){$("pos").textContent="";var c=com(),K=calc(),cs=Object.keys
 
 /* ---------- relatório pós-leilão (linhas horizontais, para o computador) ---------- */
 function situ(x){var s=S.st[x.l];return s==="V"?(S.doa[x.l]?"D":"V"):s==="R"?"R":"F"}
-function relatorio(m){$("pos").textContent="";var c=com(),K=calc(),pT=K.pc+K.pv,ct=contas();
+/* Tabela ou Gráficos: os cartões são criados uma vez só e reencaixados a cada redesenho, para a animação não repetir */
+var GRF={ver:"tabela",rel:null,racas:null,pediu:false};
+function temGraficos(){return !!(window.Graficos&&window.GraficosDados)}
+/* brancos e cruzados escolhidos no Relatório por categoria (deste aparelho e do ADM) */
+function racasSalvas(){var o={};try{o=JSON.parse(localStorage.getItem("leiloinga-relatorio-racas")||"{}")||{}}catch(e){}return Object.assign({},o,GRF.racas||{})}
+async function puxaRacas(){if(GRF.pediu||!GH.token)return;GRF.pediu=true;
+  try{var j=await ler("racas.json");if(!j)return;GRF.racas=JSON.parse(b64dec(j.content)).racas||{};if(tab==="rel")graficosRel()}catch(e){GRF.pediu=false}}
+function graficosRel(){var cx=$("rGfx");if(!cx||!S)return;if(!GRF.rel)GRF.rel=Graficos.criar("rel");if(GRF.rel.no.parentNode!==cx)cx.appendChild(GRF.rel.no);GRF.rel.atualizar(GraficosDados.registros(S,racasSalvas()));puxaRacas()}
+function relatorio(m){$("pos").textContent="";var graf=GRF.ver==="graficos"&&temGraficos(),c=com(),K=calc(),pT=K.pc+K.pv,ct=contas();
   var st0=RF.sc;
   var cont={todos:L.length,V:0,D:0,R:0,F:0};L.forEach(function(x){cont[situ(x)]++});
   var q=RF.q.trim().toLowerCase();
@@ -887,14 +898,25 @@ function relatorio(m){$("pos").textContent="";var c=com(),K=calc(),pT=K.pc+K.pv,
     '<div>Doações<b>'+brl(K.doa)+'</b><small>'+K.nDoa+' lote(s) · sem comissão</small></div>'+
     '<div>Compradores<b>'+Object.keys(L.reduce(function(o,x){var c=(S.cp||{})[x.l];if(c&&S.st[x.l]==="V")o[c]=1;return o},{})).length+'</b><small>'+L.filter(function(x){return S.st[x.l]==="V"&&!(S.cp||{})[x.l]}).length+' vendidos sem comprador</small></div>'+
    '</div>'+
+   (temGraficos()?'<div class="modo" role="group" aria-label="Ver como"><button type="button" data-ver="tabela" aria-pressed="'+!graf+'">📋 Tabela</button><button type="button" data-ver="graficos" aria-pressed="'+graf+'">📊 Gráficos</button></div>':'')+
+   (graf?'<div id="rGfx"></div></div>':
    '<div class="flt">'+F.map(function(f){return '<button type="button" data-f="'+f[0]+'" aria-pressed="'+(RF.f===f[0])+'">'+f[1]+' · '+(f[0]==="V"?cont.V+cont.D:cont[f[0]])+'</button>'}).join("")+'<span class="ordb" role="group" aria-label="Ordenar"><button type="button" data-ord="lote" aria-pressed="'+(RF.ord==="lote")+'">Nº do lote</button><button type="button" data-ord="entrada" aria-pressed="'+(RF.ord!=="lote")+'">Ordem de entrada</button></span><span class="rolar"><button type="button" data-rol="-1" aria-label="Rolar a tabela para a esquerda" title="Ver colunas da esquerda">◀</button><button type="button" data-rol="1" aria-label="Rolar a tabela para a direita" title="Ver colunas da direita">▶</button></span><input id="rQ" type="search" placeholder="Buscar lote, vendedor, comprador…" value="'+esc(RF.q)+'"></div>'+
    '<div class="tw"><table class="rt"><thead><tr><th>Lote</th><th class="n">Qtde</th><th>Raça · idade</th><th class="n">Peso</th><th>Vendedor</th><th>Situação</th><th class="n">Lance</th><th class="n">Valor do lote</th><th class="n">R$/kg</th><th class="c">Doação</th><th>Comprador</th><th>Pisteiro</th></tr></thead>'+
    '<tbody>'+(linhas.join("")||'<tr><td colspan="12" style="text-align:center;color:var(--mut);padding:20px">Nenhum lote neste filtro.</td></tr>')+'</tbody>'+
-   '<tfoot><tr><td>'+ls.length+' lotes</td><td class="n">'+tq+'</td><td colspan="5">'+tcab+' cab. vendidas</td><td class="n">'+brl(tv)+'</td><td colspan="4"></td></tr></tfoot></table></div><datalist id="cpL">'+compradores().map(function(n){return '<option value="'+esc(n)+'">'}).join("")+'</datalist></div>';
-  if(st0){var sc2=m.querySelector(".tw");sc2.scrollTop=st0[0];sc2.scrollLeft=st0[1];window.scrollTo(0,st0[2])}
-  var tw=m.querySelector(".tw");
-  tw.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-foto]");if(b){e.preventDefault();verFoto(+b.dataset.foto,0)}});
+   '<tfoot><tr><td>'+ls.length+' lotes</td><td class="n">'+tq+'</td><td colspan="5">'+tcab+' cab. vendidas</td><td class="n">'+brl(tv)+'</td><td colspan="4"></td></tr></tfoot></table></div><datalist id="cpL">'+compradores().map(function(n){return '<option value="'+esc(n)+'">'}).join("")+'</datalist></div>');
+  m.querySelectorAll("[data-ver]").forEach(function(b){b.onclick=function(){GRF.ver=b.dataset.ver;RF.sc=null;RF.gy=null;var y=window.scrollY;render();window.scrollTo(0,y)}});
   if(!FOTOS.dia||FOTOS.dia!==S.data)carregaFotos(S.data);
+  if(graf){graficosRel();if(RF.gy!=null)window.scrollTo(0,RF.gy)}else ligaTabela(m,st0);
+  if($("rCom"))$("rCom").onclick=function(){tab="com";marcaTab();render()};
+  if($("rSinc"))$("rSinc").onclick=function(){sincLotes(true)};$("rAnexa").onclick=function(){$("arqPdf").click()};
+  $("rPdf").onclick=exportarPdf;$("rGh").onclick=function(){salvarGh(this)};
+  $("rCopy").onclick=function(){copiaTxt(resumoTxt(),"Resumo copiado. Cole no WhatsApp.")};
+  $("rCsv").onclick=baixaCsv;
+}
+function ligaTabela(m,st0){
+  var tw=m.querySelector(".tw");
+  if(st0){tw.scrollTop=st0[0];tw.scrollLeft=st0[1];window.scrollTo(0,st0[2])}
+  tw.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-foto]");if(b){e.preventDefault();verFoto(+b.dataset.foto,0)}});
   tw.addEventListener("change",function(e){var t=e.target,l;
     if(t.dataset.st){l=+t.dataset.st;if(t.value)S.st[l]=t.value;else delete S.st[l];if(t.value!=="V")delete S.doa[l]}
     else if(t.dataset.doa){l=+t.dataset.doa;if(t.checked)S.doa[l]=true;else delete S.doa[l]}
@@ -908,11 +930,6 @@ function relatorio(m){$("pos").textContent="";var c=com(),K=calc(),pT=K.pc+K.pv,
   m.querySelectorAll("[data-rol]").forEach(function(b){b.onclick=function(){var t=m.querySelector(".tw");t.scrollBy({left:+b.dataset.rol*Math.max(300,t.clientWidth*.6),behavior:"smooth"})}});
   m.querySelectorAll(".flt [data-ord]").forEach(function(b){b.onclick=function(){RF.ord=b.dataset.ord;try{localStorage.setItem("boleta-ord",RF.ord)}catch(e){}if(RF.sc)RF.sc[0]=0;render()}});
   var qi=$("rQ");qi.oninput=function(){RF.q=qi.value;render();var n=$("rQ");n.focus();n.setSelectionRange(n.value.length,n.value.length)};
-  if($("rCom"))$("rCom").onclick=function(){tab="com";marcaTab();render()};
-  if($("rSinc"))$("rSinc").onclick=function(){sincLotes(true)};$("rAnexa").onclick=function(){$("arqPdf").click()};
-  $("rPdf").onclick=exportarPdf;$("rGh").onclick=function(){salvarGh(this)};
-  $("rCopy").onclick=function(){copiaTxt(resumoTxt(),"Resumo copiado. Cole no WhatsApp.")};
-  $("rCsv").onclick=baixaCsv;
 }
 function resumoTxt(){var c=com(),K=calc(),ct=contas(),t=[];
   t.push("*Pós-leilão · "+titulo(S)+"*");
@@ -1347,7 +1364,7 @@ async function puxaNuvem(){
   try{var pp=caminhoR(S),at=await ler(pp);if(!at){if(S.alterado)agendaNuvem();else nvTxt("☁ Conectado","var(--v)");return}
     NV.sha[pp]=at.sha;var r=JSON.parse(b64dec(at.content));
     if(S.fase!=="pos"&&r.encerrado){var idE=r.id;delete DB.sess[idE];if(!DB.pos[idE]){r.fase="pos";r.aoVivo=false;DB.pos[idE]=r}DB.atual=null;S=null;L=[];salvaLocal();montaSel();render();msg("Este leilão foi encerrado em outro aparelho. Ele está no Pós-leilão.","bom");return}
-    if((r.alterado||"")>(S.alterado||"")&&!NV.pend){var cur=S.cur;if(S.fase==="pos"){r.fase="pos";DB.pos[r.id]=r}else DB.sess[r.id]=r;S=r;L=r.L;if(tab==="pista"&&!pend)S.cur=r.cur;salvaLocal();montaSel();var ae=document.activeElement;if(!ae||(ae.id!=="lance"&&!(ae.closest&&ae.closest(".tw,.cmw"))))render()}
+    if((r.alterado||"")>(S.alterado||"")&&!NV.pend){var cur=S.cur;if(S.fase==="pos"){r.fase="pos";DB.pos[r.id]=r}else DB.sess[r.id]=r;S=r;L=r.L;if(tab==="pista"&&!pend)S.cur=r.cur;salvaLocal();montaSel();var ae=document.activeElement;if(!ae||(ae.id!=="lance"&&!(ae.closest&&ae.closest(".tw,.cmw,.gfx"))))render()}
     else if((S.alterado||"")>(r.alterado||""))agendaNuvem();
     if(!NV.pend)nvTxt("☁ Salvo na nuvem · aparece nos outros aparelhos","var(--v)")}
   catch(e){nvTxt("Sem internet agora","var(--r)")}}
@@ -1363,7 +1380,7 @@ document.addEventListener("visibilitychange",function(){if(document.visibilitySt
 function proximo(de){for(var i=de;i<L.length;i++)if(!S.st[L[i].l])return i;for(i=0;i<L.length;i++)if(!S.st[L[i].l])return i;return -1}
 function totais(){var c={V:[0,0],R:[0,0],F:[0,0]};L.forEach(function(x){var k=(S&&S.st[x.l])||"F";c[k][0]++;c[k][1]+=x.q});
 ["V","R","F"].forEach(function(k){var id={V:"v",R:"r",F:"f"}[k];$("n"+id).textContent=c[k][0];$("c"+id).textContent=c[k][1]+" cab."})}
-function render(){ativar();if(!document.body.dataset.aba)setTimeout(montaSel,0);if(document.body.dataset.aba&&ehPos(document.body.dataset.aba)!==ehPos()){setTimeout(montaSel,0);if(!ehPos())setTimeout(function(){garanteSessaoAdm(true).then(function(){if(S&&!ehPos())sincLotes(false)})},50)}document.body.dataset.aba=tab;document.body.classList.toggle("teste",!!(S&&S.fase==="teste"));var tw0=document.querySelector(".tw");RF.sc=tw0&&tab==="rel"?[tw0.scrollTop,tw0.scrollLeft,window.scrollY]:null;heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
+function render(){ativar();if(!document.body.dataset.aba)setTimeout(montaSel,0);if(document.body.dataset.aba&&ehPos(document.body.dataset.aba)!==ehPos()){setTimeout(montaSel,0);if(!ehPos())setTimeout(function(){garanteSessaoAdm(true).then(function(){if(S&&!ehPos())sincLotes(false)})},50)}document.body.dataset.aba=tab;document.body.classList.toggle("teste",!!(S&&S.fase==="teste"));var tw0=document.querySelector(".tw");RF.sc=tw0&&tab==="rel"?[tw0.scrollTop,tw0.scrollLeft,window.scrollY]:null;RF.gy=tab==="rel"&&document.getElementById("rGfx")?window.scrollY:null;heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
   if(tab==="cmp"){document.body.classList.add("largo");$("pos").textContent="";comparar(m);return}
   if(!S){document.body.classList.remove("largo");$("pos").textContent="";if(tab==="rel"||tab==="com"){m.innerHTML='<div class="vazio"><b>Escolha o leilão</b>Na lista acima estão os leilões encerrados e o leilão de hoje (ao vivo, atualizado a cada 5 lotes).<div style="margin-top:12px"><button class="bt" type="button" id="vAnexa">📄 Anexar PDF do leilão</button></div></div>';if($("vAnexa"))$("vAnexa").onclick=function(){$("arqPdf").click()};return}
     if(tab!=="ini"){m.innerHTML='<div class="vazio"><b>Nenhum leilão aberto</b>Comece ou escolha um leilão no <a href="#ini">Início do leilão</a>.'+(tab==="rel"?'<div style="margin-top:12px"><button class="bt pri" type="button" id="vAnexa">📄 Anexar PDF do leilão</button><p style="margin:8px 0 0;font-size:.85rem">A ordem de entrada do sistema ou o PDF da boleta.</p></div>':'')+'</div>';if($("vAnexa"))$("vAnexa").onclick=function(){$("arqPdf").click()};return}iniVazio(m);return}
