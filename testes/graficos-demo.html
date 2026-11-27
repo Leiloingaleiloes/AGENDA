@@ -1,0 +1,14 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demonstração dos gráficos (dados inventados)</title><link rel="stylesheet" href="../graficos.css">
+<style>body{margin:0;padding:10px;font-family:system-ui,sans-serif;background:#f4f6f3;color:#0E1410}</style></head><body>
+<script src="../graficos-dados.js"></script><script src="../graficos.js"></script>
+<script>
+/* tudo aqui é inventado */
+var q=new URLSearchParams(location.search),ctx=q.get('ctx')||'rel',n=+(q.get('leiloes')||(ctx==='cmp'?3:1));
+function leilao(k){var d=new Date(Date.UTC(2020,k,10)).toISOString().slice(0,10),s={id:'demo'+k,data:d,L:[],st:{},la:{},cp:{},qm:{}};
+  for(var i=1;i<=30;i++){s.L.push({l:i,o:i,q:5+i%7,s:i%2?'M':'F',r:['NELORE','½ ANGUS','ANGUS'][i%3],i:['06/12 M','12/15 M','18/24 M'][i%3],p:180+i*5,v:'Fazenda Exemplo de Nome Bem Comprido '+(i%14)});
+    s.st[i]=i%10===0?'R':'V';s.la[i]=800+i*9+k*20;s.qm[i]=i%2?'Pessoa A':'Pessoa B';}
+  return s;}
+window.REGS=[];for(var k=0;k<n;k++)window.REGS=window.REGS.concat(GraficosDados.registros(leilao(k),{}));
+window.G=Graficos.criar(ctx);document.body.appendChild(G.no);G.atualizar(window.REGS);
+</script></body></html>

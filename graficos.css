@@ -1,0 +1,51 @@
+/* Gráficos comparativos */
+.gfx{--gl:var(--line,#dde3dc);--gc:var(--card,#fff);--gm:var(--mut,#667066);padding:4px 0 90px;min-width:0}
+.gfx [hidden]{display:none!important}
+.gfx button,.gfx select{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+.gfx-atalhos{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.gfx-atalho,.gfx-add{border:1px solid var(--gl);background:var(--gc);border-radius:99px;padding:8px 14px;font-weight:700;font-size:.85rem}
+.gfx .gfx-add{background:#14843A;border-color:#14843A;color:#fff;margin-left:auto}
+.gfx-grade{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
+@media (min-width:900px){.gfx-grade{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.gfx-card{background:var(--gc);border:1px solid var(--gl);border-radius:16px;padding:14px;min-width:0}
+.gfx-topo{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+.gfx-topo h3{flex:1;margin:0;font:600 1.05rem "Oswald",system-ui,sans-serif;text-transform:uppercase;line-height:1.25}
+.gfx-x{border:1px solid var(--gl);background:transparent;border-radius:8px;width:34px;height:34px;flex:none}
+.gfx-campos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.gfx-campo{display:flex;flex-direction:column;gap:2px;font-size:.72rem;color:var(--gm);min-width:0}
+.gfx-campo select{width:100%;min-width:0;padding:7px 8px;border:1px solid var(--gl);border-radius:8px;background:var(--gc);color:var(--txt,#0E1410);font-size:.86rem}
+.gfx-filtros{margin-top:8px;font-size:.82rem}
+.gfx-filtros summary{cursor:pointer;font-weight:700;padding:4px 0}
+.gfx-chips{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:5px 0}
+.gfx-chips>span{color:var(--gm);font-size:.74rem;width:100%}
+.gfx-chip{border:1px solid var(--gl);background:transparent;border-radius:99px;padding:5px 11px;font-size:.8rem}
+.gfx .gfx-chip[aria-pressed=true]{background:#0E1410;border-color:#0E1410;color:#fff}
+.gfx-destaque{margin:10px 0;padding:9px 12px;border-radius:10px;background:rgba(255,213,35,.22);font-weight:700;font-size:.9rem;overflow-wrap:anywhere}
+.gfx-vazio{margin:14px 0;text-align:center;color:var(--gm);font-size:.9rem}
+.gfx-aviso{margin:8px 0 0;color:var(--gm);font-size:.76rem}
+.gfx-mais{display:block;margin:10px auto 0;border:1px solid var(--gl);background:transparent;border-radius:99px;padding:6px 14px;font-size:.8rem;font-weight:700}
+
+/* barras deitadas */
+.gfx-barras .gfx-linha{margin-bottom:10px;min-width:0}
+.gfx-rotulo{font-weight:700;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gfx-barras .gfx-serie{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:center;margin-top:3px}
+.gfx-barras .gfx-sub{grid-column:1/-1;font-size:.72rem;color:var(--gm)}
+.gfx-barras .gfx-trilho{height:16px;border-radius:6px;background:rgba(125,140,125,.14);overflow:hidden}
+.gfx-barra{display:block;height:100%;border-radius:6px}
+.gfx-valor{font:600 .92rem "Oswald",system-ui,sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
+.gfx-n{grid-column:1/-1;font-size:.7rem;color:var(--gm);line-height:1.2}
+
+/* colunas: quebram de linha em vez de rolar para o lado */
+.gfx-colunas{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 8px}
+.gfx-colunas .gfx-linha{display:flex;flex-direction:column-reverse;flex:1 1 70px;min-width:0;max-width:100%}
+.gfx-colunas .gfx-rotulo{text-align:center;margin-top:5px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.gfx-colunas .gfx-series{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;gap:10px 4px}
+.gfx-colunas .gfx-serie{display:flex;flex-direction:column;align-items:center;flex:1 0 66px;min-width:0;max-width:96px}
+.gfx-colunas .gfx-trilho{order:2;display:flex;align-items:flex-end;height:170px;width:100%}
+.gfx-colunas .gfx-barra{width:100%;height:0;border-radius:6px 6px 0 0}
+.gfx-colunas .gfx-valor{order:1;font-size:.74rem;white-space:normal;text-align:center;line-height:1.15;margin-bottom:3px}
+.gfx-colunas .gfx-sub{order:3;font-size:.68rem;color:var(--gm);text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gfx-colunas .gfx-n{order:4;font-size:.66rem;text-align:center}
+
+.gfx-desfaz{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:60;display:flex;gap:14px;align-items:center;background:#0E1410;color:#fff;padding:10px 16px;border-radius:99px;font-size:.86rem;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.gfx .gfx-desfaz button{border:0;background:transparent;color:#FFD523;font-weight:700}
