@@ -19,9 +19,10 @@ def confere(nome, cond, extra=""):
     feitos += 1
     if not cond: falhas.append(f"{nome} {extra}".strip())
 
-def pagina(nav, tam="notebook", reduzir=False):
+def pagina(nav, tam="notebook", reduzir=False, escuro=False):
     w, h = TAMANHOS[tam]
-    ctx = nav.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce" if reduzir else "no-preference")
+    ctx = nav.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce" if reduzir else "no-preference",
+                          color_scheme="dark" if escuro else "light")
     # nada de internet nos testes
     ctx.route("**/*", lambda r: r.continue_() if r.request.url.startswith(BASE) else r.abort())
     p = ctx.new_page(); p.erros = []; p.set_default_timeout(4000)
@@ -118,7 +119,64 @@ def parte_cartoes(nav):
         confere(f"colunas de cartões {tam}", cols == (2 if TAMANHOS[tam][0] >= 900 else 1), str(cols))
         confere(f"sem erro {tam}", not t.erros, str(t.erros))
 
-PARTES = {"cartoes": parte_cartoes}
+def opcoes(c, campo): return c.locator(f'[data-campo="{campo}"] option').evaluate_all("o=>o.map(x=>x.value)")
+
+def parte_tipos(nav):
+    p = pagina(nav); demo(p); c = cartoes(p).first
+    campo = lambda n, v: (c.locator(f'[data-campo="{n}"]').select_option(v), parado(p))
+    confere("R$/kg só barras e colunas", opcoes(c, "tipo") == ["barras", "colunas"], str(opcoes(c, "tipo")))
+    campo("medida", "fat")
+    confere("faturamento tem rosca", "rosca" in opcoes(c, "tipo"))
+    campo("tipo", "rosca")
+    confere("rosca com 3 fatias", c.locator(".gfx-fatia").count() == 3)
+    confere("rosca mostra a parte", "%" in c.locator(".gfx-area").inner_text())
+    campo("medida", "rkg")
+    confere("volta para barras", c.locator('[data-campo="tipo"]').input_value() == "barras" and c.locator(".gfx-barra").count() == 3)
+    campo("medida", "fat"); campo("dim", "lote"); campo("tipo", "rosca")
+    confere("muitos viram 8 + Outros", c.locator(".gfx-fatia").count() == 9 and "Outros" in c.inner_text(), str(c.locator(".gfx-fatia").count()))
+    confere("rosca sem 'ver todos'", not c.locator("[data-todos]").is_visible())
+    campo("medida", "rkg"); campo("tipo", "dispersao")
+    confere("um ponto por lote vendido", c.locator(".gfx-ponto").count() == 27, str(c.locator(".gfx-ponto").count()))
+    c.locator(".gfx-alvo").nth(0).dispatch_event("click")
+    t = c.locator(".gfx-info").inner_text()
+    confere("toque mostra lote, peso e R$/kg", "Lote 01" in t and "185 kg" in t and "/kg" in t, t)
+    confere("destaque em preço e peso", "preço" in c.locator(".gfx-destaque").inner_text() and "pesado" in c.locator(".gfx-destaque").inner_text())
+    p.reload(); parado(p); c = cartoes(p).first
+    confere("tipo persiste", c.locator('[data-campo="tipo"]').input_value() == "dispersao")
+    confere("sem NaN", "NaN" not in p.locator("body").inner_text() and "NaN" not in c.inner_html())
+    confere("sem erro de JS", not p.erros, str(p.erros))
+    for tam in TAMANHOS:
+        t = pagina(nav, tam); demo(t); t.click('[data-atalho="lotes"]'); t.wait_for_timeout(100)
+        a, b = cartoes(t).first, cartoes(t).last
+        a.locator('[data-campo="medida"]').select_option("fat"); a.locator('[data-campo="dim"]').select_option("vendedor"); a.locator('[data-campo="tipo"]').select_option("rosca")
+        b.locator('[data-campo="tipo"]').select_option("dispersao"); t.wait_for_timeout(1700)
+        confere(f"rosca e dispersão sem rolagem lateral {tam}", sem_estouro(t))
+        t.screenshot(path=str(FOTOS / f"tipos-{tam}.png"), full_page=True)
+        confere(f"sem erro {tam}", not t.erros, str(t.erros))
+
+LUZ = """e=>{const m=getComputedStyle(e).color.match(/[0-9.]+/g).map(Number);return (0.299*m[0]+0.587*m[1]+0.114*m[2])/255}"""
+
+def parte_cores(nav):
+    p = pagina(nav, "celular", escuro=True); demo(p)
+    confere("escuro: texto das caixas de escolha fica claro", cartoes(p).first.locator('[data-campo="dim"]').evaluate(LUZ) > .6)
+    p.click(".gfx-filtros summary"); p.locator('[data-filtro="sexo"] button[data-v="M"]').click(); parado(p)
+    b = p.locator('[data-filtro="sexo"] button[data-v="M"]')
+    confere("escuro: filtro marcado se destaca do cartão", b.evaluate("e=>getComputedStyle(e).backgroundColor!==getComputedStyle(e.closest('.gfx-card')).backgroundColor"))
+    cor = "e=>getComputedStyle(e).backgroundColor"
+    escura = p.locator(".gfx-barra").first.evaluate(cor)
+    q = pagina(nav, "celular"); demo(q)
+    confere("barras mudam de tom no escuro", escura != q.locator(".gfx-barra").first.evaluate(cor), escura)
+    q.locator('[data-campo="dim"]').select_option("vendedor"); parado(q)
+    confere("lista sem ordem fixa usa uma cor só", len(set(q.locator(".gfx-barra").evaluate_all("l=>l.map(e=>getComputedStyle(e).backgroundColor)"))) == 1)
+    c = cartoes(p).first
+    c.locator('[data-campo="medida"]').select_option("cab"); c.locator('[data-campo="tipo"]').select_option("rosca"); parado(p)
+    p.screenshot(path=str(FOTOS / "escuro-rosca.png"), full_page=True)
+    c.locator('[data-campo="dim"]').select_option("lote"); c.locator('[data-campo="tipo"]').select_option("dispersao"); c.locator('[data-campo="sub"]').select_option("grupo"); parado(p)
+    confere("dispersão por grupo de raça tem legenda", all(x in c.locator(".gfx-legenda").inner_text() for x in ("Branco", "Cruzado", "Britânico")))
+    p.screenshot(path=str(FOTOS / "escuro-pontos.png"), full_page=True)
+    confere("sem erro no escuro", not p.erros, str(p.erros))
+
+PARTES = {"cartoes": parte_cartoes, "tipos": parte_tipos, "cores": parte_cores}
 
 if __name__ == "__main__":
     FOTOS.mkdir(parents=True, exist_ok=True)

@@ -1,6 +1,9 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Demonstração dos gráficos (dados inventados)</title><link rel="stylesheet" href="../graficos.css">
-<style>body{margin:0;padding:10px;font-family:system-ui,sans-serif;background:#f4f6f3;color:#0E1410}</style></head><body>
+<style>/* mesmas cores de fundo da Boleta, claro e escuro */
+:root{--bg:#f3f4ef;--card:#fff;--fg:#17201a;--mut:#5f6b62;--line:#d9ddd4}
+@media (prefers-color-scheme:dark){:root{--bg:#111512;--card:#1a201c;--fg:#e8ece9;--mut:#9aa69d;--line:#2f3832}}
+body{margin:0;padding:10px;font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg)}</style></head><body>
 <script src="../graficos-dados.js"></script><script src="../graficos.js"></script>
 <script>
 /* tudo aqui é inventado */
