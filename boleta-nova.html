@@ -311,7 +311,7 @@ button,a,select,label{touch-action:manipulation}
 .ini>*{min-width:0}.capa .ci>*{min-width:0}.ab{flex-wrap:wrap}
 @media (max-width:640px){.ini .bt{max-width:100%;white-space:normal;text-align:center}.capa{grid-template-columns:minmax(0,1fr);gap:12px;padding:12px}.capa .ca img{max-height:34vh;object-fit:cover}.ini{padding:10px}.ab .bt{flex:1 1 auto}}
 .capa .ca img[src*="i.ytimg.com"]{aspect-ratio:16/9;object-fit:cover}
-</style><link rel="stylesheet" href="graficos.css?v=1">
+</style><link rel="stylesheet" href="graficos.css?v=4">
 </head><body>
 <div class="top"><a href="./">◀ Painel</a><b>BOLETA</b><span id="pos"></span></div>
 <div id="nuvemSt" style="text-align:center;font-size:.75rem;color:var(--mut);padding:4px 0 0"></div>
@@ -517,8 +517,8 @@ return {lerPdf:lerPdf,loteN:loteN};
 </script>
 <script src="vendor/jspdf/jspdf.umd.min.js"></script>
 <script src="vendor/jspdf/jspdf.plugin.autotable.min.js"></script>
-<script src="graficos-dados.js?v=1"></script>
-<script src="graficos.js?v=1"></script>
+<script src="graficos-dados.js?v=4"></script>
+<script src="graficos.js?v=4"></script>
 <script>
 /* Conferência Boleta: marca na pista vendido/retorno, lance e corretor de cada lote.
    Cada leilão fica salvo neste aparelho; "Salvar no GitHub" grava boletas/<id>.json e boletas/<id>.pdf
@@ -863,13 +863,17 @@ function comissao(m){$("pos").textContent="";var c=com(),K=calc(),cs=Object.keys
 /* ---------- relatório pós-leilão (linhas horizontais, para o computador) ---------- */
 function situ(x){var s=S.st[x.l];return s==="V"?(S.doa[x.l]?"D":"V"):s==="R"?"R":"F"}
 /* Tabela ou Gráficos: os cartões são criados uma vez só e reencaixados a cada redesenho, para a animação não repetir */
-var GRF={ver:"tabela",rel:null,racas:null,pediu:false};
+var GRF={ver:"tabela",rel:null,cmp:null,lst:[],racas:null,pediu:false};
 function temGraficos(){return !!(window.Graficos&&window.GraficosDados)}
 /* brancos e cruzados escolhidos no Relatório por categoria (deste aparelho e do ADM) */
 function racasSalvas(){var o={};try{o=JSON.parse(localStorage.getItem("leiloinga-relatorio-racas")||"{}")||{}}catch(e){}return Object.assign({},o,GRF.racas||{})}
 async function puxaRacas(){if(GRF.pediu||!GH.token)return;GRF.pediu=true;
-  try{var j=await ler("racas.json");if(!j)return;GRF.racas=JSON.parse(b64dec(j.content)).racas||{};if(tab==="rel")graficosRel()}catch(e){GRF.pediu=false}}
+  try{var j=await ler("racas.json");if(!j)return;GRF.racas=JSON.parse(b64dec(j.content)).racas||{};if(tab==="rel")graficosRel();else if(tab==="cmp")graficosCmp()}catch(e){GRF.pediu=false}}
 function graficosRel(){var cx=$("rGfx");if(!cx||!S)return;if(!GRF.rel)GRF.rel=Graficos.criar("rel");if(GRF.rel.no.parentNode!==cx)cx.appendChild(GRF.rel.no);GRF.rel.atualizar(GraficosDados.registros(S,racasSalvas()));puxaRacas()}
+/* no comparar: um registro por lote vendido de todos os leilões da tela */
+function graficosCmp(){var cx=$("cGfx");if(!cx)return;if(!GRF.cmp)GRF.cmp=Graficos.criar("cmp");if(GRF.cmp.no.parentNode!==cx)cx.appendChild(GRF.cmp.no);
+  var salvas=racasSalvas(),regs=[];GRF.lst.forEach(function(o){regs=regs.concat(GraficosDados.registros(Object.assign({},o.s,{id:o.id}),salvas))});
+  GRF.cmp.atualizar(regs,GRF.lst.slice().reverse().map(function(o){return {id:o.id,rotulo:(o.s.nome||"Leilão")+" · "+dataBR(o.s.data)}}));puxaRacas()}
 function relatorio(m){$("pos").textContent="";var graf=GRF.ver==="graficos"&&temGraficos(),c=com(),K=calc(),pT=K.pc+K.pv,ct=contas();
   var st0=RF.sc;
   var cont={todos:L.length,V:0,D:0,R:0,F:0};L.forEach(function(x){cont[situ(x)]++});
@@ -1026,7 +1030,8 @@ function comparar(m){
    '<div class="ctb"><table><thead><tr><th>Leilão</th><th>Faturamento</th><th>R$/kg</th><th>R$/kg M</th><th>R$/kg F</th><th>Por cabeça</th><th>Cab. vendidas</th><th>% vendido</th><th>Lotes</th><th>Retorno</th></tr></thead><tbody>'+
     lst.slice().reverse().map(function(o){var x=o.m,t=function(k,v){return '<td'+(lst.length>1&&x[k]===best[k]&&x[k]>0?' class="mel"':'')+'>'+v+'</td>'};
       return '<tr class="'+(S&&o.id===S.id?'at':'')+'"><td><b>'+esc(o.s.nome)+'</b><br><small style="color:var(--mut)">'+esc(dataBR(o.s.data))+'</small></td>'+t("fat",brl(x.fat))+t("mk",x.mk?"R$ "+f2(x.mk):"—")+t("mkM",x.mkM?f2(x.mkM):"—")+t("mkF",x.mkF?f2(x.mkF):"—")+t("mc",brl(x.mc))+t("cab",x.cab+" de "+x.cabT)+t("pct",Math.round(x.pct)+"%")+'<td>'+x.lv+' de '+x.n+'</td><td>'+x.lr+'</td></tr>'}).join("")+
-   '</tbody></table></div></div>';
+   '</tbody></table></div>'+(temGraficos()?'<div id="cGfx"></div>':'')+'</div>';
+  GRF.lst=lst;if(temGraficos())graficosCmp();if(RF.gy!=null)window.scrollTo(0,RF.gy);
   requestAnimationFrame(function(){requestAnimationFrame(function(){m.querySelectorAll(".bc i").forEach(function(i){i.style.height=i.dataset.h+"%"})})});
   m.querySelectorAll("[data-met]").forEach(function(b){b.onclick=function(){CMP.met=b.dataset.met;render()}});
   m.querySelectorAll("[data-md]").forEach(function(b){b.onclick=function(){MEDIA=b.dataset.md;try{localStorage.setItem("relatorio-media",MEDIA)}catch(e){}render()}});
@@ -1380,7 +1385,7 @@ document.addEventListener("visibilitychange",function(){if(document.visibilitySt
 function proximo(de){for(var i=de;i<L.length;i++)if(!S.st[L[i].l])return i;for(i=0;i<L.length;i++)if(!S.st[L[i].l])return i;return -1}
 function totais(){var c={V:[0,0],R:[0,0],F:[0,0]};L.forEach(function(x){var k=(S&&S.st[x.l])||"F";c[k][0]++;c[k][1]+=x.q});
 ["V","R","F"].forEach(function(k){var id={V:"v",R:"r",F:"f"}[k];$("n"+id).textContent=c[k][0];$("c"+id).textContent=c[k][1]+" cab."})}
-function render(){ativar();if(!document.body.dataset.aba)setTimeout(montaSel,0);if(document.body.dataset.aba&&ehPos(document.body.dataset.aba)!==ehPos()){setTimeout(montaSel,0);if(!ehPos())setTimeout(function(){garanteSessaoAdm(true).then(function(){if(S&&!ehPos())sincLotes(false)})},50)}document.body.dataset.aba=tab;document.body.classList.toggle("teste",!!(S&&S.fase==="teste"));var tw0=document.querySelector(".tw");RF.sc=tw0&&tab==="rel"?[tw0.scrollTop,tw0.scrollLeft,window.scrollY]:null;RF.gy=tab==="rel"&&document.getElementById("rGfx")?window.scrollY:null;heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
+function render(){ativar();if(!document.body.dataset.aba)setTimeout(montaSel,0);if(document.body.dataset.aba&&ehPos(document.body.dataset.aba)!==ehPos()){setTimeout(montaSel,0);if(!ehPos())setTimeout(function(){garanteSessaoAdm(true).then(function(){if(S&&!ehPos())sincLotes(false)})},50)}document.body.dataset.aba=tab;document.body.classList.toggle("teste",!!(S&&S.fase==="teste"));var tw0=document.querySelector(".tw");RF.sc=tw0&&tab==="rel"?[tw0.scrollTop,tw0.scrollLeft,window.scrollY]:null;RF.gy=(tab==="rel"&&document.getElementById("rGfx"))||(tab==="cmp"&&document.getElementById("cGfx"))?window.scrollY:null;heroi();$("bts").hidden=!S;totais();var m=$("main");m.textContent="";
   if(tab==="cmp"){document.body.classList.add("largo");$("pos").textContent="";comparar(m);return}
   if(!S){document.body.classList.remove("largo");$("pos").textContent="";if(tab==="rel"||tab==="com"){m.innerHTML='<div class="vazio"><b>Escolha o leilão</b>Na lista acima estão os leilões encerrados e o leilão de hoje (ao vivo, atualizado a cada 5 lotes).<div style="margin-top:12px"><button class="bt" type="button" id="vAnexa">📄 Anexar PDF do leilão</button></div></div>';if($("vAnexa"))$("vAnexa").onclick=function(){$("arqPdf").click()};return}
     if(tab!=="ini"){m.innerHTML='<div class="vazio"><b>Nenhum leilão aberto</b>Comece ou escolha um leilão no <a href="#ini">Início do leilão</a>.'+(tab==="rel"?'<div style="margin-top:12px"><button class="bt pri" type="button" id="vAnexa">📄 Anexar PDF do leilão</button><p style="margin:8px 0 0;font-size:.85rem">A ordem de entrada do sistema ou o PDF da boleta.</p></div>':'')+'</div>';if($("vAnexa"))$("vAnexa").onclick=function(){$("arqPdf").click()};return}iniVazio(m);return}

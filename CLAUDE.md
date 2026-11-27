@@ -28,6 +28,7 @@ Os aparelhos falam com o GitHub por uma chave guardada no navegador (localStorag
   - Em `?publico=1` mostra só o Início, sem senha e sem menu. É o botão "Agenda" do catálogo.
 - `fichas.html` — **Lotes ADM**. Barra "Leilão" no topo, com os leilões de hoje em diante mais o "🧪 Leilão de teste". Abas: Fichas (PDF da ordem de entrada → Word), Vendedores (cartões; dois cliques para editar; adicionar e excluir; anexar PDF; botão 📷), Câmera (fotos e vídeos para o site, ocultar foto, "Vídeos juntos"), Relatório, Ordem de entrada, Pedidos. Botões "Mandar lotes pro site" e "Encerrar no site".
 - `boleta-nova.html` — **Boleta e Pós-leilão** (o mesmo arquivo; abas `ini, pista, V, R` = leilão atual; `rel, com, cmp` = pós-leilão).
+- `graficos-dados.js` (contas), `graficos.js` e `graficos.css` — gráficos animados do Pós-leilão (botão **Tabela | Gráficos**) e do Comparar leilões (cruzamentos e linha do tempo). Usam só lotes vendidos e nunca mostram comissão. Ao mudar um deles, suba o `?v=` no `boleta-nova.html`. Testes com dados inventados: `node --test testes/graficos-dados.test.js` e `python3 testes/graficos-tela.py` (Chrome e Playwright).
 - `relatorio-novo.html` — Relatório por categoria (faixas de peso, raça, sexo, fotos, PDF compilado).
 - `arquivo-leiloes.html` — Arquivo de leilões. Só consulta: leilões antigos, vendedores, fotos e resultados.
 - `tempo-novo.html`, `agenda.html`, `propagandas.html`.
@@ -62,9 +63,11 @@ Os aparelhos falam com o GitHub por uma chave guardada no navegador (localStorag
 `leiloinga-boleta-v1` (`{atual, sess, pos, posAtual, v}`), `fichas-lotes-v1` (Lotes ADM atual), `fichas-arquivo-v1`, `fichas-teste-v1`, `fichas-modo`, `leiloinga-relatorio-v1`, `relatorio-media`, `leiloinga-comissoes-v1`, `leiloinga-pisteiros`, `leiloinga-compradores`, `leiloinga-trava-*`. As páginas do painel conversam por eventos `storage` e `postMessage`.
 
 ## Automação (GitHub Actions)
-- AGENDA: `banners.yml` (8h17/14h17) baixa os banners dos leilões da Leiloingá para `banners/` e atualiza `agenda.json`.
+- **Regra do Rafael: toda atualização de leilão roda só às segundas e quintas** (para não gastar tokens à toa). Não crie rotina diária de leilão.
+- AGENDA: `banners.yml` (segunda e quinta, 8h17/14h17) baixa os banners dos leilões da Leiloingá para `banners/` e atualiza `agenda.json`.
 - LOTES: `arquivo-fotos.yml` (guarda as fotos por 30 dias) e `juntar-videos.yml` (botão "Juntar vídeos": `juntos/machos.mp4` e `juntos/femeas.mp4`).
-- Uma tarefa agendada diária do Claude atualiza `agenda.json` (leilões da Leiloingá e de outras leiloeiras, mais o tempo).
+- LOTES: `compartilhar.yml` (segunda e quinta, 8h40/14h40) troca a imagem e o texto da prévia do link do catálogo pelo próximo leilão.
+- Uma tarefa agendada do Claude (segunda e quinta, 7h35) atualiza `agenda.json` (leilões da Leiloingá e de outras leiloeiras, mais o tempo).
 
 ## Testar localmente
 ```bash

@@ -1,5 +1,5 @@
 """Testes de tela dos gráficos. Uso: python3 testes/graficos-tela.py [parte...]  (precisa do Chrome)."""
-import sys, json, base64, threading, functools, http.server, pathlib, time
+import sys, re, json, base64, threading, functools, http.server, pathlib, time
 from playwright.sync_api import sync_playwright
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
@@ -154,51 +154,73 @@ def parte_tipos(nav):
         t.screenshot(path=str(FOTOS / f"tipos-{tam}.png"), full_page=True)
         confere(f"sem erro {tam}", not t.erros, str(t.erros))
 
-LUZ = """e=>{const m=getComputedStyle(e).color.match(/[0-9.]+/g).map(Number);return (0.299*m[0]+0.587*m[1]+0.114*m[2])/255}"""
+# textos cujo contraste com o fundo fica abaixo de 4,5 (ilegíveis)
+CONTRASTE = """sel=>{const cor=c=>{const m=c.match(/[0-9.]+/g).map(Number),f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};
+    return {l:.2126*f(m[0])+.7152*f(m[1])+.0722*f(m[2]),a:m.length<4?1:m[3]}};
+  const fundo=e=>{for(;e;e=e.parentElement){const b=cor(getComputedStyle(e).backgroundColor);if(b.a>.6)return b.l}return 1};
+  return [...document.querySelectorAll(sel)].filter(e=>e.getClientRects().length).map(e=>{const s=getComputedStyle(e),t=cor(e instanceof SVGElement?s.fill:s.color).l,b=fundo(e);
+    return [+((Math.max(t,b)+.05)/(Math.min(t,b)+.05)).toFixed(2),e.getAttribute('class')||e.tagName,e.textContent.slice(0,20)]}).filter(x=>x[0]<4.5)}"""
+TEXTOS = ".gfx-card h3,.gfx-campo>span,.gfx-campo select,.gfx-rotulo,.gfx-sub,.gfx-valor,.gfx-n,.gfx-destaque,.gfx-aviso,.gfx-atalho,.gfx-chip,.gfx-filtros summary,.gfx-mais,.modo button,.gfx-total,.gfx-total-sub,.gfx-item span,.gfx-item b,.gfx-item small,.gfx-info,.gfx-eixos text,.gfx-secao,.gfx-leiloes summary,.gfx-leilao span"
+
+def parte_escuro(nav):
+    """aparelho no modo escuro, na Boleta de verdade (não na demonstração)"""
+    for aba in ("rel", "cmp"):
+        p = boleta(nav, "celular", pos=tres_leiloes(), aba=aba, escuro=True)
+        if aba == "rel": p.click('[data-ver="graficos"]'); parado(p)
+        for _ in range(3): p.click('[data-add]'); p.wait_for_timeout(60)
+        c = cartoes(p)
+        c.nth(0).locator(".gfx-filtros summary").click(); c.nth(0).locator('[data-filtro="sexo"] button[data-v="M"]').click()
+        c.nth(1).locator('[data-campo="medida"]').select_option("fat"); c.nth(1).locator('[data-campo="tipo"]').select_option("rosca")
+        c.nth(2).locator('[data-campo="dim"]').select_option("lote"); c.nth(2).locator('[data-campo="tipo"]').select_option("dispersao")
+        if aba == "cmp": c.nth(3).locator('[data-campo="dim"]').select_option("sexo"); c.nth(3).locator('[data-campo="tipo"]').select_option("linha")
+        else: c.nth(3).locator('[data-campo="sub"]').select_option("sexo")
+        p.wait_for_timeout(1700)
+        ruins = p.evaluate(CONTRASTE, TEXTOS)
+        confere(f"modo escuro: textos dos gráficos legíveis ({aba})", not ruins, f"{len(ruins)} ilegíveis, ex.: {ruins[:4]}")
+        p.screenshot(path=str(FOTOS / f"escuro-boleta-{aba}.png"), full_page=True)
+        confere(f"modo escuro: sem erro ({aba})", not p.erros, str(p.erros))
 
 def parte_cores(nav):
-    p = pagina(nav, "celular", escuro=True); demo(p)
-    confere("escuro: texto das caixas de escolha fica claro", cartoes(p).first.locator('[data-campo="dim"]').evaluate(LUZ) > .6)
+    p = pagina(nav, "celular"); demo(p)
     p.click(".gfx-filtros summary"); p.locator('[data-filtro="sexo"] button[data-v="M"]').click(); parado(p)
     b = p.locator('[data-filtro="sexo"] button[data-v="M"]')
-    confere("escuro: filtro marcado se destaca do cartão", b.evaluate("e=>getComputedStyle(e).backgroundColor!==getComputedStyle(e.closest('.gfx-card')).backgroundColor"))
-    cor = "e=>getComputedStyle(e).backgroundColor"
-    escura = p.locator(".gfx-barra").first.evaluate(cor)
-    q = pagina(nav, "celular"); demo(q)
-    confere("barras mudam de tom no escuro", escura != q.locator(".gfx-barra").first.evaluate(cor), escura)
-    q.locator('[data-campo="dim"]').select_option("vendedor"); parado(q)
-    confere("lista sem ordem fixa usa uma cor só", len(set(q.locator(".gfx-barra").evaluate_all("l=>l.map(e=>getComputedStyle(e).backgroundColor)"))) == 1)
+    confere("filtro marcado se destaca do cartão", b.evaluate("e=>getComputedStyle(e).backgroundColor!==getComputedStyle(e.closest('.gfx-card')).backgroundColor"))
+    p.locator('[data-campo="dim"]').select_option("vendedor"); parado(p)
+    confere("lista sem ordem fixa usa uma cor só", len(set(p.locator(".gfx-barra").evaluate_all("l=>l.map(e=>getComputedStyle(e).backgroundColor)"))) == 1)
     c = cartoes(p).first
-    c.locator('[data-campo="medida"]').select_option("cab"); c.locator('[data-campo="tipo"]').select_option("rosca"); parado(p)
-    p.screenshot(path=str(FOTOS / "escuro-rosca.png"), full_page=True)
     c.locator('[data-campo="dim"]').select_option("lote"); c.locator('[data-campo="tipo"]').select_option("dispersao"); c.locator('[data-campo="sub"]').select_option("grupo"); parado(p)
     confere("dispersão por grupo de raça tem legenda", all(x in c.locator(".gfx-legenda").inner_text() for x in ("Branco", "Cruzado", "Britânico")))
-    p.screenshot(path=str(FOTOS / "escuro-pontos.png"), full_page=True)
-    confere("sem erro no escuro", not p.erros, str(p.erros))
+    confere("sem erro nas cores", not p.erros, str(p.erros))
 
 def leilao_inventado(i, sexos="MF", n=12, fase="pos"):
     d = f"2020-0{i}-10"
     s = {"id": f"d{i}", "nome": f"Leilão Inventado {i}", "data": d, "cidade": "Cidade Exemplo", "fase": fase, "quem": ["Pessoa A"],
          "L": [], "st": {}, "la": {}, "qm": {}, "cp": {}, "doa": {}, "encerrado": d + "T20:00:00Z", "alterado": d + "T20:00:00Z",
-         "com": {"comp": 4.37, "vend": 3.19, "rural": 41.3, "leil": "Pessoa B", "leilP": 0.5, "cidade": "Cidade Exemplo"}}
+         "com": {"comp": 4.37, "vend": 3.19, "rural": 41.3, "leil": "Pessoa B", "leilP": 0.77, "cidade": "Cidade Exemplo"}}
     for l in range(1, n + 1):
         s["L"].append({"l": l, "o": l, "q": 5 + l % 4, "s": sexos[l % len(sexos)], "r": "NELORE", "i": "06/12 M", "p": 190 + l * 8, "v": f"Vendedor {l % 3}"})
         s["st"][str(l)] = "V"; s["la"][str(l)] = 700 + i * 100 + l * 7
     return s
 
-def boleta(nav, tam="notebook", pos=None, token=False, rota=None):
-    p = pagina(nav, tam)
+def boleta(nav, tam="notebook", pos=None, token=False, rota=None, aba="rel", escuro=False):
+    p = pagina(nav, tam, escuro=escuro)
     pos = pos or {x["id"]: x for x in (leilao_inventado(1), leilao_inventado(2, "F"))}
     dados = {"leiloinga-boleta-v1": json.dumps({"atual": None, "sess": {}, "pos": pos, "posAtual": None})}
     if token: dados["leiloinga-adm-gh"] = json.dumps({"token": "inventado", "repo": "ADM"})
     p.add_init_script("""(d=>{if(sessionStorage.getItem('posto'))return;sessionStorage.setItem('posto','1');
       localStorage.setItem('leiloinga-trava-geral',String(Date.now()+1e9));for(const k in d)localStorage.setItem(k,d[k])})(""" + json.dumps(dados) + ")")
     if rota: p.context.route("https://api.github.com/**", rota)
-    p.goto(f"{BASE}/boleta-nova.html#rel"); p.wait_for_selector("#leilao option[value=d1]", state="attached")
+    p.goto(f"{BASE}/boleta-nova.html#{aba}")
+    if aba == "cmp": p.wait_for_selector(".cmw, .cmpw"); parado(p); return p
+    p.wait_for_selector("#leilao option[value=d1]", state="attached")
     p.select_option("#leilao", "d1"); parado(p)
     return p
 
 def parte_boleta(nav):
+    # repositório público: os percentuais dos testes não podem coincidir com os do sistema
+    reais = set(re.findall(r'p:([0-9.]+)', re.search(r'var LEILOEIROS=\[(.*?)\]', (RAIZ / "boleta-nova.html").read_text(encoding="utf-8")).group(1)))
+    inventado = str(leilao_inventado(1)["com"]["leilP"])
+    confere("percentual inventado não coincide com o do sistema", reais and inventado not in reais, inventado)
     p = boleta(nav)
     aperta = lambda v: (p.click(f'[data-ver="{v}"]'), parado(p))
     confere("botões Tabela e Gráficos", [t.split()[-1] for t in textos(p, "[data-ver]")] == ["Tabela", "Gráficos"], str(textos(p, "[data-ver]")))
@@ -271,7 +293,157 @@ def parte_painel(nav):
         p.screenshot(path=str(FOTOS / f"painel-{tam}.png"))
         confere(f"no painel: sem erro {tam}", not p.erros, str(p.erros))
 
-PARTES = {"cartoes": parte_cartoes, "tipos": parte_tipos, "cores": parte_cores, "boleta": parte_boleta, "painel": parte_painel}
+        # Comparar leilões pelo menu, com a conta do R$/kg conferida lote a lote
+        c = pagina(nav, tam)
+        tres = tres_leiloes()
+        dados = {"leiloinga-boleta-v1": json.dumps({"atual": None, "sess": {}, "pos": tres, "posAtual": None})}
+        c.add_init_script("""(d=>{localStorage.setItem('leiloinga-trava-geral',String(Date.now()+1e9));
+          for(const k in d)if(!localStorage.getItem(k))localStorage.setItem(k,d[k])})(""" + json.dumps(dados) + ")")
+        c.goto(f"{BASE}/sistema-novo.html#comparar")
+        f = c.frame_locator('iframe[src*="boleta-nova"]')
+        f.locator(".cmpw .gfx-card").first.wait_for(timeout=10000)
+        f.locator('[data-atalho="sexo"]').click(); f.locator('[data-atalho="tempo"]').click(); c.wait_for_timeout(2200)
+        por_sexo = {}
+        for x in tres.values():
+            for l in x["L"]:
+                por_sexo.setdefault(l["s"], []).append(x["la"][str(l["l"])] * 3 / l["p"])
+        card = f.locator(".gfx-card").nth(1)
+        for sx, v in por_sexo.items():
+            certo = f"R$ {sum(v)/len(v):.2f}/kg".replace(".", ",")
+            t = card.locator(f'.gfx-linha[data-chave="{sx}"] .gfx-valor').inner_text().replace("\xa0", " ")
+            confere(f"R$/kg {sx} bate com a conta dos lotes {tam}", t == certo, f"{t} != {certo}")
+        q = next(x for x in c.frames if "boleta-nova" in x.url)
+        confere(f"painel comparar: sem rolagem lateral {tam}", q.evaluate("document.documentElement.scrollWidth<=document.documentElement.clientWidth") and sem_estouro(c))
+        confere(f"menu descreve a evolução {tam}", "evolução do preço" in c.content())
+        c.screenshot(path=str(FOTOS / f"painel-comparar-{tam}.png"))
+        confere(f"painel comparar: sem erro {tam}", not c.erros, str(c.erros))
+
+def tres_leiloes():
+    return {x["id"]: x for x in (leilao_inventado(1), leilao_inventado(2, "F"), leilao_inventado(3, "M"))}
+
+def parte_comparar(nav):
+    p = boleta(nav, pos=tres_leiloes(), aba="cmp")
+    confere("gráfico atual continua", p.locator(".gr .bars .bc").count() == 3 and p.locator(".ctb tbody tr").count() == 3)
+    confere("cartões abaixo da tabela", p.evaluate("""()=>{const t=document.querySelector('.ctb'),g=document.querySelector('.cmpw .gfx');
+      return !!(g&&t.compareDocumentPosition(g)&Node.DOCUMENT_POSITION_FOLLOWING)}"""))
+    caixas = p.locator("input[data-leilao]")
+    confere("todos marcados", caixas.count() == 3 and all(caixas.nth(i).is_checked() for i in range(3)))
+    confere("nome do leilão na escolha", "Leilão Inventado 2" in p.locator(".gfx-leiloes").inner_text())
+    p.click('[data-atalho="sexo"]'); parado(p)
+    macho = lambda: cartoes(p).last.locator('.gfx-linha[data-chave="M"]').inner_text()
+    confere("soma os leilões", "18 lotes" in macho(), macho())
+    p.locator('input[data-leilao="d3"]').uncheck(); parado(p)
+    confere("desmarcar muda os valores", "6 lotes" in macho() and "18" not in macho(), macho())
+    p.reload(); p.wait_for_selector(".cmpw .gfx"); parado(p)
+    confere("escolha persiste", not p.locator('input[data-leilao="d3"]').is_checked() and "6 lotes" in macho())
+    y = p.evaluate("()=>{scrollTo(0,document.body.scrollHeight);return scrollY}")
+    mesmo = p.evaluate("""()=>{const n=document.querySelector('.gfx-card');render();
+      return {no:n===document.querySelector('.gfx-card'),anima:document.getAnimations().filter(a=>a.effect.target.closest('.gfx')).length,y:scrollY}}""")
+    confere("redesenhar não troca nem reanima", mesmo["no"] and mesmo["anima"] == 0, str(mesmo))
+    confere("redesenhar não pula a tela", abs(mesmo["y"] - y) < 2 and y > 0, f"{y} {mesmo}")
+    for i in ("d1", "d2"): p.locator(f'input[data-leilao="{i}"]').uncheck()
+    parado(p)
+    confere("nenhum marcado: sem dados", all("Sem dados para esse cruzamento" in t for t in textos(p, ".gfx-card")))
+    for i in ("d1", "d2", "d3"): p.locator(f'input[data-leilao="{i}"]').check()
+    p.click('[data-atalho="lotes"]'); parado(p)
+    confere("lote traz a data", "· 10/0" in cartoes(p).last.locator(".gfx-rotulo").first.inner_text(), cartoes(p).last.locator(".gfx-rotulo").first.inner_text())
+    p.click('[data-met="mk"]'); parado(p)
+    confere("botões de cima seguem funcionando", p.locator('[data-met="mk"]').get_attribute("aria-pressed") == "true" and cartoes(p).count() == 3)
+    confere("sem comissão", all(x not in p.locator(".gfx").inner_text().lower() for x in ("comiss", "4,37", "3,19", "41,3")))
+    confere("sem erro no comparar", not p.erros, str(p.erros))
+
+    # leilão trazido da nuvem entra marcado
+    novo = leilao_inventado(4); novo["id"] = "2020-04-10-inventado"
+    def rota(r):
+        u = r.request.url.split("?")[0]; h = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*"}
+        def manda(o): r.fulfill(status=200, content_type="application/json", body=json.dumps(o), headers=h)
+        for pasta in ("boletas", "pos"):
+            if u.endswith("/contents/" + pasta): return manda([{"name": novo["id"] + ".json", "path": f"{pasta}/{novo['id']}.json"}])
+        if u.endswith(novo["id"] + ".json") and r.request.method == "GET": return manda({"sha": "x", "content": base64.b64encode(json.dumps(novo).encode()).decode()})
+        r.fulfill(status=404, body="{}", headers=h)
+    q = boleta(nav, token=True, rota=rota, aba="cmp")
+    q.wait_for_selector("#cNuv"); confere("antes: 2 leilões", q.locator("input[data-leilao]").count() == 2)
+    q.locator('input[data-leilao="d2"]').uncheck(); q.click("#cNuv"); parado(q); parado(q)
+    c = q.locator(f'input[data-leilao="{novo["id"]}"]')
+    confere("da nuvem entra marcado", c.count() == 1 and c.is_checked() and not q.locator('input[data-leilao="d2"]').is_checked())
+    confere("sem erro com a nuvem no comparar", not q.erros, str(q.erros))
+
+    for tam in TAMANHOS:
+        muitos = {x["id"]: x for x in (leilao_inventado(i) for i in range(1, 10))}
+        t = boleta(nav, tam, pos=muitos, aba="cmp"); t.click('[data-atalho="lotes"]'); t.click('[data-atalho="raca"]'); t.wait_for_timeout(1700)
+        confere(f"comparar sem rolagem lateral {tam}", sem_estouro(t))
+        t.screenshot(path=str(FOTOS / f"comparar-{tam}.png"), full_page=True)
+        confere(f"sem erro comparar {tam}", not t.erros, str(t.erros))
+
+SEM_FEMEA_NO_MEIO = "()=>G.atualizar(REGS.filter(r=>!(r.leilao==='demo1'&&r.sexo==='F')))"
+
+def parte_tempo(nav):
+    p = pagina(nav); demo(p, "rel")
+    confere("linha do tempo não aparece no relatório", p.locator('[data-atalho="tempo"]').count() == 0 and "linha" not in opcoes(cartoes(p).first, "tipo"))
+    p = pagina(nav); demo(p, "cmp")
+    p.click('[data-atalho="tempo"]'); p.wait_for_timeout(60)
+    c = cartoes(p).last
+    quadros = p.evaluate("""()=>[...document.querySelectorAll('.gfx-traco')].flatMap(e=>e.getAnimations()).map(a=>{const k=a.effect.getKeyframes();return [parseFloat(k[0].strokeDashoffset),parseFloat(k[k.length-1].strokeDashoffset)]})""")
+    confere("linha desenha da esquerda para a direita", quadros and all(a > 0 and b == 0 for a, b in quadros), str(quadros))
+    parado(p); p.wait_for_timeout(500)
+    campo = lambda n, v: (c.locator(f'[data-campo="{n}"]').select_option(v), parado(p))
+    confere("atalho: sexo, R$/kg, linha", [c.locator(f'[data-campo="{n}"]').input_value() for n in ("dim", "medida", "tipo")] == ["sexo", "rkg", "linha"])
+    confere("categorias da linha do tempo", opcoes(c, "dim") == ["grupo", "raca", "sexo", "faixa", "idade"], str(opcoes(c, "dim")))
+    confere("sem 'dividir por' na linha do tempo", not c.locator('[data-campo="sub"]').is_visible())
+    confere("uma linha por categoria", c.locator(".gfx-serie-t").count() == 2)
+    confere("um ponto por leilão", c.locator('.gfx-serie-t[data-chave="M"] .gfx-no').count() == 3 and c.locator('.gfx-serie-t[data-chave="M"] .gfx-traco').count() == 1)
+    t = c.inner_text()
+    confere("legenda mostra a variação", ("▲" in t or "▼" in t) and "%" in t, t)
+    confere("destaque do último leilão", "10/03" in c.locator(".gfx-destaque").inner_text(), c.locator(".gfx-destaque").inner_text())
+    c.locator(".gfx-faixa").nth(0).dispatch_event("click")
+    t = c.locator(".gfx-info").inner_text()
+    confere("toque mostra o leilão", all(x in t for x in ("10/01/2020", "Macho", "Fêmea", "/kg")), t)
+    c.locator('.gfx-item[data-chave="F"]').click()
+    confere("legenda destaca a linha", "gfx-apagada" in c.locator('.gfx-serie-t[data-chave="M"]').get_attribute("class")
+            and "gfx-apagada" not in c.locator('.gfx-serie-t[data-chave="F"]').get_attribute("class"))
+    p.evaluate(SEM_FEMEA_NO_MEIO); parado(p)
+    f = c.locator('.gfx-serie-t[data-chave="F"]')
+    confere("leilão sem venda não tem ponto nem linha caindo", f.locator(".gfx-no").count() == 2 and f.locator(".gfx-traco").count() == 0, f"{f.locator('.gfx-no').count()} {f.locator('.gfx-traco').count()}")
+    p.evaluate("()=>G.atualizar(REGS)"); parado(p)
+    campo("tipo", "colunasTempo")
+    confere("colunas por leilão", c.locator(".gfx-colunas .gfx-barra").count() == 6, str(c.locator(".gfx-barra").count()))
+    confere("leilões na ordem das datas", c.locator(".gfx-rotulo").all_inner_texts() == ["10/01/2020", "10/02/2020", "10/03/2020"], str(c.locator(".gfx-rotulo").all_inner_texts()))
+    p.reload(); parado(p); c = cartoes(p).last
+    confere("linha do tempo persiste", c.locator('[data-campo="tipo"]').input_value() == "colunasTempo")
+    campo("tipo", "barras")
+    confere("volta para barras", c.locator(".gfx-barras .gfx-barra").count() == 2 and c.locator('[data-campo="sub"]').is_visible())
+    campo("dim", "vendedor")
+    confere("vendedor não vira linha do tempo", "linha" not in opcoes(c, "tipo"))
+    campo("dim", "raca"); campo("tipo", "linha")
+    confere("raça em linha", c.locator(".gfx-serie-t").count() == 3)
+    confere("sem NaN na linha do tempo", "NaN" not in c.inner_html())
+    confere("sem erro na linha do tempo", not p.erros, str(p.erros))
+
+    u = pagina(nav); demo(u, "cmp", "&leiloes=1"); u.click('[data-atalho="tempo"]'); parado(u); u.wait_for_timeout(500)
+    c = cartoes(u).last
+    confere("um leilão: pontos e aviso", c.locator(".gfx-no").count() == 2 and "Com um leilão só ainda não dá para ver evolução" in c.inner_text())
+    confere("um leilão: sem erro", not u.erros and "NaN" not in c.inner_html(), str(u.erros))
+
+    r = pagina(nav, reduzir=True); demo(r, "cmp"); r.click('[data-atalho="tempo"]'); r.wait_for_timeout(40)
+    d = r.evaluate("document.getAnimations().map(a=>a.effect.getTiming().duration+a.effect.getTiming().delay)")
+    confere("movimento reduzido na linha do tempo", all(x <= 150 for x in d), str(d))
+
+    q = pagina(nav); q.add_init_script("""localStorage.setItem('leiloinga-graficos-v1',JSON.stringify({rel:[{dim:'sexo',medida:'rkg',tipo:'linha'}],cmp:[{dim:'vendedor',medida:'rkg',tipo:'linha'}],cmpFora:'x'}))""")
+    for ctx in ("rel", "cmp"):
+        demo(q, ctx); confere(f"configuração estranha vira barras ({ctx})", cartoes(q).first.locator('[data-campo="tipo"]').input_value() == "barras")
+    confere("sem erro com configuração estranha", not q.erros, str(q.erros))
+
+    for tam in TAMANHOS:
+        t = pagina(nav, tam); demo(t, "cmp", "&leiloes=12"); t.click('[data-atalho="tempo"]'); t.wait_for_timeout(100)
+        t.click('[data-atalho="tempo"]'); b = cartoes(t).last; b.locator('[data-campo="tipo"]').select_option("colunasTempo"); b.locator('[data-campo="dim"]').select_option("faixa"); t.wait_for_timeout(1700)
+        confere(f"datas sem encavalar {tam}", not t.evaluate(SOBREPOE.replace("els.some(e=>e.scrollWidth>e.clientWidth+1)", "false"), ".gfx-data"))
+        confere(f"última data aparece {tam}", "10/12" in " ".join(t.locator(".gfx-data").all_text_contents()))
+        confere(f"colunas do tempo não encavalam {tam}", not t.evaluate(SOBREPOE, ".gfx-colunas .gfx-valor"))
+        confere(f"linha do tempo sem rolagem lateral {tam}", sem_estouro(t))
+        t.screenshot(path=str(FOTOS / f"tempo-{tam}.png"), full_page=True)
+        confere(f"sem erro tempo {tam}", not t.erros, str(t.erros))
+
+PARTES = {"cartoes": parte_cartoes, "tipos": parte_tipos, "cores": parte_cores, "boleta": parte_boleta, "painel": parte_painel, "comparar": parte_comparar, "tempo": parte_tempo, "escuro": parte_escuro}
 
 if __name__ == "__main__":
     FOTOS.mkdir(parents=True, exist_ok=True)

@@ -1,7 +1,8 @@
 /* Gráficos comparativos */
-.gfx{--gl:var(--line,#dde3dc);--gc:var(--card,#fff);--gm:var(--mut,#667066);--gt:var(--fg,#17201a);padding:4px 0 90px;min-width:0;color:var(--gt);
+/* a Boleta é clara mesmo com o aparelho no modo escuro (texto e fundo da página são fixos), então os gráficos também são:
+   cartão sempre branco; não usar --card, que escurece sozinho */
+.gfx{--gl:var(--line,#dde3dc);--gc:#fff;--gm:var(--mut,#667066);--gt:var(--fg,#17201a);padding:4px 0 90px;min-width:0;color:var(--gt);color-scheme:light;
   --gc1:#257de0;--gc2:#f47230;--gc3:#00b894;--gc4:#f2a600;--gc5:#ee7fac;--gc6:#008a17;--gc7:#6a4ce2;--gc8:#ec4647;--gcx:#9aa19c;--gcv:#14843a}
-@media (prefers-color-scheme:dark){.gfx{--gc1:#338ced;--gc2:#e76624;--gc3:#00a888;--gc4:#d28e05;--gc5:#e24d8b;--gc6:#0aac23;--gc7:#9887ef;--gc8:#eb6263;--gcx:#727b74;--gcv:#35a853}}
 .gfx [hidden]{display:none!important}
 .gfx button,.gfx select{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
 .gfx-atalhos{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
@@ -84,6 +85,24 @@
 .gfx .gfx-desfaz button{border:0;background:transparent;color:#FFD523;font-weight:700}
 
 /* botão Tabela | Gráficos do relatório */
-.modo{display:inline-flex;gap:3px;padding:3px;margin:0 0 10px;border:1px solid var(--line,#d9ddd4);border-radius:99px;background:var(--card,#fff)}
+.modo{display:inline-flex;gap:3px;padding:3px;margin:0 0 10px;border:1px solid var(--line,#d9ddd4);border-radius:99px;background:#fff;color:var(--fg,#17201a);color-scheme:light}
 .modo button{border:0;background:transparent;border-radius:99px;padding:9px 20px;font-weight:700;cursor:pointer;touch-action:manipulation}
 .modo button[aria-pressed=true]{background:var(--fg,#17201a);color:var(--bg,#fff)}
+
+/* comparar leilões */
+.gfx-secao{margin:22px 0 8px;font:600 1.15rem "Oswald",system-ui,sans-serif;text-transform:uppercase}
+.gfx-leiloes{margin-bottom:12px;background:var(--gc);border:1px solid var(--gl);border-radius:12px;padding:8px 12px;font-size:.86rem}
+.gfx-leiloes summary{cursor:pointer;font-weight:700;padding:4px 0}
+.gfx-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:2px 12px}
+.gfx-leilao{display:flex;gap:9px;align-items:center;padding:7px 0;cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.gfx-leilao input{width:20px;height:20px;flex:none;margin:0;accent-color:var(--gcv)}
+
+/* linha do tempo */
+.gfx-evol{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:2px 12px;margin-bottom:6px}
+.gfx-traco{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.gfx-no{stroke:var(--gc);stroke-width:2}
+.gfx-serie-t{transition:opacity .2s}
+.gfx-eixos .gfx-ano{font-size:9px}
+.gfx-guia{stroke:var(--gm);stroke-width:1;stroke-dasharray:3 3}
+.gfx-faixa{fill:transparent;cursor:pointer}
+.gfx-nota{margin:0 0 8px;text-align:center;color:var(--gm);font-size:.82rem}
