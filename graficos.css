@@ -95,3 +95,13 @@
 .gfx-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:2px 12px}
 .gfx-leilao{display:flex;gap:9px;align-items:center;padding:7px 0;cursor:pointer;min-width:0;overflow-wrap:anywhere}
 .gfx-leilao input{width:20px;height:20px;flex:none;margin:0;accent-color:var(--gcv)}
+
+/* linha do tempo */
+.gfx-evol{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:2px 12px;margin-bottom:6px}
+.gfx-traco{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.gfx-no{stroke:var(--gc);stroke-width:2}
+.gfx-serie-t{transition:opacity .2s}
+.gfx-eixos .gfx-ano{font-size:9px}
+.gfx-guia{stroke:var(--gm);stroke-width:1;stroke-dasharray:3 3}
+.gfx-faixa{fill:transparent;cursor:pointer}
+.gfx-nota{margin:0 0 8px;text-align:center;color:var(--gm);font-size:.82rem}

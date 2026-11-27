@@ -11,8 +11,13 @@ var ATALHOS=[
   {k:"raca",t:"Raça × Preço",c:{dim:"grupo",medida:"rkg",tipo:"barras"}},
   {k:"sexo",t:"Macho × Fêmea",c:{dim:"sexo",medida:"rkg",tipo:"barras"}},
   {k:"faixa",t:"Peso × Preço",c:{dim:"faixa",medida:"rkg",tipo:"barras"}},
-  {k:"lotes",t:"Melhores lotes",c:{dim:"lote",medida:"rkg",tipo:"barras"}}
+  {k:"lotes",t:"Melhores lotes",c:{dim:"lote",medida:"rkg",tipo:"barras"}},
+  {k:"tempo",t:"Linha do tempo",c:{dim:"sexo",medida:"rkg",tipo:"linha"},entre:true}
 ];
+/* categorias que fazem sentido ao longo do tempo (só no comparar) */
+var CATEG=["grupo","raca","sexo","faixa","idade"];
+function noTempo(t){return t==="linha"||t==="colunasTempo";}
+function ajusta(cfg,entre){if(noTempo(cfg.tipo)&&(!entre||CATEG.indexOf(cfg.dim)<0))cfg.tipo="barras";return cfg;}
 var PADRAO={dim:"grupo",medida:"rkg",tipo:"barras"};
 var LIMITE=10;
 
@@ -76,7 +81,7 @@ function ler(){try{var x=JSON.parse(localStorage.getItem(KG)||"{}");return x&&ty
 function gravar(chave,valor){try{var x=ler();x[chave]=valor;localStorage.setItem(KG,JSON.stringify(x));}catch(e){}}
 function cartoesSalvos(ctx){
   var s=ler()[ctx];
-  if(Array.isArray(s)){var ok=s.map(D.normalizaCfg).filter(Boolean);if(ok.length||!s.length)return ok;}
+  if(Array.isArray(s)){var ok=s.map(D.normalizaCfg).filter(Boolean).map(function(c){return ajusta(c,ctx==="cmp");});if(ok.length||!s.length)return ok;}
   return [D.normalizaCfg(PADRAO)];
 }
 
@@ -103,7 +108,7 @@ function Cartao(cfg,dono){
   no.append(topo,campos,filtros,eu.destaque,eu.area,eu.vazio,eu.mais,eu.aviso);
 }
 Cartao.prototype.mudou=function(){
-  var n=D.normalizaCfg(this.cfg);if(n)Object.assign(this.cfg,n);
+  var n=D.normalizaCfg(this.cfg);if(n)Object.assign(this.cfg,ajusta(n,this.dono.entre));
   if(this.assinCor!==this.cfg.dim+"|"+this.cfg.sub){this.assinCor=this.cfg.dim+"|"+this.cfg.sub;this.cores={};}
   this.dono.salvar();this.pintar();
 };
@@ -113,9 +118,12 @@ Cartao.prototype.opcoes=function(campo,pares,valor){
   s.value=valor||"";
 };
 Cartao.prototype.controles=function(){
-  var c=this.cfg,modo="cruzamento";
-  this.opcoes("tipo",D.tiposValidos(c,modo).map(function(t){return [t,ROT_TIPO[t]];}),c.tipo);
-  this.opcoes("dim",D.DIMS.map(function(d){return [d,ROT_DIM[d]];}),c.dim);
+  var c=this.cfg,tempo=noTempo(c.tipo),tipos=D.tiposValidos(c,"cruzamento");
+  if(this.dono.entre&&CATEG.indexOf(c.dim)>=0)tipos=tipos.concat(D.tiposValidos(c,"tempo"));
+  this.opcoes("tipo",tipos.map(function(t){return [t,ROT_TIPO[t]];}),c.tipo);
+  this.opcoes("dim",(tempo?CATEG:D.DIMS).map(function(d){return [d,ROT_DIM[d]];}),c.dim);
+  this.sel.dim.previousSibling.textContent=tempo?"Categoria":"Mostrar por";
+  this.sel.sub.parentNode.hidden=tempo;
   var pontos=c.tipo==="dispersao";
   this.opcoes("sub",pontos?[["","Sexo"],["grupo","Grupo de raça"]]:[["","Nada"]].concat(D.DIMS.filter(function(d){return d!=="lote"&&d!==c.dim;}).map(function(d){return [d,ROT_DIM[d]];})),
     pontos&&c.sub!=="grupo"?"":c.sub);
@@ -124,10 +132,11 @@ Cartao.prototype.controles=function(){
   this.opcoes("medida",D.MEDIDAS.map(function(m){return [m,ROT_MED[m]];}),c.medida);
   var n=0;this.chips.forEach(function(x){var on=c.filtro[x.k].indexOf(x.v)>=0;if(on)n++;x.b.setAttribute("aria-pressed",on);});
   this.resumoFiltro.textContent=n?"Filtros ("+n+")":"Filtros";
-  this.titulo.textContent=pontos?"Peso × R$/kg por lote":ROT_MED[c.medida]+" por "+ROT_DIM[c.dim].toLowerCase()+(c.sub?" e "+ROT_DIM[c.sub].toLowerCase():"");
+  this.titulo.textContent=pontos?"Peso × R$/kg por lote":ROT_MED[c.medida]+" por "+ROT_DIM[c.dim].toLowerCase()+(c.sub?" e "+ROT_DIM[c.sub].toLowerCase():"")+(tempo?" · linha do tempo":"");
 };
 Cartao.prototype.pintar=function(){
   this.controles();
+  if(noTempo(this.cfg.tipo)){this.pintarTempo();return;}
   var c=this.cfg,tipo=c.tipo==="colunas"||c.tipo==="rosca"||c.tipo==="dispersao"?c.tipo:"barras";
   var pontos=tipo==="dispersao"?D.dispersao(this.dono.regs,c.filtro):null;
   var a=D.agregar(this.dono.regs,pontos?{dim:"lote",sub:null,medida:"rkg",filtro:c.filtro}:c);
@@ -148,13 +157,113 @@ Cartao.prototype.pintar=function(){
   this.preparar(tipo);
   if(pontos)this.pontos(pontos);
   else if(tipo==="rosca")this.rosca(a.grupos);
-  else this.barras(corta&&!c.todos?a.grupos.slice(0,LIMITE):a.grupos,tipo==="colunas");
+  else this.barras(corta&&!c.todos?a.grupos.slice(0,LIMITE):a.grupos,tipo==="colunas",c.sub);
+};
+function dataBR(d){return String(d||"").split("-").reverse().join("/");}
+function avisoFora(n){return n?txtLotes(n)+" sem dados para esta conta "+(n===1?"ficou":"ficaram")+" de fora.":"";}
+/* evolução leilão a leilão: linha ou colunas */
+Cartao.prototype.pintarTempo=function(){
+  var c=this.cfg,regs=this.dono.regs,base={dim:c.dim,sub:null,medida:c.medida,filtro:c.filtro};
+  var s=D.serie(regs,c),lotes={};
+  D.agregar(regs,base).grupos.forEach(function(g){lotes["k:"+g.chave]=g.lotes;});
+  /* no máximo 8 categorias no desenho: ficam as que têm mais lotes */
+  var linhas=s.linhas,fora=0;
+  if(linhas.length>VAGAS){
+    var ficam=linhas.slice().sort(function(a,b){return (lotes["k:"+b.chave]||0)-(lotes["k:"+a.chave]||0);}).slice(0,VAGAS);
+    fora=linhas.length-VAGAS;linhas=linhas.filter(function(l){return ficam.indexOf(l)>=0;});
+  }
+  var vazio=!linhas.length;
+  this.vazio.hidden=!vazio;this.area.hidden=vazio;this.destaque.hidden=vazio;this.mais.hidden=true;
+  var avisos=[avisoFora(s.semDados),fora?"Aparecem as "+VAGAS+" categorias com mais lotes; "+fora+" ficaram de fora (use os filtros).":""].filter(Boolean);
+  this.aviso.hidden=!avisos.length;this.aviso.textContent=avisos.join(" ");
+  if(vazio)return;
+  var u=s.datas.length-1;
+  while(u>0&&!linhas.some(function(l){return l.pontos[u]!==null;}))u--;
+  var melhor=null,alta=null;
+  linhas.forEach(function(l){
+    if(l.pontos[u]!==null&&(!melhor||l.pontos[u]>melhor.v))melhor={r:l.rotulo,v:l.pontos[u]};
+    var m=mudanca(l,s.datas);if(m&&m.pct>0.05&&(!alta||m.pct>alta.pct))alta={r:l.rotulo,pct:m.pct};});
+  this.destaque.textContent="🏆 Destaque em "+dataBR(s.datas[u].data)+": "+melhor.r+" · "+formata(melhor.v,c.medida)+(alta?" · Maior alta: "+alta.r+" (+"+num(alta.pct,1)+"%)":"");
+  if(c.tipo==="linha"){this.preparar("evolucao");this.evolucao(s.datas,linhas);return;}
+  this.preparar("colunasTempo","colunas");
+  var mostra=linhas.map(function(l){return l.chave;});
+  var grupos=s.datas.map(function(d){
+    var g=D.agregar(regs.filter(function(r){return r.leilao===d.id;}),base).grupos.filter(function(x){return mostra.indexOf(x.chave)>=0;});
+    g.sort(function(a,b){return mostra.indexOf(a.chave)-mostra.indexOf(b.chave);});
+    return {chave:d.id,rotulo:dataBR(d.data),series:g,valor:0};
+  }).filter(function(g){return g.series.length;});
+  this.barras(grupos,true,c.dim);
+};
+/* quanto a categoria mudou do primeiro ao último leilão em que apareceu */
+function mudanca(l,datas){
+  var i=[];l.pontos.forEach(function(v,k){if(v!==null)i.push(k);});
+  if(i.length<2||!l.pontos[i[0]])return null;
+  return {pct:(l.pontos[i[i.length-1]]/l.pontos[i[0]]-1)*100,desde:datas[i[0]].data};
+}
+function curto(v,m){
+  if(Math.abs(v)>=1e6)return num(v/1e6,1)+" mi";
+  if(Math.abs(v)>=1e4)return num(v/1e3,0)+" mil";
+  return num(v,m==="rkg"?2:0);
+}
+Cartao.prototype.evolucao=function(datas,linhas){
+  var eu=this,c=this.cfg,tela=this.tela,n=datas.length,A=250,E=46,F=14,T=12,B=40;
+  tela.textContent="";
+  var legenda=el("div","gfx-legenda gfx-evol"),s=svg("svg",{viewBox:"0 0 "+LARG+" "+A,class:"gfx-plano"}),info=el("p","gfx-info","Toque no gráfico para ver cada leilão.");
+  if(n<2)tela.append(el("p","gfx-nota","Com um leilão só ainda não dá para ver evolução."));
+  tela.append(legenda,s,info);
+  var X=function(i){return n>1?E+8+i*(LARG-E-8-F)/(n-1):(E+LARG-F)/2;};
+  var todos=[];linhas.forEach(function(l){l.pontos.forEach(function(v){if(v!==null)todos.push(v);});});
+  var ly=limites(todos),Y=function(v){return A-B-(v-ly[0])/(ly[1]-ly[0])*(A-T-B);};
+  var eixos=svg("g",{class:"gfx-eixos"});s.append(eixos);
+  function escreve(x,y,t,cls){var e=svg("text",{x:x,y:y,class:cls});e.textContent=t;eixos.append(e);}
+  for(var i=0;i<4;i++){var v=ly[0]+(ly[1]-ly[0])*i/3;eixos.append(svg("line",{x1:E,x2:LARG-F,y1:Y(v),y2:Y(v)}));escreve(E-5,Y(v)+3,curto(v,c.medida),"gfx-ey");}
+  /* datas: no máximo 6 rótulos, contando a partir do último */
+  var passo=Math.max(1,Math.ceil(n/6)),anos=datas.some(function(d){return d.data.slice(0,4)!==datas[0].data.slice(0,4);});
+  datas.forEach(function(d,k){if((n-1-k)%passo)return;
+    escreve(X(k),A-B+15,dataBR(d.data).slice(0,5),"gfx-data");if(anos)escreve(X(k),A-B+27,d.data.slice(0,4),"gfx-ano");});
+  var guia=svg("line",{class:"gfx-guia",y1:T,y2:A-B,x1:0,x2:0});guia.style.display="none";s.append(guia);
+  var cor=cores(c.dim,linhas.map(function(l){return l.chave;}),this.cores),tracos={},itens={};
+  var parte=function(k){return n>1?k/(n-1):0;};
+  linhas.forEach(function(l){
+    var k=l.chave+"",g=svg("g",{class:"gfx-serie-t"});g.dataset.chave=k;tracos[k]=g;s.append(g);
+    var trecho=[];
+    l.pontos.concat([null]).forEach(function(v,i){
+      if(v!==null){trecho.push([X(i),Y(v),i]);return;}
+      if(trecho.length>1){
+        var compr=0;trecho.forEach(function(p,j){if(j)compr+=Math.hypot(p[0]-trecho[j-1][0],p[1]-trecho[j-1][1]);});
+        var t=svg("path",{class:"gfx-traco",d:trecho.map(function(p,j){return (j?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1);}).join("")});
+        t.style.stroke=cor[l.chave];compr=Math.ceil(compr)+1;g.append(t);
+        var de=parte(trecho[0][2]),ate=parte(trecho[trecho.length-1][2]);
+        anima(t,[{strokeDasharray:compr,strokeDashoffset:compr},{strokeDasharray:compr,strokeDashoffset:0}],(ate-de)*1000,de*1000);
+      }
+      trecho=[];
+    });
+    l.pontos.forEach(function(v,i){if(v===null)return;
+      var p=svg("circle",{class:"gfx-no",cx:X(i).toFixed(1),cy:Y(v).toFixed(1),r:4.5});p.style.fill=cor[l.chave];g.append(p);
+      anima(p,[{opacity:0},{opacity:1}],250,parte(i)*1000);});
+    var it=botao("gfx-item");it.dataset.chave=k;it.onclick=function(){eu.marcar(k);};itens[k]=it;
+    var q=el("i");q.style.background=cor[l.chave];
+    var ult=null;l.pontos.forEach(function(v){if(v!==null)ult=v;});
+    var m=mudanca(l,datas),txt="aparece em um leilão só";
+    if(m)txt=(Math.abs(m.pct)<0.05?"sem mudança":(m.pct>0?"▲ ":"▼ ")+num(Math.abs(m.pct),1)+"%")+" desde "+dataBR(m.desde).slice(0,5);
+    it.append(q,el("span",null,l.rotulo),el("b",null,formata(ult,c.medida)),el("small",null,txt));legenda.append(it);
+  });
+  var meio=n>1?(X(1)-X(0))/2:(LARG-E-F)/2;
+  datas.forEach(function(d,i){
+    var r=svg("rect",{class:"gfx-faixa",x:(X(i)-meio).toFixed(1),y:T,width:(meio*2).toFixed(1),height:A-B-T});
+    r.onclick=r.onmouseenter=function(){
+      guia.setAttribute("x1",X(i));guia.setAttribute("x2",X(i));guia.style.display="";
+      info.textContent=dataBR(d.data)+" — "+linhas.filter(function(l){return l.pontos[i]!==null;}).map(function(l){return l.rotulo+": "+formata(l.pontos[i],c.medida);}).join(" · ");
+    };
+    s.append(r);
+  });
+  this.alvos=[tracos,itens];if(!tracos[this.marcada])this.marcada=null;this.apagar();
 };
 /* ao trocar de tipo, o desenho antigo esmaece enquanto o novo entra */
-Cartao.prototype.preparar=function(tipo){
+Cartao.prototype.preparar=function(tipo,classe){
   if(this.desenhado===tipo)return;
-  var velha=this.tela;
-  this.tela=el("div","gfx-desenho gfx-"+tipo);this.desenhado=tipo;this.area.append(this.tela);
+  var velha=this.tela;this.marcada=null;
+  this.tela=el("div","gfx-desenho gfx-"+(classe||tipo));this.desenhado=tipo;this.area.append(this.tela);
   if(!velha)return;
   var a=this.area.isConnected&&anima(velha,[{opacity:1},{opacity:0}],250);
   if(!a){velha.remove();return;}
@@ -196,12 +305,12 @@ Cartao.prototype.rosca=function(grupos){
     legenda.append(it);if(novo)anima(it,[{opacity:0},{opacity:1}],400);
   });
   Object.keys(velhas).forEach(function(k){velhas[k].remove();});Object.keys(velhos).forEach(function(k){velhos[k].remove();});
-  if(!this.fatias[this.marcada])this.marcada=null;this.apagar();
+  this.alvos=[this.fatias,this.itens];if(!this.fatias[this.marcada])this.marcada=null;this.apagar();
 };
 Cartao.prototype.marcar=function(k){this.marcada=this.marcada===k?null:k;this.apagar();};
 Cartao.prototype.apagar=function(){
   var m=this.marcada;
-  [this.fatias,this.itens].forEach(function(o){Object.keys(o).forEach(function(k){o[k].classList.toggle("gfx-apagada",m!==null&&k!==m);});});
+  this.alvos.forEach(function(o){Object.keys(o).forEach(function(k){o[k].classList.toggle("gfx-apagada",m!==null&&k!==m);});});
 };
 /* um ponto por lote: peso na horizontal, R$/kg na vertical */
 var LARG=340,ALT=260,ESQ=40,DIR=12,TOPO=10,BASE=38;
@@ -258,32 +367,32 @@ Cartao.prototype.escolher=function(k){
   this.tela.lastChild.textContent=k===null?"Toque em um ponto para ver o lote.":this.marcas[k].dataset.texto;
 };
 /* barras deitadas ou colunas; as linhas são reaproveitadas para animar a troca de posição */
-Cartao.prototype.barras=function(grupos,emPe){
+Cartao.prototype.barras=function(grupos,emPe,porSerie){
   var eu=this,c=this.cfg,area=this.tela,velhas={},antes={};
   Array.prototype.forEach.call(area.children,function(n){velhas[n.dataset.chave]=n;if(area.isConnected)antes[n.dataset.chave]=n.getBoundingClientRect();});
   var sub=[],vistos={};
-  if(c.sub)grupos.forEach(function(g){g.series.forEach(function(s){if(!vistos["k:"+s.chave]){vistos["k:"+s.chave]=1;sub.push(s.chave);}});});
-  var cor=c.sub?cores(c.sub,sub,this.cores):null,fixa=D.ORDEM[c.dim]?cores(c.dim,grupos.map(function(g){return g.chave;}),{}):null;
-  var max=0;grupos.forEach(function(g){(c.sub?g.series:[g]).forEach(function(s){max=Math.max(max,s.valor);});});
+  if(porSerie)grupos.forEach(function(g){g.series.forEach(function(s){if(!vistos["k:"+s.chave]){vistos["k:"+s.chave]=1;sub.push(s.chave);}});});
+  var cor=porSerie?cores(porSerie,sub,this.cores):null,fixa=D.ORDEM[c.dim]?cores(c.dim,grupos.map(function(g){return g.chave;}),{}):null;
+  var max=0;grupos.forEach(function(g){(porSerie?g.series:[g]).forEach(function(s){max=Math.max(max,s.valor);});});
   grupos.forEach(function(g,i){
     var k=g.chave+"",n=velhas[k],nova=!n;
     if(nova){n=el("div","gfx-linha");n.dataset.chave=k;n.append(el("div","gfx-rotulo"),el("div","gfx-series"));}
     delete velhas[k];
     n.firstChild.textContent=g.rotulo;n.firstChild.title=g.rotulo;
     /* na coluna, cada grupo pede a largura das suas séries; se não couber, quebra de linha */
-    var qs=c.sub?g.series.length:1;n.style.flexBasis=emPe?"min(100%, "+(qs*70+(qs-1)*4)+"px)":"";
+    var qs=porSerie?g.series.length:1;n.style.flexBasis=emPe?"min(100%, "+(qs*70+(qs-1)*4)+"px)":"";
     var caixa=n.lastChild,antigas={};
     Array.prototype.forEach.call(caixa.children,function(s){antigas[s.dataset.chave]=s;});
-    (c.sub?g.series:[g]).forEach(function(s){
-      var sk=c.sub?s.chave+"":"",l=antigas[sk];
+    (porSerie?g.series:[g]).forEach(function(s){
+      var sk=porSerie?s.chave+"":"",l=antigas[sk];
       if(!l){l=el("div","gfx-serie");l.dataset.chave=sk;
         var t=el("div","gfx-trilho");t.append(el("i","gfx-barra"));
         l.append(el("span","gfx-sub"),t,el("b","gfx-valor"),el("small","gfx-n"));}
       delete antigas[sk];
       var q=l.children;
-      q[0].textContent=c.sub?s.rotulo:"";q[0].hidden=!c.sub;
+      q[0].textContent=porSerie?s.rotulo:"";q[0].hidden=!porSerie;
       var barra=q[1].firstChild;
-      barra.style.background=c.sub?cor[s.chave]:fixa?fixa[g.chave]:VERDE;
+      barra.style.background=porSerie?cor[s.chave]:fixa?fixa[g.chave]:VERDE;
       medidaTamanho(emPe?"height":"width",barra,max?Math.max(1,s.valor/max*100):0);
       conta(q[2],s.valor,c.medida);q[3].textContent=txtLotes(s.lotes);
       caixa.append(l);
@@ -306,7 +415,7 @@ function criar(ctx){
   var aviso=el("div","gfx-desfaz");aviso.hidden=true;
   var vazio=el("p","gfx-vazio gfx-nenhum","Nenhum gráfico na tela. Toque em um atalho ou em “Adicionar gráfico”.");
   var assin=null,tAviso=null;
-  var dono={regs:[],lista:[],
+  var dono={regs:[],lista:[],entre:ctx==="cmp",
     salvar:function(){gravar(ctx,dono.lista.map(function(c){return c.cfg;}));vazio.hidden=!!dono.lista.length;},
     excluir:function(c){
       var i=dono.lista.indexOf(c);if(i<0)return;dono.lista.splice(i,1);dono.salvar();
@@ -320,12 +429,12 @@ function criar(ctx){
     },
     ordenar:function(){dono.lista.forEach(function(c){grade.append(c.no);});},
     novo:function(base){
-      var cfg=D.normalizaCfg(JSON.parse(JSON.stringify(base)));if(!cfg)return;
+      var cfg=D.normalizaCfg(JSON.parse(JSON.stringify(base)));if(!cfg)return;ajusta(cfg,dono.entre);
       var c=new Cartao(cfg,dono);dono.lista.push(c);grade.append(c.no);dono.salvar();c.pintar();
       anima(c.no,[{opacity:0,transform:"translateY(14px)"},{opacity:1,transform:"none"}],250);
       if(c.no.scrollIntoView&&c.no.isConnected)c.no.scrollIntoView({block:"nearest",behavior:reduz()?"auto":"smooth"});
     }};
-  ATALHOS.forEach(function(a){var b=botao("gfx-atalho",a.t);b.dataset.atalho=a.k;b.onclick=function(){dono.novo(a.c);};barra.append(b);});
+  ATALHOS.filter(function(a){return !a.entre||dono.entre;}).forEach(function(a){var b=botao("gfx-atalho",a.t);b.dataset.atalho=a.k;b.onclick=function(){dono.novo(a.c);};barra.append(b);});
   var add=botao("gfx-add","+ Adicionar gráfico");add.dataset.add="";add.onclick=function(){dono.novo(PADRAO);};barra.append(add);
   /* no comparar: quais leilões entram nas contas (guarda só os desmarcados, então leilão novo já entra) */
   var entre=ctx==="cmp",todos=[],fora=[],escolha=null,resumo=null,caixas=null,assinLeiloes=null;
