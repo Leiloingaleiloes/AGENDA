@@ -273,6 +273,31 @@ def parte_painel(nav):
         p.screenshot(path=str(FOTOS / f"painel-{tam}.png"))
         confere(f"no painel: sem erro {tam}", not p.erros, str(p.erros))
 
+        # Comparar leilões pelo menu, com a conta do R$/kg conferida lote a lote
+        c = pagina(nav, tam)
+        tres = tres_leiloes()
+        dados = {"leiloinga-boleta-v1": json.dumps({"atual": None, "sess": {}, "pos": tres, "posAtual": None})}
+        c.add_init_script("""(d=>{localStorage.setItem('leiloinga-trava-geral',String(Date.now()+1e9));
+          for(const k in d)if(!localStorage.getItem(k))localStorage.setItem(k,d[k])})(""" + json.dumps(dados) + ")")
+        c.goto(f"{BASE}/sistema-novo.html#comparar")
+        f = c.frame_locator('iframe[src*="boleta-nova"]')
+        f.locator(".cmpw .gfx-card").first.wait_for(timeout=10000)
+        f.locator('[data-atalho="sexo"]').click(); f.locator('[data-atalho="tempo"]').click(); c.wait_for_timeout(2200)
+        por_sexo = {}
+        for x in tres.values():
+            for l in x["L"]:
+                por_sexo.setdefault(l["s"], []).append(x["la"][str(l["l"])] * 3 / l["p"])
+        card = f.locator(".gfx-card").nth(1)
+        for sx, v in por_sexo.items():
+            certo = f"R$ {sum(v)/len(v):.2f}/kg".replace(".", ",")
+            t = card.locator(f'.gfx-linha[data-chave="{sx}"] .gfx-valor').inner_text().replace("\xa0", " ")
+            confere(f"R$/kg {sx} bate com a conta dos lotes {tam}", t == certo, f"{t} != {certo}")
+        q = next(x for x in c.frames if "boleta-nova" in x.url)
+        confere(f"painel comparar: sem rolagem lateral {tam}", q.evaluate("document.documentElement.scrollWidth<=document.documentElement.clientWidth") and sem_estouro(c))
+        confere(f"menu descreve a evolução {tam}", "evolução do preço" in c.content())
+        c.screenshot(path=str(FOTOS / f"painel-comparar-{tam}.png"))
+        confere(f"painel comparar: sem erro {tam}", not c.erros, str(c.erros))
+
 def tres_leiloes():
     return {x["id"]: x for x in (leilao_inventado(1), leilao_inventado(2, "F"), leilao_inventado(3, "M"))}
 

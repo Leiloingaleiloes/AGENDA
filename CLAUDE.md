@@ -28,6 +28,7 @@ Os aparelhos falam com o GitHub por uma chave guardada no navegador (localStorag
   - Em `?publico=1` mostra só o Início, sem senha e sem menu. É o botão "Agenda" do catálogo.
 - `fichas.html` — **Lotes ADM**. Barra "Leilão" no topo, com os leilões de hoje em diante mais o "🧪 Leilão de teste". Abas: Fichas (PDF da ordem de entrada → Word), Vendedores (cartões; dois cliques para editar; adicionar e excluir; anexar PDF; botão 📷), Câmera (fotos e vídeos para o site, ocultar foto, "Vídeos juntos"), Relatório, Ordem de entrada, Pedidos. Botões "Mandar lotes pro site" e "Encerrar no site".
 - `boleta-nova.html` — **Boleta e Pós-leilão** (o mesmo arquivo; abas `ini, pista, V, R` = leilão atual; `rel, com, cmp` = pós-leilão).
+- `graficos-dados.js` (contas), `graficos.js` e `graficos.css` — gráficos animados do Pós-leilão (botão **Tabela | Gráficos**) e do Comparar leilões (cruzamentos e linha do tempo). Usam só lotes vendidos e nunca mostram comissão. Ao mudar um deles, suba o `?v=` no `boleta-nova.html`. Testes com dados inventados: `node --test testes/graficos-dados.test.js` e `python3 testes/graficos-tela.py` (Chrome e Playwright).
 - `relatorio-novo.html` — Relatório por categoria (faixas de peso, raça, sexo, fotos, PDF compilado).
 - `arquivo-leiloes.html` — Arquivo de leilões. Só consulta: leilões antigos, vendedores, fotos e resultados.
 - `tempo-novo.html`, `agenda.html`, `propagandas.html`.
