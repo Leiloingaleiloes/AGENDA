@@ -1,5 +1,5 @@
 """Testes de tela dos gráficos. Uso: python3 testes/graficos-tela.py [parte...]  (precisa do Chrome)."""
-import sys, json, base64, threading, functools, http.server, pathlib, time
+import sys, re, json, base64, threading, functools, http.server, pathlib, time
 from playwright.sync_api import sync_playwright
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
@@ -154,40 +154,56 @@ def parte_tipos(nav):
         t.screenshot(path=str(FOTOS / f"tipos-{tam}.png"), full_page=True)
         confere(f"sem erro {tam}", not t.erros, str(t.erros))
 
-LUZ = """e=>{const m=getComputedStyle(e).color.match(/[0-9.]+/g).map(Number);return (0.299*m[0]+0.587*m[1]+0.114*m[2])/255}"""
+# textos cujo contraste com o fundo fica abaixo de 4,5 (ilegíveis)
+CONTRASTE = """sel=>{const cor=c=>{const m=c.match(/[0-9.]+/g).map(Number),f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};
+    return {l:.2126*f(m[0])+.7152*f(m[1])+.0722*f(m[2]),a:m.length<4?1:m[3]}};
+  const fundo=e=>{for(;e;e=e.parentElement){const b=cor(getComputedStyle(e).backgroundColor);if(b.a>.6)return b.l}return 1};
+  return [...document.querySelectorAll(sel)].filter(e=>e.getClientRects().length).map(e=>{const s=getComputedStyle(e),t=cor(e instanceof SVGElement?s.fill:s.color).l,b=fundo(e);
+    return [+((Math.max(t,b)+.05)/(Math.min(t,b)+.05)).toFixed(2),e.getAttribute('class')||e.tagName,e.textContent.slice(0,20)]}).filter(x=>x[0]<4.5)}"""
+TEXTOS = ".gfx-card h3,.gfx-campo>span,.gfx-campo select,.gfx-rotulo,.gfx-sub,.gfx-valor,.gfx-n,.gfx-destaque,.gfx-aviso,.gfx-atalho,.gfx-chip,.gfx-filtros summary,.gfx-mais,.modo button,.gfx-total,.gfx-total-sub,.gfx-item span,.gfx-item b,.gfx-item small,.gfx-info,.gfx-eixos text,.gfx-secao,.gfx-leiloes summary,.gfx-leilao span"
+
+def parte_escuro(nav):
+    """aparelho no modo escuro, na Boleta de verdade (não na demonstração)"""
+    for aba in ("rel", "cmp"):
+        p = boleta(nav, "celular", pos=tres_leiloes(), aba=aba, escuro=True)
+        if aba == "rel": p.click('[data-ver="graficos"]'); parado(p)
+        for _ in range(3): p.click('[data-add]'); p.wait_for_timeout(60)
+        c = cartoes(p)
+        c.nth(0).locator(".gfx-filtros summary").click(); c.nth(0).locator('[data-filtro="sexo"] button[data-v="M"]').click()
+        c.nth(1).locator('[data-campo="medida"]').select_option("fat"); c.nth(1).locator('[data-campo="tipo"]').select_option("rosca")
+        c.nth(2).locator('[data-campo="dim"]').select_option("lote"); c.nth(2).locator('[data-campo="tipo"]').select_option("dispersao")
+        if aba == "cmp": c.nth(3).locator('[data-campo="dim"]').select_option("sexo"); c.nth(3).locator('[data-campo="tipo"]').select_option("linha")
+        else: c.nth(3).locator('[data-campo="sub"]').select_option("sexo")
+        p.wait_for_timeout(1700)
+        ruins = p.evaluate(CONTRASTE, TEXTOS)
+        confere(f"modo escuro: textos dos gráficos legíveis ({aba})", not ruins, f"{len(ruins)} ilegíveis, ex.: {ruins[:4]}")
+        p.screenshot(path=str(FOTOS / f"escuro-boleta-{aba}.png"), full_page=True)
+        confere(f"modo escuro: sem erro ({aba})", not p.erros, str(p.erros))
 
 def parte_cores(nav):
-    p = pagina(nav, "celular", escuro=True); demo(p)
-    confere("escuro: texto das caixas de escolha fica claro", cartoes(p).first.locator('[data-campo="dim"]').evaluate(LUZ) > .6)
+    p = pagina(nav, "celular"); demo(p)
     p.click(".gfx-filtros summary"); p.locator('[data-filtro="sexo"] button[data-v="M"]').click(); parado(p)
     b = p.locator('[data-filtro="sexo"] button[data-v="M"]')
-    confere("escuro: filtro marcado se destaca do cartão", b.evaluate("e=>getComputedStyle(e).backgroundColor!==getComputedStyle(e.closest('.gfx-card')).backgroundColor"))
-    cor = "e=>getComputedStyle(e).backgroundColor"
-    escura = p.locator(".gfx-barra").first.evaluate(cor)
-    q = pagina(nav, "celular"); demo(q)
-    confere("barras mudam de tom no escuro", escura != q.locator(".gfx-barra").first.evaluate(cor), escura)
-    q.locator('[data-campo="dim"]').select_option("vendedor"); parado(q)
-    confere("lista sem ordem fixa usa uma cor só", len(set(q.locator(".gfx-barra").evaluate_all("l=>l.map(e=>getComputedStyle(e).backgroundColor)"))) == 1)
+    confere("filtro marcado se destaca do cartão", b.evaluate("e=>getComputedStyle(e).backgroundColor!==getComputedStyle(e.closest('.gfx-card')).backgroundColor"))
+    p.locator('[data-campo="dim"]').select_option("vendedor"); parado(p)
+    confere("lista sem ordem fixa usa uma cor só", len(set(p.locator(".gfx-barra").evaluate_all("l=>l.map(e=>getComputedStyle(e).backgroundColor)"))) == 1)
     c = cartoes(p).first
-    c.locator('[data-campo="medida"]').select_option("cab"); c.locator('[data-campo="tipo"]').select_option("rosca"); parado(p)
-    p.screenshot(path=str(FOTOS / "escuro-rosca.png"), full_page=True)
     c.locator('[data-campo="dim"]').select_option("lote"); c.locator('[data-campo="tipo"]').select_option("dispersao"); c.locator('[data-campo="sub"]').select_option("grupo"); parado(p)
     confere("dispersão por grupo de raça tem legenda", all(x in c.locator(".gfx-legenda").inner_text() for x in ("Branco", "Cruzado", "Britânico")))
-    p.screenshot(path=str(FOTOS / "escuro-pontos.png"), full_page=True)
-    confere("sem erro no escuro", not p.erros, str(p.erros))
+    confere("sem erro nas cores", not p.erros, str(p.erros))
 
 def leilao_inventado(i, sexos="MF", n=12, fase="pos"):
     d = f"2020-0{i}-10"
     s = {"id": f"d{i}", "nome": f"Leilão Inventado {i}", "data": d, "cidade": "Cidade Exemplo", "fase": fase, "quem": ["Pessoa A"],
          "L": [], "st": {}, "la": {}, "qm": {}, "cp": {}, "doa": {}, "encerrado": d + "T20:00:00Z", "alterado": d + "T20:00:00Z",
-         "com": {"comp": 4.37, "vend": 3.19, "rural": 41.3, "leil": "Pessoa B", "leilP": 0.5, "cidade": "Cidade Exemplo"}}
+         "com": {"comp": 4.37, "vend": 3.19, "rural": 41.3, "leil": "Pessoa B", "leilP": 0.77, "cidade": "Cidade Exemplo"}}
     for l in range(1, n + 1):
         s["L"].append({"l": l, "o": l, "q": 5 + l % 4, "s": sexos[l % len(sexos)], "r": "NELORE", "i": "06/12 M", "p": 190 + l * 8, "v": f"Vendedor {l % 3}"})
         s["st"][str(l)] = "V"; s["la"][str(l)] = 700 + i * 100 + l * 7
     return s
 
-def boleta(nav, tam="notebook", pos=None, token=False, rota=None, aba="rel"):
-    p = pagina(nav, tam)
+def boleta(nav, tam="notebook", pos=None, token=False, rota=None, aba="rel", escuro=False):
+    p = pagina(nav, tam, escuro=escuro)
     pos = pos or {x["id"]: x for x in (leilao_inventado(1), leilao_inventado(2, "F"))}
     dados = {"leiloinga-boleta-v1": json.dumps({"atual": None, "sess": {}, "pos": pos, "posAtual": None})}
     if token: dados["leiloinga-adm-gh"] = json.dumps({"token": "inventado", "repo": "ADM"})
@@ -201,6 +217,10 @@ def boleta(nav, tam="notebook", pos=None, token=False, rota=None, aba="rel"):
     return p
 
 def parte_boleta(nav):
+    # repositório público: os percentuais dos testes não podem coincidir com os do sistema
+    reais = set(re.findall(r'p:([0-9.]+)', re.search(r'var LEILOEIROS=\[(.*?)\]', (RAIZ / "boleta-nova.html").read_text(encoding="utf-8")).group(1)))
+    inventado = str(leilao_inventado(1)["com"]["leilP"])
+    confere("percentual inventado não coincide com o do sistema", reais and inventado not in reais, inventado)
     p = boleta(nav)
     aperta = lambda v: (p.click(f'[data-ver="{v}"]'), parado(p))
     confere("botões Tabela e Gráficos", [t.split()[-1] for t in textos(p, "[data-ver]")] == ["Tabela", "Gráficos"], str(textos(p, "[data-ver]")))
@@ -423,7 +443,7 @@ def parte_tempo(nav):
         t.screenshot(path=str(FOTOS / f"tempo-{tam}.png"), full_page=True)
         confere(f"sem erro tempo {tam}", not t.erros, str(t.erros))
 
-PARTES = {"cartoes": parte_cartoes, "tipos": parte_tipos, "cores": parte_cores, "boleta": parte_boleta, "painel": parte_painel, "comparar": parte_comparar, "tempo": parte_tempo}
+PARTES = {"cartoes": parte_cartoes, "tipos": parte_tipos, "cores": parte_cores, "boleta": parte_boleta, "painel": parte_painel, "comparar": parte_comparar, "tempo": parte_tempo, "escuro": parte_escuro}
 
 if __name__ == "__main__":
     FOTOS.mkdir(parents=True, exist_ok=True)

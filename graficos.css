@@ -1,7 +1,8 @@
 /* Gráficos comparativos */
-.gfx{--gl:var(--line,#dde3dc);--gc:var(--card,#fff);--gm:var(--mut,#667066);--gt:var(--fg,#17201a);padding:4px 0 90px;min-width:0;color:var(--gt);
+/* a Boleta é clara mesmo com o aparelho no modo escuro (texto e fundo da página são fixos), então os gráficos também são:
+   cartão sempre branco; não usar --card, que escurece sozinho */
+.gfx{--gl:var(--line,#dde3dc);--gc:#fff;--gm:var(--mut,#667066);--gt:var(--fg,#17201a);padding:4px 0 90px;min-width:0;color:var(--gt);color-scheme:light;
   --gc1:#257de0;--gc2:#f47230;--gc3:#00b894;--gc4:#f2a600;--gc5:#ee7fac;--gc6:#008a17;--gc7:#6a4ce2;--gc8:#ec4647;--gcx:#9aa19c;--gcv:#14843a}
-@media (prefers-color-scheme:dark){.gfx{--gc1:#338ced;--gc2:#e76624;--gc3:#00a888;--gc4:#d28e05;--gc5:#e24d8b;--gc6:#0aac23;--gc7:#9887ef;--gc8:#eb6263;--gcx:#727b74;--gcv:#35a853}}
 .gfx [hidden]{display:none!important}
 .gfx button,.gfx select{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
 .gfx-atalhos{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
@@ -84,7 +85,7 @@
 .gfx .gfx-desfaz button{border:0;background:transparent;color:#FFD523;font-weight:700}
 
 /* botão Tabela | Gráficos do relatório */
-.modo{display:inline-flex;gap:3px;padding:3px;margin:0 0 10px;border:1px solid var(--line,#d9ddd4);border-radius:99px;background:var(--card,#fff)}
+.modo{display:inline-flex;gap:3px;padding:3px;margin:0 0 10px;border:1px solid var(--line,#d9ddd4);border-radius:99px;background:#fff;color:var(--fg,#17201a);color-scheme:light}
 .modo button{border:0;background:transparent;border-radius:99px;padding:9px 20px;font-weight:700;cursor:pointer;touch-action:manipulation}
 .modo button[aria-pressed=true]{background:var(--fg,#17201a);color:var(--bg,#fff)}
 
