@@ -1,8 +1,8 @@
 name: Banners dos leilões
-# Baixa duas vezes por dia o banner atual de cada leilão da Leiloingá (o site troca o endereço da imagem)
+# Só às segundas e quintas, baixa duas vezes no dia o banner atual de cada leilão da Leiloingá (o site troca o endereço da imagem)
 on:
   schedule:
-    - cron: "17 11,17 * * *"   # 08h17 e 14h17 em Brasília
+    - cron: "17 11,17 * * 1,4"   # só segunda e quinta, 08h17 e 14h17 em Brasília
   workflow_dispatch:
 permissions:
   contents: write
