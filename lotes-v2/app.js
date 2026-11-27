@@ -1413,3 +1413,157 @@ $("camSexo").addEventListener("click",function(e){
 /* a parte "Digitar um lote à mão" abre sozinha quando uma foto da lista é aberta */
 new MutationObserver(function(){if($("man").classList.contains("comfoto"))$("manDobra").open=true;}).observe($("man"),{attributes:true,attributeFilter:["class"]});
 aplicarModo(MODO);
+
+/* ---------- v2: juntar os vídeos dos lotes num vídeo só ----------
+   O trabalho pesado é feito pelo GitHub (tarefa juntar-videos.yml do repositório LOTES).
+   Ordem: machos e depois fêmeas, cada grupo pelo número do lote. Cada lote tem "LOTE 03" na tela.
+   O vídeo pronto fica no ramo "videos-teste" (teste) ou "videos" (site) do LOTES. */
+var JV={wf:"juntar-videos.yml",ramo:PUB_DIR?"videos-teste":"videos",chave:"lotes-v2-juntar",timer:null,url:null,arq:null,ocupado:false};
+var JV_SRC=/^midia\/lote-\d{2,3}\/video-[A-Za-z0-9]{4,40}\.(mov|mp4|m4v|webm|3gp)$/;
+function jvLista(){
+  var por={};S.rows.forEach(function(r){if(r.lote!=null)por[r.lote]=r;});
+  var itens=[],semSexo=[],ruins=[];
+  Object.keys(MID.dados||{}).forEach(function(k){
+    var n=Number(k),vids=((MID.dados[k]||{}).videos)||[];
+    if(!vids.length||!(n>=0))return;
+    var sx=por[n]?por[n].sexo:"";
+    if(sx!=="M"&&sx!=="F"){semSexo.push(n);return;}
+    vids.forEach(function(v){if(v&&JV_SRC.test(v.src||""))itens.push({lote:n,sexo:sx,src:v.src});else ruins.push(n);});
+  });
+  itens.sort(function(a,b){return (a.sexo===b.sexo?0:a.sexo==="M"?-1:1)||a.lote-b.lote;});
+  var nums=function(l){return l.sort(function(a,b){return a-b;}).map(dois).join(", ");};
+  return {itens:itens,semSexo:nums(semSexo),ruins:nums(ruins)};
+}
+function jvGuardar(x){try{if(x)localStorage.setItem(JV.chave,JSON.stringify(x));else localStorage.removeItem(JV.chave);}catch(e){}}
+function jvLer(){try{return JSON.parse(localStorage.getItem(JV.chave)||"null");}catch(e){return null;}}
+function jvPainel(txt,cls,botoes){
+  $("juntarPainel").hidden=false;
+  var t=$("juntarTxt");t.className="juntar-txt"+(cls?" "+cls:"");t.textContent=txt;
+  var a=$("juntarAcoes");a.textContent="";
+  (botoes||[]).forEach(function(b){a.append(b);});
+}
+function jvBotao(txt,cls,fn){var b=el("button","btn "+(cls||""),txt);b.type="button";b.addEventListener("click",fn);return b;}
+function jvFechar(){
+  clearTimeout(JV.timer);JV.timer=null;$("juntarPainel").hidden=true;
+  var v=$("juntarVideo");v.hidden=true;v.removeAttribute("src");
+}
+function jvTempo(ms){var s=Math.max(0,Math.round(ms/1000));return Math.floor(s/60)+" min "+(s%60<10?"0":"")+(s%60)+" s";}
+
+$("juntarBtn").addEventListener("click",function(){
+  if(JV.ocupado){$("juntarPainel").hidden=false;return;}
+  if(!GH.token){abrirConexao();return;}
+  if(!MID.carregado){
+    jvPainel("Carregando a lista de vídeos…","run");
+    carregarMidia().then(function(){
+      if(MID.carregado)$("juntarBtn").click();
+      else jvPainel("Não deu para carregar a lista de vídeos. Confira a internet e tente de novo.","err",[jvBotao("Fechar","",jvFechar)]);
+    });
+    return;
+  }
+  var L=jvLista();
+  if(!L.itens.length){
+    jvPainel("Nenhum lote com vídeo ainda."+(L.semSexo?"\nOs lotes "+L.semSexo+" têm vídeo, mas estão sem sexo na tabela.":""),"",[jvBotao("Fechar","",jvFechar)]);return;
+  }
+  var m=L.itens.filter(function(i){return i.sexo==="M";}).length,f=L.itens.length-m;
+  var txt=L.itens.length+(L.itens.length>1?" vídeos":" vídeo")+": "+m+" de machos e "+f+" de fêmeas, nesta ordem, cada grupo pelo número do lote.\nO GitHub leva uns 2 a 5 minutos para juntar.";
+  if(L.semSexo)txt+="\n⚠️ Ficam de fora (sem sexo na tabela): lotes "+L.semSexo+".";
+  if(L.ruins)txt+="\n⚠️ Ficam de fora (arquivo com nome estranho): lotes "+L.ruins+".";
+  jvPainel(txt,"",[jvBotao("🎬 Gerar o vídeo","pri",function(){jvPedir(L.itens);}),jvBotao("Cancelar","",jvFechar)]);
+});
+
+async function jvPedir(itens){
+  var pedido=(Date.now().toString(36)+Math.random().toString(36).slice(2,6)).toLowerCase().replace(/[^a-z0-9]/g,"");
+  var lista=itens.map(function(i){return i.lote+":"+i.src;}).join(";");
+  JV.ocupado=true;jvPainel("Mandando o pedido para o GitHub…","run");
+  try{
+    var r=await api("/repos/"+DONO+"/"+PUB+"/actions/workflows/"+JV.wf+"/dispatches",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ref:"main",inputs:{pasta:PUB_DIR,lista:lista,pedido:pedido}})});
+    if(r.status===403||r.status===404){
+      JV.ocupado=false;
+      jvPainel("A chave do GitHub ainda não tem permissão para juntar vídeos.\n\nNo GitHub: Settings → Developer settings → Fine-grained tokens → abra a chave → Edit → em \"Repository permissions\", mude \"Actions\" para \"Read and write\" → Update.\n\nNão precisa gerar outra chave."+(r.status===404?"\n(Se a permissão já está certa, a tarefa de juntar vídeos ainda não foi colocada no LOTES.)":""),"err",[jvBotao("Fechar","",jvFechar)]);
+      return;
+    }
+    if(!r.ok)throw new Error("GitHub "+r.status);
+    jvGuardar({pedido:pedido,t:Date.now(),n:itens.length});
+    jvAcompanhar();
+  }catch(e){
+    JV.ocupado=false;
+    jvPainel("Não deu para mandar o pedido. Confira a internet e tente de novo.","err",[jvBotao("Fechar","",jvFechar)]);
+  }
+}
+
+async function jvAcompanhar(){
+  clearTimeout(JV.timer);JV.timer=null;
+  var p=jvLer();if(!p){JV.ocupado=false;return;}
+  JV.ocupado=true;
+  var passou=Date.now()-p.t,rep=function(){JV.timer=setTimeout(jvAcompanhar,6000);};
+  try{
+    var r=await api("/repos/"+DONO+"/"+PUB+"/actions/workflows/"+JV.wf+"/runs?event=workflow_dispatch&per_page=20");
+    if(!r.ok)throw new Error("GitHub "+r.status);
+    var j=await r.json(),run=(j.workflow_runs||[]).find(function(x){return x.display_title==="Juntar videos "+p.pedido;});
+    if(!run){
+      if(passou>4*60000)return jvErro("O GitHub não começou a tarefa. Tente de novo daqui a pouco.",null);
+      jvPainel("Pedido enviado. Esperando o GitHub começar… ("+jvTempo(passou)+")","run");return rep();
+    }
+    if(run.status!=="completed"){
+      jvPainel((run.status==="in_progress"?"Juntando os "+p.n+" vídeos…":"Na fila do GitHub…")+" ("+jvTempo(passou)+")\nPode deixar o celular de lado: o trabalho é feito no GitHub.","run");
+      return rep();
+    }
+    if(run.conclusion!=="success")return jvErro("O GitHub não conseguiu juntar os vídeos.",run.html_url);
+    await jvBaixar(p);
+  }catch(e){
+    if(passou>40*60000)return jvErro("Demorou demais. Tente de novo.",null);
+    jvPainel("Sem conexão com o GitHub. Tentando de novo… ("+jvTempo(passou)+")","run");rep();
+  }
+}
+function jvErro(txt,link){
+  jvGuardar(null);JV.ocupado=false;
+  var bs=[jvBotao("Tentar de novo","pri",function(){jvFechar();$("juntarBtn").click();}),jvBotao("Fechar","",jvFechar)];
+  jvPainel(txt,"err",bs);
+  if(link){var a=document.createElement("a");a.href=link;a.target="_blank";a.rel="noopener";a.textContent="Ver detalhes no GitHub";$("juntarAcoes").append(a);}
+}
+
+async function jvBaixar(p){
+  jvPainel("Pronto no GitHub. Baixando o vídeo…","run");
+  var r=await api("/repos/"+DONO+"/"+PUB+"/contents/juntos.json?ref="+JV.ramo);
+  if(!r.ok)throw new Error("GitHub "+r.status);
+  var info=JSON.parse(b64dec((await r.json()).content||""));
+  if(info.pedido!==p.pedido)return jvErro("O vídeo pronto não é deste pedido (outro pedido passou na frente). Tente de novo.",null);
+  var urls=["https://raw.githubusercontent.com/"+DONO+"/"+PUB+"/"+JV.ramo+"/"+info.arquivo],blob=null;
+  for(var t=0;t<3&&!blob;t++){
+    try{blob=await jvBaixarArquivo(urls[0],info.mb);}catch(e){await new Promise(function(ok){setTimeout(ok,4000);});}
+  }
+  if(!blob)throw new Error("download");
+  jvGuardar(null);JV.ocupado=false;
+  if(JV.url)URL.revokeObjectURL(JV.url);
+  JV.url=URL.createObjectURL(blob);
+  var nome="videos-lotes"+(S.data?"-"+S.data.replace(/\//g,"-"):"")+".mp4";
+  try{JV.arq=new File([blob],nome,{type:"video/mp4"});}catch(e){JV.arq=null;}
+  var v=$("juntarVideo");v.src=JV.url;v.hidden=false;
+  var bs=[];
+  var podeComp=false;try{podeComp=!!(JV.arq&&navigator.canShare&&navigator.share&&navigator.canShare({files:[JV.arq]}));}catch(e){}
+  /* no iPhone, o "Compartilhar" abre as opções do celular (WhatsApp); o arquivo já está pronto, então abre na hora */
+  if(podeComp)bs.push(jvBotao("📤 Compartilhar","pri",async function(){
+    try{await navigator.share({files:[JV.arq],title:"Vídeos dos lotes"});}
+    catch(e){if(!(e&&e.name==="AbortError"))toast("Não deu para abrir o compartilhar. Use “Baixar vídeo”.",6000);}
+  }));
+  bs.push(jvBotao("⬇ Baixar vídeo",podeComp?"":"pri",function(){
+    var a=document.createElement("a");a.href=JV.url;a.download=nome;document.body.append(a);a.click();a.remove();
+  }));
+  bs.push(jvBotao("Fechar","",jvFechar));
+  jvPainel("✓ Vídeo pronto: "+info.lotes.length+" lotes · "+jvTempo(info.duracao*1000)+" de vídeo · "+String(info.mb).replace(".",",")+" MB","ok",bs);
+}
+async function jvBaixarArquivo(url,mb){
+  var r=await fetch(url,{cache:"no-store"});
+  if(!r.ok)throw new Error("HTTP "+r.status);
+  if(!r.body||!r.body.getReader)return await r.blob();
+  var total=Number(r.headers.get("Content-Length"))||(mb||0)*1048576,lido=0,partes=[],rd=r.body.getReader(),ult=0;
+  for(;;){
+    var x=await rd.read();if(x.done)break;
+    partes.push(x.value);lido+=x.value.length;
+    if(total&&Date.now()-ult>400){ult=Date.now();$("juntarTxt").textContent="Pronto no GitHub. Baixando o vídeo… "+Math.min(99,Math.round(lido*100/total))+"%";}
+  }
+  return new Blob(partes,{type:"video/mp4"});
+}
+/* se a página foi fechada no meio, continua acompanhando o pedido ao abrir de novo */
+(function(){var p=jvLer();if(p&&GH.token&&Date.now()-p.t<40*60000)jvAcompanhar();else if(p)jvGuardar(null);})();

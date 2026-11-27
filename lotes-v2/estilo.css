@@ -209,6 +209,18 @@ td .x:hover{background:var(--bad-soft);color:var(--bad)}
 .chip-chk span{display:inline-flex;align-items:center;min-height:46px;padding:0 16px;border-radius:99px;background:var(--surface);border:1px solid var(--line);font-weight:600;color:var(--muted)}
 .chip-chk input:checked+span{background:var(--destaque);border-color:var(--destaque);color:#fff}
 .chip-chk input:focus-visible+span{outline:3px solid var(--destaque);outline-offset:2px}
+.juntar{margin-bottom:14px}
+.juntar-btn{width:100%;max-width:420px;min-height:52px;background:var(--accent-2);border-color:var(--accent-2);color:#fff;font-weight:800;font-size:1.05rem}
+.juntar-btn:hover{background:var(--accent)}
+.juntar-painel{margin-top:10px;max-width:640px;padding:14px;border-radius:var(--raio);background:var(--surface);border:1.5px solid var(--accent);box-shadow:var(--sombra);display:grid;gap:12px}
+.juntar-txt{margin:0;font-weight:600;line-height:1.4;white-space:pre-line}
+.juntar-txt.err{color:var(--bad)}
+.juntar-txt.ok{color:var(--good)}
+.juntar-txt.run::before{content:"";display:inline-block;width:12px;height:12px;margin-right:8px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:gira .8s linear infinite;vertical-align:-1px}
+.juntar-video{width:100%;max-height:50vh;border-radius:10px;background:#000}
+.juntar-painel .linha .btn{flex:1 1 auto}
+.juntar-painel a{color:var(--accent);font-weight:600}
+body[data-modo=mang] .juntar-btn{max-width:none;min-height:58px;font-size:1.15rem}
 .avisocam{padding:12px 14px;border-radius:12px;background:var(--destaque-soft);border:2px solid var(--destaque);color:#6B3300;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .cams{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,310px),1fr));gap:12px}
 .lc{background:var(--surface);border:1px solid var(--line);border-radius:var(--raio);padding:12px;display:grid;gap:8px;align-content:start;min-width:0;box-shadow:var(--sombra)}
