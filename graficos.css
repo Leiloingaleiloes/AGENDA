@@ -87,3 +87,11 @@
 .modo{display:inline-flex;gap:3px;padding:3px;margin:0 0 10px;border:1px solid var(--line,#d9ddd4);border-radius:99px;background:var(--card,#fff)}
 .modo button{border:0;background:transparent;border-radius:99px;padding:9px 20px;font-weight:700;cursor:pointer;touch-action:manipulation}
 .modo button[aria-pressed=true]{background:var(--fg,#17201a);color:var(--bg,#fff)}
+
+/* comparar leilões */
+.gfx-secao{margin:22px 0 8px;font:600 1.15rem "Oswald",system-ui,sans-serif;text-transform:uppercase}
+.gfx-leiloes{margin-bottom:12px;background:var(--gc);border:1px solid var(--gl);border-radius:12px;padding:8px 12px;font-size:.86rem}
+.gfx-leiloes summary{cursor:pointer;font-weight:700;padding:4px 0}
+.gfx-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:2px 12px}
+.gfx-leilao{display:flex;gap:9px;align-items:center;padding:7px 0;cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.gfx-leilao input{width:20px;height:20px;flex:none;margin:0;accent-color:var(--gcv)}

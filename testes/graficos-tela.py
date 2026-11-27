@@ -186,7 +186,7 @@ def leilao_inventado(i, sexos="MF", n=12, fase="pos"):
         s["st"][str(l)] = "V"; s["la"][str(l)] = 700 + i * 100 + l * 7
     return s
 
-def boleta(nav, tam="notebook", pos=None, token=False, rota=None):
+def boleta(nav, tam="notebook", pos=None, token=False, rota=None, aba="rel"):
     p = pagina(nav, tam)
     pos = pos or {x["id"]: x for x in (leilao_inventado(1), leilao_inventado(2, "F"))}
     dados = {"leiloinga-boleta-v1": json.dumps({"atual": None, "sess": {}, "pos": pos, "posAtual": None})}
@@ -194,7 +194,9 @@ def boleta(nav, tam="notebook", pos=None, token=False, rota=None):
     p.add_init_script("""(d=>{if(sessionStorage.getItem('posto'))return;sessionStorage.setItem('posto','1');
       localStorage.setItem('leiloinga-trava-geral',String(Date.now()+1e9));for(const k in d)localStorage.setItem(k,d[k])})(""" + json.dumps(dados) + ")")
     if rota: p.context.route("https://api.github.com/**", rota)
-    p.goto(f"{BASE}/boleta-nova.html#rel"); p.wait_for_selector("#leilao option[value=d1]", state="attached")
+    p.goto(f"{BASE}/boleta-nova.html#{aba}")
+    if aba == "cmp": p.wait_for_selector(".cmw, .cmpw"); parado(p); return p
+    p.wait_for_selector("#leilao option[value=d1]", state="attached")
     p.select_option("#leilao", "d1"); parado(p)
     return p
 
@@ -271,7 +273,64 @@ def parte_painel(nav):
         p.screenshot(path=str(FOTOS / f"painel-{tam}.png"))
         confere(f"no painel: sem erro {tam}", not p.erros, str(p.erros))
 
-PARTES = {"cartoes": parte_cartoes, "tipos": parte_tipos, "cores": parte_cores, "boleta": parte_boleta, "painel": parte_painel}
+def tres_leiloes():
+    return {x["id"]: x for x in (leilao_inventado(1), leilao_inventado(2, "F"), leilao_inventado(3, "M"))}
+
+def parte_comparar(nav):
+    p = boleta(nav, pos=tres_leiloes(), aba="cmp")
+    confere("gráfico atual continua", p.locator(".gr .bars .bc").count() == 3 and p.locator(".ctb tbody tr").count() == 3)
+    confere("cartões abaixo da tabela", p.evaluate("""()=>{const t=document.querySelector('.ctb'),g=document.querySelector('.cmpw .gfx');
+      return !!(g&&t.compareDocumentPosition(g)&Node.DOCUMENT_POSITION_FOLLOWING)}"""))
+    caixas = p.locator("input[data-leilao]")
+    confere("todos marcados", caixas.count() == 3 and all(caixas.nth(i).is_checked() for i in range(3)))
+    confere("nome do leilão na escolha", "Leilão Inventado 2" in p.locator(".gfx-leiloes").inner_text())
+    p.click('[data-atalho="sexo"]'); parado(p)
+    macho = lambda: cartoes(p).last.locator('.gfx-linha[data-chave="M"]').inner_text()
+    confere("soma os leilões", "18 lotes" in macho(), macho())
+    p.locator('input[data-leilao="d3"]').uncheck(); parado(p)
+    confere("desmarcar muda os valores", "6 lotes" in macho() and "18" not in macho(), macho())
+    p.reload(); p.wait_for_selector(".cmpw .gfx"); parado(p)
+    confere("escolha persiste", not p.locator('input[data-leilao="d3"]').is_checked() and "6 lotes" in macho())
+    y = p.evaluate("()=>{scrollTo(0,document.body.scrollHeight);return scrollY}")
+    mesmo = p.evaluate("""()=>{const n=document.querySelector('.gfx-card');render();
+      return {no:n===document.querySelector('.gfx-card'),anima:document.getAnimations().filter(a=>a.effect.target.closest('.gfx')).length,y:scrollY}}""")
+    confere("redesenhar não troca nem reanima", mesmo["no"] and mesmo["anima"] == 0, str(mesmo))
+    confere("redesenhar não pula a tela", abs(mesmo["y"] - y) < 2 and y > 0, f"{y} {mesmo}")
+    for i in ("d1", "d2"): p.locator(f'input[data-leilao="{i}"]').uncheck()
+    parado(p)
+    confere("nenhum marcado: sem dados", all("Sem dados para esse cruzamento" in t for t in textos(p, ".gfx-card")))
+    for i in ("d1", "d2", "d3"): p.locator(f'input[data-leilao="{i}"]').check()
+    p.click('[data-atalho="lotes"]'); parado(p)
+    confere("lote traz a data", "· 10/0" in cartoes(p).last.locator(".gfx-rotulo").first.inner_text(), cartoes(p).last.locator(".gfx-rotulo").first.inner_text())
+    p.click('[data-met="mk"]'); parado(p)
+    confere("botões de cima seguem funcionando", p.locator('[data-met="mk"]').get_attribute("aria-pressed") == "true" and cartoes(p).count() == 3)
+    confere("sem comissão", all(x not in p.locator(".gfx").inner_text().lower() for x in ("comiss", "4,37", "3,19", "41,3")))
+    confere("sem erro no comparar", not p.erros, str(p.erros))
+
+    # leilão trazido da nuvem entra marcado
+    novo = leilao_inventado(4); novo["id"] = "2020-04-10-inventado"
+    def rota(r):
+        u = r.request.url.split("?")[0]; h = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*"}
+        def manda(o): r.fulfill(status=200, content_type="application/json", body=json.dumps(o), headers=h)
+        for pasta in ("boletas", "pos"):
+            if u.endswith("/contents/" + pasta): return manda([{"name": novo["id"] + ".json", "path": f"{pasta}/{novo['id']}.json"}])
+        if u.endswith(novo["id"] + ".json") and r.request.method == "GET": return manda({"sha": "x", "content": base64.b64encode(json.dumps(novo).encode()).decode()})
+        r.fulfill(status=404, body="{}", headers=h)
+    q = boleta(nav, token=True, rota=rota, aba="cmp")
+    q.wait_for_selector("#cNuv"); confere("antes: 2 leilões", q.locator("input[data-leilao]").count() == 2)
+    q.locator('input[data-leilao="d2"]').uncheck(); q.click("#cNuv"); parado(q); parado(q)
+    c = q.locator(f'input[data-leilao="{novo["id"]}"]')
+    confere("da nuvem entra marcado", c.count() == 1 and c.is_checked() and not q.locator('input[data-leilao="d2"]').is_checked())
+    confere("sem erro com a nuvem no comparar", not q.erros, str(q.erros))
+
+    for tam in TAMANHOS:
+        muitos = {x["id"]: x for x in (leilao_inventado(i) for i in range(1, 10))}
+        t = boleta(nav, tam, pos=muitos, aba="cmp"); t.click('[data-atalho="lotes"]'); t.click('[data-atalho="raca"]'); t.wait_for_timeout(1700)
+        confere(f"comparar sem rolagem lateral {tam}", sem_estouro(t))
+        t.screenshot(path=str(FOTOS / f"comparar-{tam}.png"), full_page=True)
+        confere(f"sem erro comparar {tam}", not t.erros, str(t.erros))
+
+PARTES = {"cartoes": parte_cartoes, "tipos": parte_tipos, "cores": parte_cores, "boleta": parte_boleta, "painel": parte_painel, "comparar": parte_comparar}
 
 if __name__ == "__main__":
     FOTOS.mkdir(parents=True, exist_ok=True)

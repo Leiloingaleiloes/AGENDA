@@ -327,12 +327,36 @@ function criar(ctx){
     }};
   ATALHOS.forEach(function(a){var b=botao("gfx-atalho",a.t);b.dataset.atalho=a.k;b.onclick=function(){dono.novo(a.c);};barra.append(b);});
   var add=botao("gfx-add","+ Adicionar gráfico");add.dataset.add="";add.onclick=function(){dono.novo(PADRAO);};barra.append(add);
+  /* no comparar: quais leilões entram nas contas (guarda só os desmarcados, então leilão novo já entra) */
+  var entre=ctx==="cmp",todos=[],fora=[],escolha=null,resumo=null,caixas=null,assinLeiloes=null;
+  if(entre){
+    var f=ler().cmpFora;if(Array.isArray(f))fora=f.filter(function(i){return typeof i==="string";});
+    escolha=el("details","gfx-leiloes");resumo=el("summary");caixas=el("div","gfx-lista");escolha.append(resumo,caixas);
+    no.append(el("h3","gfx-secao","Cruzar informações entre os leilões"),escolha);
+  }
+  function separa(){dono.regs=entre?todos.filter(function(r){return fora.indexOf(String(r.leilao))<0;}):todos;}
+  function pinta(){dono.lista.forEach(function(c){c.pintar();});}
+  function montaEscolha(leiloes){
+    var s=JSON.stringify(leiloes);if(s===assinLeiloes)return;
+    if(assinLeiloes===null)escolha.open=leiloes.length<=6;assinLeiloes=s;caixas.textContent="";
+    function conta(){var n=leiloes.filter(function(l){return fora.indexOf(String(l.id))<0;}).length;resumo.textContent="Leilões nos gráficos: "+n+" de "+leiloes.length;}
+    leiloes.forEach(function(l){
+      var rot=el("label","gfx-leilao"),c=el("input"),id=String(l.id);c.type="checkbox";c.dataset.leilao=id;c.checked=fora.indexOf(id)<0;
+      c.onchange=function(){var i=fora.indexOf(id);if(c.checked){if(i>=0)fora.splice(i,1);}else if(i<0)fora.push(id);gravar("cmpFora",fora);conta();separa();pinta();};
+      rot.append(c,el("span",null,l.rotulo));caixas.append(rot);});
+    conta();
+  }
+  function dosRegistros(regs){
+    var visto={},l=[];
+    regs.forEach(function(r){if(visto["k:"+r.leilao])return;visto["k:"+r.leilao]=1;l.push({id:r.leilao,rotulo:"Leilão de "+String(r.data||"").split("-").reverse().join("/")});});
+    return l;
+  }
   no.append(barra,vazio,grade,aviso);
   cartoesSalvos(ctx).forEach(function(cfg){var c=new Cartao(cfg,dono);dono.lista.push(c);grade.append(c.no);});
   vazio.hidden=!!dono.lista.length;
-  return {no:no,atualizar:function(regs){
-    var s=JSON.stringify(regs);if(s===assin)return;assin=s;
-    dono.regs=regs;dono.lista.forEach(function(c){c.pintar();});
+  return {no:no,atualizar:function(regs,leiloes){
+    var s=JSON.stringify([regs,leiloes||null]);if(s===assin)return;assin=s;
+    todos=regs;if(entre)montaEscolha(leiloes||dosRegistros(regs));separa();pinta();
   }};
 }
 window.Graficos={criar:criar};
