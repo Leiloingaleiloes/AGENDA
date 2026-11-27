@@ -82,3 +82,8 @@
 
 .gfx-desfaz{border:1px solid #3a443d;position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:60;display:flex;gap:14px;align-items:center;background:#0E1410;color:#fff;padding:10px 16px;border-radius:99px;font-size:.86rem;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .gfx .gfx-desfaz button{border:0;background:transparent;color:#FFD523;font-weight:700}
+
+/* botão Tabela | Gráficos do relatório */
+.modo{display:inline-flex;gap:3px;padding:3px;margin:0 0 10px;border:1px solid var(--line,#d9ddd4);border-radius:99px;background:var(--card,#fff)}
+.modo button{border:0;background:transparent;border-radius:99px;padding:9px 20px;font-weight:700;cursor:pointer;touch-action:manipulation}
+.modo button[aria-pressed=true]{background:var(--fg,#17201a);color:var(--bg,#fff)}
